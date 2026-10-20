@@ -57,7 +57,7 @@ body, html, main, #main, .main-content, section, .section {
 
 .sicon-cart:before { content: "\e96b"; }
 .sicon-search:before { content: "\ef09"; }
-.sicon-user:before { content: "\f078"; }
+.sicon-user:before { content: "078"; }
 .sicon-menu:before { content: "\ed7f"; }
 .sicon-heart:before { content: "\eca1"; }
 .sicon-keyboard_arrow_left:before { content: "\e970"; }
@@ -77,7 +77,7 @@ body, html, main, #main, .main-content, section, .section {
   --font-main: 'Laverne', 'LaverneVFFFFF', sans-serif !important;
 }
 
-body, html {
+body, html, * {
   font-family: 'Laverne', 'LaverneVFFFFF', sans-serif !important;
 }
 
@@ -348,10 +348,14 @@ section.tp-contact,
 .discovery-section,
 #discovery-section,
 #section-about-us,
+section.tp-brands,
+.brands-section,
 [section-id="e314ceb0-8713-4813-aa9a-c06a6abb5638"],
 [section-id="85c6b031-ae4d-453d-a416-720375e89da1"],
 [section-id="d9078454-73af-4fa8-b25b-45914d238a8d"],
-[section-id="c08c6cd8-d126-411c-b5a7-e3384c148612"] {
+[section-id="c08c6cd8-d126-411c-b5a7-e3384c148612"],
+[section-id="18ebe914-6597-46bd-8d72-bbdc31e3e37d"],
+[section-id="5f9768c6-ee06-4a9c-a0df-5de2594ab9fe"] {
   display: none !important;
 }
 
@@ -385,169 +389,70 @@ section.tp-video,
   display: none !important;
 }
 
-/* NOTE: Rozia layout corrections, 2026-10-21 */
+
+/* ==========================================================================
+   ROZIA CLEANUP & ANNOUNCEMENT BAR SINGLE LINE FIX
+   ========================================================================== */
 .tp-bar-header, section.tp-bar-header {
   background: #121212 !important;
   color: #e6d5b8 !important;
+  height: 38px !important;
+  line-height: 38px !important;
+  overflow: hidden !important;
 }
-.tp-bar-header a, .tp-bar-header span { color: #e6d5b8 !important; }
-[section-id="966d5159-ea65-49cc-bbab-57c070ec73c5"] {
-  border-radius: 0 !important;
+
+.tp-bar-header a, .tp-bar-header span, .tp-bar-header p {
+  color: #e6d5b8 !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
   margin: 0 !important;
   padding: 0 !important;
-  max-width: none !important;
-}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] {
-  padding: 28px 16px !important;
-  max-width: 1280px !important;
-  margin: 0 auto !important;
-}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-wrapper {
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 16px !important;
-  transform: none !important;
-  width: 100% !important;
-  height: auto !important;
-}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide {
-  width: 100% !important;
-  margin: 0 !important;
-  min-width: 0 !important;
-}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] img {
-  display: block !important;
-  width: 100% !important;
-  height: auto !important;
-  aspect-ratio: 3 / 4 !important;
-  object-fit: cover !important;
-}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-pagination,
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-button-prev,
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-button-next { display: none !important; }
-footer, .tp-footer { background: #121212 !important; color: #e6d5b8 !important; }
-footer a, footer h4, footer p, .tp-footer a, .tp-footer h4 { color: #e6d5b8 !important; }
-@media (max-width: 768px) {
-  [section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-wrapper {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 12px !important;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .tp-bar-header * { animation: none !important; }
 }
 
-/* Full-width hero and legible category labels */
-section.tp-banners[section-id="966d5159-ea65-49cc-bbab-57c070ec73c5"],
-[section-id="966d5159-ea65-49cc-bbab-57c070ec73c5"] > div,
-[section-id="966d5159-ea65-49cc-bbab-57c070ec73c5"] .container {
-  width: 100% !important;
-  max-width: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
-}
-[section-id="966d5159-ea65-49cc-bbab-57c070ec73c5"] .tp-items,
-[section-id="966d5159-ea65-49cc-bbab-57c070ec73c5"] picture,
-[section-id="966d5159-ea65-49cc-bbab-57c070ec73c5"] img {
-  display: block !important;
-  width: 100% !important;
-  height: auto !important;
-  border-radius: 0 !important;
-}
-.header-nav .main-logo { filter: brightness(2) saturate(1.2); }
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .tp-banners-swiper { opacity: 1 !important; }
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide { display: block !important; }
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide a::after {
-  display: block;
-  padding: 12px 4px 20px;
-  font-size: 16px;
-  font-weight: 700;
-  color: #121212;
-  text-align: center;
+/* Prevent duplicate text stacking in announcement swiper */
+.tp-bar-header .swiper-slide:not(.swiper-slide-active) {
+  display: none !important;
 }
 
-/* Rozia banner template omits section-id: scope through its actual class. */
-section.tp-banners {
-  max-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
+/* Hide dummy or video sections */
+#section-hero-video,
+section.tp-video,
+.brands-section,
+section.tp-brands,
+section.tp-about-us,
+.about-us-section,
+section.tp-testimonials,
+.testimonials-section {
+  display: none !important;
 }
-section.tp-banners .container, section.tp-banners > div {
-  max-width: none !important;
+
+/* Product cards: 100% Frameless Laverne Style */
+.product-card, .product-item, .tp-product-item {
+  background: #FFFFFF !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-align: center !important;
+  padding: 8px !important;
+}
+
+.product-card .price, .product-item .price, .tp-product-item .price {
+  color: #DC2626 !important;
+  font-weight: 800 !important;
+  font-size: 1.15rem !important;
+}
+
+.product-card .old-price, .product-item .old-price, .tp-product-item .old-price {
+  color: #9CA3AF !important;
+  text-decoration: line-through !important;
+  font-size: 0.85rem !important;
+}
+
+.product-card .btn-add-to-cart, .product-item .btn-add-to-cart, .tp-product-item button.add-to-cart {
+  background: #000000 !important;
+  color: #FFFFFF !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  padding: 10px !important;
   width: 100% !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
-}
-section.tp-banners .tp-items, section.tp-banners .tp-items a,
-section.tp-banners picture, section.tp-banners img {
-  display: block !important;
-  width: 100% !important;
-  height: auto !important;
-  max-height: none !important;
-  border-radius: 0 !important;
-}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .tp-banners-swiper,
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide,
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .section-text {
-  height: auto !important;
-  max-height: none !important;
-}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .tp-banners-swiper { overflow: visible !important; }
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide a { display: block !important; height: auto !important; }
-
-/* Approved reference section visibility */
-[section-id="5f9768c6-ee06-4a9c-a0df-5de2594ab9fe"], [section-id="18ebe914-6597-46bd-8d72-bbdc31e3e37d"] { display:block !important; }
-
-/* Five-slide hero from the approved preview. */
-[section-id="014f844d-d4ae-4036-af3e-80faf488924f"], [section-id="014f844d-d4ae-4036-af3e-80faf488924f"] .container { width:100% !important; max-width:none !important; padding:0 !important; margin:0 !important; border-radius:0 !important; }
-[section-id="014f844d-d4ae-4036-af3e-80faf488924f"] .swiper-slide a { display:block; position:relative; }
-[section-id="014f844d-d4ae-4036-af3e-80faf488924f"] picture { display:block; }
-[section-id="014f844d-d4ae-4036-af3e-80faf488924f"] img { width:100% !important; height:calc(100svh - 40px) !important; min-height:540px; max-height:1050px; object-fit:cover !important; object-position:center; }
-[section-id="014f844d-d4ae-4036-af3e-80faf488924f"] .swiper-slide a::after { display:block; position:absolute; z-index:2; bottom:100px; left:5%; right:5%; color:#fff; font-size:clamp(24px,3.5vw,52px); line-height:1.5; font-weight:700; text-align:center; text-shadow:0 2px 18px #0009; }
-[section-id="014f844d-d4ae-4036-af3e-80faf488924f"] .swiper-slide a::before { content:'اكتشف العطور'; position:absolute; z-index:2; bottom:44px; left:50%; transform:translateX(-50%); padding:10px 24px; border:1px solid #ffffffaa; color:#fff; background:#12121266; font-size:16px; border-radius:24px; }
-[section-id="5f9768c6-ee06-4a9c-a0df-5de2594ab9fe"]::before { content:'باقات مختارة لك'; display:block; padding:36px 16px 24px; text-align:center; font-size:30px; font-weight:700; color:#121212; }
-[section-id="18ebe914-6597-46bd-8d72-bbdc31e3e37d"] { padding:48px 16px !important; background:#fff !important; }
-[section-id="18ebe914-6597-46bd-8d72-bbdc31e3e37d"] img { max-width:72px !important; max-height:72px !important; object-fit:contain !important; margin:auto; }
-@media(max-width:767px){ [section-id="014f844d-d4ae-4036-af3e-80faf488924f"] img {height:calc(100svh - 40px) !important; max-height:none; min-height:520px; } [section-id="014f844d-d4ae-4036-af3e-80faf488924f"] .swiper-slide a::after { bottom:110px; font-size:26px; } }
-[section-id="014f844d-d4ae-4036-af3e-80faf488924f"] .swiper-slide:has(img[src*="1269f051-a8e0-48ce-80af-8070266ee3e3"]) a::after {content:"مِسك... أثر يُعرف قبل أن يُرى";}
-[section-id="014f844d-d4ae-4036-af3e-80faf488924f"] .swiper-slide:has(img[src*="62473514-da5e-4db7-bbbf-ceb0ae9ff271"]) a::after {content:"رويال توباكو... فخامة تدوم وأثر لا يُمحى";}
-[section-id="014f844d-d4ae-4036-af3e-80faf488924f"] .swiper-slide:has(img[src*="6c7746bf-b00a-4eee-851e-0ec0dabd2ab3"]) a::after {content:"أورا مسك... نقاء البودر ولمسة النعومة";}
-[section-id="014f844d-d4ae-4036-af3e-80faf488924f"] .swiper-slide:has(img[src*="16818f4d-3f08-465e-96b5-a08054a390aa"]) a::after {content:"مجموعة المسك... عبير يفيض بالأصالة";}
-[section-id="014f844d-d4ae-4036-af3e-80faf488924f"] .swiper-slide:has(img[src*="d77bcbe5-1acd-417b-9cb3-1ccd4ceccab3"]) a::after {content:"حرير العنبر... دفء الأناقة المترفة";}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="128149b3-a3f3-4cdb-a29c-d4c3f06d0cfa"]) {order:1 !important;}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="128149b3-a3f3-4cdb-a29c-d4c3f06d0cfa"]) a::after {content:"العطور";}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="81ede4a3-fae3-4280-b9bf-2ad32d6c87e5"]) {order:2 !important;}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="81ede4a3-fae3-4280-b9bf-2ad32d6c87e5"]) a::after {content:"عطور النيش";}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="925fdd93-7319-4c2d-b273-773ec20dc1b5"]) {order:3 !important;}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="925fdd93-7319-4c2d-b273-773ec20dc1b5"]) a::after {content:"التولات والمسك";}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="7ad83d31-51c8-4b3c-8d1f-0b971c2104c0"]) {order:4 !important;}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="7ad83d31-51c8-4b3c-8d1f-0b971c2104c0"]) a::after {content:"عطور بيبي 30 مل";}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="d3a0938f-1944-47cb-bc91-9a1240189464"]) {order:5 !important;}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="d3a0938f-1944-47cb-bc91-9a1240189464"]) a::after {content:"معطرات الجسم";}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="a840588c-2508-480a-9a03-f0a77bf80aea"]) {order:6 !important;}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="a840588c-2508-480a-9a03-f0a77bf80aea"]) a::after {content:"معطرات الجو والمفارش";}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="c199ff13-6a67-4720-b008-b5ac5524ab91"]) {order:7 !important;}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="c199ff13-6a67-4720-b008-b5ac5524ab91"]) a::after {content:"منتجات العناية";}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="2353b57a-68e5-4cbb-9899-6009211e241f"]) {order:8 !important;}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide:has(img[src*="2353b57a-68e5-4cbb-9899-6009211e241f"]) a::after {content:"العروض والباكدجات";}
-
-/* Override Rozia's inherited pseudo-element positioning. */
-[section-id="014f844d-d4ae-4036-af3e-80faf488924f"] .swiper-slide a::after {
-  top: auto !important; bottom: 100px !important; left: 5% !important; right: 5% !important;
-  height: auto !important; width: auto !important; transform: none !important;
-  opacity: 1 !important; visibility: visible !important; display: block !important;
-  background: none !important; padding: 0 !important;
-}
-[section-id="014f844d-d4ae-4036-af3e-80faf488924f"] .swiper-slide a::before {
-  top: auto !important; bottom: 44px !important; right: auto !important;
-  width: auto !important; height: auto !important; opacity: 1 !important;
-}
-[section-id="06c6942d-9175-4cd0-acc5-0c5f00d62cfa"] .swiper-slide a::after {
-  position: static !important; top: auto !important; bottom: auto !important;
-  left: auto !important; right: auto !important; transform: none !important;
-  width: auto !important; height: auto !important; opacity: 1 !important;
-  visibility: visible !important; background: none !important; line-height: 1.6 !important;
+  border: none !important;
 }
