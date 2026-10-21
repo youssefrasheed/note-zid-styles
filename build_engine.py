@@ -243,13 +243,25 @@ footer::before,
   scroll-behavior: smooth !important;
 }}
 
-@media (min-width: 1024px) {{
+.cat-pills-break {{
+  display: none !important;
+}}
+
+@media (min-width: 768px) {{
   .cat-pills-container,
   #category-pills-bar {{
     flex-wrap: wrap !important;
     justify-content: center !important;
     overflow: visible !important;
     white-space: normal !important;
+  }}
+  .cat-pills-break {{
+    display: block !important;
+    flex-basis: 100% !important;
+    width: 100% !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }}
 }}
 
@@ -1390,6 +1402,14 @@ app_js_code = f"""/**
     document.title = `${{meta.title}} | دار نوت للعطور NOTE Perfumes`;
 
     renderCatalog();
+
+    // Scroll smoothly to top of catalog if user scrolled down
+    if (updateURL) {{
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+      if (scrollY > 120) {{
+        window.scrollTo({{ top: 0, behavior: 'smooth' }});
+      }}
+    }}
   }}
 
   function handleCategorySearch(val) {{

@@ -62,12 +62,24 @@
       white-space: nowrap !important;
       scroll-behavior: smooth;
     }
-    @media (min-width: 1024px) {
+    .cat-pills-break {
+      display: none !important;
+    }
+    @media (min-width: 768px) {
+      .cat-pills-container,
       #category-pills-bar {
         flex-wrap: wrap !important;
         justify-content: center !important;
         overflow: visible !important;
         white-space: normal !important;
+      }
+      .cat-pills-break {
+        display: block !important;
+        flex-basis: 100% !important;
+        width: 100% !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
     }
   </style>
@@ -221,6 +233,8 @@
           <button onclick="selectCategory('travel')" id="pill-travel" class="cat-pill shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-stone-200 text-stone-700 hover:border-black transition">
             عطور بيبي (30 مل)
           </button>
+          <!-- Line break for web/desktop to create two perfectly balanced rows (6 pills + 5 pills) -->
+          <div class="cat-pills-break"></div>
           <button onclick="selectCategory('all-over')" id="pill-all-over" class="cat-pill shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-stone-200 text-stone-700 hover:border-black transition">
             معطر للجسم بالكامل
           </button>
@@ -555,6 +569,14 @@
       document.getElementById('cat-page-title').textContent = `${meta.title} | NOTE Perfumes`;
 
       renderCatalog();
+
+      // Scroll smoothly to top of catalog if user scrolled down
+      if (updateURL) {
+        const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+        if (scrollY > 120) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
     }
 
     function handleSearch(val) {
