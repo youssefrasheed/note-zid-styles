@@ -281,6 +281,21 @@ header nav a.active-link {{
   padding-bottom: 2px !important;
   opacity: 1 !important;
 }}
+
+/* Floating WhatsApp Button - Elevated above Mobile Bottom Navigation */
+#floating-whatsapp-container {{
+  bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important;
+  left: 16px !important;
+  margin-bottom: 0 !important;
+}}
+
+@media (min-width: 640px) {{
+  #floating-whatsapp-container {{
+    bottom: 24px !important;
+    left: 24px !important;
+    margin-bottom: 0 !important;
+  }}
+}}
 """
 
 with open(OUT_CSS, "w", encoding="utf-8") as f:
