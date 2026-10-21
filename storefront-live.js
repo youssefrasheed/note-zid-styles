@@ -242,6 +242,18 @@
       return p ? {...item,product_id:p.id,title:p.title,price:p.price,old_price:p.old_price,img:p.img,size:(item.sub_items?.map(s=>(s.quantity>1 ? s.quantity+' × ' : '')+s.name).join('، ')) || p.size,available:p.in_stock} : {...item,available:false};
     });
   };
+  CartManager.updateBadge=function() {
+    const count=String(this.getCount ? this.getCount() : (this.getCart().reduce((sum, item) => sum + (item.quantity || 1), 0)));
+    const badges=document.querySelectorAll('.cart-badge, .cart-badge-count, #cart-counter-badge, [class*="cart-badge"], .cart-sm .cart-badge, .cart-btn .cart-badge');
+    badges.forEach(b => {
+      if (b.textContent !== count) {
+        b.textContent = count;
+      }
+      if (count !== '0') {
+        b.style.display = 'inline-flex';
+      }
+    });
+  };
   CartManager.addItem=function(id,quantity=1,selections) {
     const p=noteProductsCatalog.find(p=>p.id===id);
     if(!p || !liveCatalogReady) {this.showToast('انتظر تحميل المنتجات من زد');return false;}
@@ -251,10 +263,16 @@
     const sub=selections || [], sorted=sub.slice().sort((a,b)=>(a.selection_group_id+a.id).localeCompare(b.selection_group_id+b.id));
     const key=p.id+(sorted.length ? '-'+encodeURIComponent(JSON.stringify(sorted.map(({id,quantity,selection_group_id})=>({id,quantity,selection_group_id})))) : '');
     const cart=this.getCart(),existing=cart.find(i=>i.id===key);
-    if(existing) existing.quantity+=quantity;
-    else cart.push({id:key,product_id:p.id,title:p.title,price:p.price,old_price:p.old_price,img:p.img,size:sub.map(s=>(s.quantity>1 ? s.quantity+' × ' : '')+s.name).join('، ') || p.size,quantity,sub_items:sub});
+    let targetItem;
+    if(existing) {
+      existing.quantity+=quantity;
+      targetItem=existing;
+    } else {
+      targetItem={id:key,product_id:p.id,title:p.title,price:p.price,old_price:p.old_price,img:p.img,size:sub.map(s=>(s.quantity>1 ? s.quantity+' × ' : '')+s.name).join('، ') || p.size,quantity,sub_items:sub};
+      cart.push(targetItem);
+    }
     this.saveCart(cart);
-    if(typeof this.updateBadge === 'function') this.updateBadge();
+    this.updateBadge();
     const badge=document.getElementById('cart-counter-badge');
     if(badge) {
       badge.classList.remove('scale-125');
@@ -263,6 +281,31 @@
       setTimeout(()=>badge.classList.remove('scale-125'), 250);
     }
     this.showToast('تمت إضافة '+escapeHTML(p.title)+' إلى سلتك');
+
+    // Background live sync with Zid's native cart API
+    if (typeof window !== 'undefined' && window.zid?.cart?.addProduct) {
+      (async () => {
+        try {
+          const payload = {
+            product_id: p.id,
+            quantity: quantity,
+            ...(sub.length ? { sub_items: sub.map(({id, quantity, selection_group_id}) => ({id, quantity, selection_group_id})) } : {})
+          };
+          const res = await window.zid.cart.addProduct(payload);
+          const lineId = res?.data?.item?.id || res?.item?.id;
+          if (lineId) {
+            const currentCart = CartManager.getCart();
+            const it = currentCart.find(i => i.id === key);
+            if (it) {
+              it.native_line_id = lineId;
+              CartManager.saveCart(currentCart);
+            }
+          }
+        } catch(e) {
+          console.warn('NOTE: background Zid cart sync note:', e?.message || e);
+        }
+      })();
+    }
     return true;
   };
   const originalShowToast = CartManager.showToast;
@@ -381,3 +424,27 @@
       originalUpdateQuantity.call(this,key,delta);
     } catch(e) {this.showToast('تعذر تعديل الكمية في زد. حاول مجددًا.');}
   };
+
+  if (typeof document !== 'undefined') {
+    document.addEventListener('click', function(e) {
+      const btn = e.target?.closest?.('.cart-sm a, .cart-btn a, a[href*="/cart/view"], a[href="/cart"], [data-action="open-cart"]');
+      if (btn && !btn.getAttribute?.('href')?.includes('/checkout')) {
+        e.preventDefault?.();
+        e.stopPropagation?.();
+        CartManager.openDrawer();
+      }
+    }, true);
+
+    CartManager.updateBadge();
+    if (typeof MutationObserver !== 'undefined' && document.body) {
+      const badgeObserver = new MutationObserver(() => {
+        CartManager.updateBadge();
+      });
+      badgeObserver.observe(document.body, { childList: true, subtree: true });
+    }
+    if (typeof setInterval !== 'undefined') {
+      setInterval(() => {
+        CartManager.updateBadge();
+      }, 1200);
+    }
+  }

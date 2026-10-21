@@ -230,24 +230,83 @@ header nav a.active-link {
   }
 }
 
-/* Zid Native Loader Stabilization & Seamless Transition */
-#loader-container {
+/* Continuous Luxury Brand Loader - Active from frame 0 until .note-ready is added */
+body:not(.note-ready)::before {
+  content: "" !important;
   position: fixed !important;
   inset: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
-  z-index: 9999999 !important;
-  background: #ffffff !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  height: 100dvh !important;
+  background-color: #ffffff !important;
+  background-image: url('https://youssefrasheed.github.io/note-zid-styles/logo_dark_crisp.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center calc(50% - 25px) !important;
+  background-size: 130px auto !important;
+  z-index: 99999999 !important;
+  pointer-events: all !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  animation: noteLoaderPulse 2s ease-in-out infinite !important;
   transition: opacity 0.4s ease-out, visibility 0.4s ease-out !important;
 }
-#loader-container.note-loader-dismissed {
+
+body:not(.note-ready)::after {
+  content: "" !important;
+  position: fixed !important;
+  top: calc(50% + 40px) !important;
+  left: 50% !important;
+  margin-left: -13px !important;
+  width: 26px !important;
+  height: 26px !important;
+  border: 2.5px solid #eceae5 !important;
+  border-top-color: #121212 !important;
+  border-radius: 50% !important;
+  z-index: 999999999 !important;
+  animation: noteSpinRing 0.75s linear infinite !important;
+  pointer-events: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transition: opacity 0.4s ease-out, visibility 0.4s ease-out !important;
+}
+
+body.note-ready::before,
+body.note-ready::after {
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
 }
+
+@keyframes noteLoaderPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.96);
+    opacity: 0.75;
+  }
+}
+
+@keyframes noteSpinRing {
+  to { transform: rotate(360deg); }
+}
+
+body[class*="checkout"]::before,
+body[class*="checkout"]::after,
+body[class*="auth"]::before,
+body[class*="auth"]::after,
+body[class*="account"]::before,
+body[class*="account"]::after {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+#loader-container {
+  display: none !important;
+}
+
 body:not(.note-ready) section[section-id],
 body:not(.note-ready) .tp-home,
 body:not(.note-ready) .tp-bar-header,
