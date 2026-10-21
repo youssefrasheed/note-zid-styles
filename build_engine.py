@@ -1106,6 +1106,7 @@ app_js_code = f"""/**
     if (mainImg) {{
       mainImg.src = mainImgUrl;
       mainImg.alt = currentProduct.title;
+      mainImg.className = 'w-full h-full object-contain p-4 sm:p-6 transition-transform duration-700 ease-out group-hover:scale-105';
     }}
 
     // Thumbnails
@@ -1120,9 +1121,16 @@ app_js_code = f"""/**
       images.forEach((img, idx) => {{
         const fullUrl = (img.startsWith('http') ? '' : ASSET_HOST) + img;
         const btn = document.createElement('button');
-        btn.className = `w-14 h-14 sm:w-16 sm:h-16 rounded-xl border-2 p-1 bg-stone-50 transition-all flex items-center justify-center ${{idx === 0 ? 'thumb-active border-black' : 'border-stone-200 opacity-60 hover:opacity-100'}}`;
+        btn.className = `w-14 h-14 sm:w-16 sm:h-16 rounded-xl border-2 p-1 bg-stone-50 transition-all flex items-center justify-center overflow-hidden ${{idx === 0 ? 'thumb-active border-black' : 'border-stone-200 opacity-60 hover:opacity-100'}}`;
         btn.onclick = () => {{
-          if (mainImg) mainImg.src = fullUrl;
+          if (mainImg) {{
+            mainImg.src = fullUrl;
+            if (idx === 0) {{
+              mainImg.className = 'w-full h-full object-contain p-4 sm:p-6 transition-transform duration-700 ease-out group-hover:scale-105';
+            }} else {{
+              mainImg.className = 'w-full h-full object-cover p-0 transition-transform duration-700 ease-out group-hover:scale-105';
+            }}
+          }}
           document.querySelectorAll('#pdp-thumbnails button').forEach(b => {{
             b.classList.remove('thumb-active', 'border-black');
             b.classList.add('border-stone-200', 'opacity-60');
@@ -1130,7 +1138,7 @@ app_js_code = f"""/**
           btn.classList.add('thumb-active', 'border-black');
           btn.classList.remove('border-stone-200', 'opacity-60');
         }};
-        btn.innerHTML = `<img src="${{fullUrl}}" alt="${{currentProduct.title}}" class="w-full h-full object-contain">`;
+        btn.innerHTML = `<img src="${{fullUrl}}" alt="${{currentProduct.title}}" class="w-full h-full ${{idx === 0 ? 'object-contain' : 'object-cover'}} rounded-lg">`;
         thumbsContainer.appendChild(btn);
       }});
     }}
