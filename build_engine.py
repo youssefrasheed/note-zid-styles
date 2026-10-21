@@ -296,77 +296,6 @@ header nav a.active-link {{
     margin-bottom: 0 !important;
   }}
 }}
-
-/* ==========================================================================
-   NOTE PERFUMES - LUXURY INITIAL SPLASH & SYNC LOADER
-   ========================================================================== */
-#loader-container {{
-  display: none !important;
-}}
-
-#note-luxury-splash {{
-  position: fixed !important;
-  inset: 0 !important;
-  z-index: 99999 !important;
-  background-color: #000000 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  opacity: 1 !important;
-  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.45s !important;
-}}
-
-#note-luxury-splash.splash-dismissed {{
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}}
-
-@keyframes noteSplashPulse {{
-  0%, 100% {{
-    opacity: 0.75;
-    transform: scale(0.98);
-  }}
-  50% {{
-    opacity: 1;
-    transform: scale(1.02);
-  }}
-}}
-
-@keyframes noteSplashBar {{
-  0% {{
-    transform: translateX(-100%);
-  }}
-  50% {{
-    transform: translateX(30%);
-  }}
-  100% {{
-    transform: translateX(200%);
-  }}
-}}
-
-.note-splash-logo {{
-  animation: noteSplashPulse 1.6s ease-in-out infinite !important;
-}}
-
-.note-splash-progress {{
-  width: 50px !important;
-  height: 2px !important;
-  background: rgba(255, 255, 255, 0.12) !important;
-  border-radius: 999px !important;
-  overflow: hidden !important;
-  position: relative !important;
-  margin-top: 22px !important;
-}}
-
-.note-splash-progress-bar {{
-  width: 100% !important;
-  height: 100% !important;
-  background: #ffffff !important;
-  border-radius: 999px !important;
-  animation: noteSplashBar 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
-}}
 """
 
 with open(OUT_CSS, "w", encoding="utf-8") as f:
@@ -2289,14 +2218,16 @@ app_js_code = f"""/**
     }});
   }}
 
-  // 19.5 Luxury Splash Dismissal
-  function dismissSplashScreen() {{
-    const splash = document.getElementById('note-luxury-splash');
-    if (!splash) return;
-    splash.classList.add('splash-dismissed');
+  // 19.5 Native Zid Loader Dismissal
+  function dismissZidLoader() {{
+    const loader = document.getElementById('loader-container');
+    if (!loader) return;
+    loader.style.transition = 'opacity 0.4s ease-out';
+    loader.style.opacity = '0';
+    loader.style.pointerEvents = 'none';
     setTimeout(() => {{
-      try {{ splash.remove(); }} catch(e) {{}}
-    }}, 450);
+      try {{ loader.remove(); }} catch(e) {{}}
+    }}, 400);
   }}
 
   // 20. Shell Mounter
@@ -2312,28 +2243,18 @@ app_js_code = f"""/**
       return;
     }}
 
-    // Ensure luxury splash screen is present
-    let splash = document.getElementById('note-luxury-splash');
-    if (!splash) {{
-      splash = document.createElement('div');
-      splash.id = 'note-luxury-splash';
-      splash.innerHTML = `
-        <div class="flex flex-col items-center justify-center text-center">
-          <img src="${{ASSET_HOST}}/logo_white_crisp.png" alt="NOTE Perfumes" class="h-8 sm:h-10 w-auto object-contain note-splash-logo">
-          <div class="note-splash-progress">
-            <div class="note-splash-progress-bar"></div>
-          </div>
-        </div>
-      `;
-      (document.body || document.documentElement).appendChild(splash);
+    // Move Zid's native loader to body if inside mainEl to keep it animating during sync
+    const nativeLoader = document.getElementById('loader-container');
+    if (nativeLoader && nativeLoader.parentElement === mainEl) {{
+      document.body.appendChild(nativeLoader);
     }}
 
-    // Remove Rozia footers, headers and native sections & native loader
-    document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer, #loader-container').forEach(el => {{
+    // Remove Rozia footers, headers and native sections (preserve native #loader-container)
+    document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer').forEach(el => {{
       el.remove();
     }});
 
-    // Live Sync with Zid: check cache freshness
+    // Live Sync with Zid: check cache freshness while Zid native loader animates
     const lastSync = parseInt(localStorage.getItem(ZidSyncManager.CACHE_TIME_KEY) || '0', 10);
     const isCacheFresh = (Date.now() - lastSync) < ZidSyncManager.TTL_MS;
 
@@ -2365,9 +2286,9 @@ app_js_code = f"""/**
 
       // Clean up duplicate native Rozia injections
       const cleanupInterval = setInterval(() => {{
-        document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer, #loader-container').forEach(el => el.remove());
+        document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer').forEach(el => el.remove());
         Array.from(mainEl.children).forEach(child => {{
-          if (child !== shell && child.id !== 'note-luxury-storefront' && child.id !== 'note-luxury-splash') {{
+          if (child !== shell && child.id !== 'note-luxury-storefront' && child.id !== 'loader-container') {{
             child.remove();
           }}
         }});
@@ -2378,8 +2299,8 @@ app_js_code = f"""/**
     // Route to current page (with live synced data)
     NoteRouter.route();
 
-    // Smoothly dismiss splash screen
-    setTimeout(dismissSplashScreen, 180);
+    // Smoothly dismiss Zid's native entrance loader
+    setTimeout(dismissZidLoader, 150);
   }}
 
   // 21. Global Link Interception for Instant SPA Navigation
