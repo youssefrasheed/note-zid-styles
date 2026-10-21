@@ -297,6 +297,78 @@ header nav a.active-link {{
     margin-bottom: 0 !important;
   }}
 }}
+
+/* Zid Native Loader Stabilization & Seamless Transition */
+#loader-container {{
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999999 !important;
+  background: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: opacity 0.4s ease-out, visibility 0.4s ease-out !important;
+}}
+#loader-container.note-loader-dismissed {{
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}}
+body:not(.note-ready) section[section-id],
+body:not(.note-ready) .tp-home,
+body:not(.note-ready) .tp-bar-header,
+body:not(.note-ready) header.header-nav,
+body:not(.note-ready) footer:not(#note-store-footer) {{
+  display: none !important;
+  visibility: hidden !important;
+}}
+
+/* Slide-out Cart Drawer Architecture */
+#cart-drawer {{
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+}}
+#cart-drawer-items {{
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  min-height: 160px !important;
+  max-height: calc(100dvh - 280px) !important;
+  padding: 12px 16px !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+}}
+.note-cart-item {{
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 10px 12px !important;
+  margin-bottom: 8px !important;
+  background: #ffffff !important;
+  border: 1px solid #f0eee9 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+  text-align: right !important;
+}}
+#cart-drawer-recommendations {{
+  padding: 6px 14px !important;
+  margin: 0 !important;
+  background: #fafaf9 !important;
+  border-top: 1px solid #f0eee9 !important;
+  border-bottom: 1px solid #f0eee9 !important;
+  flex-shrink: 0 !important;
+}}
+#cart-drawer-footer {{
+  padding: 12px 16px 14px !important;
+  border-top: 1px solid #f0eee9 !important;
+  background: #ffffff !important;
+  flex-shrink: 0 !important;
+}}
 """
 
 with open(OUT_CSS, "w", encoding="utf-8") as f:
@@ -327,6 +399,14 @@ app_js_code = f"""/**
  */
 (function() {{
   "use strict";
+  // Hook and preserve Zid's native loader animation until the storefront is fully stabilized
+  const zidLoaderEl = document.getElementById('loader-container');
+  if (zidLoaderEl) {{
+    zidLoaderEl._origRemove = zidLoaderEl.remove;
+    zidLoaderEl.remove = function() {{
+      // Intercept Rozia early deletion
+    }};
+  }}
   console.log("NOTE Perfumes Master Engine v4.1.0 Starting...");
 
   const ASSET_HOST = "{ASSET_HOST}";
@@ -776,8 +856,15 @@ app_js_code = f"""/**
         }});
       }}
       this.saveCart(cart);
+      if (typeof this.updateBadge === 'function') this.updateBadge();
+      const badge = document.getElementById('cart-counter-badge');
+      if (badge) {{
+        badge.classList.remove('scale-125');
+        void badge.offsetWidth;
+        badge.classList.add('scale-125');
+        setTimeout(() => badge.classList.remove('scale-125'), 250);
+      }}
       this.showToast('تمت إضافة ' + product.title + ' إلى سلتك');
-      this.openDrawer();
     }},
     removeItem: function(productId) {{
       let cart = this.getCart().filter(item => item.id !== productId);
@@ -812,16 +899,19 @@ app_js_code = f"""/**
       if (!toast) {{
         toast = document.createElement('div');
         toast.id = 'global-toast';
-        toast.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-[100] transform -translate-y-24 opacity-0 transition-all duration-300 pointer-events-none px-6 py-3.5 rounded-full shadow-2xl text-xs font-bold flex items-center gap-3 bg-black text-white';
-        document.body.appendChild(toast);
+        toast.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-[100] transform -translate-y-24 opacity-0 transition-all duration-300 pointer-events-auto px-5 py-3 rounded-full shadow-2xl text-xs font-bold flex items-center gap-3 bg-stone-900/95 backdrop-blur-md text-white border border-white/10';
+        if (document.body) document.body.appendChild(toast);
       }}
-      toast.innerHTML = '<i class="sicon-check-circle text-emerald-400 text-sm"></i><span>' + msg + '</span>';
-      toast.classList.remove('-translate-y-24', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
-      setTimeout(() => {{
-        toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('-translate-y-24', 'opacity-0');
-      }}, 2800);
+      toast.innerHTML = '<i class="sicon-check-circle text-emerald-400 text-sm"></i><span class="truncate max-w-[200px] sm:max-w-none">' + msg + '</span><button type="button" onclick="CartManager.openDrawer()" class="mr-1 px-3 py-1 bg-white/20 hover:bg-white/30 active:scale-95 rounded-full text-[11px] font-semibold text-white transition whitespace-nowrap">عرض السلة</button>';
+      if (toast.classList) {{
+        toast.classList.remove('-translate-y-24', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        clearTimeout(this._toastTimer);
+        this._toastTimer = setTimeout(() => {{
+          toast.classList.remove('translate-y-0', 'opacity-100');
+          toast.classList.add('-translate-y-24', 'opacity-0');
+        }}, 3200);
+      }}
     }},
     openDrawer: function() {{
       const drawer = document.getElementById('cart-drawer');
@@ -899,25 +989,25 @@ app_js_code = f"""/**
         const zidSlug = zidSlugMap[item.id] || item.id;
         const imgUrl = (item.img.startsWith('http') ? '' : ASSET_HOST) + item.img;
         return `
-          <div class="flex items-center gap-3 py-3 border-b border-stone-100 last:border-b-0 text-right">
-            <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}'); CartManager.closeDrawer();" class="w-16 h-16 rounded-xl bg-stone-50 p-1 flex-shrink-0 flex items-center justify-center border border-stone-100 block">
-              <img src="${{imgUrl}}" alt="${{item.title}}" class="w-full h-full object-contain">
+          <div class="note-cart-item group relative flex items-center gap-3 p-3 mb-2.5 rounded-2xl bg-stone-50/70 hover:bg-stone-50 border border-stone-200/80 transition-all text-right">
+            <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}'); CartManager.closeDrawer();" class="w-16 h-16 sm:w-18 sm:h-18 rounded-xl bg-white p-1.5 flex-shrink-0 flex items-center justify-center border border-stone-200/80 shadow-2xs block overflow-hidden">
+              <img src="${{imgUrl}}" alt="${{item.title}}" class="w-full h-full object-contain transition-transform group-hover:scale-105">
             </a>
-            <div class="flex-grow">
-              <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}'); CartManager.closeDrawer();" class="hover:underline">
-                <h4 class="text-xs font-bold text-black line-clamp-1">${{item.title}}</h4>
+            <div class="flex-grow min-w-0 pr-1">
+              <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}'); CartManager.closeDrawer();" class="block hover:text-stone-700 transition">
+                <h4 class="text-xs sm:text-sm font-extrabold text-stone-900 line-clamp-1 leading-snug">${{item.title}}</h4>
               </a>
-              <span class="text-[10px] text-stone-400 block">${{item.size || '100 مل'}}</span>
+              <span class="text-[11px] text-stone-500 font-medium block mt-0.5">${{item.size || '100 مل'}}</span>
               <div class="flex items-center justify-between mt-2">
-                <div class="flex items-center border border-stone-200 rounded-full h-7 px-2 gap-2 text-xs font-bold">
-                  <button onclick="CartManager.updateQuantity('${{item.id}}', -1)" class="text-stone-500 hover:text-black w-4 text-center">-</button>
-                  <span class="min-w-[14px] text-center">${{item.quantity}}</span>
-                  <button onclick="CartManager.updateQuantity('${{item.id}}', 1)" class="text-stone-500 hover:text-black w-4 text-center">+</button>
+                <div class="flex items-center bg-white border border-stone-300 rounded-full h-7 px-1.5 gap-2 text-xs font-bold shadow-2xs">
+                  <button onclick="CartManager.updateQuantity('${{item.id}}', -1)" class="w-5 h-5 rounded-full flex items-center justify-center text-stone-600 hover:text-black hover:bg-stone-100 transition" aria-label="تقليل الكمية">-</button>
+                  <span class="min-w-[16px] text-center font-extrabold text-stone-900">${{item.quantity}}</span>
+                  <button onclick="CartManager.updateQuantity('${{item.id}}', 1)" class="w-5 h-5 rounded-full flex items-center justify-center text-stone-600 hover:text-black hover:bg-stone-100 transition" aria-label="زيادة الكمية">+</button>
                 </div>
-                <span class="text-xs font-extrabold text-black">${{item.price * item.quantity}} ر.س</span>
+                <span class="text-xs sm:text-sm font-black text-stone-900">${{item.price * item.quantity}} ر.س</span>
               </div>
             </div>
-            <button onclick="CartManager.removeItem('${{item.id}}')" class="text-stone-400 hover:text-rose-500 p-1 transition" title="حذف">
+            <button onclick="CartManager.removeItem('${{item.id}}')" class="text-stone-400 hover:text-rose-600 p-2 transition flex items-center justify-center rounded-lg hover:bg-rose-50" aria-label="حذف المنتج من السلة" title="حذف">
               <i class="sicon-trash text-sm"></i>
             </button>
           </div>
@@ -2296,6 +2386,23 @@ app_js_code = f"""/**
     }});
   }}
 
+  // 19.5 Native Zid Loader Preservation & Dismissal
+  function dismissZidLoader() {{
+    const loader = document.getElementById('loader-container');
+    if (!loader) return;
+    loader.classList.add('note-loader-dismissed');
+    loader.style.transition = 'opacity 0.4s ease-out';
+    loader.style.opacity = '0';
+    loader.style.pointerEvents = 'none';
+    setTimeout(() => {{
+      try {{
+        if (loader._origRemove) loader._origRemove.call(loader);
+        else if (loader.parentElement) loader.parentElement.removeChild(loader);
+        else loader.remove();
+      }} catch(e) {{}}
+    }}, 450);
+  }}
+
   // 20. Shell Mounter (Instant Zero-Delay Synchronous Execution)
   function mountShell() {{
     const mainEl = document.querySelector('.tp-home') || 
@@ -2346,6 +2453,13 @@ app_js_code = f"""/**
 
     // Route to current page immediately (0ms)
     NoteRouter.route();
+    document.body.classList.add('note-ready');
+
+    // Smoothly dismiss Zid's native entrance loader
+    requestAnimationFrame(() => {{
+      setTimeout(dismissZidLoader, 160);
+    }});
+    setTimeout(dismissZidLoader, 2500);
 
     // Background Live Sync with Zid (Completely non-blocking, zero layout shift)
     setTimeout(() => {{

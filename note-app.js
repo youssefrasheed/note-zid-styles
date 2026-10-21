@@ -1,13 +1,21 @@
 /**
  * NOTE Perfumes Official Storefront Engine for Zid
- * Version: 4.2.2 - Full Multi-Page SPA Client Master Edition
+ * Version: 4.3.0 - Full Multi-Page SPA Client Master Edition
  * Authentic NOTE Perfumes Storefront Engine
  * Hosted via GitHub Pages CDN: https://youssefrasheed.github.io/note-zid-styles/
  */
 (function() {
   "use strict";
   if (/^\/(checkout|auth|account)(\/|$)/.test(location.pathname) || new URLSearchParams(location.search).get("native")==="1") return;
-  console.log("NOTE Perfumes Master Engine v4.2.2 Starting...");
+  // Hook and preserve Zid's native loader animation until the storefront is fully stabilized
+  const zidLoaderEl = document.getElementById('loader-container');
+  if (zidLoaderEl) {
+    zidLoaderEl._origRemove = zidLoaderEl.remove;
+    zidLoaderEl.remove = function() {
+      // Intercept Rozia early deletion
+    };
+  }
+  console.log("NOTE Perfumes Master Engine v4.3.0 Starting...");
 
   const ASSET_HOST = "https://youssefrasheed.github.io/note-zid-styles";
 
@@ -256,6 +264,78 @@ header nav a.active-link {
     left: 24px !important;
     margin-bottom: 0 !important;
   }
+}
+
+/* Zid Native Loader Stabilization & Seamless Transition */
+#loader-container {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999999 !important;
+  background: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: opacity 0.4s ease-out, visibility 0.4s ease-out !important;
+}
+#loader-container.note-loader-dismissed {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+body:not(.note-ready) section[section-id],
+body:not(.note-ready) .tp-home,
+body:not(.note-ready) .tp-bar-header,
+body:not(.note-ready) header.header-nav,
+body:not(.note-ready) footer:not(#note-store-footer) {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Slide-out Cart Drawer Architecture */
+#cart-drawer {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+}
+#cart-drawer-items {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  min-height: 160px !important;
+  max-height: calc(100dvh - 280px) !important;
+  padding: 12px 16px !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+.note-cart-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 10px 12px !important;
+  margin-bottom: 8px !important;
+  background: #ffffff !important;
+  border: 1px solid #f0eee9 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+  text-align: right !important;
+}
+#cart-drawer-recommendations {
+  padding: 6px 14px !important;
+  margin: 0 !important;
+  background: #fafaf9 !important;
+  border-top: 1px solid #f0eee9 !important;
+  border-bottom: 1px solid #f0eee9 !important;
+  flex-shrink: 0 !important;
+}
+#cart-drawer-footer {
+  padding: 12px 16px 14px !important;
+  border-top: 1px solid #f0eee9 !important;
+  background: #ffffff !important;
+  flex-shrink: 0 !important;
 }
 `;
     document.head.appendChild(s);
@@ -1961,7 +2041,7 @@ header nav a.active-link {
   };
 
   // Load existing cached prices immediately (0ms)
-  // Fresh catalog is loaded after the integration is initialized.
+  ZidSyncManager.loadCachedData();
 
   // 6. Templates
   const T = {
@@ -2020,8 +2100,15 @@ header nav a.active-link {
         });
       }
       this.saveCart(cart);
+      if (typeof this.updateBadge === 'function') this.updateBadge();
+      const badge = document.getElementById('cart-counter-badge');
+      if (badge) {
+        badge.classList.remove('scale-125');
+        void badge.offsetWidth;
+        badge.classList.add('scale-125');
+        setTimeout(() => badge.classList.remove('scale-125'), 250);
+      }
       this.showToast('تمت إضافة ' + product.title + ' إلى سلتك');
-      this.openDrawer();
     },
     removeItem: function(productId) {
       let cart = this.getCart().filter(item => item.id !== productId);
@@ -2056,16 +2143,19 @@ header nav a.active-link {
       if (!toast) {
         toast = document.createElement('div');
         toast.id = 'global-toast';
-        toast.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-[100] transform -translate-y-24 opacity-0 transition-all duration-300 pointer-events-none px-6 py-3.5 rounded-full shadow-2xl text-xs font-bold flex items-center gap-3 bg-black text-white';
-        document.body.appendChild(toast);
+        toast.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-[100] transform -translate-y-24 opacity-0 transition-all duration-300 pointer-events-auto px-5 py-3 rounded-full shadow-2xl text-xs font-bold flex items-center gap-3 bg-stone-900/95 backdrop-blur-md text-white border border-white/10';
+        if (document.body) document.body.appendChild(toast);
       }
-      toast.innerHTML = '<i class="sicon-check-circle text-emerald-400 text-sm"></i><span>' + msg + '</span>';
-      toast.classList.remove('-translate-y-24', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
-      setTimeout(() => {
-        toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('-translate-y-24', 'opacity-0');
-      }, 2800);
+      toast.innerHTML = '<i class="sicon-check-circle text-emerald-400 text-sm"></i><span class="truncate max-w-[200px] sm:max-w-none">' + msg + '</span><button type="button" onclick="CartManager.openDrawer()" class="mr-1 px-3 py-1 bg-white/20 hover:bg-white/30 active:scale-95 rounded-full text-[11px] font-semibold text-white transition whitespace-nowrap">عرض السلة</button>';
+      if (toast.classList) {
+        toast.classList.remove('-translate-y-24', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        clearTimeout(this._toastTimer);
+        this._toastTimer = setTimeout(() => {
+          toast.classList.remove('translate-y-0', 'opacity-100');
+          toast.classList.add('-translate-y-24', 'opacity-0');
+        }, 3200);
+      }
     },
     openDrawer: function() {
       const drawer = document.getElementById('cart-drawer');
@@ -2143,25 +2233,25 @@ header nav a.active-link {
         const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
         const imgUrl = (item.img.startsWith('http') ? '' : ASSET_HOST) + item.img;
         return `
-          <div class="flex items-center gap-3 py-3 border-b border-stone-100 last:border-b-0 text-right">
-            <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}'); CartManager.closeDrawer();" class="w-16 h-16 rounded-xl bg-stone-50 p-1 flex-shrink-0 flex items-center justify-center border border-stone-100 block">
-              <img src="${imgUrl}" alt="${escapeHTML(item.title)}" class="w-full h-full object-contain">
+          <div class="note-cart-item group relative flex items-center gap-3 p-3 mb-2.5 rounded-2xl bg-stone-50/70 hover:bg-stone-50 border border-stone-200/80 transition-all text-right">
+            <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}'); CartManager.closeDrawer();" class="w-16 h-16 sm:w-18 sm:h-18 rounded-xl bg-white p-1.5 flex-shrink-0 flex items-center justify-center border border-stone-200/80 shadow-2xs block overflow-hidden">
+              <img src="${imgUrl}" alt="${escapeHTML(item.title)}" class="w-full h-full object-contain transition-transform group-hover:scale-105">
             </a>
-            <div class="flex-grow">
-              <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}'); CartManager.closeDrawer();" class="hover:underline">
-                <h4 class="text-xs font-bold text-black line-clamp-1">${escapeHTML(item.title)}</h4>
+            <div class="flex-grow min-w-0 pr-1">
+              <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}'); CartManager.closeDrawer();" class="block hover:text-stone-700 transition">
+                <h4 class="text-xs sm:text-sm font-extrabold text-stone-900 line-clamp-1 leading-snug">${escapeHTML(item.title)}</h4>
               </a>
-              <span class="text-[10px] text-stone-400 block">${item.size || '100 مل'}</span>
+              <span class="text-[11px] text-stone-500 font-medium block mt-0.5">${item.size || '100 مل'}</span>
               <div class="flex items-center justify-between mt-2">
-                <div class="flex items-center border border-stone-200 rounded-full h-7 px-2 gap-2 text-xs font-bold">
-                  <button onclick="CartManager.updateQuantity('${item.id}', -1)" class="text-stone-500 hover:text-black w-4 text-center">-</button>
-                  <span class="min-w-[14px] text-center">${item.quantity}</span>
-                  <button onclick="CartManager.updateQuantity('${item.id}', 1)" class="text-stone-500 hover:text-black w-4 text-center">+</button>
+                <div class="flex items-center bg-white border border-stone-300 rounded-full h-7 px-1.5 gap-2 text-xs font-bold shadow-2xs">
+                  <button onclick="CartManager.updateQuantity('${item.id}', -1)" class="w-5 h-5 rounded-full flex items-center justify-center text-stone-600 hover:text-black hover:bg-stone-100 transition" aria-label="تقليل الكمية">-</button>
+                  <span class="min-w-[16px] text-center font-extrabold text-stone-900">${item.quantity}</span>
+                  <button onclick="CartManager.updateQuantity('${item.id}', 1)" class="w-5 h-5 rounded-full flex items-center justify-center text-stone-600 hover:text-black hover:bg-stone-100 transition" aria-label="زيادة الكمية">+</button>
                 </div>
-                <span class="text-xs font-extrabold text-black">${item.price * item.quantity} ر.س</span>
+                <span class="text-xs sm:text-sm font-black text-stone-900">${item.price * item.quantity} ر.س</span>
               </div>
             </div>
-            <button onclick="CartManager.removeItem('${item.id}')" class="text-stone-400 hover:text-rose-500 p-1 transition" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px">
+            <button onclick="CartManager.removeItem('${item.id}')" class="text-stone-400 hover:text-rose-600 p-2 transition flex items-center justify-center rounded-lg hover:bg-rose-50" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg><span>حذف</span>
             </button>
           </div>
@@ -3540,6 +3630,23 @@ header nav a.active-link {
     });
   }
 
+  // 19.5 Native Zid Loader Preservation & Dismissal
+  function dismissZidLoader() {
+    const loader = document.getElementById('loader-container');
+    if (!loader) return;
+    loader.classList.add('note-loader-dismissed');
+    loader.style.transition = 'opacity 0.4s ease-out';
+    loader.style.opacity = '0';
+    loader.style.pointerEvents = 'none';
+    setTimeout(() => {
+      try {
+        if (loader._origRemove) loader._origRemove.call(loader);
+        else if (loader.parentElement) loader.parentElement.removeChild(loader);
+        else loader.remove();
+      } catch(e) {}
+    }, 450);
+  }
+
   // 20. Shell Mounter (Instant Zero-Delay Synchronous Execution)
   function mountShell() {
     const mainEl = document.querySelector('.tp-home') || 
@@ -3590,6 +3697,13 @@ header nav a.active-link {
 
     // Route to current page immediately (0ms)
     NoteRouter.route();
+    document.body.classList.add('note-ready');
+
+    // Smoothly dismiss Zid's native entrance loader
+    requestAnimationFrame(() => {
+      setTimeout(dismissZidLoader, 160);
+    });
+    setTimeout(dismissZidLoader, 2500);
 
     // Background Live Sync with Zid (Completely non-blocking, zero layout shift)
     setTimeout(() => {
@@ -3638,19 +3752,53 @@ header nav a.active-link {
     }
   });
 
-  const integrationStyles=document.createElement("style");integrationStyles.id="note-live-styles";integrationStyles.textContent="/* NOTE 4.2: compact, accessible cart suggestions and bundle choices */\n#cart-page-recommendations-section{margin-top:16px!important;padding:14px!important;border-radius:16px!important}\n#cart-page-recommendations-section h3,#cart-page-recommendations-section h2{font-size:14px!important;margin-bottom:10px!important}\n.note-compact-recs{display:flex!important;gap:10px!important;overflow-x:auto!important;scrollbar-width:thin;scroll-snap-type:none!important;padding:4px 0 8px!important;width:100%;max-width:100%;overscroll-behavior-x:contain}\n.note-mini-card{flex:0 0 152px;max-width:152px;min-width:0;background:#fafaf9;border:1px solid #e7e5e4;border-radius:12px;padding:8px;box-sizing:border-box;color:#111;text-align:right}\n.note-mini-card a{display:grid;grid-template-columns:44px 1fr;column-gap:7px;align-items:center;text-decoration:none;color:inherit}\n.note-mini-card img{width:44px;height:48px;object-fit:contain;grid-row:span 2;border-radius:6px;background:white}\n.note-mini-card span{font-size:10px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}\n.note-mini-card strong{font-size:11px;white-space:nowrap}\n.note-mini-card button{width:100%;min-height:30px;font-size:10px;border-radius:20px;background:#111;color:white;margin-top:6px;cursor:pointer}\n.note-bundle-options{margin:18px 0;padding:16px;border:1px solid #d6d3d1;border-radius:14px;clear:both;width:100%;font-size:13px}\n.note-bundle-options h3{font-weight:700;margin-bottom:12px}\n.note-bundle-options fieldset{margin:12px 0;border:0;padding:0}\n.note-bundle-options legend{font-weight:700;margin-bottom:6px}\n.note-bundle-options label{display:block;font-size:12px;margin:6px 0}\n.note-bundle-options select{display:block;width:100%;min-height:44px;background:white;color:#111;border:1px solid #a8a29e;border-radius:8px;padding:9px;margin-top:4px}\n.note-bundle-options select:focus-visible,.note-mini-card button:focus-visible{outline:2px solid #a58b52;outline-offset:3px}\n.note-empty-products{padding:16px;font-size:13px;color:#78716c}\nbutton:disabled{opacity:.5;cursor:not-allowed}\n@media(max-width:640px){.note-mini-card{flex-basis:142px;max-width:142px}#cart-page-recommendations-section{padding:10px!important}}\n@media(prefers-reduced-motion:reduce){.note-compact-recs{scroll-behavior:auto!important}}\n\nbutton[aria-label=\"\u062d\u0630\u0641 \u0627\u0644\u0645\u0646\u062a\u062c \u0645\u0646 \u0627\u0644\u0633\u0644\u0629\"]{color:#57534e!important}button[aria-label=\"\u062d\u0630\u0641 \u0627\u0644\u0645\u0646\u062a\u062c \u0645\u0646 \u0627\u0644\u0633\u0644\u0629\"]:hover{color:#be123c!important}\n";document.head.append(integrationStyles);
+  const integrationStyles=document.createElement("style");integrationStyles.id="note-live-styles";integrationStyles.textContent="/* NOTE 4.3: High-Visibility Cart Items, Micro-Compact Recommendations & Seamless Zid Loader */\n#cart-drawer{display:flex!important;flex-direction:column!important;height:100vh!important;height:100dvh!important;max-height:100dvh!important;overflow:hidden!important}\n#cart-drawer-items{flex:1 1 auto!important;overflow-y:auto!important;min-height:160px!important;max-height:calc(100dvh - 280px)!important;padding:12px 16px!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important}\n.note-cart-item{display:flex!important;align-items:center!important;gap:12px!important;padding:10px 12px!important;margin-bottom:8px!important;background:#ffffff!important;border:1px solid #f0eee9!important;border-radius:14px!important;box-shadow:0 1px 3px rgba(0,0,0,0.03)!important;text-align:right!important}\n#cart-drawer-recommendations{padding:6px 14px!important;margin:0!important;background:#fafaf9!important;border-top:1px solid #f0eee9!important;border-bottom:1px solid #f0eee9!important;flex-shrink:0!important}\n#cart-drawer-recommendations h3,#cart-drawer-recommendations h2,#cart-drawer-recommendations .note-recs-title{font-size:10px!important;font-weight:700!important;color:#57534e!important;margin-bottom:4px!important}\n.note-compact-recs{display:flex!important;gap:8px!important;overflow-x:auto!important;scrollbar-width:none!important;scroll-snap-type:none!important;padding:2px 0 4px!important;width:100%!important;max-width:100%!important;overscroll-behavior-x:contain!important;-webkit-overflow-scrolling:touch!important}\n.note-compact-recs::-webkit-scrollbar{display:none!important}\n.note-mini-card{flex:0 0 auto!important;width:auto!important;max-width:175px!important;min-width:135px!important;height:38px!important;display:inline-flex!important;align-items:center!important;justify-content:space-between!important;gap:6px!important;padding:3px 6px 3px 4px!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:9999px!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;color:#111!important;text-align:right!important}\n.note-mini-card a{display:inline-flex!important;align-items:center!important;gap:6px!important;text-decoration:none!important;color:inherit!important;min-width:0!important;flex:1 1 auto!important}\n.note-mini-card img{width:28px!important;height:28px!important;object-fit:contain!important;border-radius:9999px!important;background:#fafaf9!important;flex-shrink:0!important}\n.note-mini-card .note-mini-info{display:flex!important;flex-direction:column!important;min-width:0!important;line-height:1.15!important}\n.note-mini-card .note-mini-title{font-size:9.5px!important;font-weight:700!important;color:#111!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:65px!important;display:block!important}\n.note-mini-card .note-mini-price{font-size:9.5px!important;font-weight:800!important;color:#a58b52!important;white-space:nowrap!important;display:block!important}\n.note-mini-card button{flex-shrink:0!important;width:auto!important;min-width:32px!important;height:24px!important;padding:0 7px!important;font-size:9.5px!important;font-weight:700!important;border-radius:9999px!important;background:#111111!important;color:#ffffff!important;margin:0!important;border:none!important;cursor:pointer!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;transition:background 0.15s,transform 0.15s!important}\n.note-mini-card button:hover{background:#333333!important}\n.note-mini-card button:active{transform:scale(0.92)!important}\n#cart-drawer-footer{padding:12px 16px 14px!important;border-top:1px solid #f0eee9!important;background:#ffffff!important;flex-shrink:0!important}\n#cart-page-recommendations-section{margin-top:20px!important;padding:14px!important;border-radius:16px!important}\n#cart-page-recommendations-section h3,#cart-page-recommendations-section h2{font-size:13px!important;margin-bottom:8px!important}\n.note-bundle-options{margin:18px 0;padding:16px;border:1px solid #d6d3d1;border-radius:14px;clear:both;width:100%;font-size:13px}\n.note-bundle-options h3{font-weight:700;margin-bottom:12px}\n.note-bundle-options fieldset{margin:12px 0;border:0;padding:0}\n.note-bundle-options legend{font-weight:700;margin-bottom:6px}\n.note-bundle-options label{display:block;font-size:12px;margin:6px 0}\n.note-bundle-options select{display:block;width:100%;min-height:44px;background:white;color:#111;border:1px solid #a8a29e;border-radius:8px;padding:9px;margin-top:4px}\n.note-bundle-options select:focus-visible,.note-mini-card button:focus-visible{outline:2px solid #a58b52;outline-offset:3px}\n.note-empty-products{padding:16px;font-size:13px;color:#78716c}\nbutton:disabled{opacity:.5;cursor:not-allowed}\n@media(prefers-reduced-motion:reduce){.note-compact-recs{scroll-behavior:auto!important}}\nbutton[aria-label=\"حذف المنتج من السلة\"]{color:#78716c!important;transition:color 0.15s ease!important}\nbutton[aria-label=\"حذف المنتج من السلة\"]:hover{color:#be123c!important}\n#loader-container{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:9999999!important;background:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;transition:opacity 0.4s ease-out,visibility 0.4s ease-out!important}\n#loader-container.note-loader-dismissed{opacity:0!important;visibility:hidden!important;pointer-events:none!important}\nbody:not(.note-ready) section[section-id],body:not(.note-ready) .tp-home,body:not(.note-ready) .tp-bar-header,body:not(.note-ready) header.header-nav,body:not(.note-ready) footer:not(#note-store-footer){display:none!important;visibility:hidden!important}\n";document.head.append(integrationStyles);
+
+  // Zid Loader Preservation & Seamless Dismissal
+  const zidLoader=document.getElementById('loader-container');
+  if(zidLoader){
+    zidLoader._origRemove=zidLoader.remove;
+    zidLoader.remove=function(){};
+  }
+  function dismissZidLoader(){
+    const loader=document.getElementById('loader-container');
+    if(!loader)return;
+    loader.classList.add('note-loader-dismissed');
+    loader.style.transition='opacity 0.4s ease-out';
+    loader.style.opacity='0';
+    loader.style.pointerEvents='none';
+    setTimeout(()=>{
+      try{
+        if(loader._origRemove)loader._origRemove.call(loader);
+        else if(loader.parentElement)loader.parentElement.removeChild(loader);
+        else loader.remove();
+      }catch(e){}
+    },450);
+  }
+  window.dismissZidLoader=dismissZidLoader;
+  setTimeout(dismissZidLoader,2500);
+
   // Live storefront integration. Kept separately so rebuilding templates preserves fixes.
   const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const liveImage = image => image?.image?.large || image?.image?.full_size || image?.image?.thumbnail || '';
   const liveMoney = value => value === null || value === undefined || value === '' ? null : (Number.isFinite(Number(value)) ? Number(value) : null);
-  let liveCatalogReady = false;
+  let liveCatalogReady = true;
   const originalCatalog = noteProductsCatalog.slice();
-  // Demo products are never offered while the real catalog is loading.
-  noteProductsCatalog.splice(0);
-  productsData.splice(0);
   ZidSyncManager.CACHE_KEY = 'note_zid_catalog_v6';
   ZidSyncManager.CACHE_TIME_KEY = 'note_zid_catalog_time_v6';
-  ZidSyncManager.loadCachedData = function() { return false; };
+  ZidSyncManager.loadCachedData = function() {
+    try {
+      const cached = localStorage.getItem(this.CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length) {
+          this.applyToCatalog(parsed);
+          return true;
+        }
+      }
+    } catch(e) {}
+    return false;
+  };
   ZidSyncManager.applyToCatalog = function(results) {
     if (!Array.isArray(results)) throw new Error('Invalid product catalog');
     const next = results.filter(z => z.id && liveMoney(z.price) !== null).map(z => {
@@ -3664,14 +3812,14 @@ header nav a.active-link {
       const sold = Number(z.sold_products_count) || 0;
       const entry = {...prior, id:z.id, zid_id:z.id, slug, title:z.name || '', title_en:z.name_en || '', price: sale ?? price, old_price:old,
         discount:old ? Math.round((old - sale)/old*100)+'%' : null,
-        img:liveImage(z.images?.[0]), img_box:liveImage(z.images?.[1]) || null,
-        cat:category, cat_ar:categories.find(c => String(c.id) === catUrlMap[category]?.split('/')[2])?.name || categories[0]?.name || '',
+        img:liveImage(z.images?.[0]) || prior.img || '', img_box:liveImage(z.images?.[1]) || prior.img_box || null,
+        cat:category, cat_ar:categories.find(c => String(c.id) === catUrlMap[category]?.split('/')[2])?.name || categories[0]?.name || prior.cat_ar || '',
         category_ids:categories.map(c => String(c.id)),
-        bestseller:sold > 0, sold_count:sold, tag:old ? 'خصم' : '',
-        rating:Number(z.rating?.average) || 0, reviews_count:Number(z.rating?.total_count) || 0,
+        bestseller:sold > 0, sold_count:sold, tag:old ? 'خصم' : (prior.tag || ''),
+        rating:Number(z.rating?.average) || prior.rating || 0, reviews_count:Number(z.rating?.total_count) || prior.reviews_count || 0,
         in_stock:z.in_stock !== false && (z.is_infinite === true || Number(z.quantity) > 0), stock:z.is_infinite ? Infinity : Number(z.quantity),
         product_class:z.product_class, has_options:z.has_options, has_fields:z.has_fields,
-        description:String(z.description || z.short_description || '').replace(/<[^>]*>/g,''), size:prior.size || '', concentration:prior.concentration || '', notes:prior.notes || '', slogan:'',
+        description:String(z.description || z.short_description || '').replace(/<[^>]*>/g,'') || prior.description || '', size:prior.size || '100 مل', concentration:prior.concentration || '', notes:prior.notes || '', slogan:'',
         created_at:z.created_at || ''};
       zidSlugMap[entry.id] = slug;
       return entry;
@@ -3679,7 +3827,9 @@ header nav a.active-link {
     noteProductsCatalog.splice(0, noteProductsCatalog.length, ...next);
     productsData.splice(0, productsData.length, ...next);
     liveCatalogReady = true;
+    try { localStorage.setItem(this.CACHE_KEY, JSON.stringify(results)); } catch(e) {}
   };
+  ZidSyncManager.loadCachedData();
   ZidSyncManager.fetchLiveCatalog = async function(timeoutMs=15000) {
     if (this.pending) return this.pending;
     this.pending = (async () => {
@@ -3702,7 +3852,7 @@ header nav a.active-link {
         return all;
       } catch (error) {
         console.warn('NOTE: تعذر تحديث المنتجات من زد', error.message);
-        if (!liveCatalogReady) {
+        if (!liveCatalogReady && !noteProductsCatalog.length) {
           document.querySelectorAll('#catalog-products-grid,#slider-bestsellers').forEach(el => {el.textContent='تعذر تحميل المنتجات. أعد المحاولة بعد قليل.';});
         }
         return null;
@@ -3787,7 +3937,6 @@ header nav a.active-link {
             select.required=true; select.dataset.group=group.selection_group_id; select.setAttribute('aria-label',label.textContent);
             select.add(new Option('اختر المنتج',''));
             group.items.forEach(item => {
-              // Variant-bearing bundle components require their native configuration.
               if(item.variants?.length || item.options?.length) return;
               const option=new Option(item.name,item.item_id);
               option.disabled=!(item.is_infinite || item.quantity>0);
@@ -3795,14 +3944,30 @@ header nav a.active-link {
               select.add(option);
             });
             if(group.items.length===1 && Number(group.required_selection_count)===1 && !select.options[1]?.disabled) select.value=group.items[0].item_id;
-            const priorChoice=savedChoices.filter(c=>c.group===group.selection_group_id)[slot];
-            if(priorChoice && [...select.options].some(o=>o.value===priorChoice.value && !o.disabled)) select.value=priorChoice.value;
-            select.onchange=() => {selects.forEach(s => [...s.options].forEach(o => {const item=group.items.find(i=>i.item_id===o.value); if(item) o.disabled=!(item.is_infinite || item.quantity>0) || (!group.allow_duplicate_items && selects.some(other=>other!==s && other.value===o.value));}));};
-            label.append(select);fieldset.append(label);selects.push(select);
+            const priorChoice=savedChoices.filter(c=>c.group===group.selection_group_id)[slot]?.value;
+            if(priorChoice && [...select.options].some(o=>o.value===priorChoice && !o.disabled)) select.value=priorChoice;
+            selects.push(select);
+            fieldset.append(label,select);
+          }
+          if(!group.allow_duplicate_items && selects.length>1) {
+            const syncOptions=()=>{
+              const chosen=new Set(selects.map(s=>s.value).filter(Boolean));
+              selects.forEach(s=>{
+                [...s.options].forEach(o=>{
+                  if(!o.value) return;
+                  const item=group.items.find(i=>i.item_id===o.value);
+                  const outOfStock=!(item?.is_infinite || item?.quantity>0);
+                  o.disabled=outOfStock || (chosen.has(o.value) && s.value!==o.value);
+                  o.textContent=item?.name ? item.name + (outOfStock ? ' — نفدت الكمية' : chosen.has(o.value) && s.value!==o.value ? ' — تم اختياره' : '') : o.textContent;
+                });
+              });
+            };
+            selects.forEach(s=>s.addEventListener('change',syncOptions));
+            syncOptions();
           }
           box.append(fieldset);
         });
-      }).catch(() => {if(box.isConnected) box.textContent='تعذر تحميل اختيارات الباقة، حاول تحديث الصفحة.';});
+      }).catch(()=>{if(box.isConnected) box.textContent='تعذر تحميل اختيارات الباقة. أعد المحاولة بعد قليل.';});
     }
   };
   function collectBundleSelections(product) {
@@ -3842,7 +4007,28 @@ header nav a.active-link {
     const cart=this.getCart(),existing=cart.find(i=>i.id===key);
     if(existing) existing.quantity+=quantity;
     else cart.push({id:key,product_id:p.id,title:p.title,price:p.price,old_price:p.old_price,img:p.img,size:sub.map(s=>(s.quantity>1 ? s.quantity+' × ' : '')+s.name).join('، ') || p.size,quantity,sub_items:sub});
-    this.saveCart(cart);this.showToast('تمت إضافة '+escapeHTML(p.title)+' إلى سلتك');this.openDrawer();return true;
+    this.saveCart(cart);
+    if(typeof this.updateBadge === 'function') this.updateBadge();
+    const badge=document.getElementById('cart-counter-badge');
+    if(badge) {
+      badge.classList.remove('scale-125');
+      void badge.offsetWidth;
+      badge.classList.add('scale-125');
+      setTimeout(()=>badge.classList.remove('scale-125'), 250);
+    }
+    this.showToast('تمت إضافة '+escapeHTML(p.title)+' إلى سلتك');
+    return true;
+  };
+  const originalShowToast = CartManager.showToast;
+  CartManager.showToast = function(msg) {
+    if (typeof originalShowToast === 'function') {
+      try { originalShowToast.call(this, msg); } catch(e) {}
+    }
+    const toast = document.getElementById('global-toast') || document.getElementById('cart-toast');
+    if (toast && toast.classList) {
+      toast.classList.remove('-translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+    }
   };
   addToCartCurrentProduct=function() {try {return currentProduct && CartManager.addItem(currentProduct.id,pdpQuantity,collectBundleSelections(currentProduct));} catch(e) {CartManager.showToast(e.message);return false;}};
   buyNowCurrentProduct=function() {if(addToCartCurrentProduct()) {CartManager.closeDrawer();NoteRouter.navigate('/cart');}};
@@ -3851,9 +4037,25 @@ header nav a.active-link {
     const grid=document.getElementById(target),box=document.getElementById(section); if(!grid || !box) return;
     const inCart=new Set(cart.map(i=>i.product_id || i.id));
     const recs=noteProductsCatalog.filter(p=>p.in_stock && !inCart.has(p.id)).slice(0,10);
-    box.classList.toggle('hidden',!cart.length || !recs.length);grid.className='note-compact-recs';grid.dir='ltr';
-    grid.innerHTML=recs.map(p=>'<article dir="rtl" class="note-mini-card"><a href="/products/'+encodeURIComponent(p.slug)+'"><img src="'+escapeHTML(p.img)+'" alt="'+escapeHTML(p.title)+'"><span>'+escapeHTML(p.title)+'</span><strong>'+p.price+' ر.س</strong></a><button type="button" data-product="'+p.id+'">'+(p.product_class==='dynamic_bundle' ? 'اختار الباقة' : 'أضف')+'</button></article>').join('');
-    grid.querySelectorAll('button').forEach(b=>b.onclick=()=>CartManager.addItem(b.dataset.product));
+    box.classList.toggle('hidden',!cart.length || !recs.length);
+    grid.className='note-compact-recs';
+    grid.dir='ltr';
+    grid.innerHTML=recs.map(p=>`
+      <article dir="rtl" class="note-mini-card">
+        <a href="/products/${encodeURIComponent(p.slug)}" onclick="NoteRouter.navigate('/products/${encodeURIComponent(p.slug)}'); CartManager.closeDrawer();">
+          <img src="${escapeHTML(p.img)}" alt="${escapeHTML(p.title)}" loading="lazy">
+          <div class="note-mini-info">
+            <span class="note-mini-title">${escapeHTML(p.title)}</span>
+            <strong class="note-mini-price">${p.price} ر.س</strong>
+          </div>
+        </a>
+        <button type="button" data-product="${p.id}" aria-label="أضف ${escapeHTML(p.title)} للسلة">${p.product_class==='dynamic_bundle' ? 'اختار' : 'أضف'}</button>
+      </article>
+    `).join('');
+    grid.querySelectorAll('button').forEach(b=>b.onclick=(e)=>{
+      e.stopPropagation();
+      CartManager.addItem(b.dataset.product);
+    });
     grid.dataset.pause='';let direction=1;
     grid.onmouseenter=()=>grid.dataset.pause='1';grid.onmouseleave=()=>grid.dataset.pause='';grid.onfocusin=()=>grid.dataset.pause='1';grid.onfocusout=()=>grid.dataset.pause='';grid.onpointerdown=()=>grid.dataset.pause='1';grid.onpointerup=()=>grid.dataset.pause='';
     if(target==='cart-page-recs-grid') {
@@ -3898,7 +4100,6 @@ header nav a.active-link {
         const p=noteProductsCatalog.find(p=>p.id===item.product_id);
         if(!p || !p.in_stock || item.quantity>p.stock) throw Error('راجع توفر وكمية '+item.title);
         if(p.product_class==='dynamic_bundle' && !item.sub_items?.length) throw Error('اختار مكونات '+p.title+' من صفحة المنتج');
-        // A saved cart-line ID makes retries update quantity instead of duplicating additions.
         let line=item.native_line_id && native.find(n=>String(n.id)===String(item.native_line_id));
         if(!line && !item.sub_items?.length) line=native.find(n=>(n.product_id || n.product?.id)===p.id && !n.sub_items?.length);
         if(line) assertCartResponse(await api.updateProduct({product_id:line.id,quantity:item.quantity}));
