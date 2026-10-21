@@ -79,6 +79,20 @@ def normalize_urls(markup):
         (r'src="/fonts/', f'src="{ASSET_HOST}/fonts/'),
         (r'src="/logo_white_crisp.png"', f'src="{ASSET_HOST}/logo_white_crisp.png"'),
         (r'src="/logo_dark_crisp.png"', f'src="{ASSET_HOST}/logo_dark_crisp.png"'),
+        # Map Category links to native Zid URLs
+        (r'href="/category\.html\?cat=all"', 'href="/categories"'),
+        (r'href="/category\.html\?cat=perfumes"', 'href="/categories/1748533/perfumes"'),
+        (r'href="/category\.html\?cat=niche"', 'href="/categories/1500261/عطور-النيش"'),
+        (r'href="/category\.html\?cat=bestsellers"', 'href="/categories/1697258/الأكثر-مبيعا"'),
+        (r'href="/category\.html\?cat=new"', 'href="/categories/1327929/newest-products"'),
+        (r'href="/category\.html\?cat=travel"', 'href="/categories/1310036/30ml-perfumes"'),
+        (r'href="/category\.html\?cat=all-over"', 'href="/categories/1688838/all-over-spray"'),
+        (r'href="/category\.html\?cat=packages"', 'href="/categories/1752110/packages"'),
+        (r'href="/category\.html\?cat=linen"', 'href="/categories/1310037/معطرات-جو-وجسم"'),
+        (r'href="/category\.html\?cat=tollah"', 'href="/categories/1421002/tollah"'),
+        (r'href="/category\.html\?cat=bodycare"', 'href="/categories/1750048/body-care-products"'),
+        (r'href="/category\.html\?cat=body-care"', 'href="/categories/1750048/body-care-products"'),
+        (r'href="/cart\.html"', 'href="/cart"'),
     ]
     for pattern, repl in replacements:
         markup = re.sub(pattern, repl, markup)
@@ -238,13 +252,13 @@ t_refund = json.dumps(refund_template, ensure_ascii=False)
 
 app_js_code = f"""/**
  * NOTE Perfumes Official Storefront Engine for Zid
- * Version: 4.0.0 - Full Multi-Page SPA Client Master Edition
+ * Version: 4.1.0 - Full Multi-Page SPA Client Master Edition
  * 100% Parity with refine-paperbacks-based-nat.trycloudflare.com
  * Hosted via GitHub Pages CDN: {ASSET_HOST}/
  */
 (function() {{
   "use strict";
-  console.log("NOTE Perfumes Master Engine v4.0.0 Starting...");
+  console.log("NOTE Perfumes Master Engine v4.1.0 Starting...");
 
   const ASSET_HOST = "{ASSET_HOST}";
 
@@ -266,6 +280,20 @@ app_js_code = f"""/**
     'bn': 'bn',
     'musk-bukhor': 'مسك-بخور',
     'royal-powder': 'رويال-باودر'
+  }};
+
+  const catUrlMap = {{
+    'all': '/categories',
+    'perfumes': '/categories/1748533/perfumes',
+    'niche': '/categories/1500261/عطور-النيش',
+    'bestsellers': '/categories/1697258/الأكثر-مبيعا',
+    'new': '/categories/1327929/newest-products',
+    'travel': '/categories/1310036/30ml-perfumes',
+    'all-over': '/categories/1688838/all-over-spray',
+    'packages': '/categories/1752110/packages',
+    'linen': '/categories/1310037/معطرات-جو-وجسم',
+    'tollah': '/categories/1421002/tollah',
+    'body-care': '/categories/1750048/body-care-products'
   }};
 
   // 1. Inject Salla Icons CSS if not loaded
@@ -500,14 +528,15 @@ app_js_code = f"""/**
       if (totalEl) totalEl.textContent = total + ' ر.س';
       
       itemsContainer.innerHTML = cart.map(item => {{
+        const zidSlug = zidSlugMap[item.id] || item.id;
         const imgUrl = (item.img.startsWith('http') ? '' : ASSET_HOST) + item.img;
         return `
           <div class="flex items-center gap-3 py-3 border-b border-stone-100 last:border-b-0 text-right">
-            <a href="/product.html?id=${{item.id}}" onclick="NoteRouter.navigate('/product.html?id=${{item.id}}'); CartManager.closeDrawer();" class="w-16 h-16 rounded-xl bg-stone-50 p-1 flex-shrink-0 flex items-center justify-center border border-stone-100 block">
+            <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}'); CartManager.closeDrawer();" class="w-16 h-16 rounded-xl bg-stone-50 p-1 flex-shrink-0 flex items-center justify-center border border-stone-100 block">
               <img src="${{imgUrl}}" alt="${{item.title}}" class="w-full h-full object-contain">
             </a>
             <div class="flex-grow">
-              <a href="/product.html?id=${{item.id}}" onclick="NoteRouter.navigate('/product.html?id=${{item.id}}'); CartManager.closeDrawer();" class="hover:underline">
+              <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}'); CartManager.closeDrawer();" class="hover:underline">
                 <h4 class="text-xs font-bold text-black line-clamp-1">${{item.title}}</h4>
               </a>
               <span class="text-[10px] text-stone-400 block">${{item.size || '100 مل'}}</span>
@@ -531,9 +560,10 @@ app_js_code = f"""/**
 
   // 8. Product Card Rendering
   function renderProductCard(p, index) {{
+    const zidSlug = zidSlugMap[p.id] || p.id;
     const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
     return `
-      <div class="min-w-[175px] sm:min-w-[270px] max-w-[185px] sm:max-w-[280px] shrink-0 p-1 flex flex-col justify-between text-center group cursor-pointer bg-transparent" style="scroll-snap-align: start;" onclick="NoteRouter.navigate('/product.html?id=${{p.id}}')">
+      <div class="min-w-[175px] sm:min-w-[270px] max-w-[185px] sm:max-w-[280px] shrink-0 p-1 flex flex-col justify-between text-center group cursor-pointer bg-transparent" style="scroll-snap-align: start;" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
         <div>
           <!-- Frameless Image Container with Clean Shadow/Scale -->
           <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
@@ -887,6 +917,7 @@ app_js_code = f"""/**
   function initPDP(prodId) {{
     pdpQuantity = 1;
     currentProduct = noteProductsCatalog.find(p => p.id === prodId) || 
+                     noteProductsCatalog.find(p => zidSlugMap[p.id] === prodId) || 
                      noteProductsCatalog.find(p => p.id === zidSlugMap[prodId]) || 
                      noteProductsCatalog[0];
 
@@ -894,10 +925,12 @@ app_js_code = f"""/**
 
     const breadCat = document.getElementById('pdp-breadcrumb-cat');
     if (breadCat) {{
+      const catUrl = catUrlMap[currentProduct.cat] || `/categories`;
       breadCat.textContent = currentProduct.cat_ar || 'العطور';
+      breadCat.setAttribute('href', catUrl);
       breadCat.onclick = (e) => {{
         e.preventDefault();
-        NoteRouter.navigate('/category.html?cat=' + currentProduct.cat);
+        NoteRouter.navigate(catUrl);
       }};
     }}
     const breadTitle = document.getElementById('pdp-breadcrumb-title');
@@ -985,9 +1018,11 @@ app_js_code = f"""/**
     if (link30) {{
       const travelVersion = noteProductsCatalog.find(p => p.id === `${{currentProduct.id}}-30ml` || (p.title.includes(currentProduct.title.replace('عطر ', '')) && p.cat === 'travel'));
       if (travelVersion) {{
+        const travelSlug = zidSlugMap[travelVersion.id] || travelVersion.id;
+        link30.setAttribute('href', `/products/${{travelSlug}}`);
         link30.onclick = (e) => {{
           e.preventDefault();
-          NoteRouter.navigate(`/product.html?id=${{travelVersion.id}}`);
+          NoteRouter.navigate(`/products/${{travelSlug}}`);
         }};
         link30.classList.remove('hidden');
       }} else {{
@@ -1025,7 +1060,7 @@ app_js_code = f"""/**
   function buyNowCurrentProduct() {{
     if (!currentProduct) return;
     CartManager.addItem(currentProduct.id, pdpQuantity);
-    NoteRouter.navigate('/cart.html');
+    NoteRouter.navigate('/cart');
   }}
 
   function renderRelatedProducts() {{
@@ -1038,9 +1073,10 @@ app_js_code = f"""/**
     }}
 
     container.innerHTML = related.map(p => {{
+      const zidSlug = zidSlugMap[p.id] || p.id;
       const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
       return `
-        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300" onclick="NoteRouter.navigate('/product.html?id=${{p.id}}')">
+        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 overflow-hidden">
               ${{p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.tag}}</span>` : ''}}
@@ -1122,7 +1158,7 @@ app_js_code = f"""/**
   function selectCategory(cat, updateURL = true) {{
     activeCategory = cat || 'all';
     if (updateURL) {{
-      const newUrl = `/category.html?cat=${{activeCategory}}`;
+      const newUrl = catUrlMap[activeCategory] || `/categories`;
       window.history.pushState({{ path: newUrl }}, '', newUrl);
     }}
 
@@ -1220,9 +1256,10 @@ app_js_code = f"""/**
     if (noProducts) noProducts.classList.add('hidden');
 
     container.innerHTML = filtered.map(p => {{
+      const zidSlug = zidSlugMap[p.id] || p.id;
       const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
       return `
-        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300" onclick="NoteRouter.navigate('/product.html?id=${{p.id}}')">
+        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
               ${{p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.tag}}</span>` : ''}}
@@ -1290,15 +1327,16 @@ app_js_code = f"""/**
     }}
 
     itemsContainer.innerHTML = cart.map(item => {{
+      const zidSlug = zidSlugMap[item.id] || item.id;
       const imgUrl = (item.img.startsWith('http') ? '' : ASSET_HOST) + item.img;
       return `
         <div class="py-4 sm:py-6 flex items-center justify-between gap-4 text-right">
           <div class="flex items-center gap-3 sm:gap-4 flex-grow">
-            <a href="/product.html?id=${{item.id}}" onclick="NoteRouter.navigate('/product.html?id=${{item.id}}')" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-stone-50 p-2 flex-shrink-0 flex items-center justify-center border border-stone-200/80 block">
+            <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-stone-50 p-2 flex-shrink-0 flex items-center justify-center border border-stone-200/80 block">
               <img src="${{imgUrl}}" alt="${{item.title}}" class="w-full h-full object-contain">
             </a>
             <div class="space-y-1">
-              <a href="/product.html?id=${{item.id}}" onclick="NoteRouter.navigate('/product.html?id=${{item.id}}')" class="hover:underline">
+              <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" class="hover:underline">
                 <h4 class="text-xs sm:text-sm font-bold text-black">${{item.title}}</h4>
               </a>
               <span class="text-[11px] text-stone-400 block">${{item.size || '100 مل'}}</span>
@@ -1430,7 +1468,7 @@ app_js_code = f"""/**
     }},
 
     detectRoute: function() {{
-      const path = window.location.pathname.toLowerCase();
+      const path = decodeURIComponent(window.location.pathname).toLowerCase();
       const params = new URLSearchParams(window.location.search);
 
       if (path.includes('/product') || params.has('id')) {{
