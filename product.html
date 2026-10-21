@@ -210,8 +210,10 @@
           <div class="space-y-2.5">
             <!-- Tabby -->
             <div class="p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 flex items-center justify-between text-xs">
-              <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded bg-[#3EEDBF] text-black font-extrabold text-[10px] tracking-wider">tabby</span>
+              <div class="flex items-center gap-2.5">
+                <div class="h-6 px-2 rounded bg-[#3EEDBF] flex items-center justify-center">
+                  <img src="/assets/icons/payment/tabby.svg" alt="Tabby" class="h-3 w-auto object-contain">
+                </div>
                 <span class="text-stone-800">أو قسّمها على 4 دفعات بقيمة <strong id="pdp-tabby-price" class="font-extrabold text-black">57.25 ر.س</strong> بدون فوائد</span>
               </div>
               <span class="text-[10px] text-stone-400 font-bold hover:underline cursor-pointer">معرفة المزيد</span>
@@ -219,8 +221,10 @@
             
             <!-- Tamara -->
             <div class="p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 flex items-center justify-between text-xs">
-              <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded bg-[#E4A951] text-white font-extrabold text-[10px] tracking-wider">tamara</span>
+              <div class="flex items-center gap-2.5">
+                <div class="h-6 px-2 rounded bg-white border border-stone-200 flex items-center justify-center">
+                  <img src="/assets/icons/payment/tamara.svg" alt="Tamara" class="h-3.5 w-auto object-contain">
+                </div>
                 <span class="text-stone-800">أو قسّمها على 4 دفعات بدون أي رسوم تأخير</span>
               </div>
               <span class="text-[10px] text-stone-400 font-bold hover:underline cursor-pointer">معرفة المزيد</span>
@@ -274,6 +278,31 @@
               <i class="sicon-apple-pay text-xl"></i>
               <span>شراء فوري عبر Apple Pay / مدى</span>
             </button>
+
+            <!-- Certified Payment Badges Row -->
+            <div class="flex items-center justify-center gap-2 pt-1 pb-1">
+              <span class="text-[10px] text-stone-400 font-bold ml-1">الدفع المعتمد:</span>
+              <div class="flex items-center gap-1.5">
+                <div class="h-6 px-2 bg-stone-50 border border-stone-200/80 rounded flex items-center justify-center" title="مدى Mada">
+                  <img src="/assets/icons/payment/mada.png" alt="Mada" class="h-3 w-auto object-contain">
+                </div>
+                <div class="h-6 px-2 bg-stone-50 border border-stone-200/80 rounded flex items-center justify-center" title="Apple Pay">
+                  <img src="/assets/icons/payment/apple_pay.svg" alt="Apple Pay" class="h-3 w-auto object-contain">
+                </div>
+                <div class="h-6 px-2 bg-stone-50 border border-stone-200/80 rounded flex items-center justify-center" title="Visa">
+                  <img src="/assets/icons/payment/visa.png" alt="Visa" class="h-2 w-auto object-contain">
+                </div>
+                <div class="h-6 px-2 bg-stone-50 border border-stone-200/80 rounded flex items-center justify-center" title="Mastercard">
+                  <img src="/assets/icons/payment/mastercard.png" alt="Mastercard" class="h-3.5 w-auto object-contain">
+                </div>
+                <div class="h-6 px-1.5 bg-stone-50 border border-stone-200/80 rounded flex items-center justify-center" title="Tabby">
+                  <img src="/assets/icons/payment/tabby.svg" alt="Tabby" class="h-2.5 w-auto object-contain">
+                </div>
+                <div class="h-6 px-1.5 bg-stone-50 border border-stone-200/80 rounded flex items-center justify-center" title="Tamara">
+                  <img src="/assets/icons/payment/tamara.svg" alt="Tamara" class="h-2.5 w-auto object-contain">
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Trust Badges Row -->
@@ -310,7 +339,9 @@
           <!-- Top Notes -->
           <div class="p-6 rounded-2xl bg-stone-50/70 border border-stone-100 text-center space-y-3 hover:shadow-md transition">
             <div class="w-12 h-12 rounded-full bg-white shadow-sm mx-auto flex items-center justify-center text-black">
-              <i class="sicon-sparkles text-xl"></i>
+              <svg class="w-5 h-5 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l2.4 7.2L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4L12 2z"/>
+              </svg>
             </div>
             <h4 class="text-sm font-bold text-black">قمة العطر (الإفتتاحية)</h4>
             <p class="text-[11px] text-stone-400 font-normal">أول انطباع يأسرك خلال اللحظات الأولى من الرش</p>
@@ -320,7 +351,9 @@
           <!-- Heart Notes -->
           <div class="p-6 rounded-2xl bg-stone-50/70 border border-stone-100 text-center space-y-3 hover:shadow-md transition">
             <div class="w-12 h-12 rounded-full bg-white shadow-sm mx-auto flex items-center justify-center text-black">
-              <i class="sicon-heart text-xl"></i>
+              <svg class="w-5 h-5 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
             </div>
             <h4 class="text-sm font-bold text-black">قلب العطر (الجوهر)</h4>
             <p class="text-[11px] text-stone-400 font-normal">روح العطر وفوحانه المتألق الذي يدوم لساعات</p>
@@ -330,7 +363,10 @@
           <!-- Base Notes -->
           <div class="p-6 rounded-2xl bg-stone-50/70 border border-stone-100 text-center space-y-3 hover:shadow-md transition">
             <div class="w-12 h-12 rounded-full bg-white shadow-sm mx-auto flex items-center justify-center text-black">
-              <i class="sicon-anchor text-xl"></i>
+              <svg class="w-5 h-5 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
             </div>
             <h4 class="text-sm font-bold text-black">قاعدة العطر (الثبات)</h4>
             <p class="text-[11px] text-stone-400 font-normal">العمق الخالد الذي يستقر على بشرتك وملابسك لأيام</p>
@@ -656,6 +692,7 @@
       if (currentProduct.img_box && currentProduct.img_box !== currentProduct.img) {
         images.push(currentProduct.img_box);
       }
+      thumbsContainer.style.display = images.length > 1 ? 'flex' : 'none';
 
       images.forEach((imgUrl, idx) => {
         const btn = document.createElement('button');

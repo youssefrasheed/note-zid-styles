@@ -1117,6 +1117,7 @@ app_js_code = f"""/**
       if (currentProduct.img_box && currentProduct.img_box !== currentProduct.img) {{
         images.push(currentProduct.img_box);
       }}
+      thumbsContainer.style.display = images.length > 1 ? 'flex' : 'none';
 
       images.forEach((img, idx) => {{
         const fullUrl = (img.startsWith('http') ? '' : ASSET_HOST) + img;
