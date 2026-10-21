@@ -276,11 +276,15 @@ footer::before,
 header nav a.border-b-2,
 #nav-links a.active-link,
 header nav a.active-link {{
-  border-bottom-width: 2px !important;
-  border-bottom-style: solid !important;
-  border-bottom-color: currentColor !important;
+  border-bottom: 2px solid currentColor !important;
   padding-bottom: 2px !important;
   opacity: 1 !important;
+}}
+
+#nav-links a:not(.active-link),
+header nav a:not(.active-link) {{
+  border-bottom: 2px solid transparent !important;
+  padding-bottom: 2px !important;
 }}
 
 /* Floating WhatsApp Button - Elevated above Mobile Bottom Navigation */
@@ -850,6 +854,7 @@ app_js_code = f"""/**
         // Update Catalog Grid if on catalog / category page
         if (typeof renderCatalog === 'function' && document.getElementById('catalog-products-grid')) {{
           renderCatalog();
+    updateActiveNav({{ route: 'category', cat: activeCategory }});
         }}
       }} catch(e) {{}}
     }}
@@ -1864,6 +1869,7 @@ app_js_code = f"""/**
     document.title = `${{meta.title}} | دار نوت للعطور NOTE Perfumes`;
 
     renderCatalog();
+    updateActiveNav({{ route: 'category', cat: activeCategory }});
 
     // Scroll smoothly to top of catalog if user scrolled down
     if (updateURL) {{
@@ -1882,6 +1888,7 @@ app_js_code = f"""/**
       else clearBtn.classList.add('hidden');
     }}
     renderCatalog();
+    updateActiveNav({{ route: 'category', cat: activeCategory }});
   }}
 
   function clearCatSearch() {{
@@ -1898,6 +1905,7 @@ app_js_code = f"""/**
   function handleCategorySort(val) {{
     categorySort = val;
     renderCatalog();
+    updateActiveNav({{ route: 'category', cat: activeCategory }});
   }}
 
   function resetCategoryFilters() {{
@@ -2422,25 +2430,53 @@ app_js_code = f"""/**
     }}
   }};
 
+  function getLinkCategory(link) {{
+    if (!link) return null;
+    if (link.dataset && link.dataset.cat) return link.dataset.cat;
+    const text = (link.textContent || '').trim();
+    const href = link.getAttribute('href') || '';
+    
+    if (text === 'الرئيسية' || href === '/' || href === '') return 'home';
+    if (text.includes('جميع المنتجات') || href === '/categories' || href === '/products' || href.includes('cat=all')) return 'all';
+    if (text.includes('النيش') || href.includes('1500261') || href.includes('1759040') || href.includes('niche')) return 'niche';
+    if (text.includes('الأكثر مبيع') || text.includes('الأكثر مبيعا') || href.includes('1697258') || href.includes('bestseller')) return 'bestsellers';
+    if (text.includes('أحدث المنتجات') || text.includes('جديد') || href.includes('1327929') || href.includes('1759041') || href.includes('new')) return 'new';
+    if (text.includes('العطور') || href.includes('1748533') || href.includes('perfumes')) return 'perfumes';
+    if (text.includes('30') || href.includes('1310036') || href.includes('1759043') || href.includes('travel')) return 'travel';
+    if (text.includes('جسم') || href.includes('1688838') || href.includes('1759042') || href.includes('all-over')) return 'all-over';
+    if (text.includes('باقات') || text.includes('مجموعات') || href.includes('1752110') || href.includes('1759047') || href.includes('packages')) return 'packages';
+    if (text.includes('مفارش') || href.includes('1310037') || href.includes('1759044') || href.includes('linen')) return 'linen';
+    if (text.includes('تول') || href.includes('1421002') || href.includes('tollah')) return 'tollah';
+    if (text.includes('عناية') || href.includes('1750048') || href.includes('1759046') || href.includes('body')) return 'body-care';
+    return null;
+  }}
+
   function updateActiveNav(target) {{
-    const navLinks = document.querySelectorAll('#nav-links a');
+    const navLinks = document.querySelectorAll('#nav-links a, header nav a');
     if (!navLinks || navLinks.length === 0) return;
+    
+    let activeKey = 'home';
+    if (target) {{
+      if (target.route === 'home') activeKey = 'home';
+      else if (target.route === 'category') activeKey = target.cat || 'all';
+      else activeKey = null;
+    }} else if (typeof NoteRouter !== 'undefined' && NoteRouter.detectRoute) {{
+      const detected = NoteRouter.detectRoute();
+      if (detected.route === 'home') activeKey = 'home';
+      else if (detected.route === 'category') activeKey = detected.cat || 'all';
+      else activeKey = null;
+    }}
+    
     navLinks.forEach(link => {{
-      link.classList.remove('border-b-2', 'border-current', 'active-link');
-      link.style.borderBottom = 'none';
-      const href = link.getAttribute('href') || '';
-      
-      let isMatch = false;
-      if (target.route === 'home' && (href === '/' || href === '')) {{
-        isMatch = true;
-      }} else if (target.route === 'category') {{
-        if (target.cat === 'all' && (href === '/categories' || href.includes('cat=all'))) isMatch = true;
-        else if (href.includes(target.cat)) isMatch = true;
-      }}
+      const linkCat = getLinkCategory(link);
+      const isMatch = activeKey && (linkCat === activeKey);
       
       if (isMatch) {{
         link.classList.add('border-b-2', 'border-current', 'active-link');
         link.style.borderBottom = '2px solid currentColor';
+      }} else {{
+        link.classList.remove('border-b-2', 'border-current', 'active-link');
+        link.style.borderBottom = '2px solid transparent';
       }}
     }});
   }}

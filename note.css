@@ -208,11 +208,15 @@ footer::before,
 header nav a.border-b-2,
 #nav-links a.active-link,
 header nav a.active-link {
-  border-bottom-width: 2px !important;
-  border-bottom-style: solid !important;
-  border-bottom-color: currentColor !important;
+  border-bottom: 2px solid currentColor !important;
   padding-bottom: 2px !important;
   opacity: 1 !important;
+}
+
+#nav-links a:not(.active-link),
+header nav a:not(.active-link) {
+  border-bottom: 2px solid transparent !important;
+  padding-bottom: 2px !important;
 }
 
 /* Floating WhatsApp Button - Elevated above Mobile Bottom Navigation */

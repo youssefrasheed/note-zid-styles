@@ -447,4 +447,62 @@
         CartManager.updateBadge();
       }, 1200);
     }
+
+    const getNavCategory = function(link) {
+      if (!link) return null;
+      if (link.dataset && link.dataset.cat) return link.dataset.cat;
+      const text = (link.textContent || '').trim();
+      const href = link.getAttribute('href') || '';
+      if (text === 'الرئيسية' || href === '/' || href === '') return 'home';
+      if (text.includes('جميع المنتجات') || href === '/categories' || href === '/products' || href.includes('cat=all')) return 'all';
+      if (text.includes('النيش') || href.includes('1500261') || href.includes('1759040') || href.includes('niche')) return 'niche';
+      if (text.includes('الأكثر مبيع') || text.includes('الأكثر مبيعا') || href.includes('1697258') || href.includes('bestseller')) return 'bestsellers';
+      if (text.includes('أحدث المنتجات') || text.includes('جديد') || href.includes('1327929') || href.includes('1759041') || href.includes('new')) return 'new';
+      if (text.includes('العطور') || href.includes('1748533') || href.includes('perfumes')) return 'perfumes';
+      if (text.includes('30') || href.includes('1310036') || href.includes('1759043') || href.includes('travel')) return 'travel';
+      if (text.includes('جسم') || href.includes('1688838') || href.includes('1759042') || href.includes('all-over')) return 'all-over';
+      if (text.includes('باقات') || text.includes('مجموعات') || href.includes('1752110') || href.includes('1759047') || href.includes('packages')) return 'packages';
+      if (text.includes('مفارش') || href.includes('1310037') || href.includes('1759044') || href.includes('linen')) return 'linen';
+      if (text.includes('تول') || href.includes('1421002') || href.includes('tollah')) return 'tollah';
+      if (text.includes('عناية') || href.includes('1750048') || href.includes('1759046') || href.includes('body')) return 'body-care';
+      return null;
+    };
+
+    const syncActiveNavLine = function(targetKey) {
+      let key = targetKey;
+      if (!key && typeof NoteRouter !== 'undefined' && NoteRouter.detectRoute) {
+        const d = NoteRouter.detectRoute();
+        key = d.route === 'home' ? 'home' : (d.route === 'category' ? (d.cat || 'all') : null);
+      }
+      const navLinks = document.querySelectorAll('#nav-links a, header nav a');
+      navLinks.forEach(link => {
+        const lCat = getNavCategory(link);
+        const isMatch = key && (lCat === key);
+        if (isMatch) {
+          link.classList.add('border-b-2', 'border-current', 'active-link');
+          link.style.borderBottom = '2px solid currentColor';
+        } else {
+          link.classList.remove('border-b-2', 'border-current', 'active-link');
+          link.style.borderBottom = '2px solid transparent';
+        }
+      });
+    };
+
+    document.addEventListener('click', function(e) {
+      const link = e.target?.closest?.('#nav-links a, header nav a');
+      if (link) {
+        const cat = getNavCategory(link);
+        if (cat) {
+          syncActiveNavLine(cat);
+        }
+      }
+    }, true);
+
+    if (typeof selectCategory === 'function') {
+      const originalSelectCat = selectCategory;
+      selectCategory = function(cat, updateURL) {
+        originalSelectCat(cat, updateURL);
+        syncActiveNavLine(cat || 'all');
+      };
+    }
   }

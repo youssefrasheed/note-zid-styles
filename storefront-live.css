@@ -333,3 +333,19 @@ body:not(.note-ready) footer:not(#note-store-footer) {
 #cart-drawer-recommendations .flex > span:last-child {
   display: none !important;
 }
+
+/* Active Nav Links Underline (100% Reference Parity) */
+#nav-links a.border-b-2,
+header nav a.border-b-2,
+#nav-links a.active-link,
+header nav a.active-link {
+  border-bottom: 2px solid currentColor !important;
+  padding-bottom: 2px !important;
+  opacity: 1 !important;
+}
+
+#nav-links a:not(.active-link),
+header nav a:not(.active-link) {
+  border-bottom: 2px solid transparent !important;
+  padding-bottom: 2px !important;
+}
