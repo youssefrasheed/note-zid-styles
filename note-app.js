@@ -32,7 +32,9 @@
     'attraction': 'attraction',
     'bn': 'bn',
     'musk-bukhor': 'مسك-بخور',
-    'royal-powder': 'رويال-باودر'
+    'royal-powder': 'رويال-باودر',
+    'pkg-linen-collection': 'مجموعة-معطرات-الجو-و-المفارش',
+    'مجموعة-معطرات-الجو-و-المفارش': 'مجموعة-معطرات-الجو-و-المفارش'
   };
 
   const catUrlMap = {
@@ -1885,6 +1887,30 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     "top": "رذاذ الانتعاش المائي، البرغموت، زهر البرتقال",
     "heart": "المسك النظيف، رحيق العسل، بتلات الورد",
     "base": "الفانيليا الخفيفة، العنبر الشفاف، خشب الصندل"
+  },
+  {
+    "id": "pkg-linen-collection",
+    "title": "مجموعة معطرات الجو والمفارش",
+    "title_en": "LINEN SPRAY COLLECTION (3 BOTTLES)",
+    "cat": "linen",
+    "cat_ar": "معطرات الجو والمفارش",
+    "size": "3 × 250 مل معطر مفارش",
+    "concentration": "Linen & Room Spray",
+    "tag": "توفير استثنائي",
+    "bestseller": false,
+    "price": 196,
+    "old_price": 237,
+    "discount": "17%",
+    "rating": 4.95,
+    "reviews_count": 28,
+    "img": "/products/06_Linen_Spray_Trio_Dark.webp",
+    "img_box": "/products/06_Linen_Spray_Trio_Dark.webp",
+    "notes": "رويال توباكو + باودر روز + عود روز وود",
+    "slogan": "ثلاثية الفخامة للمنزل والمفارش؛ انتعاش يدوم ونقاء يملأ الأرجاء بأرقى نفحات نوت",
+    "description": "تتضمن المجموعة الثلاثية الفاخرة لمعطرات الجو والمفارش: معطر مفارش رويال توباكو، معطر مفارش باودر روز، ومعطر مفارش عود روز وود. عبوات بحجم كبير تمنح منزلك ومفارشك عبقاً وثباتاً ساحراً.",
+    "top": "التوابل الدافئة، زهر البرتقال، الورد المنعش",
+    "heart": "الكستناء، السوسن، خشب الورد الفاخر",
+    "base": "خشب الصندل، التبغ الدافئ، العود الملكي المعتق"
   },
   {
     "id": "musk-bundle-gift",
@@ -4092,14 +4118,28 @@ body:not(.note-ready) footer:not(#note-store-footer) {
 
   // Live storefront integration. Kept separately so rebuilding templates preserves fixes.
   const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const liveImage = image => image?.image?.large || image?.image?.full_size || image?.image?.thumbnail || '';
+  const KNOWN_PRODUCT_FALLBACKS = {
+    '83561f07-7f51-43a4-a632-2030d6b71bc1': '/products/06_Linen_Spray_Trio_Dark.webp',
+    'مجموعة-معطرات-الجو-و-المفارش': '/products/06_Linen_Spray_Trio_Dark.webp',
+    'pkg-linen-collection': '/products/06_Linen_Spray_Trio_Dark.webp'
+  };
+  const liveImage = (image, key) => {
+    const raw = image?.image?.large || image?.image?.full_size || image?.image?.thumbnail || '';
+    if (typeof raw === 'string' && raw.trim() && !raw.trim().endsWith('.') && /\.(webp|png|jpe?g|gif|svg)(\?.*)?$/i.test(raw.trim())) {
+      return raw.trim();
+    }
+    if (key && KNOWN_PRODUCT_FALLBACKS[key]) {
+      return KNOWN_PRODUCT_FALLBACKS[key];
+    }
+    return '';
+  };
   const liveMoney = value => value === null || value === undefined || value === '' ? null : (Number.isFinite(Number(value)) ? Number(value) : null);
   let liveCatalogReady = false;
   const originalCatalog = noteProductsCatalog.slice();
   noteProductsCatalog.splice(0);
   productsData.splice(0);
-  ZidSyncManager.CACHE_KEY = 'note_zid_catalog_v6';
-  ZidSyncManager.CACHE_TIME_KEY = 'note_zid_catalog_time_v6';
+  ZidSyncManager.CACHE_KEY = 'note_zid_catalog_v8';
+  ZidSyncManager.CACHE_TIME_KEY = 'note_zid_catalog_time_v8';
   ZidSyncManager.loadCachedData = function() {
     try {
       const cached = localStorage.getItem(this.CACHE_KEY);
@@ -4118,15 +4158,19 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     const next = results.filter(z => z.id && liveMoney(z.price) !== null).map(z => {
       const slug = z.slug || z.id;
       // A stable Zid UUID is the only product identity. Slugs are route aliases only.
-      const prior = originalCatalog.find(p => (zidSlugMap[p.id] || p.id) === slug) || {};
+      const prior = originalCatalog.find(p => p.id === z.id || (zidSlugMap[p.id] || p.id) === slug || (zidSlugMap[p.id] || p.id) === z.id) || {};
       const categories = z.categories || [];
       const category = categories.some(c=>/نيش/.test(c.name)) ? 'niche' : categories.some(c=>/30/.test(c.name)) ? 'travel' : categories.some(c=>/تول/.test(c.name)) ? 'tollah' : categories.some(c=>/عناية/.test(c.name)) ? 'body-care' : categories.some(c=>/باقات|مجموعات/.test(c.name)) || z.product_class==='dynamic_bundle' || z.product_class==='grouped_product' ? 'packages' : categories.some(c=>/جو|مفارش/.test(c.name)) ? 'linen' : categories.some(c=>/جسم/.test(c.name)) ? 'all-over' : 'perfumes';
       const sale = liveMoney(z.sale_price), price = liveMoney(z.price);
       const old = sale !== null && sale < price ? price : null;
       const sold = Number(z.sold_products_count) || 0;
+      const fallbackImg = KNOWN_PRODUCT_FALLBACKS[z.id] || KNOWN_PRODUCT_FALLBACKS[slug] || prior.img || '';
+      const fallbackImgBox = KNOWN_PRODUCT_FALLBACKS[z.id] || KNOWN_PRODUCT_FALLBACKS[slug] || prior.img_box || fallbackImg || null;
+      const img = liveImage(z.images?.[0], z.id) || fallbackImg || '';
+      const img_box = liveImage(z.images?.[1], z.id) || fallbackImgBox || null;
       const entry = {...prior, id:z.id, zid_id:z.id, slug, title:z.name || '', title_en:z.name_en || '', price: sale ?? price, old_price:old,
         discount:old ? Math.round((old - sale)/old*100)+'%' : null,
-        img:liveImage(z.images?.[0]) || prior.img || '', img_box:liveImage(z.images?.[1]) || prior.img_box || null,
+        img: img, img_box: img_box,
         cat:category, cat_ar:categories.find(c => String(c.id) === catUrlMap[category]?.split('/')[2])?.name || categories[0]?.name || prior.cat_ar || '',
         category_ids:categories.map(c => String(c.id)),
         bestseller:sold > 0, sold_count:sold, tag:old ? 'خصم' : '',
@@ -4721,6 +4765,16 @@ body:not(.note-ready) footer:not(#note-store-footer) {
       };
     }
   }
+
+  // Global recovery for corrupted/blank images (e.g. trailing dot CDN URLs)
+  document.addEventListener('error', function(e) {
+    if (e.target && e.target.tagName === 'IMG') {
+      const src = e.target.getAttribute('src') || '';
+      if (src.includes('a26e413c') || src.endsWith('.') || src.includes('47dc7967') || src.includes('83561f07')) {
+        e.target.src = 'https://youssefrasheed.github.io/note-zid-styles/products/06_Linen_Spray_Trio_Dark.webp';
+      }
+    }
+  }, true);
 
   // Global Exports for Inlined HTML Handlers
   window.productsData = productsData;

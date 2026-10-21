@@ -654,7 +654,9 @@ app_js_code = f"""/**
     'attraction': 'attraction',
     'bn': 'bn',
     'musk-bukhor': 'مسك-بخور',
-    'royal-powder': 'رويال-باودر'
+    'royal-powder': 'رويال-باودر',
+    'pkg-linen-collection': 'مجموعة-معطرات-الجو-و-المفارش',
+    'مجموعة-معطرات-الجو-و-المفارش': 'مجموعة-معطرات-الجو-و-المفارش'
   }};
 
   const catUrlMap = {{
