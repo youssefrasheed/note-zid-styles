@@ -4,7 +4,7 @@ import re
 import json
 
 ASSET_HOST = "https://youssefrasheed.github.io/note-zid-styles"
-PREVIEW_DIR = "/Users/yousefsoom/.gemini/antigravity/scratch/zid-store-preview"
+PREVIEW_DIR = os.path.dirname(os.path.abspath(__file__))
 
 OUT_JS = "/Users/yousefsoom/note-zid-styles/note-app.js"
 OUT_CSS = "/Users/yousefsoom/note-zid-styles/note.css"
