@@ -284,6 +284,64 @@ header nav a:not(.active-link) {
   color: #ffffff !important;
 }
 
+/* Out of Stock ("غير متاح") Luxury Sticker & State */
+.note-out-of-stock-sticker,
+.out-of-stock,
+.tp-product-image .out-of-stock {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) rotate(-18deg) !important;
+  z-index: 25 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: max-content !important;
+  height: max-content !important;
+  background: #e11d48 !important;
+  color: #ffffff !important;
+  font-family: inherit !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  padding: 4px 14px !important;
+  border-radius: 9999px !important;
+  border: 1.5px solid #ffffff !important;
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35) !important;
+  pointer-events: none !important;
+  white-space: nowrap !important;
+}
+
+@media (min-width: 640px) {
+  .note-out-of-stock-sticker,
+  .out-of-stock,
+  .tp-product-image .out-of-stock {
+    font-size: 12px !important;
+    padding: 5px 16px !important;
+  }
+}
+
+.note-out-of-stock-sticker.pdp-sticker {
+  font-size: 14px !important;
+  padding: 6px 22px !important;
+  border-width: 2px !important;
+  box-shadow: 0 6px 20px rgba(225, 29, 72, 0.4) !important;
+}
+
+@media (min-width: 640px) {
+  .note-out-of-stock-sticker.pdp-sticker {
+    font-size: 16px !important;
+    padding: 8px 26px !important;
+  }
+}
+
+.is-out-of-stock img,
+.product-item-out-of-stock img,
+#pdp-main-image-container.is-out-of-stock #pdp-main-image {
+  filter: grayscale(0.55) opacity(0.85) !important;
+  transition: filter 0.3s ease !important;
+}
+
 /* Floating WhatsApp Button - Elevated above Mobile Bottom Navigation */
 #floating-whatsapp-container {
   bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important;
@@ -2173,6 +2231,10 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     addItem: function(productId, quantity = 1) {
       const product = productsData.find(p => p.id === productId) || noteProductsCatalog.find(p => p.id === productId);
       if (!product) return;
+      if (product.in_stock === false || product.stock === 0) {
+        this.showToast('عذراً، هذا المنتج غير متاح حالياً');
+        return;
+      }
       let cart = this.getCart();
       const existing = cart.find(item => item.id === productId);
       if (existing) {
@@ -2373,7 +2435,7 @@ body:not(.note-ready) footer:not(#note-store-footer) {
         const recs = pool
           .filter(id => !inCartIds.has(id))
           .map(id => noteProductsCatalog.find(p => p.id === id))
-          .filter(Boolean)
+          .filter(p => p && p.in_stock !== false && p.stock !== 0)
           .slice(0, 1);
 
         if (recs.length > 0) {
@@ -2412,12 +2474,13 @@ body:not(.note-ready) footer:not(#note-store-footer) {
   function renderProductCard(p, index) {
     const zidSlug = zidSlugMap[p.id] || p.id;
     const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+    const isOutOfStock = p.in_stock === false || p.stock === 0;
     return `
-      <div class="min-w-[175px] sm:min-w-[270px] max-w-[185px] sm:max-w-[280px] shrink-0 p-1 flex flex-col justify-between text-center group cursor-pointer bg-transparent" style="scroll-snap-align: start;" onclick="NoteRouter.navigate('/products/${zidSlug}')">
+      <div class="min-w-[175px] sm:min-w-[270px] max-w-[185px] sm:max-w-[280px] shrink-0 p-1 flex flex-col justify-between text-center group cursor-pointer bg-transparent ${isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}" style="scroll-snap-align: start;" onclick="NoteRouter.navigate('/products/${zidSlug}')">
         <div>
           <!-- Frameless Image Container with Clean Shadow/Scale -->
           <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-            ${p.tag ? `<span class="absolute top-2.5 right-2.5 z-10 text-[9px] sm:text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm"> ${p.tag} </span>` : ''}
+            ${isOutOfStock ? `<span class="note-out-of-stock-sticker out-of-stock">غير متاح</span>` : (p.tag ? `<span class="absolute top-2.5 right-2.5 z-10 text-[9px] sm:text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm"> ${p.tag} </span>` : '')}
             <img src="${imgUrl}" alt="${escapeHTML(p.title)}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
           </div>
 
@@ -2435,10 +2498,16 @@ body:not(.note-ready) footer:not(#note-store-footer) {
         </div>
 
         <!-- Minimalist Rounded Pill Button -->
+        ${isOutOfStock ? `
+        <button disabled class="w-full mt-3 py-2 sm:py-2.5 px-4 rounded-full bg-stone-200 text-stone-500 cursor-not-allowed flex items-center justify-center gap-2 font-bold text-xs shadow-none" title="غير متاح">
+          <span>غير متاح</span>
+        </button>
+        ` : `
         <button onclick="event.stopPropagation(); CartManager.addItem('${p.id}')" class="w-full mt-3 py-2 sm:py-2.5 px-4 rounded-full bg-black text-white hover:bg-stone-800 active:scale-95 transition flex items-center justify-center gap-2 font-bold text-xs shadow-sm" title="إضافة للسلة">
           <span>إضافة للسلة</span>
           <i class="sicon-shopping-bag text-sm"></i>
         </button>
+        `}
       </div>
     `;
   }
@@ -2526,12 +2595,23 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     const modalPrice = document.getElementById('modal-price');
     if (modalPrice) modalPrice.textContent = p.price;
 
+    const isOutOfStock = p.in_stock === false || p.stock === 0;
     const buyBtn = document.getElementById('modal-buy-btn');
     if (buyBtn) {
-      buyBtn.onclick = () => {
-        CartManager.addItem(p.id);
-        closeQuickView();
-      };
+      if (isOutOfStock) {
+        buyBtn.disabled = true;
+        buyBtn.className = 'w-full py-3.5 px-6 rounded-full bg-stone-200 text-stone-500 cursor-not-allowed font-bold text-sm shadow-none flex items-center justify-center gap-2';
+        buyBtn.innerHTML = '<span>غير متاح</span>';
+        buyBtn.onclick = null;
+      } else {
+        buyBtn.disabled = false;
+        buyBtn.className = 'w-full py-3.5 px-6 rounded-full bg-black hover:bg-stone-800 text-white font-bold text-sm shadow-sm transition active:scale-98 flex items-center justify-center gap-2';
+        buyBtn.innerHTML = '<span>إضافة للسلة</span><i class="sicon-shopping-bag"></i>';
+        buyBtn.onclick = () => {
+          CartManager.addItem(p.id);
+          closeQuickView();
+        };
+      }
     }
 
     const modal = document.getElementById('quickview-modal');
@@ -2641,22 +2721,32 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     resultsContainer.innerHTML = matches.slice(0, 8).map(p => {
       const zidSlug = zidSlugMap[p.id] || p.id;
       const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+      const isOutOfStock = p.in_stock === false || p.stock === 0;
       return `
-        <div class="py-3 flex items-center justify-between gap-4 hover:bg-stone-50 px-2.5 rounded-xl transition cursor-pointer" onclick="closeSearchModal(); NoteRouter.navigate('/products/${zidSlug}')">
+        <div class="py-3 flex items-center justify-between gap-4 hover:bg-stone-50 px-2.5 rounded-xl transition cursor-pointer ${isOutOfStock ? 'opacity-80' : ''}" onclick="closeSearchModal(); NoteRouter.navigate('/products/${zidSlug}')">
           <div class="flex items-center gap-3 min-w-0">
-            <div class="w-14 h-14 rounded-xl bg-stone-50 p-1 shrink-0 flex items-center justify-center border border-stone-100">
-              <img src="${imgUrl}" alt="${escapeHTML(p.title)}" class="w-full h-full object-contain">
+            <div class="relative w-14 h-14 rounded-xl bg-stone-50 p-1 shrink-0 flex items-center justify-center border border-stone-100 overflow-hidden">
+              <img src="${imgUrl}" alt="${escapeHTML(p.title)}" class="w-full h-full object-contain ${isOutOfStock ? 'grayscale opacity-80' : ''}">
             </div>
             <div class="min-w-0">
-              <h4 class="text-xs sm:text-sm font-bold text-black truncate">${escapeHTML(p.title)}</h4>
+              <div class="flex items-center gap-1.5">
+                <h4 class="text-xs sm:text-sm font-bold text-black truncate">${escapeHTML(p.title)}</h4>
+                ${isOutOfStock ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 shrink-0">غير متاح</span>' : ''}
+              </div>
               <p class="text-[10px] sm:text-[11px] text-stone-400 font-normal truncate">${p.notes || p.cat_ar || ''}</p>
               <span class="text-xs font-extrabold text-black block mt-0.5">${p.price} ر.س</span>
             </div>
           </div>
+          ${isOutOfStock ? `
+          <button disabled class="shrink-0 px-3.5 py-1.5 rounded-full bg-stone-200 text-stone-500 cursor-not-allowed text-[11px] font-bold shadow-none flex items-center gap-1.5">
+            <span>غير متاح</span>
+          </button>
+          ` : `
           <button onclick="event.stopPropagation(); CartManager.addItem('${p.id}'); closeSearchModal();" class="shrink-0 px-3.5 py-1.5 rounded-full bg-black text-white hover:bg-stone-800 text-[11px] font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
             <span>أضف للسلة</span>
             <i class="sicon-shopping-bag text-xs"></i>
           </button>
+          `}
         </div>
       `;
     }).join('');
@@ -3001,6 +3091,45 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     const fullDesc = document.getElementById('pdp-full-description');
     if (fullDesc) fullDesc.innerHTML = `<p>${currentProduct.description || ''}</p>`;
 
+    const isOutOfStock = currentProduct.in_stock === false || currentProduct.stock === 0;
+    const imgContainer = document.getElementById('pdp-main-image-container');
+    let stickerEl = document.getElementById('pdp-out-of-stock-sticker');
+    if (isOutOfStock) {
+      if (imgContainer) {
+        imgContainer.classList.add('is-out-of-stock');
+        if (!stickerEl) {
+          stickerEl = document.createElement('span');
+          stickerEl.id = 'pdp-out-of-stock-sticker';
+          stickerEl.className = 'note-out-of-stock-sticker pdp-sticker out-of-stock';
+          stickerEl.textContent = 'غير متاح';
+          imgContainer.appendChild(stickerEl);
+        }
+      }
+      document.querySelectorAll('button[onclick*="addToCartCurrentProduct"],button[onclick*="buyNowCurrentProduct"]').forEach(b => {
+        b.disabled = true;
+        b.classList.add('bg-stone-200', 'text-stone-500', 'cursor-not-allowed', 'border-stone-200');
+        b.classList.remove('bg-black', 'text-white', 'hover:bg-stone-800', 'hover:bg-stone-50', 'text-black', 'border-black');
+        b.innerHTML = '<span>غير متاح</span>';
+      });
+    } else {
+      if (imgContainer) {
+        imgContainer.classList.remove('is-out-of-stock');
+        if (stickerEl) stickerEl.remove();
+      }
+      const addBtn = document.getElementById('pdp-add-cart-btn') || document.querySelector('button[onclick*="addToCartCurrentProduct"]');
+      if (addBtn) {
+        addBtn.disabled = false;
+        addBtn.className = 'flex-grow h-12 rounded-full bg-black hover:bg-stone-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition duration-300 shadow-md active:scale-98';
+        addBtn.innerHTML = '<i class="sicon-shopping-bag text-base"></i><span>إضافة إلى السلة</span>';
+      }
+      const buyBtn = document.querySelector('button[onclick*="buyNowCurrentProduct"]');
+      if (buyBtn) {
+        buyBtn.disabled = false;
+        buyBtn.className = 'w-full h-12 rounded-full border border-black hover:bg-stone-50 text-black font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition duration-300 active:scale-98';
+        buyBtn.innerHTML = '<i class="sicon-apple-pay text-xl"></i><span>شراء فوري عبر Apple Pay / مدى</span>';
+      }
+    }
+
     renderRelatedProducts();
   }
 
@@ -3012,12 +3141,12 @@ body:not(.note-ready) footer:not(#note-store-footer) {
   }
 
   function addToCartCurrentProduct() {
-    if (!currentProduct) return;
+    if (!currentProduct || currentProduct.in_stock === false || currentProduct.stock === 0) return;
     CartManager.addItem(currentProduct.id, pdpQuantity);
   }
 
   function buyNowCurrentProduct() {
-    if (!currentProduct) return;
+    if (!currentProduct || currentProduct.in_stock === false || currentProduct.stock === 0) return;
     CartManager.addItem(currentProduct.id, pdpQuantity);
     NoteRouter.navigate('/cart');
   }
@@ -3034,11 +3163,12 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     container.innerHTML = related.map(p => {
       const zidSlug = zidSlugMap[p.id] || p.id;
       const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+      const isOutOfStock = p.in_stock === false || p.stock === 0;
       return `
-        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300" onclick="NoteRouter.navigate('/products/${zidSlug}')">
+        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300 ${isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}" onclick="NoteRouter.navigate('/products/${zidSlug}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 overflow-hidden">
-              ${p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${p.tag}</span>` : ''}
+              ${isOutOfStock ? `<span class="note-out-of-stock-sticker out-of-stock">غير متاح</span>` : (p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${p.tag}</span>` : '')}
               <img src="${imgUrl}" alt="${escapeHTML(p.title)}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
             </div>
 
@@ -3053,10 +3183,16 @@ body:not(.note-ready) footer:not(#note-store-footer) {
             </div>
           </div>
 
+          ${isOutOfStock ? `
+          <button disabled class="w-full mt-2.5 py-2 px-3 rounded-full bg-stone-200 text-stone-500 cursor-not-allowed flex items-center justify-center gap-2 font-bold text-[11px] shadow-none">
+            <span>غير متاح</span>
+          </button>
+          ` : `
           <button onclick="event.stopPropagation(); CartManager.addItem('${p.id}')" class="w-full mt-2.5 py-2 px-3 rounded-full bg-black text-white hover:bg-stone-800 active:scale-95 transition flex items-center justify-center gap-2 font-bold text-[11px] shadow-sm">
             <span>إضافة للسلة</span>
             <i class="sicon-shopping-bag text-xs"></i>
           </button>
+          `}
         </div>
       `;
     }).join('');
@@ -3251,11 +3387,12 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     container.innerHTML = filtered.map(p => {
       const zidSlug = zidSlugMap[p.id] || p.id;
       const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+      const isOutOfStock = p.in_stock === false || p.stock === 0;
       return `
-        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300" onclick="NoteRouter.navigate('/products/${zidSlug}')">
+        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300 ${isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}" onclick="NoteRouter.navigate('/products/${zidSlug}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-              ${p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${p.tag}</span>` : ''}
+              ${isOutOfStock ? `<span class="note-out-of-stock-sticker out-of-stock">غير متاح</span>` : (p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${p.tag}</span>` : '')}
               <img src="${imgUrl}" alt="${escapeHTML(p.title)}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
             </div>
 
@@ -3270,10 +3407,16 @@ body:not(.note-ready) footer:not(#note-store-footer) {
             </div>
           </div>
 
+          ${isOutOfStock ? `
+          <button disabled class="w-full mt-2.5 py-2 px-3 rounded-full bg-stone-200 text-stone-500 cursor-not-allowed flex items-center justify-center gap-2 font-bold text-[11px] sm:text-xs shadow-none">
+            <span>غير متاح</span>
+          </button>
+          ` : `
           <button onclick="event.stopPropagation(); CartManager.addItem('${p.id}')" class="w-full mt-2.5 py-2 px-3 rounded-full bg-black text-white hover:bg-stone-800 active:scale-95 transition flex items-center justify-center gap-2 font-bold text-[11px] sm:text-xs shadow-sm">
             <span>إضافة للسلة</span>
             <i class="sicon-shopping-bag text-xs"></i>
           </button>
+          `}
         </div>
       `;
     }).join('');
@@ -3433,7 +3576,7 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     const recs = pool
       .filter(id => !inCartIds.has(id))
       .map(id => noteProductsCatalog.find(p => p.id === id))
-      .filter(Boolean)
+      .filter(p => p && p.in_stock !== false && p.stock !== 0)
       .slice(0, 4);
 
     recsGrid.innerHTML = recs.map(p => {
@@ -3876,7 +4019,7 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     }
   });
 
-  const integrationStyles=document.createElement("style");integrationStyles.id="note-live-styles";integrationStyles.textContent="/* NOTE 4.3: High-Visibility Cart Items, Micro-Compact Recommendations & Seamless Zid Loader */\n#cart-drawer{display:flex!important;flex-direction:column!important;height:100vh!important;height:100dvh!important;max-height:100dvh!important;overflow:hidden!important}\n#cart-drawer-items{flex:1 1 auto!important;overflow-y:auto!important;min-height:160px!important;max-height:calc(100dvh - 280px)!important;padding:12px 16px!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important}\n.note-cart-item{display:flex!important;align-items:center!important;gap:12px!important;padding:10px 12px!important;margin-bottom:8px!important;background:#ffffff!important;border:1px solid #f0eee9!important;border-radius:14px!important;box-shadow:0 1px 3px rgba(0,0,0,0.03)!important;text-align:right!important}\n#cart-drawer-recommendations{padding:4px 14px 6px!important;margin:0!important;background:#fafaf9!important;border-top:1px solid #f0eee9!important;border-bottom:1px solid #f0eee9!important;flex-shrink:0!important}\n#cart-drawer-recommendations h3,#cart-drawer-recommendations h2,#cart-drawer-recommendations .flex>span:last-child{display:none!important}#cart-drawer-recommendations .note-recs-title{font-size:10px!important;font-weight:700!important;color:#57534e!important;margin-bottom:4px!important}\n.note-compact-recs{display:flex!important;gap:8px!important;overflow-x:auto!important;scrollbar-width:none!important;scroll-snap-type:none!important;padding:2px 0 4px!important;width:100%!important;max-width:100%!important;overscroll-behavior-x:contain!important;-webkit-overflow-scrolling:touch!important}\n.note-compact-recs::-webkit-scrollbar{display:none!important}\n.note-mini-card{flex:0 0 auto!important;width:auto!important;max-width:175px!important;min-width:135px!important;height:38px!important;display:inline-flex!important;align-items:center!important;justify-content:space-between!important;gap:6px!important;padding:3px 6px 3px 4px!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:9999px!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;color:#111!important;text-align:right!important}\n.note-mini-card a{display:inline-flex!important;align-items:center!important;gap:6px!important;text-decoration:none!important;color:inherit!important;min-width:0!important;flex:1 1 auto!important}\n.note-mini-card img{width:28px!important;height:28px!important;object-fit:contain!important;border-radius:9999px!important;background:#fafaf9!important;flex-shrink:0!important}\n.note-mini-card .note-mini-info{display:flex!important;flex-direction:column!important;min-width:0!important;line-height:1.15!important}\n.note-mini-card .note-mini-title{font-size:9.5px!important;font-weight:700!important;color:#111!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:65px!important;display:block!important}\n.note-mini-card .note-mini-price{font-size:9.5px!important;font-weight:800!important;color:#a58b52!important;white-space:nowrap!important;display:block!important}\n.note-mini-card button{flex-shrink:0!important;width:auto!important;min-width:32px!important;height:24px!important;padding:0 7px!important;font-size:9.5px!important;font-weight:700!important;border-radius:9999px!important;background:#111111!important;color:#ffffff!important;margin:0!important;border:none!important;cursor:pointer!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;transition:background 0.15s,transform 0.15s!important}\n.note-mini-card button:hover{background:#333333!important}\n.note-mini-card button:active{transform:scale(0.92)!important}\n#cart-drawer-footer{padding:12px 16px 14px!important;border-top:1px solid #f0eee9!important;background:#ffffff!important;flex-shrink:0!important}\n#cart-page-recommendations-section{margin-top:20px!important;padding:14px!important;border-radius:16px!important}\n#cart-page-recommendations-section h3,#cart-page-recommendations-section h2{font-size:13px!important;margin-bottom:8px!important}\n.note-bundle-options{margin:18px 0;padding:16px;border:1px solid #d6d3d1;border-radius:14px;clear:both;width:100%;font-size:13px}\n.note-bundle-options h3{font-weight:700;margin-bottom:12px}\n.note-bundle-options fieldset{margin:12px 0;border:0;padding:0}\n.note-bundle-options legend{font-weight:700;margin-bottom:6px}\n.note-bundle-options label{display:block;font-size:12px;margin:6px 0}\n.note-bundle-options select{display:block;width:100%;min-height:44px;background:white;color:#111;border:1px solid #a8a29e;border-radius:8px;padding:9px;margin-top:4px}\n.note-bundle-options select:focus-visible,.note-mini-card button:focus-visible{outline:2px solid #a58b52;outline-offset:3px}\n.note-empty-products{padding:16px;font-size:13px;color:#78716c}\nbutton:disabled{opacity:.5;cursor:not-allowed}\n@media(prefers-reduced-motion:reduce){.note-compact-recs{scroll-behavior:auto!important}}\nbutton[aria-label=\"حذف المنتج من السلة\"]{color:#78716c!important;transition:color 0.15s ease!important}\nbutton[aria-label=\"حذف المنتج من السلة\"]:hover{color:#be123c!important}\n#loader-container{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:9999999!important;background:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;transition:opacity 0.4s ease-out,visibility 0.4s ease-out!important}\n#loader-container.note-loader-dismissed{opacity:0!important;visibility:hidden!important;pointer-events:none!important}\nbody:not(.note-ready) section[section-id],body:not(.note-ready) .tp-home,body:not(.note-ready) .tp-bar-header,body:not(.note-ready) header.header-nav,body:not(.note-ready) footer:not(#note-store-footer){display:none!important;visibility:hidden!important}\n";document.head.append(integrationStyles);
+  const integrationStyles=document.createElement("style");integrationStyles.id="note-live-styles";integrationStyles.textContent="/* NOTE 4.3: High-Visibility Cart Items, Micro-Compact Recommendations & Seamless Zid Loader */\n#cart-drawer{display:flex!important;flex-direction:column!important;height:100vh!important;height:100dvh!important;max-height:100dvh!important;overflow:hidden!important}\n#cart-drawer-items{flex:1 1 auto!important;overflow-y:auto!important;min-height:160px!important;max-height:calc(100dvh - 280px)!important;padding:12px 16px!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important}\n.note-cart-item{display:flex!important;align-items:center!important;gap:12px!important;padding:10px 12px!important;margin-bottom:8px!important;background:#ffffff!important;border:1px solid #f0eee9!important;border-radius:14px!important;box-shadow:0 1px 3px rgba(0,0,0,0.03)!important;text-align:right!important}\n#cart-drawer-recommendations{padding:4px 14px 6px!important;margin:0!important;background:#fafaf9!important;border-top:1px solid #f0eee9!important;border-bottom:1px solid #f0eee9!important;flex-shrink:0!important}\n#cart-drawer-recommendations h3,#cart-drawer-recommendations h2,#cart-drawer-recommendations .flex>span:last-child{display:none!important}#cart-drawer-recommendations .note-recs-title{font-size:10px!important;font-weight:700!important;color:#57534e!important;margin-bottom:4px!important}\n.note-compact-recs{display:flex!important;gap:8px!important;overflow-x:auto!important;scrollbar-width:none!important;scroll-snap-type:none!important;padding:2px 0 4px!important;width:100%!important;max-width:100%!important;overscroll-behavior-x:contain!important;-webkit-overflow-scrolling:touch!important}\n.note-compact-recs::-webkit-scrollbar{display:none!important}\n.note-mini-card{flex:0 0 auto!important;width:auto!important;max-width:175px!important;min-width:135px!important;height:38px!important;display:inline-flex!important;align-items:center!important;justify-content:space-between!important;gap:6px!important;padding:3px 6px 3px 4px!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:9999px!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;color:#111!important;text-align:right!important}\n.note-mini-card a{display:inline-flex!important;align-items:center!important;gap:6px!important;text-decoration:none!important;color:inherit!important;min-width:0!important;flex:1 1 auto!important}\n.note-mini-card img{width:28px!important;height:28px!important;object-fit:contain!important;border-radius:9999px!important;background:#fafaf9!important;flex-shrink:0!important}\n.note-mini-card .note-mini-info{display:flex!important;flex-direction:column!important;min-width:0!important;line-height:1.15!important}\n.note-mini-card .note-mini-title{font-size:9.5px!important;font-weight:700!important;color:#111!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:65px!important;display:block!important}\n.note-mini-card .note-mini-price{font-size:9.5px!important;font-weight:800!important;color:#a58b52!important;white-space:nowrap!important;display:block!important}\n.note-mini-card button{flex-shrink:0!important;width:auto!important;min-width:32px!important;height:24px!important;padding:0 7px!important;font-size:9.5px!important;font-weight:700!important;border-radius:9999px!important;background:#111111!important;color:#ffffff!important;margin:0!important;border:none!important;cursor:pointer!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;transition:background 0.15s,transform 0.15s!important}\n.note-mini-card button:hover{background:#333333!important}\n.note-mini-card button:active{transform:scale(0.92)!important}\n#cart-drawer-footer{padding:12px 16px 14px!important;border-top:1px solid #f0eee9!important;background:#ffffff!important;flex-shrink:0!important}\n#cart-page-recommendations-section{margin-top:20px!important;padding:14px!important;border-radius:16px!important}\n#cart-page-recommendations-section h3,#cart-page-recommendations-section h2{font-size:13px!important;margin-bottom:8px!important}\n.note-bundle-options{margin:18px 0;padding:16px;border:1px solid #d6d3d1;border-radius:14px;clear:both;width:100%;font-size:13px}\n.note-bundle-options h3{font-weight:700;margin-bottom:12px}\n.note-bundle-options fieldset{margin:12px 0;border:0;padding:0}\n.note-bundle-options legend{font-weight:700;margin-bottom:6px}\n.note-bundle-options label{display:block;font-size:12px;margin:6px 0}\n.note-bundle-options select{display:block;width:100%;min-height:44px;background:white;color:#111;border:1px solid #a8a29e;border-radius:8px;padding:9px;margin-top:4px}\n.note-bundle-options select:focus-visible,.note-mini-card button:focus-visible{outline:2px solid #a58b52;outline-offset:3px}\n.note-empty-products{padding:16px;font-size:13px;color:#78716c}\nbutton:disabled{opacity:.5;cursor:not-allowed}\n@media(prefers-reduced-motion:reduce){.note-compact-recs{scroll-behavior:auto!important}}\nbutton[aria-label=\"حذف المنتج من السلة\"]{color:#78716c!important;transition:color 0.15s ease!important}\nbutton[aria-label=\"حذف المنتج من السلة\"]:hover{color:#be123c!important}\n#loader-container{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:9999999!important;background:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;transition:opacity 0.4s ease-out,visibility 0.4s ease-out!important}\n#loader-container.note-loader-dismissed{opacity:0!important;visibility:hidden!important;pointer-events:none!important}\nbody:not(.note-ready) section[section-id],body:not(.note-ready) .tp-home,body:not(.note-ready) .tp-bar-header,body:not(.note-ready) header.header-nav,body:not(.note-ready) footer:not(#note-store-footer){display:none!important;visibility:hidden!important}\n.note-out-of-stock-sticker,.out-of-stock,.tp-product-image .out-of-stock{position:absolute!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%) rotate(-18deg)!important;z-index:25!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:max-content!important;height:max-content!important;background:#e11d48!important;color:#ffffff!important;font-family:inherit!important;font-size:11px!important;font-weight:800!important;letter-spacing:0.5px!important;padding:4px 14px!important;border-radius:9999px!important;border:1.5px solid #ffffff!important;box-shadow:0 4px 14px rgba(225,29,72,0.35)!important;pointer-events:none!important;white-space:nowrap!important}\n@media(min-width:640px){.note-out-of-stock-sticker,.out-of-stock,.tp-product-image .out-of-stock{font-size:12px!important;padding:5px 16px!important}}\n.note-out-of-stock-sticker.pdp-sticker{font-size:14px!important;padding:6px 22px!important;border-width:2px!important;box-shadow:0 6px 20px rgba(225,29,72,0.4)!important}\n@media(min-width:640px){.note-out-of-stock-sticker.pdp-sticker{font-size:16px!important;padding:8px 26px!important}}\n.is-out-of-stock img,.product-item-out-of-stock img,#pdp-main-image-container.is-out-of-stock #pdp-main-image{filter:grayscale(0.55) opacity(0.85)!important;transition:filter 0.3s ease!important}\n";document.head.append(integrationStyles);
 
   // Zid Loader Preservation & Seamless Dismissal
   const zidLoader=document.getElementById('loader-container');
@@ -4042,7 +4185,44 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     const rating=document.getElementById('pdp-rating-num'); if (rating) rating.textContent=product.reviews_count ? product.rating : 'لا توجد تقييمات';
     const count=document.getElementById('pdp-rating-count'); if (count) count.textContent='('+product.reviews_count+' تقييم)';
     const description=document.getElementById('pdp-full-description'); if(description) description.textContent=product.description;
-    document.querySelectorAll('button[onclick*="addToCartCurrentProduct"],button[onclick*="buyNowCurrentProduct"]').forEach(b => {b.disabled=!product.in_stock; if(!product.in_stock) b.textContent='نفدت الكمية';});
+    const isOutOfStock = product.in_stock === false || product.stock === 0;
+    const imgContainer = document.getElementById('pdp-main-image-container');
+    let stickerEl = document.getElementById('pdp-out-of-stock-sticker');
+    if (isOutOfStock) {
+      if (imgContainer) {
+        imgContainer.classList.add('is-out-of-stock');
+        if (!stickerEl) {
+          stickerEl = document.createElement('span');
+          stickerEl.id = 'pdp-out-of-stock-sticker';
+          stickerEl.className = 'note-out-of-stock-sticker pdp-sticker out-of-stock';
+          stickerEl.textContent = 'غير متاح';
+          imgContainer.appendChild(stickerEl);
+        }
+      }
+      document.querySelectorAll('button[onclick*="addToCartCurrentProduct"],button[onclick*="buyNowCurrentProduct"]').forEach(b => {
+        b.disabled = true;
+        b.classList.add('bg-stone-200', 'text-stone-500', 'cursor-not-allowed', 'border-stone-200');
+        b.classList.remove('bg-black', 'text-white', 'hover:bg-stone-800', 'hover:bg-stone-50', 'text-black', 'border-black');
+        b.innerHTML = '<span>غير متاح</span>';
+      });
+    } else {
+      if (imgContainer) {
+        imgContainer.classList.remove('is-out-of-stock');
+        if (stickerEl) stickerEl.remove();
+      }
+      const addBtn = document.getElementById('pdp-add-cart-btn') || document.querySelector('button[onclick*="addToCartCurrentProduct"]');
+      if (addBtn) {
+        addBtn.disabled = false;
+        addBtn.className = 'flex-grow h-12 rounded-full bg-black hover:bg-stone-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition duration-300 shadow-md active:scale-98';
+        addBtn.innerHTML = '<i class="sicon-shopping-bag text-base"></i><span>إضافة إلى السلة</span>';
+      }
+      const buyBtn = document.querySelector('button[onclick*="buyNowCurrentProduct"]');
+      if (buyBtn) {
+        buyBtn.disabled = false;
+        buyBtn.className = 'w-full h-12 rounded-full border border-black hover:bg-stone-50 text-black font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition duration-300 active:scale-98';
+        buyBtn.innerHTML = '<i class="sicon-apple-pay text-xl"></i><span>شراء فوري عبر Apple Pay / مدى</span>';
+      }
+    }
     if (product.product_class==='dynamic_bundle') {
       const box=document.createElement('section'); box.id='note-bundle-options'; box.className='note-bundle-options'; box.textContent='جاري تحميل اختيارات الباقة…';
       document.getElementById('pdp-price')?.parentElement?.after(box);
@@ -4064,7 +4244,7 @@ body:not(.note-ready) footer:not(#note-store-footer) {
               if(item.variants?.length || item.options?.length) return;
               const option=new Option(item.name,item.item_id);
               option.disabled=!(item.is_infinite || item.quantity>0);
-              if(option.disabled) option.textContent+=' — نفدت الكمية';
+              if(option.disabled) option.textContent+=' — غير متاح';
               select.add(option);
             });
             if(group.items.length===1 && Number(group.required_selection_count)===1 && !select.options[1]?.disabled) select.value=group.items[0].item_id;
@@ -4082,7 +4262,7 @@ body:not(.note-ready) footer:not(#note-store-footer) {
                   const item=group.items.find(i=>i.item_id===o.value);
                   const outOfStock=!(item?.is_infinite || item?.quantity>0);
                   o.disabled=outOfStock || (chosen.has(o.value) && s.value!==o.value);
-                  o.textContent=item?.name ? item.name + (outOfStock ? ' — نفدت الكمية' : chosen.has(o.value) && s.value!==o.value ? ' — تم اختياره' : '') : o.textContent;
+                  o.textContent=item?.name ? item.name + (outOfStock ? ' — غير متاح' : chosen.has(o.value) && s.value!==o.value ? ' — تم اختياره' : '') : o.textContent;
                 });
               });
             };

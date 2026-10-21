@@ -316,6 +316,64 @@ header nav a:not(.active-link) {{
   color: #ffffff !important;
 }}
 
+/* Out of Stock ("غير متاح") Luxury Sticker & State */
+.note-out-of-stock-sticker,
+.out-of-stock,
+.tp-product-image .out-of-stock {{
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) rotate(-18deg) !important;
+  z-index: 25 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: max-content !important;
+  height: max-content !important;
+  background: #e11d48 !important;
+  color: #ffffff !important;
+  font-family: inherit !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  padding: 4px 14px !important;
+  border-radius: 9999px !important;
+  border: 1.5px solid #ffffff !important;
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35) !important;
+  pointer-events: none !important;
+  white-space: nowrap !important;
+}}
+
+@media (min-width: 640px) {{
+  .note-out-of-stock-sticker,
+  .out-of-stock,
+  .tp-product-image .out-of-stock {{
+    font-size: 12px !important;
+    padding: 5px 16px !important;
+  }}
+}}
+
+.note-out-of-stock-sticker.pdp-sticker {{
+  font-size: 14px !important;
+  padding: 6px 22px !important;
+  border-width: 2px !important;
+  box-shadow: 0 6px 20px rgba(225, 29, 72, 0.4) !important;
+}}
+
+@media (min-width: 640px) {{
+  .note-out-of-stock-sticker.pdp-sticker {{
+    font-size: 16px !important;
+    padding: 8px 26px !important;
+  }}
+}}
+
+.is-out-of-stock img,
+.product-item-out-of-stock img,
+#pdp-main-image-container.is-out-of-stock #pdp-main-image {{
+  filter: grayscale(0.55) opacity(0.85) !important;
+  transition: filter 0.3s ease !important;
+}}
+
 /* Floating WhatsApp Button - Elevated above Mobile Bottom Navigation */
 #floating-whatsapp-container {{
   bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important;
@@ -929,6 +987,10 @@ app_js_code = f"""/**
     addItem: function(productId, quantity = 1) {{
       const product = productsData.find(p => p.id === productId) || noteProductsCatalog.find(p => p.id === productId);
       if (!product) return;
+      if (product.in_stock === false || product.stock === 0) {{
+        this.showToast('عذراً، هذا المنتج غير متاح حالياً');
+        return;
+      }}
       let cart = this.getCart();
       const existing = cart.find(item => item.id === productId);
       if (existing) {{
@@ -1129,7 +1191,7 @@ app_js_code = f"""/**
         const recs = pool
           .filter(id => !inCartIds.has(id))
           .map(id => noteProductsCatalog.find(p => p.id === id))
-          .filter(Boolean)
+          .filter(p => p && p.in_stock !== false && p.stock !== 0)
           .slice(0, 1);
 
         if (recs.length > 0) {{
@@ -1168,12 +1230,13 @@ app_js_code = f"""/**
   function renderProductCard(p, index) {{
     const zidSlug = zidSlugMap[p.id] || p.id;
     const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+    const isOutOfStock = p.in_stock === false || p.stock === 0;
     return `
-      <div class="min-w-[175px] sm:min-w-[270px] max-w-[185px] sm:max-w-[280px] shrink-0 p-1 flex flex-col justify-between text-center group cursor-pointer bg-transparent" style="scroll-snap-align: start;" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
+      <div class="min-w-[175px] sm:min-w-[270px] max-w-[185px] sm:max-w-[280px] shrink-0 p-1 flex flex-col justify-between text-center group cursor-pointer bg-transparent ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" style="scroll-snap-align: start;" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
         <div>
           <!-- Frameless Image Container with Clean Shadow/Scale -->
           <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-            ${{p.tag ? `<span class="absolute top-2.5 right-2.5 z-10 text-[9px] sm:text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm"> ${{p.tag}} </span>` : ''}}
+            ${{isOutOfStock ? `<span class="note-out-of-stock-sticker out-of-stock">غير متاح</span>` : (p.tag ? `<span class="absolute top-2.5 right-2.5 z-10 text-[9px] sm:text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm"> ${{p.tag}} </span>` : '')}}
             <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
           </div>
 
@@ -1191,10 +1254,16 @@ app_js_code = f"""/**
         </div>
 
         <!-- Minimalist Rounded Pill Button -->
+        ${{isOutOfStock ? `
+        <button disabled class="w-full mt-3 py-2 sm:py-2.5 px-4 rounded-full bg-stone-200 text-stone-500 cursor-not-allowed flex items-center justify-center gap-2 font-bold text-xs shadow-none" title="غير متاح">
+          <span>غير متاح</span>
+        </button>
+        ` : `
         <button onclick="event.stopPropagation(); CartManager.addItem('${{p.id}}')" class="w-full mt-3 py-2 sm:py-2.5 px-4 rounded-full bg-black text-white hover:bg-stone-800 active:scale-95 transition flex items-center justify-center gap-2 font-bold text-xs shadow-sm" title="إضافة للسلة">
           <span>إضافة للسلة</span>
           <i class="sicon-shopping-bag text-sm"></i>
         </button>
+        `}}
       </div>
     `;
   }}
@@ -1282,12 +1351,23 @@ app_js_code = f"""/**
     const modalPrice = document.getElementById('modal-price');
     if (modalPrice) modalPrice.textContent = p.price;
 
+    const isOutOfStock = p.in_stock === false || p.stock === 0;
     const buyBtn = document.getElementById('modal-buy-btn');
     if (buyBtn) {{
-      buyBtn.onclick = () => {{
-        CartManager.addItem(p.id);
-        closeQuickView();
-      }};
+      if (isOutOfStock) {{
+        buyBtn.disabled = true;
+        buyBtn.className = 'w-full py-3.5 px-6 rounded-full bg-stone-200 text-stone-500 cursor-not-allowed font-bold text-sm shadow-none flex items-center justify-center gap-2';
+        buyBtn.innerHTML = '<span>غير متاح</span>';
+        buyBtn.onclick = null;
+      }} else {{
+        buyBtn.disabled = false;
+        buyBtn.className = 'w-full py-3.5 px-6 rounded-full bg-black hover:bg-stone-800 text-white font-bold text-sm shadow-sm transition active:scale-98 flex items-center justify-center gap-2';
+        buyBtn.innerHTML = '<span>إضافة للسلة</span><i class="sicon-shopping-bag"></i>';
+        buyBtn.onclick = () => {{
+          CartManager.addItem(p.id);
+          closeQuickView();
+        }};
+      }}
     }}
 
     const modal = document.getElementById('quickview-modal');
@@ -1397,22 +1477,32 @@ app_js_code = f"""/**
     resultsContainer.innerHTML = matches.slice(0, 8).map(p => {{
       const zidSlug = zidSlugMap[p.id] || p.id;
       const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+      const isOutOfStock = p.in_stock === false || p.stock === 0;
       return `
-        <div class="py-3 flex items-center justify-between gap-4 hover:bg-stone-50 px-2.5 rounded-xl transition cursor-pointer" onclick="closeSearchModal(); NoteRouter.navigate('/products/${{zidSlug}}')">
+        <div class="py-3 flex items-center justify-between gap-4 hover:bg-stone-50 px-2.5 rounded-xl transition cursor-pointer ${{isOutOfStock ? 'opacity-80' : ''}}" onclick="closeSearchModal(); NoteRouter.navigate('/products/${{zidSlug}}')">
           <div class="flex items-center gap-3 min-w-0">
-            <div class="w-14 h-14 rounded-xl bg-stone-50 p-1 shrink-0 flex items-center justify-center border border-stone-100">
-              <img src="${{imgUrl}}" alt="${{p.title}}" class="w-full h-full object-contain">
+            <div class="relative w-14 h-14 rounded-xl bg-stone-50 p-1 shrink-0 flex items-center justify-center border border-stone-100 overflow-hidden">
+              <img src="${{imgUrl}}" alt="${{p.title}}" class="w-full h-full object-contain ${{isOutOfStock ? 'grayscale opacity-80' : ''}}">
             </div>
             <div class="min-w-0">
-              <h4 class="text-xs sm:text-sm font-bold text-black truncate">${{p.title}}</h4>
+              <div class="flex items-center gap-1.5">
+                <h4 class="text-xs sm:text-sm font-bold text-black truncate">${{p.title}}</h4>
+                ${{isOutOfStock ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 shrink-0">غير متاح</span>' : ''}}
+              </div>
               <p class="text-[10px] sm:text-[11px] text-stone-400 font-normal truncate">${{p.notes || p.cat_ar || ''}}</p>
               <span class="text-xs font-extrabold text-black block mt-0.5">${{p.price}} ر.س</span>
             </div>
           </div>
+          ${{isOutOfStock ? `
+          <button disabled class="shrink-0 px-3.5 py-1.5 rounded-full bg-stone-200 text-stone-500 cursor-not-allowed text-[11px] font-bold shadow-none flex items-center gap-1.5">
+            <span>غير متاح</span>
+          </button>
+          ` : `
           <button onclick="event.stopPropagation(); CartManager.addItem('${{p.id}}'); closeSearchModal();" class="shrink-0 px-3.5 py-1.5 rounded-full bg-black text-white hover:bg-stone-800 text-[11px] font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
             <span>أضف للسلة</span>
             <i class="sicon-shopping-bag text-xs"></i>
           </button>
+          `}}
         </div>
       `;
     }}).join('');
@@ -1757,6 +1847,45 @@ app_js_code = f"""/**
     const fullDesc = document.getElementById('pdp-full-description');
     if (fullDesc) fullDesc.innerHTML = `<p>${{currentProduct.description || ''}}</p>`;
 
+    const isOutOfStock = currentProduct.in_stock === false || currentProduct.stock === 0;
+    const imgContainer = document.getElementById('pdp-main-image-container');
+    let stickerEl = document.getElementById('pdp-out-of-stock-sticker');
+    if (isOutOfStock) {{
+      if (imgContainer) {{
+        imgContainer.classList.add('is-out-of-stock');
+        if (!stickerEl) {{
+          stickerEl = document.createElement('span');
+          stickerEl.id = 'pdp-out-of-stock-sticker';
+          stickerEl.className = 'note-out-of-stock-sticker pdp-sticker out-of-stock';
+          stickerEl.textContent = 'غير متاح';
+          imgContainer.appendChild(stickerEl);
+        }}
+      }}
+      document.querySelectorAll('button[onclick*="addToCartCurrentProduct"],button[onclick*="buyNowCurrentProduct"]').forEach(b => {{
+        b.disabled = true;
+        b.classList.add('bg-stone-200', 'text-stone-500', 'cursor-not-allowed', 'border-stone-200');
+        b.classList.remove('bg-black', 'text-white', 'hover:bg-stone-800', 'hover:bg-stone-50', 'text-black', 'border-black');
+        b.innerHTML = '<span>غير متاح</span>';
+      }});
+    }} else {{
+      if (imgContainer) {{
+        imgContainer.classList.remove('is-out-of-stock');
+        if (stickerEl) stickerEl.remove();
+      }}
+      const addBtn = document.getElementById('pdp-add-cart-btn') || document.querySelector('button[onclick*="addToCartCurrentProduct"]');
+      if (addBtn) {{
+        addBtn.disabled = false;
+        addBtn.className = 'flex-grow h-12 rounded-full bg-black hover:bg-stone-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition duration-300 shadow-md active:scale-98';
+        addBtn.innerHTML = '<i class="sicon-shopping-bag text-base"></i><span>إضافة إلى السلة</span>';
+      }}
+      const buyBtn = document.querySelector('button[onclick*="buyNowCurrentProduct"]');
+      if (buyBtn) {{
+        buyBtn.disabled = false;
+        buyBtn.className = 'w-full h-12 rounded-full border border-black hover:bg-stone-50 text-black font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition duration-300 active:scale-98';
+        buyBtn.innerHTML = '<i class="sicon-apple-pay text-xl"></i><span>شراء فوري عبر Apple Pay / مدى</span>';
+      }}
+    }}
+
     renderRelatedProducts();
   }}
 
@@ -1768,12 +1897,12 @@ app_js_code = f"""/**
   }}
 
   function addToCartCurrentProduct() {{
-    if (!currentProduct) return;
+    if (!currentProduct || currentProduct.in_stock === false || currentProduct.stock === 0) return;
     CartManager.addItem(currentProduct.id, pdpQuantity);
   }}
 
   function buyNowCurrentProduct() {{
-    if (!currentProduct) return;
+    if (!currentProduct || currentProduct.in_stock === false || currentProduct.stock === 0) return;
     CartManager.addItem(currentProduct.id, pdpQuantity);
     NoteRouter.navigate('/cart');
   }}
@@ -1790,11 +1919,12 @@ app_js_code = f"""/**
     container.innerHTML = related.map(p => {{
       const zidSlug = zidSlugMap[p.id] || p.id;
       const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+      const isOutOfStock = p.in_stock === false || p.stock === 0;
       return `
-        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
+        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 overflow-hidden">
-              ${{p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.tag}}</span>` : ''}}
+              ${{isOutOfStock ? `<span class="note-out-of-stock-sticker out-of-stock">غير متاح</span>` : (p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.tag}}</span>` : '')}}
               <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
             </div>
 
@@ -1809,10 +1939,16 @@ app_js_code = f"""/**
             </div>
           </div>
 
+          ${{isOutOfStock ? `
+          <button disabled class="w-full mt-2.5 py-2 px-3 rounded-full bg-stone-200 text-stone-500 cursor-not-allowed flex items-center justify-center gap-2 font-bold text-[11px] shadow-none">
+            <span>غير متاح</span>
+          </button>
+          ` : `
           <button onclick="event.stopPropagation(); CartManager.addItem('${{p.id}}')" class="w-full mt-2.5 py-2 px-3 rounded-full bg-black text-white hover:bg-stone-800 active:scale-95 transition flex items-center justify-center gap-2 font-bold text-[11px] shadow-sm">
             <span>إضافة للسلة</span>
             <i class="sicon-shopping-bag text-xs"></i>
           </button>
+          `}}
         </div>
       `;
     }}).join('');
@@ -2007,11 +2143,12 @@ app_js_code = f"""/**
     container.innerHTML = filtered.map(p => {{
       const zidSlug = zidSlugMap[p.id] || p.id;
       const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+      const isOutOfStock = p.in_stock === false || p.stock === 0;
       return `
-        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
+        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-              ${{p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.tag}}</span>` : ''}}
+              ${{isOutOfStock ? `<span class="note-out-of-stock-sticker out-of-stock">غير متاح</span>` : (p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.tag}}</span>` : '')}}
               <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
             </div>
 
@@ -2026,10 +2163,16 @@ app_js_code = f"""/**
             </div>
           </div>
 
+          ${{isOutOfStock ? `
+          <button disabled class="w-full mt-2.5 py-2 px-3 rounded-full bg-stone-200 text-stone-500 cursor-not-allowed flex items-center justify-center gap-2 font-bold text-[11px] sm:text-xs shadow-none">
+            <span>غير متاح</span>
+          </button>
+          ` : `
           <button onclick="event.stopPropagation(); CartManager.addItem('${{p.id}}')" class="w-full mt-2.5 py-2 px-3 rounded-full bg-black text-white hover:bg-stone-800 active:scale-95 transition flex items-center justify-center gap-2 font-bold text-[11px] sm:text-xs shadow-sm">
             <span>إضافة للسلة</span>
             <i class="sicon-shopping-bag text-xs"></i>
           </button>
+          `}}
         </div>
       `;
     }}).join('');
@@ -2189,7 +2332,7 @@ app_js_code = f"""/**
     const recs = pool
       .filter(id => !inCartIds.has(id))
       .map(id => noteProductsCatalog.find(p => p.id === id))
-      .filter(Boolean)
+      .filter(p => p && p.in_stock !== false && p.stock !== 0)
       .slice(0, 4);
 
     recsGrid.innerHTML = recs.map(p => {{
