@@ -228,6 +228,18 @@ footer::before,
   border-color: #000000 !important;
   opacity: 1 !important;
 }}
+
+/* Active Nav Links Underline (100% Reference Parity) */
+#nav-links a.border-b-2,
+header nav a.border-b-2,
+#nav-links a.active-link,
+header nav a.active-link {{
+  border-bottom-width: 2px !important;
+  border-bottom-style: solid !important;
+  border-bottom-color: currentColor !important;
+  padding-bottom: 2px !important;
+  opacity: 1 !important;
+}}
 """
 
 with open(OUT_CSS, "w", encoding="utf-8") as f:
@@ -1664,8 +1676,32 @@ app_js_code = f"""/**
       }}
 
       CartManager.updateBadge();
+      updateActiveNav(target);
     }}
   }};
+
+  function updateActiveNav(target) {{
+    const navLinks = document.querySelectorAll('#nav-links a');
+    if (!navLinks || navLinks.length === 0) return;
+    navLinks.forEach(link => {{
+      link.classList.remove('border-b-2', 'border-current', 'active-link');
+      link.style.borderBottom = 'none';
+      const href = link.getAttribute('href') || '';
+      
+      let isMatch = false;
+      if (target.route === 'home' && (href === '/' || href === '')) {{
+        isMatch = true;
+      }} else if (target.route === 'category') {{
+        if (target.cat === 'all' && (href === '/categories' || href.includes('cat=all'))) isMatch = true;
+        else if (href.includes(target.cat)) isMatch = true;
+      }}
+      
+      if (isMatch) {{
+        link.classList.add('border-b-2', 'border-current', 'active-link');
+        link.style.borderBottom = '2px solid currentColor';
+      }}
+    }});
+  }}
 
   // 20. Shell Mounter
   function mountShell() {{

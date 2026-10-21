@@ -161,3 +161,15 @@ footer::before,
   border-color: #000000 !important;
   opacity: 1 !important;
 }
+
+/* Active Nav Links Underline (100% Reference Parity) */
+#nav-links a.border-b-2,
+header nav a.border-b-2,
+#nav-links a.active-link,
+header nav a.active-link {
+  border-bottom-width: 2px !important;
+  border-bottom-style: solid !important;
+  border-bottom-color: currentColor !important;
+  padding-bottom: 2px !important;
+  opacity: 1 !important;
+}
