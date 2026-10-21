@@ -156,9 +156,8 @@
 
   <!-- Main Content Wrapper -->
   <main class="pt-28 sm:pt-36 pb-24 bg-white">
+    <!-- Category Header Banner (contained in max-w-7xl) -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <!-- Category Header Banner -->
       <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
         <span id="cat-badge-text" class="text-[10px] text-stone-400 font-bold uppercase tracking-widest block mb-2">NOTE PERFUMES COLLECTION</span>
         <h1 id="cat-title" class="text-2xl sm:text-4xl font-extrabold text-black tracking-tight mb-3">جميع المنتجات</h1>
@@ -166,9 +165,11 @@
           تصفح المجموعة الكاملة من أروع إبداعات دار نوت للعطور، توليفات نيش استثنائية وباقات حصرية صُممت لتناسب ذوقك الرفيع.
         </p>
       </div>
+    </div>
 
-      <!-- ================= STICKY CONTROLS & CATEGORY PILLS BAR ================= -->
-      <div id="sticky-catalog-controls" class="sticky top-20 sm:top-24 z-30 bg-white/95 backdrop-blur-md pt-3 pb-3 border-b border-stone-200/80 mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 transition-all duration-300 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.06)]">
+    <!-- ================= STICKY CONTROLS & CATEGORY PILLS BAR (FULL-WIDTH EDGE-TO-EDGE) ================= -->
+    <div id="sticky-catalog-controls" class="sticky top-20 sm:top-24 z-30 w-full bg-white/95 backdrop-blur-md pt-3.5 pb-3.5 border-b border-stone-200/80 mb-8 transition-all duration-300 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.06)]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Controls Row: Search Input + Sorting Dropdown + Product Count (Centered Axis) -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-2.5 sm:mb-3 max-w-3xl mx-auto">
@@ -200,8 +201,8 @@
 
         </div>
 
-        <!-- Category Filter Pills Bar (Centered Horizontal Axis) -->
-        <div id="category-pills-bar" class="cat-pills-container flex items-center justify-start lg:justify-center gap-2 overflow-x-auto scrollbar-none py-1 text-xs font-bold -mx-1 px-1">
+        <!-- Category Filter Pills Bar (Centered Horizontal Axis, Wrapped on desktop, scrollable on mobile) -->
+        <div id="category-pills-bar" class="cat-pills-container flex items-center justify-start sm:justify-center flex-nowrap sm:flex-wrap gap-2 overflow-x-auto sm:overflow-visible scrollbar-none py-1 text-xs font-bold">
           <button onclick="selectCategory('all')" id="pill-all" class="cat-pill shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-stone-200 text-stone-700 hover:border-black transition cat-pill-active">
             الكل (جميع المنتجات)
           </button>
@@ -238,7 +239,10 @@
         </div>
 
       </div>
+    </div>
 
+    <!-- Product Grid Container (contained in max-w-7xl) -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- ================= PRODUCT GRID (FRAMELESS PURE WHITE) ================= -->
       <div id="catalog-products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
         <!-- Injected via JavaScript from noteProductsCatalog -->
