@@ -64,21 +64,23 @@
 /* ==========================================================================
    NOTE PERFUMES - 100% LAVERNE LUXURY CLONE THEME FOR ZID
    ========================================================================== */
+header:not(#site-header),
+footer:not(#note-store-footer),
 header.header-nav, 
 header.bg-header-transparent,
-header:not(#site-header),
 .tp-bar-header,
-footer:not(#note-store-footer),
 .tp-footer-area,
 .tp-footer-top,
 .tp-footer-bottom,
 .tp-home > *:not(#note-luxury-storefront),
+.main.app-content > *:not(#note-luxury-storefront):not(.tp-home),
 .s-block,
 .tp-slider-banners,
 .tp-product-card,
 .tp-banners,
 .tp-brands,
-.tp-title-section {
+.tp-title-section,
+.padding-t-b {
   display: none !important;
 }
 

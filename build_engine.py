@@ -78,21 +78,23 @@ suppression_css = """
 /* ==========================================================================
    NOTE PERFUMES - 100% LAVERNE LUXURY CLONE THEME FOR ZID
    ========================================================================== */
+header:not(#site-header),
+footer:not(#note-store-footer),
 header.header-nav, 
 header.bg-header-transparent,
-header:not(#site-header),
 .tp-bar-header,
-footer:not(#note-store-footer),
 .tp-footer-area,
 .tp-footer-top,
 .tp-footer-bottom,
 .tp-home > *:not(#note-luxury-storefront),
+.main.app-content > *:not(#note-luxury-storefront):not(.tp-home),
 .s-block,
 .tp-slider-banners,
 .tp-product-card,
 .tp-banners,
 .tp-brands,
-.tp-title-section {
+.tp-title-section,
+.padding-t-b {
   display: none !important;
 }
 
@@ -745,23 +747,37 @@ app_js_content = f"""/**
       return;
     }}
 
-    if (document.getElementById('note-luxury-storefront')) return;
-
-    // Suppress existing Rozia sections
-    const defaultSections = mainEl.querySelectorAll('.s-block, .tp-slider-banners, .tp-product-card, .tp-banners, .tp-brands, .tp-title-section');
-    defaultSections.forEach(sec => sec.style.display = 'none');
-
     // Remove Rozia default footers and headers completely
     document.querySelectorAll('footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav').forEach(el => {{
       el.remove();
     }});
+
+    // Remove all existing Rozia content from mainEl
+    Array.from(mainEl.children).forEach(child => {{
+      if (child.id !== 'note-luxury-storefront') {{
+        child.remove();
+      }}
+    }});
+
+    if (document.getElementById('note-luxury-storefront')) return;
 
     const storefrontContainer = document.createElement('div');
     storefrontContainer.id = 'note-luxury-storefront';
     storefrontContainer.className = 'w-full bg-white text-black antialiased selection:bg-black selection:text-white';
     storefrontContainer.innerHTML = {markup_escaped};
 
-    mainEl.prepend(storefrontContainer);
+    mainEl.appendChild(storefrontContainer);
+
+    // Keep removing any late-injected Rozia blocks
+    const cleanupInterval = setInterval(() => {{
+      document.querySelectorAll('footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav').forEach(el => el.remove());
+      Array.from(mainEl.children).forEach(child => {{
+        if (child !== storefrontContainer && child.id !== 'note-luxury-storefront') {{
+          child.remove();
+        }}
+      }});
+    }}, 400);
+    setTimeout(() => clearInterval(cleanupInterval), 4000);
 
     // Initialize all components
     initSliders();
