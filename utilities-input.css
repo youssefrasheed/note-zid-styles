@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* Closed interactive panels never depend on an asynchronous style compiler. */
+#note-luxury-storefront #cart-drawer.hidden,
+#note-luxury-storefront #cart-drawer-overlay.hidden,
+#note-luxury-storefront #search-modal.hidden,
+#note-luxury-storefront #quickview-modal.hidden,
+#note-luxury-storefront #mobile-menu-drawer.hidden,
+#note-luxury-storefront [hidden]{display:none!important}

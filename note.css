@@ -403,7 +403,7 @@ body:not(.note-ready)::before {
   pointer-events: all !important;
   opacity: 1 !important;
   visibility: visible !important;
-  animation: noteLoaderPulse 2s ease-in-out infinite !important;
+  animation: none !important;
   transition: opacity 0.4s ease-out, visibility 0.4s ease-out !important;
 }
 
@@ -473,7 +473,7 @@ body:not(.note-ready) footer:not(#note-store-footer) {
 }
 
 /* Slide-out Cart Drawer Architecture */
-#cart-drawer {
+#cart-drawer:not(.hidden):not([hidden]) {
   display: flex !important;
   flex-direction: column !important;
   height: 100vh !important;

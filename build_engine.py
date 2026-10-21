@@ -3,12 +3,13 @@ import os
 import re
 import json
 from apply_live_fixes import apply_live_fixes
+from patch_startup import fix_startup, fix_startup_css
 
 ASSET_HOST = "https://youssefrasheed.github.io/note-zid-styles"
 PREVIEW_DIR = os.path.dirname(os.path.abspath(__file__))
 
-OUT_JS = "/Users/yousefsoom/note-zid-styles/note-app.js"
-OUT_CSS = "/Users/yousefsoom/note-zid-styles/note.css"
+OUT_JS = os.path.join(PREVIEW_DIR, "note-app.js")
+OUT_CSS = os.path.join(PREVIEW_DIR, "note.css")
 
 def read_preview(fname):
     with open(os.path.join(PREVIEW_DIR, fname), "r", encoding="utf-8") as f:
@@ -585,6 +586,8 @@ body:not(.note-ready) footer:not(#note-store-footer) {{
   flex-shrink: 0 !important;
 }}
 """
+
+suppression_css = fix_startup_css(suppression_css)
 
 with open(OUT_CSS, "w", encoding="utf-8") as f:
     f.write(fonts_css + "\n" + suppression_css)
@@ -2988,7 +2991,7 @@ app_js_code = f"""/**
 }})();
 """
 
-app_js_code = apply_live_fixes(app_js_code)
+app_js_code = fix_startup(apply_live_fixes(app_js_code))
 
 with open(OUT_JS, "w", encoding="utf-8") as f:
     f.write(app_js_code)

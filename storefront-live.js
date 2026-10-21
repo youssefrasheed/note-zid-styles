@@ -1,41 +1,19 @@
-  const integrationStyles=document.createElement("style");integrationStyles.id="note-live-styles";integrationStyles.textContent="/* NOTE 4.3: High-Visibility Cart Items, Micro-Compact Recommendations & Seamless Zid Loader */\n#cart-drawer{display:flex!important;flex-direction:column!important;height:100vh!important;height:100dvh!important;max-height:100dvh!important;overflow:hidden!important}\n#cart-drawer-items{flex:1 1 auto!important;overflow-y:auto!important;min-height:160px!important;max-height:calc(100dvh - 280px)!important;padding:12px 16px!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important}\n.note-cart-item{display:flex!important;align-items:center!important;gap:12px!important;padding:10px 12px!important;margin-bottom:8px!important;background:#ffffff!important;border:1px solid #f0eee9!important;border-radius:14px!important;box-shadow:0 1px 3px rgba(0,0,0,0.03)!important;text-align:right!important}\n#cart-drawer-recommendations{padding:4px 14px 6px!important;margin:0!important;background:#fafaf9!important;border-top:1px solid #f0eee9!important;border-bottom:1px solid #f0eee9!important;flex-shrink:0!important}\n#cart-drawer-recommendations h3,#cart-drawer-recommendations h2,#cart-drawer-recommendations .flex>span:last-child{display:none!important}#cart-drawer-recommendations .note-recs-title{font-size:10px!important;font-weight:700!important;color:#57534e!important;margin-bottom:4px!important}\n.note-compact-recs{display:flex!important;gap:8px!important;overflow-x:auto!important;scrollbar-width:none!important;scroll-snap-type:none!important;padding:2px 0 4px!important;width:100%!important;max-width:100%!important;overscroll-behavior-x:contain!important;-webkit-overflow-scrolling:touch!important}\n.note-compact-recs::-webkit-scrollbar{display:none!important}\n.note-mini-card{flex:0 0 auto!important;width:auto!important;max-width:175px!important;min-width:135px!important;height:38px!important;display:inline-flex!important;align-items:center!important;justify-content:space-between!important;gap:6px!important;padding:3px 6px 3px 4px!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:9999px!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;color:#111!important;text-align:right!important}\n.note-mini-card a{display:inline-flex!important;align-items:center!important;gap:6px!important;text-decoration:none!important;color:inherit!important;min-width:0!important;flex:1 1 auto!important}\n.note-mini-card img{width:28px!important;height:28px!important;object-fit:contain!important;border-radius:9999px!important;background:#fafaf9!important;flex-shrink:0!important}\n.note-mini-card .note-mini-info{display:flex!important;flex-direction:column!important;min-width:0!important;line-height:1.15!important}\n.note-mini-card .note-mini-title{font-size:9.5px!important;font-weight:700!important;color:#111!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:65px!important;display:block!important}\n.note-mini-card .note-mini-price{font-size:9.5px!important;font-weight:800!important;color:#a58b52!important;white-space:nowrap!important;display:block!important}\n.note-mini-card button{flex-shrink:0!important;width:auto!important;min-width:32px!important;height:24px!important;padding:0 7px!important;font-size:9.5px!important;font-weight:700!important;border-radius:9999px!important;background:#111111!important;color:#ffffff!important;margin:0!important;border:none!important;cursor:pointer!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;transition:background 0.15s,transform 0.15s!important}\n.note-mini-card button:hover{background:#333333!important}\n.note-mini-card button:active{transform:scale(0.92)!important}\n#cart-drawer-footer{padding:12px 16px 14px!important;border-top:1px solid #f0eee9!important;background:#ffffff!important;flex-shrink:0!important}\n#cart-page-recommendations-section{margin-top:20px!important;padding:14px!important;border-radius:16px!important}\n#cart-page-recommendations-section h3,#cart-page-recommendations-section h2{font-size:13px!important;margin-bottom:8px!important}\n.note-bundle-options{margin:18px 0;padding:16px;border:1px solid #d6d3d1;border-radius:14px;clear:both;width:100%;font-size:13px}\n.note-bundle-options h3{font-weight:700;margin-bottom:12px}\n.note-bundle-options fieldset{margin:12px 0;border:0;padding:0}\n.note-bundle-options legend{font-weight:700;margin-bottom:6px}\n.note-bundle-options label{display:block;font-size:12px;margin:6px 0}\n.note-bundle-options select{display:block;width:100%;min-height:44px;background:white;color:#111;border:1px solid #a8a29e;border-radius:8px;padding:9px;margin-top:4px}\n.note-bundle-options select:focus-visible,.note-mini-card button:focus-visible{outline:2px solid #a58b52;outline-offset:3px}\n.note-empty-products{padding:16px;font-size:13px;color:#78716c}\nbutton:disabled{opacity:.5;cursor:not-allowed}\n@media(prefers-reduced-motion:reduce){.note-compact-recs{scroll-behavior:auto!important}}\nbutton[aria-label=\"حذف المنتج من السلة\"]{color:#78716c!important;transition:color 0.15s ease!important}\nbutton[aria-label=\"حذف المنتج من السلة\"]:hover{color:#be123c!important}\n#loader-container{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:9999999!important;background:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;transition:opacity 0.4s ease-out,visibility 0.4s ease-out!important}\n#loader-container.note-loader-dismissed{opacity:0!important;visibility:hidden!important;pointer-events:none!important}\nbody:not(.note-ready) section[section-id],body:not(.note-ready) .tp-home,body:not(.note-ready) .tp-bar-header,body:not(.note-ready) header.header-nav,body:not(.note-ready) footer:not(#note-store-footer){display:none!important;visibility:hidden!important}\n.note-out-of-stock-sticker,.out-of-stock,.tp-product-image .out-of-stock{position:absolute!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%) rotate(-18deg)!important;z-index:25!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:max-content!important;height:max-content!important;background:#e11d48!important;color:#ffffff!important;font-family:inherit!important;font-size:11px!important;font-weight:800!important;letter-spacing:0.5px!important;padding:4px 14px!important;border-radius:9999px!important;border:1.5px solid #ffffff!important;box-shadow:0 4px 14px rgba(225,29,72,0.35)!important;pointer-events:none!important;white-space:nowrap!important}\n@media(min-width:640px){.note-out-of-stock-sticker,.out-of-stock,.tp-product-image .out-of-stock{font-size:12px!important;padding:5px 16px!important}}\n.note-out-of-stock-sticker.pdp-sticker{font-size:14px!important;padding:6px 22px!important;border-width:2px!important;box-shadow:0 6px 20px rgba(225,29,72,0.4)!important}\n@media(min-width:640px){.note-out-of-stock-sticker.pdp-sticker{font-size:16px!important;padding:8px 26px!important}}\n.is-out-of-stock img,.product-item-out-of-stock img,#pdp-main-image-container.is-out-of-stock #pdp-main-image{filter:grayscale(0.55) opacity(0.85)!important;transition:filter 0.3s ease!important}\n.note-compact-recs{display:flex!important;gap:8px!important;overflow-x:auto!important;scrollbar-width:thin!important;scrollbar-color:#d6d3d1 transparent!important;scroll-snap-type:none!important;padding:4px 2px 6px!important;width:100%!important;max-width:100%!important;overscroll-behavior-x:contain!important;-webkit-overflow-scrolling:touch!important;cursor:grab!important;user-select:none!important}\n.note-compact-recs:active{cursor:grabbing!important}\n.note-compact-recs::-webkit-scrollbar{display:block!important;height:4px!important}\n.note-compact-recs::-webkit-scrollbar-track{background:#f5f5f4!important;border-radius:9999px!important}\n.note-compact-recs::-webkit-scrollbar-thumb{background:#d6d3d1!important;border-radius:9999px!important}\n.note-compact-recs::-webkit-scrollbar-thumb:hover{background:#78716c!important}\n.note-recs-nav{display:inline-flex!important;align-items:center!important;gap:4px!important}\n.note-recs-btn{width:22px!important;height:22px!important;border-radius:9999px!important;border:1px solid #e7e5e4!important;background:#ffffff!important;color:#1c1917!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;cursor:pointer!important;transition:all 0.15s ease!important;padding:0!important;flex-shrink:0!important;box-shadow:0 1px 2px rgba(0,0,0,0.04)!important}\n.note-recs-btn:hover{background:#000000!important;color:#ffffff!important;border-color:#000000!important}\n.note-recs-btn:active{transform:scale(0.92)!important}\n";document.head.append(integrationStyles);
-
-  // Zid Loader Preservation & Seamless Dismissal
-  const zidLoader=document.getElementById('loader-container');
-  if(zidLoader){
-    zidLoader._origRemove=zidLoader.remove;
-    zidLoader.remove=function(){};
-  }
-  function dismissZidLoader(){
-    const loader=document.getElementById('loader-container');
-    if(!loader)return;
-    loader.classList.add('note-loader-dismissed');
-    loader.style.transition='opacity 0.4s ease-out';
-    loader.style.opacity='0';
-    loader.style.pointerEvents='none';
-    setTimeout(()=>{
-      try{
-        if(loader._origRemove)loader._origRemove.call(loader);
-        else if(loader.parentElement)loader.parentElement.removeChild(loader);
-        else loader.remove();
-      }catch(e){}
-    },450);
-  }
-  window.dismissZidLoader=dismissZidLoader;
-  setTimeout(dismissZidLoader,2500);
+  const integrationStyles=document.createElement("style");integrationStyles.id="note-live-styles";integrationStyles.textContent="/* NOTE 4.3: High-Visibility Cart Items, Micro-Compact Recommendations & Seamless Zid Loader */\n#cart-drawer:not(.hidden):not([hidden]) {\n  display: flex !important;\n  flex-direction: column !important;\n  height: 100vh !important;\n  height: 100dvh !important;\n  max-height: 100dvh !important;\n  overflow: hidden !important;\n}\n\n#cart-drawer-items {\n  flex: 1 1 auto !important;\n  overflow-y: auto !important;\n  min-height: 160px !important;\n  max-height: calc(100dvh - 280px) !important;\n  padding: 12px 16px !important;\n  overscroll-behavior: contain !important;\n  -webkit-overflow-scrolling: touch !important;\n}\n\n.note-cart-item {\n  display: flex !important;\n  align-items: center !important;\n  gap: 12px !important;\n  padding: 10px 12px !important;\n  margin-bottom: 8px !important;\n  background: #ffffff !important;\n  border: 1px solid #f0eee9 !important;\n  border-radius: 14px !important;\n  box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;\n  text-align: right !important;\n}\n\n#cart-drawer-recommendations {\n  padding: 4px 14px 6px !important;\n  padding: 6px 14px !important;\n  margin: 0 !important;\n  background: #fafaf9 !important;\n  border-top: 1px solid #f0eee9 !important;\n  border-bottom: 1px solid #f0eee9 !important;\n  flex-shrink: 0 !important;\n}\n\n#cart-drawer-recommendations h3,\n#cart-drawer-recommendations h2,\n#cart-drawer-recommendations .note-recs-title {\n  font-size: 10px !important;\n  font-weight: 700 !important;\n  color: #57534e !important;\n  margin-bottom: 4px !important;\n}\n\n.note-compact-recs {\n  display: flex !important;\n  gap: 8px !important;\n  overflow-x: auto !important;\n  scrollbar-width: none !important;\n  scroll-snap-type: none !important;\n  padding: 2px 0 4px !important;\n  width: 100% !important;\n  max-width: 100% !important;\n  overscroll-behavior-x: contain !important;\n  -webkit-overflow-scrolling: touch !important;\n}\n.note-compact-recs::-webkit-scrollbar {\n  display: none !important;\n}\n\n.note-mini-card {\n  flex: 0 0 auto !important;\n  width: auto !important;\n  max-width: 175px !important;\n  min-width: 135px !important;\n  height: 38px !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: space-between !important;\n  gap: 6px !important;\n  padding: 3px 6px 3px 4px !important;\n  background: #ffffff !important;\n  border: 1px solid #e7e5e4 !important;\n  border-radius: 9999px !important;\n  box-sizing: border-box !important;\n  box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;\n  color: #111 !important;\n  text-align: right !important;\n}\n\n.note-mini-card a {\n  display: inline-flex !important;\n  align-items: center !important;\n  gap: 6px !important;\n  text-decoration: none !important;\n  color: inherit !important;\n  min-width: 0 !important;\n  flex: 1 1 auto !important;\n}\n\n.note-mini-card img {\n  width: 28px !important;\n  height: 28px !important;\n  object-fit: contain !important;\n  border-radius: 9999px !important;\n  background: #fafaf9 !important;\n  flex-shrink: 0 !important;\n}\n\n.note-mini-card .note-mini-info {\n  display: flex !important;\n  flex-direction: column !important;\n  min-width: 0 !important;\n  line-height: 1.15 !important;\n}\n\n.note-mini-card .note-mini-title {\n  font-size: 9.5px !important;\n  font-weight: 700 !important;\n  color: #111 !important;\n  white-space: nowrap !important;\n  overflow: hidden !important;\n  text-overflow: ellipsis !important;\n  max-width: 65px !important;\n  display: block !important;\n}\n\n.note-mini-card .note-mini-price {\n  font-size: 9.5px !important;\n  font-weight: 800 !important;\n  color: #a58b52 !important;\n  white-space: nowrap !important;\n  display: block !important;\n}\n\n.note-mini-card button {\n  flex-shrink: 0 !important;\n  width: auto !important;\n  min-width: 32px !important;\n  height: 24px !important;\n  padding: 0 7px !important;\n  font-size: 9.5px !important;\n  font-weight: 700 !important;\n  border-radius: 9999px !important;\n  background: #111111 !important;\n  color: #ffffff !important;\n  margin: 0 !important;\n  border: none !important;\n  cursor: pointer !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  transition: background 0.15s, transform 0.15s !important;\n}\n\n.note-mini-card button:hover {\n  background: #333333 !important;\n}\n\n.note-mini-card button:active {\n  transform: scale(0.92) !important;\n}\n\n#cart-drawer-footer {\n  padding: 12px 16px 14px !important;\n  border-top: 1px solid #f0eee9 !important;\n  background: #ffffff !important;\n  flex-shrink: 0 !important;\n}\n\n#cart-page-recommendations-section {\n  margin-top: 20px !important;\n  padding: 14px !important;\n  border-radius: 16px !important;\n}\n#cart-page-recommendations-section h3,\n#cart-page-recommendations-section h2 {\n  font-size: 13px !important;\n  margin-bottom: 8px !important;\n}\n\n.note-bundle-options {\n  margin: 18px 0;\n  padding: 16px;\n  border: 1px solid #d6d3d1;\n  border-radius: 14px;\n  clear: both;\n  width: 100%;\n  font-size: 13px;\n}\n.note-bundle-options h3 {\n  font-weight: 700;\n  margin-bottom: 12px;\n}\n.note-bundle-options fieldset {\n  margin: 12px 0;\n  border: 0;\n  padding: 0;\n}\n.note-bundle-options legend {\n  font-weight: 700;\n  margin-bottom: 6px;\n}\n.note-bundle-options label {\n  display: block;\n  font-size: 12px;\n  margin: 6px 0;\n}\n.note-bundle-options select {\n  display: block;\n  width: 100%;\n  min-height: 44px;\n  background: white;\n  color: #111;\n  border: 1px solid #a8a29e;\n  border-radius: 8px;\n  padding: 9px;\n  margin-top: 4px;\n}\n.note-bundle-options select:focus-visible,\n.note-mini-card button:focus-visible {\n  outline: 2px solid #a58b52;\n  outline-offset: 3px;\n}\n\n.note-empty-products {\n  padding: 16px;\n  font-size: 13px;\n  color: #78716c;\n}\n\nbutton:disabled {\n  opacity: .5;\n  cursor: not-allowed;\n}\n\n@media(prefers-reduced-motion:reduce){\n  .note-compact-recs{scroll-behavior:auto!important}\n}\n\nbutton[aria-label=\"\u062d\u0630\u0641 \u0627\u0644\u0645\u0646\u062a\u062c \u0645\u0646 \u0627\u0644\u0633\u0644\u0629\"] {\n  color: #78716c !important;\n  transition: color 0.15s ease !important;\n}\nbutton[aria-label=\"\u062d\u0630\u0641 \u0627\u0644\u0645\u0646\u062a\u062c \u0645\u0646 \u0627\u0644\u0633\u0644\u0629\"]:hover {\n  color: #be123c !important;\n}\n\n/* Continuous Luxury Brand Loader - Active from frame 0 until .note-ready is added */\nbody:not(.note-ready)::before {\n  content: \"\" !important;\n  position: fixed !important;\n  inset: 0 !important;\n  width: 100vw !important;\n  height: 100vh !important;\n  height: 100dvh !important;\n  background-color: #ffffff !important;\n  background-image: url('https://youssefrasheed.github.io/note-zid-styles/logo_dark_crisp.png') !important;\n  background-repeat: no-repeat !important;\n  background-position: center calc(50% - 25px) !important;\n  background-size: 130px auto !important;\n  z-index: 99999999 !important;\n  pointer-events: all !important;\n  opacity: 1 !important;\n  visibility: visible !important;\n  animation: none !important;\n  transition: opacity 0.4s ease-out, visibility 0.4s ease-out !important;\n}\n\nbody:not(.note-ready)::after {\n  content: \"\" !important;\n  position: fixed !important;\n  top: calc(50% + 40px) !important;\n  left: 50% !important;\n  margin-left: -13px !important;\n  width: 26px !important;\n  height: 26px !important;\n  border: 2.5px solid #eceae5 !important;\n  border-top-color: #121212 !important;\n  border-radius: 50% !important;\n  z-index: 999999999 !important;\n  animation: noteSpinRing 0.75s linear infinite !important;\n  pointer-events: none !important;\n  opacity: 1 !important;\n  visibility: visible !important;\n  transition: opacity 0.4s ease-out, visibility 0.4s ease-out !important;\n}\n\nbody.note-ready::before,\nbody.note-ready::after {\n  opacity: 0 !important;\n  visibility: hidden !important;\n  pointer-events: none !important;\n}\n\n@keyframes noteLoaderPulse {\n  0%, 100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n  50% {\n    transform: scale(0.96);\n    opacity: 0.75;\n  }\n}\n\n@keyframes noteSpinRing {\n  to { transform: rotate(360deg); }\n}\n\nbody[class*=\"checkout\"]::before,\nbody[class*=\"checkout\"]::after,\nbody[class*=\"auth\"]::before,\nbody[class*=\"auth\"]::after,\nbody[class*=\"account\"]::before,\nbody[class*=\"account\"]::after {\n  display: none !important;\n  opacity: 0 !important;\n  visibility: hidden !important;\n}\n\n#loader-container {\n  display: none !important;\n}\n\nbody:not(.note-ready) section[section-id],\nbody:not(.note-ready) .tp-home,\nbody:not(.note-ready) .tp-bar-header,\nbody:not(.note-ready) header.header-nav,\nbody:not(.note-ready) footer:not(#note-store-footer) {\n  display: none !important;\n  visibility: hidden !important;\n}\n\n#cart-drawer-recommendations .flex > span:last-child {\n  display: none !important;\n}\n\n/* Active Nav Links Underline (100% Reference Parity) */\n#nav-links a.border-b-2,\nheader nav a.border-b-2,\n#nav-links a.active-link,\nheader nav a.active-link {\n  border-bottom: 2px solid currentColor !important;\n  padding-bottom: 2px !important;\n  opacity: 1 !important;\n}\n\n#nav-links a:not(.active-link),\nheader nav a:not(.active-link) {\n  border-bottom: 2px solid transparent !important;\n  padding-bottom: 2px !important;\n}\n\n/* Bottom Navigation Bar Cart Badge Perfect Centering */\n.cart-badge,\n.header-sm .cart-badge,\n.cart-sm .cart-badge,\n.cart-btn .cart-badge {\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  text-align: center !important;\n  line-height: 1 !important;\n  direction: ltr !important;\n  min-width: 18px !important;\n  height: 18px !important;\n  padding: 0 2px !important;\n  margin: 0 !important;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif !important;\n  font-feature-settings: \"tnum\" !important;\n  font-variant-numeric: tabular-nums !important;\n  font-size: 11px !important;\n  font-weight: 800 !important;\n  border-radius: 9999px !important;\n  box-sizing: border-box !important;\n  position: absolute !important;\n  top: -5px !important;\n  left: -2px !important;\n  background-color: #f44336 !important;\n  color: #ffffff !important;\n}\n\n/* Out of Stock (\"\u063a\u064a\u0631 \u0645\u062a\u0627\u062d\") Luxury Sticker & State */\n.note-out-of-stock-sticker,\n.out-of-stock,\n.tp-product-image .out-of-stock {\n  position: absolute !important;\n  top: 50% !important;\n  left: 50% !important;\n  transform: translate(-50%, -50%) rotate(-18deg) !important;\n  z-index: 25 !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  width: max-content !important;\n  height: max-content !important;\n  background: #e11d48 !important;\n  color: #ffffff !important;\n  font-family: inherit !important;\n  font-size: 11px !important;\n  font-weight: 800 !important;\n  letter-spacing: 0.5px !important;\n  padding: 4px 14px !important;\n  border-radius: 9999px !important;\n  border: 1.5px solid #ffffff !important;\n  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35) !important;\n  pointer-events: none !important;\n  white-space: nowrap !important;\n}\n\n@media (min-width: 640px) {\n  .note-out-of-stock-sticker,\n  .out-of-stock,\n  .tp-product-image .out-of-stock {\n    font-size: 12px !important;\n    padding: 5px 16px !important;\n  }\n}\n\n.note-out-of-stock-sticker.pdp-sticker {\n  font-size: 14px !important;\n  padding: 6px 22px !important;\n  border-width: 2px !important;\n  box-shadow: 0 6px 20px rgba(225, 29, 72, 0.4) !important;\n}\n\n@media (min-width: 640px) {\n  .note-out-of-stock-sticker.pdp-sticker {\n    font-size: 16px !important;\n    padding: 8px 26px !important;\n  }\n}\n\n.is-out-of-stock img,\n.product-item-out-of-stock img,\n#pdp-main-image-container.is-out-of-stock #pdp-main-image {\n  filter: grayscale(0.55) opacity(0.85) !important;\n  transition: filter 0.3s ease !important;\n}\n\n/* Recommended Products Modern Desktop & Mobile Scroll */\n.note-compact-recs {\n  display: flex !important;\n  gap: 8px !important;\n  overflow-x: auto !important;\n  scrollbar-width: thin !important;\n  scrollbar-color: #d6d3d1 transparent !important;\n  scroll-snap-type: none !important;\n  padding: 4px 2px 6px !important;\n  width: 100% !important;\n  max-width: 100% !important;\n  overscroll-behavior-x: contain !important;\n  -webkit-overflow-scrolling: touch !important;\n  cursor: grab !important;\n  user-select: none !important;\n}\n.note-compact-recs:active {\n  cursor: grabbing !important;\n}\n.note-compact-recs::-webkit-scrollbar {\n  display: block !important;\n  height: 4px !important;\n}\n.note-compact-recs::-webkit-scrollbar-track {\n  background: #f5f5f4 !important;\n  border-radius: 9999px !important;\n}\n.note-compact-recs::-webkit-scrollbar-thumb {\n  background: #d6d3d1 !important;\n  border-radius: 9999px !important;\n}\n.note-compact-recs::-webkit-scrollbar-thumb:hover {\n  background: #78716c !important;\n}\n\n.note-recs-nav {\n  display: inline-flex !important;\n  align-items: center !important;\n  gap: 4px !important;\n}\n.note-recs-btn {\n  width: 22px !important;\n  height: 22px !important;\n  border-radius: 9999px !important;\n  border: 1px solid #e7e5e4 !important;\n  background: #ffffff !important;\n  color: #1c1917 !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  cursor: pointer !important;\n  transition: all 0.15s ease !important;\n  padding: 0 !important;\n  flex-shrink: 0 !important;\n  box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;\n}\n.note-recs-btn:hover {\n  background: #000000 !important;\n  color: #ffffff !important;\n  border-color: #000000 !important;\n}\n.note-recs-btn:active {\n  transform: scale(0.92) !important;\n}\n";document.head.append(integrationStyles);
 
   // Live storefront integration. Kept separately so rebuilding templates preserves fixes.
   const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const liveImage = image => image?.image?.large || image?.image?.full_size || image?.image?.thumbnail || '';
   const liveMoney = value => value === null || value === undefined || value === '' ? null : (Number.isFinite(Number(value)) ? Number(value) : null);
-  let liveCatalogReady = true;
+  let liveCatalogReady = false;
   const originalCatalog = noteProductsCatalog.slice();
+  noteProductsCatalog.splice(0);
+  productsData.splice(0);
   ZidSyncManager.CACHE_KEY = 'note_zid_catalog_v6';
   ZidSyncManager.CACHE_TIME_KEY = 'note_zid_catalog_time_v6';
   ZidSyncManager.loadCachedData = function() {
     try {
       const cached = localStorage.getItem(this.CACHE_KEY);
-      if (cached) {
+      if (cached && Date.now()-Number(localStorage.getItem(this.CACHE_TIME_KEY) || 0)<60000) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length) {
           this.applyToCatalog(parsed);
@@ -61,19 +39,19 @@
         img:liveImage(z.images?.[0]) || prior.img || '', img_box:liveImage(z.images?.[1]) || prior.img_box || null,
         cat:category, cat_ar:categories.find(c => String(c.id) === catUrlMap[category]?.split('/')[2])?.name || categories[0]?.name || prior.cat_ar || '',
         category_ids:categories.map(c => String(c.id)),
-        bestseller:sold > 0, sold_count:sold, tag:old ? 'خصم' : (prior.tag || ''),
-        rating:Number(z.rating?.average) || prior.rating || 0, reviews_count:Number(z.rating?.total_count) || prior.reviews_count || 0,
+        bestseller:sold > 0, sold_count:sold, tag:old ? 'خصم' : '',
+        rating:Number(z.rating?.average) || 0, reviews_count:Number(z.rating?.total_count) || 0,
         in_stock:z.in_stock !== false && (z.is_infinite === true || Number(z.quantity) > 0), stock:z.is_infinite ? Infinity : Number(z.quantity),
         product_class:z.product_class, has_options:z.has_options, has_fields:z.has_fields,
         description:String(z.description || z.short_description || '').replace(/<[^>]*>/g,'') || prior.description || '', size:prior.size || '100 مل', concentration:prior.concentration || '', notes:prior.notes || '', slogan:'',
-        created_at:z.created_at || ''};
+        created_at:z.created_at || '', updated_at:z.updated_at || ''};
       zidSlugMap[entry.id] = slug;
       return entry;
     });
     noteProductsCatalog.splice(0, noteProductsCatalog.length, ...next);
     productsData.splice(0, productsData.length, ...next);
     liveCatalogReady = true;
-    try { localStorage.setItem(this.CACHE_KEY, JSON.stringify(results)); } catch(e) {}
+    try { localStorage.setItem(this.CACHE_KEY, JSON.stringify(results)); localStorage.setItem(this.CACHE_TIME_KEY, String(Date.now())); } catch(e) {}
   };
   ZidSyncManager.loadCachedData();
   ZidSyncManager.fetchLiveCatalog = async function(timeoutMs=15000) {
@@ -111,7 +89,17 @@
     if (NoteRouter.detectRoute().route==='product') {
       const id = NoteRouter.resolveProductId(location.pathname,new URLSearchParams(location.search));
       if (id && !document.getElementById('pdp-title')) document.getElementById('page-content').innerHTML=T.product;
-      if (id) initPDP(id);
+      if (id) {
+        const next=noteProductsCatalog.find(p=>p.id===id);
+        const fields=['id','title','price','old_price','discount','img','img_box','in_stock','stock','description','rating','reviews_count','updated_at'];
+        const changed=!currentProduct || fields.some(key=>currentProduct[key]!==next[key]);
+        if(changed) {
+          const quantity=pdpQuantity;
+          initPDP(id);
+          pdpQuantity=quantity;
+          const value=document.getElementById('pdp-qty-val');if(value)value.textContent=quantity;
+        }
+      }
     }
     initSliders();
     if (document.getElementById('catalog-products-grid')) renderCatalog();
@@ -158,6 +146,7 @@
       if (content) content.innerHTML='<main class="pt-32 p-8 text-center"><p>'+ (liveCatalogReady ? 'المنتج غير متاح حاليًا.' : 'جاري تحميل المنتج…')+'</p></main>';
       return;
     }
+    document.querySelectorAll('#note-bundle-options').forEach(box=>box.remove());
     originalPDP(id);
     activeBundleGroups=[]; activeBundleSelections=[];
     const token=++bundleRequest;
@@ -287,7 +276,7 @@
     const badges=document.querySelectorAll('.cart-badge, .cart-badge-count, #cart-counter-badge, [class*="cart-badge"], .cart-sm .cart-badge, .cart-btn .cart-badge');
     badges.forEach(b => {
       if (b.textContent !== count) {
-        b.textContent = count;
+        if (b.textContent !== String(count)) b.textContent = String(count);
       }
       if (count !== '0') {
         b.style.display = 'inline-flex';
@@ -324,14 +313,14 @@
 
     // Background live sync with Zid's native cart API
     if (typeof window !== 'undefined' && window.zid?.cart?.addProduct) {
-      (async () => {
+      this._nativeQueue=(this._nativeQueue || Promise.resolve()).then(async () => {
         try {
           const payload = {
             product_id: p.id,
             quantity: quantity,
             ...(sub.length ? { sub_items: sub.map(({id, quantity, selection_group_id}) => ({id, quantity, selection_group_id})) } : {})
           };
-          const res = await window.zid.cart.addProduct(payload);
+          const res = assertCartResponse(await window.zid.cart.addProduct(payload));
           const lineId = res?.data?.item?.id || res?.item?.id;
           if (lineId) {
             const currentCart = CartManager.getCart();
@@ -344,7 +333,7 @@
         } catch(e) {
           console.warn('NOTE: background Zid cart sync note:', e?.message || e);
         }
-      })();
+      });
     }
     return true;
   };
@@ -464,6 +453,30 @@
   }
   renderCartPageRecommendations=cart=>compactRecommendations(cart,'cart-page-recs-grid','cart-page-recommendations-section');
   updateCheckoutUpsell=function() {document.getElementById('checkout-upsell-card')?.classList.add('hidden');};
+  // Explicit, cancellable drawer state; an old close timeout cannot hide a reopened cart.
+  CartManager.openDrawer=function() {
+    const drawer=document.getElementById('cart-drawer'),overlay=document.getElementById('cart-drawer-overlay');
+    if(!drawer || !overlay) return;
+    clearTimeout(this._drawerCloseTimer);
+    this._drawerOpen=true;
+    drawer.hidden=false;overlay.hidden=false;
+    drawer.setAttribute('aria-hidden','false');
+    drawer.classList.remove('hidden');overlay.classList.remove('hidden');
+    document.body.style.overflow='hidden';
+    this.renderDrawer();
+    requestAnimationFrame(()=>{if(!this._drawerOpen)return;overlay.classList.add('opacity-100');drawer.classList.remove('-translate-x-full');drawer.classList.add('translate-x-0');});
+  };
+  CartManager.closeDrawer=function() {
+    const drawer=document.getElementById('cart-drawer'),overlay=document.getElementById('cart-drawer-overlay');
+    if(!drawer || !overlay)return;
+    this._drawerOpen=false;
+    clearTimeout(this._drawerCloseTimer);
+    drawer.setAttribute('aria-hidden','true');
+    drawer.classList.remove('translate-x-0');drawer.classList.add('-translate-x-full');overlay.classList.remove('opacity-100');
+    document.body.style.overflow='';
+    this._drawerCloseTimer=setTimeout(()=>{if(this._drawerOpen)return;drawer.hidden=true;overlay.hidden=true;drawer.classList.add('hidden');overlay.classList.add('hidden');},250);
+  };
+
   const originalDrawer=CartManager.renderDrawer;
   CartManager.renderDrawer=function() {originalDrawer.call(this);compactRecommendations(this.getCart(),'cart-drawer-recs-list','cart-drawer-recommendations');};
   // Refresh on return to the tab and every minute, including name/image changes.
@@ -487,6 +500,7 @@
     try {
       const refreshed=await ZidSyncManager.fetchLiveCatalog();
       if(!refreshed) throw Error('تعذر التحقق من الأسعار الحالية. حاول مرة أخرى.');
+      await CartManager._nativeQueue;
       const cart=CartManager.getCart();
       if(!cart.length) throw Error('السلة فارغة');
       const api=window.zid?.cart;
@@ -515,6 +529,7 @@
   };
   const originalRemove=CartManager.removeItem, originalUpdateQuantity=CartManager.updateQuantity;
   CartManager.removeItem=async function(key) {
+    await this._nativeQueue;
     const item=this.getCart().find(i=>i.id===key);
     try {
       if(item?.native_line_id) assertCartResponse(await window.zid.cart.removeProduct({product_id:item.native_line_id}));
@@ -522,6 +537,7 @@
     } catch(e) {this.showToast('تعذر حذف المنتج من زد. حاول مجددًا.');}
   };
   CartManager.updateQuantity=async function(key,delta) {
+    await this._nativeQueue;
     const item=this.getCart().find(i=>i.id===key);if(!item)return;
     if(item.quantity+delta<=0) return this.removeItem(key);
     const p=noteProductsCatalog.find(p=>p.id===item.product_id);
@@ -534,7 +550,7 @@
 
   if (typeof document !== 'undefined') {
     document.addEventListener('click', function(e) {
-      const btn = e.target?.closest?.('.cart-sm a, .cart-btn a, a[href*="/cart/view"], a[href="/cart"], [data-action="open-cart"]');
+      const btn = e.target?.closest?.('.cart-sm a, .cart-btn a, a[href*="/cart/view"], [data-action="open-cart"]');
       if (btn && !btn.getAttribute?.('href')?.includes('/checkout')) {
         e.preventDefault?.();
         e.stopPropagation?.();
@@ -544,8 +560,10 @@
 
     CartManager.updateBadge();
     if (typeof MutationObserver !== 'undefined' && document.body) {
+      let badgeFrame=0;
       const badgeObserver = new MutationObserver(() => {
-        CartManager.updateBadge();
+        if (badgeFrame) return;
+        badgeFrame=requestAnimationFrame(()=>{badgeFrame=0;CartManager.updateBadge();});
       });
       badgeObserver.observe(document.body, { childList: true, subtree: true });
     }
