@@ -89,6 +89,24 @@ header.bg-header-transparent,
   display: none !important;
 }
 
+/* Eradicate Rozia's 50% olive background pseudo-element on footer */
+footer::after,
+footer::before,
+#note-store-footer::after,
+#note-store-footer::before {
+  display: none !important;
+  content: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+/* Eradicate Rozia native duplicate floating WhatsApp button */
+.whatsapp-icon {
+  display: none !important;
+}
+
 .main.app-content, .tp-home {
   padding: 0 !important;
   margin: 0 !important;
@@ -98,12 +116,25 @@ header.bg-header-transparent,
   background: #ffffff !important;
 }
 
+html {
+  background-color: #000000 !important;
+}
+
 body {
   margin: 0 !important;
   padding: 0 !important;
-  background: #ffffff !important;
+  background: #000000 !important;
   font-family: 'Laverne', sans-serif !important;
   overflow-x: hidden !important;
+}
+
+#note-luxury-storefront {
+  background: #ffffff !important;
+  min-height: 100vh !important;
+}
+
+#note-store-footer {
+  background: #000000 !important;
 }
 
 .scrollbar-none::-webkit-scrollbar {
@@ -2059,7 +2090,7 @@ body {
     }
 
     // Remove Rozia default footers, headers and native sections completely
-    document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav').forEach(el => {
+    document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer').forEach(el => {
       el.remove();
     });
 
@@ -2075,7 +2106,7 @@ body {
 
     // Keep removing any late-injected Rozia blocks
     const cleanupInterval = setInterval(() => {
-      document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav').forEach(el => el.remove());
+      document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer').forEach(el => el.remove());
       Array.from(mainEl.children).forEach(child => {
         if (child !== storefrontContainer && child.id !== 'note-luxury-storefront') {
           child.remove();
