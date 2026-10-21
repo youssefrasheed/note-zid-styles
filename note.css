@@ -66,8 +66,12 @@
    ========================================================================== */
 header.header-nav, 
 header.bg-header-transparent,
+header:not(#site-header),
 .tp-bar-header,
-footer.d-flex,
+footer:not(#note-store-footer),
+.tp-footer-area,
+.tp-footer-top,
+.tp-footer-bottom,
 .tp-home > *:not(#note-luxury-storefront),
 .s-block,
 .tp-slider-banners,

@@ -34,6 +34,7 @@ total_markup = main_body + "\n" + drawer_part
 
 # URL replacements
 url_replacements = [
+    (r'<footer class="w-full pt-16', '<footer id="note-store-footer" class="w-full pt-16'),
     (r'src="/assets/', f'src="{ASSET_HOST}/assets/'),
     (r'srcset="/assets/', f'srcset="{ASSET_HOST}/assets/'),
     (r'src="/products/', f'src="{ASSET_HOST}/products/'),
@@ -79,8 +80,12 @@ suppression_css = """
    ========================================================================== */
 header.header-nav, 
 header.bg-header-transparent,
+header:not(#site-header),
 .tp-bar-header,
-footer.d-flex,
+footer:not(#note-store-footer),
+.tp-footer-area,
+.tp-footer-top,
+.tp-footer-bottom,
 .tp-home > *:not(#note-luxury-storefront),
 .s-block,
 .tp-slider-banners,
@@ -745,6 +750,11 @@ app_js_content = f"""/**
     // Suppress existing Rozia sections
     const defaultSections = mainEl.querySelectorAll('.s-block, .tp-slider-banners, .tp-product-card, .tp-banners, .tp-brands, .tp-title-section');
     defaultSections.forEach(sec => sec.style.display = 'none');
+
+    // Remove Rozia default footers and headers completely
+    document.querySelectorAll('footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav').forEach(el => {{
+      el.remove();
+    }});
 
     const storefrontContainer = document.createElement('div');
     storefrontContainer.id = 'note-luxury-storefront';
