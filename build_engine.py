@@ -2,6 +2,7 @@
 import os
 import re
 import json
+from apply_live_fixes import apply_live_fixes
 
 ASSET_HOST = "https://youssefrasheed.github.io/note-zid-styles"
 PREVIEW_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -2462,6 +2463,8 @@ app_js_code = f"""/**
   }}
 }})();
 """
+
+app_js_code = apply_live_fixes(app_js_code)
 
 with open(OUT_JS, "w", encoding="utf-8") as f:
     f.write(app_js_code)
