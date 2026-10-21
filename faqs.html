@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الأسئلة الشائعة ومركز المساعدة | NOTE Perfumes</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://assets.salla.cloud/fonts/sallaicons.css">
+
+  <style>
+    @font-face {
+      font-family: 'Laverne';
+      src: url('/fonts/Laverne-VF.woff2') format('woff2');
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    * {
+      font-family: 'Laverne', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background-color: #ffffff;
+      color: #000000;
+    }
+  </style>
+</head>
+<body class="bg-white text-black antialiased selection:bg-black selection:text-white min-h-screen flex flex-col justify-between">
+
+  <!-- Header -->
+  <header id="site-header" class="fixed top-0 right-0 left-0 z-50 w-full bg-white/85 backdrop-blur-xl text-black border-b border-stone-100 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-24 flex items-center justify-between">
+      <a href="/" class="block group py-1">
+        <img src="/logo_dark_crisp.png" alt="NOTE Perfumes" class="h-8 sm:h-9 lg:h-10 w-auto object-contain">
+      </a>
+
+      <nav class="hidden lg:flex items-center justify-center gap-6 text-sm font-semibold whitespace-nowrap">
+        <a href="/" class="hover:opacity-70 transition">الرئيسية</a>
+        <a href="/category.html?cat=all" class="hover:opacity-70 transition">جميع المنتجات</a>
+        <a href="/category.html?cat=perfumes" class="hover:opacity-70 transition">العطور</a>
+        <a href="/category.html?cat=niche" class="hover:opacity-70 transition">عطور النيش</a>
+        <a href="/category.html?cat=bestsellers" class="hover:opacity-70 transition">الأكثر مبيعاً</a>
+        <a href="/category.html?cat=new" class="hover:opacity-70 transition">أحدث المنتجات</a>
+        <a href="/category.html?cat=travel" class="hover:opacity-70 transition">عطور 30 مل</a>
+        <a href="/category.html?cat=all-over" class="hover:opacity-70 transition">معطر للجسم</a>
+        <a href="/category.html?cat=packages" class="hover:opacity-70 transition">مجموعات نوت</a>
+      </nav>
+
+      <div class="flex items-center gap-4">
+        <a href="/cart.html" class="relative w-9 h-9 flex items-center justify-center hover:opacity-75 transition">
+          <i class="sicon-shopping-bag text-xl"></i>
+          <span class="cart-badge-count absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-black text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-md">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="pt-28 sm:pt-36 pb-20 flex-grow text-right">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-xs text-stone-400 mb-8 font-medium">
+        <a href="/" class="hover:text-black">الرئيسية</a>
+        <span>/</span>
+        <span class="text-black font-bold">الأسئلة الشائعة</span>
+      </nav>
+
+      <!-- Page Title -->
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <span class="text-[10px] text-stone-400 font-bold uppercase tracking-widest block mb-2">HELP CENTER & FAQS</span>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-black tracking-tight">الأسئلة الأكثر تكراراً</h1>
+        <p class="text-xs sm:text-sm text-stone-500 mt-2">إجابات شاملة ومفصلة عن استفساراتكم حول منتجات وعطور دار نوت، الشحن، والضمان الذهبي</p>
+      </div>
+
+      <!-- FAQ Accordions -->
+      <div class="space-y-4">
+        
+        <!-- FAQ 1 -->
+        <details class="group bg-stone-50/70 rounded-2xl p-5 sm:p-6 border border-stone-200/80 transition" open>
+          <summary class="flex items-center justify-between font-bold text-sm sm:text-base text-black cursor-pointer select-none">
+            <span class="flex items-center gap-3">
+              <i class="sicon-shield-check text-black text-lg"></i>
+              <span>هل جميع عطور NOTE أصلية ومطابقة للمواصفات السعودية؟</span>
+            </span>
+            <i class="sicon-keyboard_arrow_down text-sm transition-transform duration-300 group-open:rotate-180"></i>
+          </summary>
+          <div class="pt-4 text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
+            نعم، 100%. دار نوت هي علامة تجارية سعودية رسمية مسجلة بسجل تجاري رقم (1010713359) ورقم ضريبي (310103613800003). جميع عطورنا ومستحضراتنا مصنعة وفق أعلى معايير الجودة العالمية، ومرخصة ومطابقة لاشتراطات الهيئة العامة للغذاء والدواء بالمملكة العربية السعودية، ونستخدم أندر الزيوت العطرية النقية والمستخلصة طبيعياً.
+          </div>
+        </details>
+
+        <!-- FAQ 2 -->
+        <details class="group bg-stone-50/70 rounded-2xl p-5 sm:p-6 border border-stone-200/80 transition">
+          <summary class="flex items-center justify-between font-bold text-sm sm:text-base text-black cursor-pointer select-none">
+            <span class="flex items-center gap-3">
+              <i class="sicon-award-ribbon text-black text-lg"></i>
+              <span>ما هو الضمان الذهبي وكيف أستخدم عينة التجربة المجانية؟</span>
+            </span>
+            <i class="sicon-keyboard_arrow_down text-sm transition-transform duration-300 group-open:rotate-180"></i>
+          </summary>
+          <div class="pt-4 text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
+            الضمان الذهبي هو وعد نوت لعملائها بالرضا التام. مع كل زجاجة عطر تطلبها، نرفق عينة تجربة مجانية بحجم صغير. يمكنك فك العينة وتجربتها على بشرتك وملابسك دون فتح كرتون أو سلوفان العطر الأساسي. إذا لم تعجبك الرائحة أو الثبات، يحق لك طلب استرجاع المبلغ خلال 3 أيام من تاريخ استلام الشحنة بكل سهولة.
+          </div>
+        </details>
+
+        <!-- FAQ 3 -->
+        <details class="group bg-stone-50/70 rounded-2xl p-5 sm:p-6 border border-stone-200/80 transition">
+          <summary class="flex items-center justify-between font-bold text-sm sm:text-base text-black cursor-pointer select-none">
+            <span class="flex items-center gap-3">
+              <i class="sicon-shipping-fast text-black text-lg"></i>
+              <span>كم يستغرق الشحن والتوصيل؟ وما هي تكلفته؟</span>
+            </span>
+            <i class="sicon-keyboard_arrow_down text-sm transition-transform duration-300 group-open:rotate-180"></i>
+          </summary>
+          <div class="pt-4 text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
+            يتم تجهيز الطلبات وشحنها فورياً عبر شريكنا اللوجستي المعتمد أرامكس (Aramex). يستغرق التوصيل داخل مدينة الرياض وجدة ومدن المملكة الرئيسية من 2 إلى 4 أيام عمل. الشحن <strong>مجاني بالكامل</strong> لكافة الطلبات التي تزيد قيمتها عن 300 ر.س، وتبلغ رسوم الشحن 25 ر.س للطلبات الأقل من ذلك.
+          </div>
+        </details>
+
+        <!-- FAQ 4 -->
+        <details class="group bg-stone-50/70 rounded-2xl p-5 sm:p-6 border border-stone-200/80 transition">
+          <summary class="flex items-center justify-between font-bold text-sm sm:text-base text-black cursor-pointer select-none">
+            <span class="flex items-center gap-3">
+              <i class="sicon-card text-black text-lg"></i>
+              <span>هل يتوفر تقسيط المشتريات عبر تابي (Tabby) وتمارا (Tamara)؟</span>
+            </span>
+            <i class="sicon-keyboard_arrow_down text-sm transition-transform duration-300 group-open:rotate-180"></i>
+          </summary>
+          <div class="pt-4 text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
+            نعم، نوفر خدمة التقسيط على 4 دفعات ميسرة بدون أي فوائد أو رسوم إضافية عبر تابي وتمارا. يمكنك اختيار وسيلة التقسيط المفضلة عند الوصول لصفحة الدفع وسداد القسط الأول فقط مع شحن طلبك فوراً.
+          </div>
+        </details>
+
+        <!-- FAQ 5 -->
+        <details class="group bg-stone-50/70 rounded-2xl p-5 sm:p-6 border border-stone-200/80 transition">
+          <summary class="flex items-center justify-between font-bold text-sm sm:text-base text-black cursor-pointer select-none">
+            <span class="flex items-center gap-3">
+              <i class="sicon-drop text-black text-lg"></i>
+              <span>ما هو تركيز عطور دار نوت وكم تدوم فترة الثبات؟</span>
+            </span>
+            <i class="sicon-keyboard_arrow_down text-sm transition-transform duration-300 group-open:rotate-180"></i>
+          </summary>
+          <div class="pt-4 text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
+            تعتمد دار نوت أعلى درجات التركيز العطري في صناعة العطور العالمية وهو <strong>Extrait de Parfum</strong> بتركيز زيوت عطرية نقية تتراوح بين 30% إلى 40%، مما يمنح العطر ثباتاً يتجاوز 24 ساعة على الجلد وعدة أيام على الأقمشة والملابس مع فوحان متوازن وراقٍ.
+          </div>
+        </details>
+
+        <!-- FAQ 6 -->
+        <details class="group bg-stone-50/70 rounded-2xl p-5 sm:p-6 border border-stone-200/80 transition">
+          <summary class="flex items-center justify-between font-bold text-sm sm:text-base text-black cursor-pointer select-none">
+            <span class="flex items-center gap-3">
+              <i class="sicon-chat-conversation-alt text-black text-lg"></i>
+              <span>كيف أتواصل مع خدمة العملاء؟</span>
+            </span>
+            <i class="sicon-keyboard_arrow_down text-sm transition-transform duration-300 group-open:rotate-180"></i>
+          </summary>
+          <div class="pt-4 text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
+            فريق خدمة عملاء NOTE يسعد بخدمتكم عبر واتساب على الرقم: <strong><a href="https://wa.me/966565955420" target="_blank" class="text-black font-bold underline">+966 56 595 5420</a></strong> أو عبر البريد الإلكتروني المعتمد: <strong>marketing.noteperf@gmail.com</strong>.
+          </div>
+        </details>
+
+      </div>
+
+      <!-- Still Have Questions Box -->
+      <div class="p-8 rounded-2xl bg-stone-50 border border-stone-200 mt-12 text-center space-y-3">
+        <h3 class="text-base font-bold text-black">هل لديك سؤال آخر لم تجد إجابته هنا؟</h3>
+        <p class="text-xs text-stone-500">فريقنا متواجد ومستعد لمساعدتك في أي استفسار حول روائح العطور أو طلبك الحالي</p>
+        <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <a href="https://wa.me/966565955420" target="_blank" class="px-6 py-2.5 rounded-full bg-black text-white text-xs font-bold hover:bg-stone-800 transition flex items-center gap-2">
+            <i class="sicon-whatsapp"></i>
+            <span>محادثة واتساب مباشرة</span>
+          </a>
+          <a href="/contact.html" class="px-6 py-2.5 rounded-full border border-stone-200 text-black text-xs font-bold hover:border-black transition">
+            صفحة الشكاوى والمقترحات
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full pt-12 pb-10 px-4 bg-black text-white text-right text-xs">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-stone-400">
+      <p>دار نوت للعطور © 2026 | السجل التجاري: 1010713359 | الرقم الضريبي: 310103613800003</p>
+      <div class="flex items-center gap-4">
+        <a href="/refund-policy.html" class="hover:text-white transition">الضمان وسياسة الاسترجاع</a>
+        <a href="/terms.html" class="hover:text-white transition">الشروط والأحكام</a>
+        <a href="/privacy.html" class="hover:text-white transition">سياسة الخصوصية</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/products-data.js?v=20261020_2320"></script>
+
+  <!-- Floating WhatsApp Luxury Button -->
+  <div id="floating-whatsapp-container" class="fixed bottom-6 left-6 z-[90] flex items-center flex-row-reverse group select-none" style="margin-bottom: env(safe-area-inset-bottom, 0px);">
+    <a id="floating-whatsapp" href="https://wa.me/966565955420?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D9%86%D9%88%D8%AA%20%D9%84%D9%84%D8%B9%D8%B7%D9%88%D8%B1%D8%8C%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%A7%D9%84%D9%85%D9%86%D8%AA%D8%AC%D8%A7%D8%AA" target="_blank" rel="noopener noreferrer" class="relative z-10 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white flex items-center justify-center shadow-[0_6px_25px_rgba(37,211,102,0.45)] hover:shadow-[0_8px_30px_rgba(37,211,102,0.65)] hover:scale-105 active:scale-95 transition-all duration-300" aria-label="تواصل معنا عبر واتساب">
+      <span class="absolute inset-0 rounded-full bg-[#25D366] opacity-30 animate-ping pointer-events-none"></span>
+      <svg class="relative z-10 w-7 h-7 sm:w-8 sm:h-8 fill-current drop-shadow-sm" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.155.57 4.177 1.564 5.927l-1.656 6.049 6.222-1.632c1.705.932 3.659 1.464 5.738 1.464 6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12zm0 21.818c-1.895 0-3.652-.522-5.163-1.429l-.37-.22-3.842 1.008 1.025-3.742-.241-.384c-.997-1.589-1.524-3.435-1.524-5.342 0-5.413 4.406-9.818 9.819-9.818 5.414 0 9.818 4.405 9.818 9.818 0 5.414-4.404 9.818-9.818 9.818z"/>
+      </svg>
+    </a>
+    <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/90 text-white text-xs font-semibold shadow-xl backdrop-blur mr-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      تواصل معنا مباشرة عبر واتساب
+    </span>
+  </div>
+</body>
+</html>

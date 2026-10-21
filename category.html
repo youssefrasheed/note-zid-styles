@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="cat-page-title">العطور الفاخرة | دار نوت للعطور NOTE Perfumes</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Salla Icons Font -->
+  <link rel="stylesheet" href="https://assets.salla.cloud/fonts/sallaicons.css">
+
+  <style>
+    /* ================= 100% LAVERNE VARIABLE FONT CONFIGURATION ================= */
+    @font-face {
+      font-family: 'Laverne';
+      src: url('/fonts/Laverne-VF.woff2') format('woff2');
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    * {
+      font-family: 'Laverne', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background-color: #ffffff;
+      color: #000000;
+      overflow-x: hidden;
+    }
+
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-none {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Category Pill Active State */
+    .cat-pill-active {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+      border-color: #000000 !important;
+    }
+  </style>
+</head>
+<body class="bg-white text-black antialiased selection:bg-black selection:text-white">
+
+  <!-- ================= 1. HEADER / NAVIGATION (LAVERNE ARCHITECTURE) ================= -->
+  <header id="site-header" class="fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 bg-white/85 backdrop-blur-xl text-black border-b border-stone-100 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-24 flex items-center justify-between transition-all duration-300">
+      
+      <!-- Right: Mobile Menu + Logo -->
+      <div class="flex items-center gap-4 shrink-0">
+        <button id="mobile-menu-btn" onclick="openMobileMenu()" class="lg:hidden p-2 text-inherit hover:opacity-75 transition" aria-label="القائمة">
+          <i class="sicon-menu text-xl"></i>
+        </button>
+        <a href="/" class="block group py-1">
+          <img id="store-logo" src="/logo_dark_crisp.png" alt="NOTE Perfumes" class="h-8 sm:h-9 lg:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+        </a>
+      </div>
+
+      <!-- Center: Clean Minimalist Nav Links -->
+      <nav id="nav-links" class="hidden lg:flex items-center justify-center gap-6 text-sm font-semibold whitespace-nowrap text-inherit transition-colors">
+        <a href="/" class="hover:opacity-70 transition pb-0.5">الرئيسية</a>
+        <a href="/category.html?cat=all" class="hover:opacity-70 transition pb-0.5" id="nav-cat-all">جميع المنتجات</a>
+        <a href="/category.html?cat=perfumes" class="hover:opacity-70 transition pb-0.5" id="nav-cat-perfumes">العطور</a>
+        <a href="/category.html?cat=niche" class="hover:opacity-70 transition pb-0.5" id="nav-cat-niche">عطور النيش</a>
+        <a href="/category.html?cat=bestsellers" class="hover:opacity-70 transition pb-0.5" id="nav-cat-bestsellers">الأكثر مبيعاً</a>
+        <a href="/category.html?cat=new" class="hover:opacity-70 transition pb-0.5" id="nav-cat-new">أحدث المنتجات</a>
+        <a href="/category.html?cat=travel" class="hover:opacity-70 transition pb-0.5" id="nav-cat-travel">عطور 30 مل</a>
+        <a href="/category.html?cat=all-over" class="hover:opacity-70 transition pb-0.5" id="nav-cat-all-over">معطر للجسم</a>
+        <a href="/category.html?cat=packages" class="hover:opacity-70 transition pb-0.5" id="nav-cat-packages">مجموعات نوت</a>
+      </nav>
+
+      <!-- Left: Actions -->
+      <div id="header-actions" class="flex items-center justify-end gap-3 sm:gap-4 text-inherit transition-colors">
+        <!-- Search -->
+        <button onclick="focusSearchInput()" class="w-9 h-9 flex items-center justify-center hover:opacity-75 transition" title="البحث">
+          <i class="sicon-search text-lg"></i>
+        </button>
+
+        <!-- Help -->
+        <a href="/faqs.html" class="w-9 h-9 flex items-center justify-center hover:opacity-75 transition" title="الأسئلة الشائعة">
+          <i class="sicon-chat-conversation-alt text-lg"></i>
+        </a>
+
+        <!-- Cart with badge -->
+        <button onclick="CartManager.openDrawer()" class="relative w-9 h-9 flex items-center justify-center hover:opacity-75 transition" title="سلة المشتريات" aria-label="السلة">
+          <i class="sicon-shopping-bag text-xl"></i>
+          <span class="cart-badge-count absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-black text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-md">0</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= 2. MOBILE MENU DRAWER ================= -->
+  <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300" onclick="closeMobileMenu()"></div>
+  <div id="mobile-menu-drawer" class="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-white z-50 transform translate-x-full transition-transform duration-300 flex flex-col justify-between p-6 text-right shadow-2xl">
+    <div>
+      <div class="flex items-center justify-between pb-6 border-b border-stone-100">
+        <img src="/logo_dark_crisp.png" alt="NOTE Perfumes" class="h-7 w-auto">
+        <button onclick="closeMobileMenu()" class="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-black hover:bg-stone-200 transition">
+          <i class="sicon-cancel text-sm"></i>
+        </button>
+      </div>
+      <div class="flex flex-col gap-4 py-6 text-sm font-bold">
+        <a href="/" class="hover:text-stone-500 transition py-1">الرئيسية</a>
+        <a href="/category.html?cat=all" class="hover:text-stone-500 transition py-1">جميع المنتجات</a>
+        <a href="/category.html?cat=perfumes" class="hover:text-stone-500 transition py-1">العطور</a>
+        <a href="/category.html?cat=niche" class="hover:text-stone-500 transition py-1">عطور النيش</a>
+        <a href="/category.html?cat=bestsellers" class="hover:text-stone-500 transition py-1">الأكثر مبيعاً</a>
+        <a href="/category.html?cat=new" class="hover:text-stone-500 transition py-1">أحدث المنتجات</a>
+        <a href="/category.html?cat=travel" class="hover:text-stone-500 transition py-1">عطور 30 مل</a>
+        <a href="/category.html?cat=all-over" class="hover:text-stone-500 transition py-1">معطر للجسم</a>
+        <a href="/category.html?cat=packages" class="hover:text-stone-500 transition py-1">مجموعات نوت</a>
+      </div>
+    </div>
+    <div class="pt-6 border-t border-stone-100 text-xs text-stone-500 space-y-2">
+      <p class="font-bold text-black">خدمة عملاء NOTE:</p>
+      <a href="https://wa.me/966565955420" target="_blank" class="flex items-center gap-2 text-stone-800 hover:text-black">
+        <i class="sicon-whatsapp text-emerald-600"></i>
+        <span>+966 56 595 5420</span>
+      </a>
+      <p>الرقم الضريبي: 310103613800003</p>
+    </div>
+  </div>
+
+  <!-- Main Content Wrapper -->
+  <main class="pt-28 sm:pt-36 pb-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Category Header Banner -->
+      <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+        <span id="cat-badge-text" class="text-[10px] text-stone-400 font-bold uppercase tracking-widest block mb-2">NOTE PERFUMES COLLECTION</span>
+        <h1 id="cat-title" class="text-2xl sm:text-4xl font-extrabold text-black tracking-tight mb-3">جميع المنتجات</h1>
+        <p id="cat-desc" class="text-xs sm:text-sm text-stone-500 leading-relaxed font-normal">
+          تصفح المجموعة الكاملة من أروع إبداعات دار نوت للعطور، توليفات نيش استثنائية وباقات حصرية صُممت لتناسب ذوقك الرفيع.
+        </p>
+      </div>
+
+      <!-- Category Filter Pills Bar (Horizontal Scrollable) -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-none border-b border-stone-100 mb-8 text-xs font-bold whitespace-nowrap">
+        <button onclick="selectCategory('all')" id="pill-all" class="cat-pill px-5 py-2.5 rounded-full border border-stone-200 text-stone-700 hover:border-black transition">
+          الكل (جميع المنتجات)
+        </button>
+        <button onclick="selectCategory('perfumes')" id="pill-perfumes" class="cat-pill px-5 py-2.5 rounded-full border border-stone-200 text-stone-700 hover:border-black transition">
+          العطور (100 مل)
+        </button>
+        <button onclick="selectCategory('niche')" id="pill-niche" class="cat-pill px-5 py-2.5 rounded-full border border-stone-200 text-stone-700 hover:border-black transition">
+          عطور النيش
+        </button>
+        <button onclick="selectCategory('bestsellers')" id="pill-bestsellers" class="cat-pill px-5 py-2.5 rounded-full border border-stone-200 text-stone-700 hover:border-black transition">
+          الأكثر مبيعاً
+        </button>
+        <button onclick="selectCategory('new')" id="pill-new" class="cat-pill px-5 py-2.5 rounded-full border border-stone-200 text-stone-700 hover:border-black transition">
+          أحدث المنتجات
+        </button>
+        <button onclick="selectCategory('travel')" id="pill-travel" class="cat-pill px-5 py-2.5 rounded-full border border-stone-200 text-stone-700 hover:border-black transition">
+          عطور بيبي (30 مل)
+        </button>
+        <button onclick="selectCategory('all-over')" id="pill-all-over" class="cat-pill px-5 py-2.5 rounded-full border border-stone-200 text-stone-700 hover:border-black transition">
+          معطر للجسم بالكامل
+        </button>
+        <button onclick="selectCategory('linen')" id="pill-linen" class="cat-pill px-5 py-2.5 rounded-full border border-stone-200 text-stone-700 hover:border-black transition">
+          معطرات جو ومفارش
+        </button>
+        <button onclick="selectCategory('body-care')" id="pill-body-care" class="cat-pill px-5 py-2.5 rounded-full border border-stone-200 text-stone-700 hover:border-black transition">
+          منتجات العناية
+        </button>
+        <button onclick="selectCategory('tollah')" id="pill-tollah" class="cat-pill px-5 py-2.5 rounded-full border border-stone-200 text-stone-700 hover:border-black transition">
+          تولات ودهن عود
+        </button>
+        <button onclick="selectCategory('packages')" id="pill-packages" class="cat-pill px-5 py-2.5 rounded-full border border-stone-200 text-stone-700 hover:border-black transition">
+          مجموعات نوت
+        </button>
+      </div>
+
+      <!-- Controls Row: Search Input + Sorting Dropdown + Product Count -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+        
+        <!-- Live Search Field -->
+        <div class="relative w-full sm:w-80">
+          <i class="sicon-search absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-sm"></i>
+          <input id="cat-search-input" oninput="handleSearch(this.value)" type="text" placeholder="ابحث بالاسم، المكونات، الرائحة..." class="w-full pr-10 pl-4 py-2.5 rounded-full border border-stone-200 text-xs focus:outline-none focus:border-black transition bg-stone-50/50">
+        </div>
+
+        <!-- Right Side: Count and Sort Dropdown -->
+        <div class="flex items-center justify-between w-full sm:w-auto gap-4 text-xs font-bold text-stone-600">
+          <span id="cat-products-count" class="text-stone-500 whitespace-nowrap">عرض 0 منتج</span>
+
+          <div class="flex items-center gap-2">
+            <span class="text-stone-400 font-normal">الترتيب:</span>
+            <select id="cat-sort-select" onchange="handleSort(this.value)" class="bg-stone-50 border border-stone-200 rounded-full px-4 py-2 text-xs font-bold text-black focus:outline-none focus:border-black cursor-pointer">
+              <option value="popular">الأكثر شعبية</option>
+              <option value="price-asc">السعر: من الأقل للأعلى</option>
+              <option value="price-desc">السعر: من الأعلى للأقل</option>
+              <option value="rating">الأعلى تقييماً</option>
+              <option value="newest">أحدث المنتجات</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================= PRODUCT GRID (FRAMELESS PURE WHITE) ================= -->
+      <div id="catalog-products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+        <!-- Injected via JavaScript from noteProductsCatalog -->
+      </div>
+
+      <!-- No Products Found State -->
+      <div id="cat-no-products" class="hidden text-center py-20">
+        <div class="w-16 h-16 rounded-full bg-stone-100 mx-auto flex items-center justify-center text-stone-400 mb-4">
+          <i class="sicon-search text-2xl"></i>
+        </div>
+        <h3 class="text-base font-bold text-black mb-1">لم نجد أي منتجات تطابق بحثك</h3>
+        <p class="text-xs text-stone-400 max-w-sm mx-auto mb-6">جرب البحث بكلمات أخرى أو تصفح باقي تصنيفات الدار</p>
+        <button onclick="resetFilters()" class="px-6 py-2.5 rounded-full bg-black text-white text-xs font-bold hover:bg-stone-800 transition">
+          إعادة تعيين التصفيات
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ================= UNIVERSAL SLIDE-OUT CART DRAWER ================= -->
+  <div id="cart-drawer-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300" onclick="CartManager.closeDrawer()"></div>
+  <div id="cart-drawer" class="fixed top-0 left-0 bottom-0 w-full sm:w-[420px] bg-white z-50 transform -translate-x-full transition-transform duration-300 flex flex-col justify-between shadow-2xl text-right hidden">
+    <!-- Header -->
+    <div class="p-5 border-b border-stone-100 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i class="sicon-shopping-bag text-lg text-black"></i>
+        <h3 class="text-sm font-bold text-black">سلة المشتريات</h3>
+        <span class="cart-badge-count text-xs font-bold text-stone-400">(0)</span>
+      </div>
+      <button onclick="CartManager.closeDrawer()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-black flex items-center justify-center transition">
+        <i class="sicon-cancel text-sm"></i>
+      </button>
+    </div>
+
+    <!-- Free Shipping Progress -->
+    <div class="px-5 py-3 bg-stone-50 border-b border-stone-100">
+      <p id="cart-free-shipping-text" class="text-xs text-stone-600 mb-1.5"></p>
+      <div class="w-full bg-stone-200 h-1.5 rounded-full overflow-hidden">
+        <div id="cart-free-shipping-progress" class="bg-black h-full transition-all duration-500" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Cart Items Scroll Area -->
+    <div id="cart-drawer-items" class="p-5 flex-grow overflow-y-auto divide-y divide-stone-100"></div>
+
+    <!-- Empty State -->
+    <div id="cart-drawer-empty" class="hidden flex flex-col items-center justify-center p-8 text-center my-auto">
+      <div class="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 mb-4">
+        <i class="sicon-shopping-bag text-2xl"></i>
+      </div>
+      <h4 class="text-sm font-bold text-black mb-1">سلتك فارغة حالياً</h4>
+      <p class="text-xs text-stone-400 max-w-xs mb-6">تصفح تشكيلتنا العطرية الاستثنائية واختر عطرك المفضل الآن</p>
+      <button onclick="CartManager.closeDrawer()" class="px-6 py-2.5 rounded-full bg-black text-white text-xs font-bold hover:bg-stone-800 transition">
+        تصفح العطور
+      </button>
+    </div>
+
+    <!-- Footer Checkout Area -->
+    <div id="cart-drawer-footer" class="p-5 border-t border-stone-100 bg-white space-y-3">
+      <div class="flex items-center justify-between text-xs font-bold text-stone-500">
+        <span>المجموع الفرعي:</span>
+        <span id="cart-drawer-subtotal" class="text-black font-extrabold text-sm">0 ر.س</span>
+      </div>
+      <div class="flex items-center justify-between text-xs text-stone-400">
+        <span>الشحن والضريبة:</span>
+        <span>يتم احتسابها عند الدفع</span>
+      </div>
+      <div class="flex items-center justify-between text-sm font-extrabold text-black pt-2 border-t border-stone-100">
+        <span>الإجمالي التقديري:</span>
+        <span id="cart-drawer-total">0 ر.س</span>
+      </div>
+
+      <div class="pt-2 space-y-2">
+        <a href="/cart.html" class="w-full py-3 rounded-full bg-black hover:bg-stone-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition duration-300 shadow-md">
+          <span>إتمام الطلب بأمان</span>
+          <i class="sicon-keyboard_arrow_left text-sm"></i>
+        </a>
+        <button onclick="CartManager.closeDrawer()" class="w-full py-2.5 rounded-full border border-stone-200 hover:bg-stone-50 text-stone-700 font-bold text-xs transition">
+          متابعة التسوق
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STORE FOOTER (100% AUTHENTIC NOTE ARCHITECTURE) ================= -->
+  <footer class="w-full pt-16 pb-12 px-4 sm:px-6 lg:px-8 bg-black text-white text-right">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-stone-800">
+      
+      <!-- Brand, Bio & Legal Verification -->
+      <div class="space-y-4">
+        <a href="/" class="inline-block">
+          <img src="/logo_white_crisp.png" alt="NOTE Perfumes" class="h-9 w-auto object-contain">
+        </a>
+        <p class="text-xs text-stone-400 leading-relaxed font-light">
+          نوت للعطور (NOTE) | دار عطور سعودية رائدة تُعنى بابتكار توليفات نيش مستوحاة من أندر المكونات الطبيعية بنقاء فائق وثبات يدوم طويلاً، لتقديم بصمة عطرية تليق بأصحاب الذوق الرفيع.
+        </p>
+        
+        <!-- Authentic Legal & Verification Badges -->
+        <div class="pt-1 text-xs text-stone-400 space-y-1.5 font-light">
+          <p>السجل التجاري: <span class="font-mono font-bold text-white tracking-wider">1010713359</span></p>
+          <p>الرقم الضريبي: <span class="font-mono font-bold text-white tracking-wider">310103613800003</span></p>
+        </div>
+
+        <div class="pt-2">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-stone-900 border border-stone-800 text-[11px] text-stone-300">
+            <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <span>موثّق في المركز السعودي للأعمال (منصة الأعمال)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Links 1: السياسات والضمان -->
+      <div>
+        <h4 class="text-xs font-bold mb-4 text-white tracking-widest uppercase">السياسات والضمان</h4>
+        <ul class="space-y-2.5 text-xs text-stone-400 font-light">
+          <li><a href="/refund-policy.html" class="hover:text-white transition">سياسة الاستبدال والاسترجاع</a></li>
+          <li><a href="/terms.html" class="hover:text-white transition">الشروط والأحكام</a></li>
+          <li><a href="/privacy.html" class="hover:text-white transition">سياسة الخصوصية</a></li>
+          <li><a href="/refund-policy.html" class="hover:text-white transition">الضمان الذهبي الملكي للتجربة</a></li>
+          <li><a href="/contact.html" class="hover:text-white transition">الشكاوى والمقترحات</a></li>
+        </ul>
+      </div>
+
+      <!-- Links 2: المساعدة وقنوات التواصل -->
+      <div>
+        <h4 class="text-xs font-bold mb-4 text-white tracking-widest uppercase">روابط المساعدة وتواصل معنا</h4>
+        <ul class="space-y-2.5 text-xs text-stone-400 font-light">
+          <li><a href="/faqs.html" class="hover:text-white transition">الأسئلة الأكثر تكراراً (FAQ)</a></li>
+          <li><a href="https://wa.me/966565955420" target="_blank" rel="noopener noreferrer" class="hover:text-white transition flex items-center gap-1.5"><i class="sicon-whatsapp text-emerald-400 text-sm"></i> تواصل معنا عبر واتساب</a></li>
+          <li><a href="tel:+966565955420" class="hover:text-white transition">الهاتف: <bdi class="text-stone-300 font-mono">+966 56 595 5420</bdi></a></li>
+          <li><a href="mailto:marketing.noteperf@gmail.com" class="hover:text-white transition break-all">البريد: marketing.noteperf@gmail.com</a></li>
+        </ul>
+
+        <!-- Social Media Icons (Instagram & TikTok from old site) -->
+        <div class="pt-4">
+          <p class="text-[11px] text-stone-400 mb-2 font-medium">تابع نوت عبر منصات التواصل:</p>
+          <div class="flex items-center gap-2">
+            <a href="https://www.instagram.com/noteperf" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-stone-900 border border-stone-800 hover:border-white hover:text-white text-stone-400 flex items-center justify-center transition" aria-label="انستقرام نوت">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            </a>
+            <a href="https://www.tiktok.com/@Noteperf" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-stone-900 border border-stone-800 hover:border-white hover:text-white text-stone-400 flex items-center justify-center transition" aria-label="تيك توك نوت">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.97v7.69c0 1.52-.33 3.07-1.17 4.33-.87 1.3-2.18 2.32-3.69 2.81-1.35.44-2.82.47-4.21.13-1.64-.41-3.13-1.42-4.14-2.78-1.21-1.64-1.68-3.79-1.33-5.81.36-2.02 1.63-3.83 3.44-4.82 1.34-.73 2.89-1.03 4.41-.9v4.11c-.72.04-1.45.22-2.07.6-.68.42-1.19 1.11-1.36 1.89-.2.86-.03 1.8.44 2.53.47.74 1.27 1.25 2.15 1.38.86.13 1.77-.07 2.47-.58.71-.51 1.15-1.33 1.18-2.22V.02h-.14z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment & Shipping: وسائل الدفع والشحن المعتمدة -->
+      <div class="space-y-5">
+        <div>
+          <h4 class="text-xs font-bold mb-2.5 text-white tracking-widest uppercase">وسائل الدفع الآمنة</h4>
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="h-7 px-2.5 bg-white rounded flex items-center justify-center shadow-xs" title="مدى Mada">
+              <img src="/assets/icons/payment/mada.png" alt="مدى Mada" class="h-3.5 w-auto object-contain">
+            </div>
+            <div class="h-7 px-2.5 bg-white rounded flex items-center justify-center shadow-xs" title="Apple Pay">
+              <img src="/assets/icons/payment/apple_pay.svg" alt="Apple Pay" class="h-3.5 w-auto object-contain">
+            </div>
+            <div class="h-7 px-2.5 bg-white rounded flex items-center justify-center shadow-xs" title="Visa">
+              <img src="/assets/icons/payment/visa.png" alt="Visa" class="h-2.5 w-auto object-contain">
+            </div>
+            <div class="h-7 px-2.5 bg-white rounded flex items-center justify-center shadow-xs" title="Mastercard">
+              <img src="/assets/icons/payment/mastercard.png" alt="Mastercard" class="h-4 w-auto object-contain">
+            </div>
+            <div class="h-7 px-2 bg-white rounded flex items-center justify-center shadow-xs" title="تابي Tabby">
+              <img src="/assets/icons/payment/tabby.svg" alt="تابي Tabby" class="h-3.5 w-auto object-contain">
+            </div>
+            <div class="h-7 px-2 bg-white rounded flex items-center justify-center shadow-xs" title="تمارا Tamara">
+              <img src="/assets/icons/payment/tamara.svg" alt="تمارا Tamara" class="h-3.5 w-auto object-contain">
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold mb-2.5 text-white tracking-widest uppercase">شركاء الشحن والتوصيل</h4>
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="h-7 px-2.5 bg-white rounded flex items-center justify-center shadow-xs" title="أرامكس Aramex">
+              <img src="/assets/icons/shipping/aramex.svg" alt="أرامكس Aramex" class="h-3.5 w-auto object-contain">
+            </div>
+            <div class="h-7 px-2.5 bg-white rounded flex items-center justify-center shadow-xs" title="سمسا SMSA Express">
+              <img src="/assets/icons/shipping/smsa.svg" alt="سمسا SMSA Express" class="h-3.5 w-auto object-contain">
+            </div>
+            <div class="h-7 px-2.5 bg-white rounded flex items-center justify-center shadow-xs" title="سُبل SPL البريد السعودي">
+              <img src="/assets/icons/shipping/spl.svg" alt="سُبل SPL البريد السعودي" class="h-4 w-auto object-contain">
+            </div>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-stone-500 pt-1">جميع المعاملات المالية مشفرة ومؤمّنة بنسبة 100%</p>
+      </div>
+
+    </div>
+
+    <!-- Bottom Copyright -->
+    <div class="max-w-7xl mx-auto pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
+      <p>جميع الحقوق محفوظة لدار نوت للعطور | NOTE Perfumes © 2026</p>
+      <p class="font-light">صالة العرض والمقر الإداري: جدة، المملكة العربية السعودية</p>
+    </div>
+  </footer>
+
+  <!-- Load Shared Products Data & Cart Manager -->
+  <script src="/products-data.js?v=20261020_2320"></script>
+
+  <!-- Category Controller Script -->
+  <script>
+    let activeCategory = 'all';
+    let searchQuery = '';
+    let currentSort = 'popular';
+
+    const categoryMeta = {
+      'all': {
+        title: 'جميع المنتجات',
+        desc: 'تصفح المجموعة الكاملة من أروع إبداعات دار نوت للعطور، توليفات نيش استثنائية وباقات حصرية صُممت لتناسب ذوقك الرفيع.'
+      },
+      'perfumes': {
+        title: 'العطور الفاخرة (100 مل)',
+        desc: 'مجموعة العطور الأساسية بتركيز Extrait de Parfum وثبات يتجاوز 24 ساعة بمكونات نادرة مستخلصة بعناية.'
+      },
+      'niche': {
+        title: 'عطور النيش الملكية',
+        desc: 'أفخم ما أبدعته دار نوت العطرية، توليفات خاصة جداً تحاكي الترف والندرة بثبات وفوحان لا يُضاهى.'
+      },
+      'bestsellers': {
+        title: 'الأكثر مبيعاً',
+        desc: 'العطور الأكثر طلباً وشهرة لدى عملاء NOTE في المملكة والخليج، اختيارات مجربة ومحبوبة بإجماع الذواقة.'
+      },
+      'new': {
+        title: 'أحدث المنتجات والإصدارات',
+        desc: 'أحدث ابتكارات دار نوت للموسم الحالي، روائح عصرية مبتكرة تمنحك إطلالة فريدة ومتميزة.'
+      },
+      'travel': {
+        title: 'عطور بيبي (30 مل)',
+        desc: 'نفس تركيز العطور الأصلية الفاخرة بحجم مدمج 30 مل مثالي للحقيبة، السفر، السيارة والهدية الراقية.'
+      },
+      'all-over': {
+        title: 'معطر للجسم بالكامل (All-Over Spray)',
+        desc: 'رذاذ فاخر شامل للجسم والشعر يغمرك بانتعاش فوري خفيف وعبق آسر يدوم طوال اليوم.'
+      },
+      'linen': {
+        title: 'معطرات جو وجسم ومفارش',
+        desc: 'عطور راقية مخصصة للأجواء والمفارش والمجالس، تمنح منزلك عبق الفخامة والضيافة دون ترك أي أثر على الأقمشة.'
+      },
+      'body-care': {
+        title: 'منتجات العناية بالبشرة',
+        desc: 'جل استحمام ولوشن مرطب معزز بحمض الهيالورونيك وممزوج بأرقى عطور نوت لتغذية بشرتك ونعومتها.'
+      },
+      'tollah': {
+        title: 'تولات وأدهان نوت النقية',
+        desc: 'دهن عطري مركّز بنقاء 100% يوضع على نقاط النبض لثبات يدوم لأيام بأصالة شرقية فاخرة.'
+      },
+      'packages': {
+        title: 'مجموعات وباقات نوت الحصرية',
+        desc: 'أطقم هدايا استثنائية وباقات مسك متكاملة تجمع أفخم العطور والمعطرات بخصومات توفير مميزة.'
+      }
+    };
+
+    function getURLParam(key) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(key);
+    }
+
+    function initCategoryPage() {
+      const catParam = getURLParam('cat') || 'all';
+      selectCategory(catParam, false);
+    }
+
+    function selectCategory(cat, updateURL = true) {
+      activeCategory = cat;
+      if (updateURL) {
+        const newUrl = `${window.location.pathname}?cat=${cat}`;
+        window.history.pushState({ path: newUrl }, '', newUrl);
+      }
+
+      // Update Active Pill
+      document.querySelectorAll('.cat-pill').forEach(btn => {
+        btn.classList.remove('cat-pill-active', 'bg-black', 'text-white', 'border-black');
+        btn.classList.add('border-stone-200', 'text-stone-700');
+      });
+      const activeBtn = document.getElementById(`pill-${cat}`);
+      if (activeBtn) {
+        activeBtn.classList.add('cat-pill-active', 'bg-black', 'text-white', 'border-black');
+        activeBtn.classList.remove('border-stone-200', 'text-stone-700');
+      }
+
+      // Update Nav active style
+      document.querySelectorAll('#nav-links a').forEach(a => a.classList.remove('border-b-2', 'border-black'));
+      const navItem = document.getElementById(`nav-cat-${cat}`);
+      if (navItem) navItem.classList.add('border-b-2', 'border-black');
+
+      // Update Header Text
+      const meta = categoryMeta[cat] || categoryMeta['all'];
+      document.getElementById('cat-title').textContent = meta.title;
+      document.getElementById('cat-desc').textContent = meta.desc;
+      document.getElementById('cat-page-title').textContent = `${meta.title} | NOTE Perfumes`;
+
+      renderCatalog();
+    }
+
+    function handleSearch(val) {
+      searchQuery = val.trim().toLowerCase();
+      renderCatalog();
+    }
+
+    function handleSort(val) {
+      currentSort = val;
+      renderCatalog();
+    }
+
+    function resetFilters() {
+      searchQuery = '';
+      document.getElementById('cat-search-input').value = '';
+      selectCategory('all');
+    }
+
+    function focusSearchInput() {
+      const el = document.getElementById('cat-search-input');
+      if (el) {
+        el.focus();
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function renderCatalog() {
+      const grid = document.getElementById('catalog-products-grid');
+      const emptyState = document.getElementById('cat-no-products');
+      const countEl = document.getElementById('cat-products-count');
+      if (!grid) return;
+
+      // 1. Filter by category
+      let filtered = noteProductsCatalog.filter(p => {
+        if (activeCategory === 'all') return true;
+        if (activeCategory === 'bestsellers') return p.bestseller === true;
+        if (activeCategory === 'new') return p.cat === 'new';
+        return p.cat === activeCategory;
+      });
+
+      // 2. Filter by search query
+      if (searchQuery) {
+        filtered = filtered.filter(p => {
+          return p.title.toLowerCase().includes(searchQuery) ||
+                 p.title_en.toLowerCase().includes(searchQuery) ||
+                 (p.notes && p.notes.toLowerCase().includes(searchQuery)) ||
+                 (p.slogan && p.slogan.toLowerCase().includes(searchQuery));
+        });
+      }
+
+      // 3. Sort
+      if (currentSort === 'price-asc') {
+        filtered.sort((a, b) => a.price - b.price);
+      } else if (currentSort === 'price-desc') {
+        filtered.sort((a, b) => b.price - a.price);
+      } else if (currentSort === 'rating') {
+        filtered.sort((a, b) => (b.rating || 5) - (a.rating || 5));
+      } else if (currentSort === 'newest') {
+        filtered.sort((a, b) => (b.cat === 'new' ? 1 : 0) - (a.cat === 'new' ? 1 : 0));
+      } else {
+        // popular
+        filtered.sort((a, b) => (b.bestseller ? 1 : 0) - (a.bestseller ? 1 : 0));
+      }
+
+      // Update count text
+      if (countEl) {
+        countEl.textContent = `عرض ${filtered.length} منتج`;
+      }
+
+      // Empty State
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        if (emptyState) emptyState.classList.remove('hidden');
+        return;
+      }
+
+      if (emptyState) emptyState.classList.add('hidden');
+
+      // 100% Laverne Frameless Product Card Template
+      grid.innerHTML = filtered.map(p => `
+        <div class="p-2 sm:p-4 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-xl transition duration-300" onclick="window.location.href='/product.html?id=${p.id}'">
+          <div>
+            <!-- Frameless Image Container -->
+            <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
+              ${p.tag ? `<span class="absolute top-2.5 right-2.5 z-10 text-[9px] sm:text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${p.tag}</span>` : ''}
+              <img src="${p.img}" alt="${p.title}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
+            </div>
+
+            <!-- Product Details -->
+            <div class="pt-1 pb-1 text-center space-y-1">
+              <h4 class="text-xs sm:text-sm md:text-base font-bold text-black group-hover:text-stone-600 transition line-clamp-1">${p.title}</h4>
+              <p class="text-[10px] sm:text-xs text-stone-400 font-normal line-clamp-1">${p.notes || p.cat_ar}</p>
+              
+              <!-- Clean Price Row -->
+              <div class="flex items-center justify-center gap-2 pt-1">
+                <span class="text-black font-extrabold text-sm sm:text-base">${p.price} ر.س</span>
+                ${p.old_price ? `<span class="text-stone-400 line-through text-[11px] sm:text-xs font-normal">${p.old_price} ر.س</span>` : ''}
+              </div>
+            </div>
+          </div>
+
+          <!-- Minimalist Rounded Pill Button -->
+          <button onclick="event.stopPropagation(); CartManager.addItem('${p.id}')" class="w-full mt-3 py-2 sm:py-2.5 px-4 rounded-full bg-black text-white hover:bg-stone-800 active:scale-95 transition flex items-center justify-center gap-2 font-bold text-xs shadow-sm" title="إضافة للسلة">
+            <span>إضافة للسلة</span>
+            <i class="sicon-shopping-bag text-sm"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // Mobile Menu Controls
+    function openMobileMenu() {
+      const drawer = document.getElementById('mobile-menu-drawer');
+      const overlay = document.getElementById('mobile-menu-overlay');
+      if (drawer && overlay) {
+        overlay.classList.remove('hidden');
+        setTimeout(() => {
+          overlay.classList.add('opacity-100');
+          drawer.classList.remove('translate-x-full');
+        }, 10);
+      }
+    }
+
+    function closeMobileMenu() {
+      const drawer = document.getElementById('mobile-menu-drawer');
+      const overlay = document.getElementById('mobile-menu-overlay');
+      if (drawer && overlay) {
+        drawer.classList.add('translate-x-full');
+        overlay.classList.remove('opacity-100');
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+        }, 300);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initCategoryPage();
+      CartManager.updateBadge();
+    });
+  </script>
+
+  <!-- Floating WhatsApp Luxury Button -->
+  <div id="floating-whatsapp-container" class="fixed bottom-6 left-6 z-[90] flex items-center flex-row-reverse group select-none" style="margin-bottom: env(safe-area-inset-bottom, 0px);">
+    <a id="floating-whatsapp" href="https://wa.me/966565955420?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D9%86%D9%88%D8%AA%20%D9%84%D9%84%D8%B9%D8%B7%D9%88%D8%B1%D8%8C%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%A7%D9%84%D9%85%D9%86%D8%AA%D8%AC%D8%A7%D8%AA" target="_blank" rel="noopener noreferrer" class="relative z-10 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white flex items-center justify-center shadow-[0_6px_25px_rgba(37,211,102,0.45)] hover:shadow-[0_8px_30px_rgba(37,211,102,0.65)] hover:scale-105 active:scale-95 transition-all duration-300" aria-label="تواصل معنا عبر واتساب">
+      <span class="absolute inset-0 rounded-full bg-[#25D366] opacity-30 animate-ping pointer-events-none"></span>
+      <svg class="relative z-10 w-7 h-7 sm:w-8 sm:h-8 fill-current drop-shadow-sm" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.155.57 4.177 1.564 5.927l-1.656 6.049 6.222-1.632c1.705.932 3.659 1.464 5.738 1.464 6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12zm0 21.818c-1.895 0-3.652-.522-5.163-1.429l-.37-.22-3.842 1.008 1.025-3.742-.241-.384c-.997-1.589-1.524-3.435-1.524-5.342 0-5.413 4.406-9.818 9.819-9.818 5.414 0 9.818 4.405 9.818 9.818 0 5.414-4.404 9.818-9.818 9.818z"/>
+      </svg>
+    </a>
+    <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/90 text-white text-xs font-semibold shadow-xl backdrop-blur mr-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      تواصل معنا مباشرة عبر واتساب
+    </span>
+  </div>
+</body>
+</html>

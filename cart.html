@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سلة المشتريات | دار نوت للعطور NOTE Perfumes</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Salla Icons Font -->
+  <link rel="stylesheet" href="https://assets.salla.cloud/fonts/sallaicons.css">
+
+  <style>
+    /* ================= 100% LAVERNE VARIABLE FONT CONFIGURATION ================= */
+    @font-face {
+      font-family: 'Laverne';
+      src: url('/fonts/Laverne-VF.woff2') format('woff2');
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    * {
+      font-family: 'Laverne', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background-color: #ffffff;
+      color: #000000;
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+<body class="bg-white text-black antialiased selection:bg-black selection:text-white min-h-screen flex flex-col justify-between">
+
+  <!-- ================= HEADER ================= -->
+  <header id="site-header" class="fixed top-0 right-0 left-0 z-50 w-full bg-white/85 backdrop-blur-xl text-black border-b border-stone-100 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-24 flex items-center justify-between">
+      
+      <!-- Logo -->
+      <a href="/" class="block group py-1">
+        <img src="/logo_dark_crisp.png" alt="NOTE Perfumes" class="h-8 sm:h-9 lg:h-10 w-auto object-contain">
+      </a>
+
+      <!-- Steps Indicator -->
+      <div class="hidden md:flex items-center gap-3 text-xs font-bold text-stone-400">
+        <span class="text-black border-b-2 border-black pb-0.5">1. سلة المشتريات</span>
+        <i class="sicon-keyboard_arrow_left text-[10px]"></i>
+        <span>2. تفاصيل الشحن والتوصيل</span>
+        <i class="sicon-keyboard_arrow_left text-[10px]"></i>
+        <span>3. الدفع الآمن</span>
+      </div>
+
+      <!-- Secure Shopping Badge -->
+      <div class="flex items-center gap-2 text-xs text-stone-600 bg-stone-50 px-3 py-1.5 rounded-full border border-stone-200">
+        <i class="sicon-shield-check text-black text-sm"></i>
+        <span class="font-bold">تسوق آمن ومحمي 100%</span>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= MAIN CART CONTENT ================= -->
+  <main class="pt-28 sm:pt-36 pb-20 flex-grow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="mb-8 text-right">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-black tracking-tight">سلة المشتريات</h1>
+        <p class="text-xs text-stone-500 mt-1">راجع المنتجات والكميات قبل استكمال عملية الدفع</p>
+      </div>
+
+      <!-- Free Shipping Meter -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-stone-50 border border-stone-200/80 mb-8 text-right">
+        <div class="flex items-center justify-between mb-2">
+          <p id="page-free-shipping-text" class="text-xs sm:text-sm font-bold text-stone-700"></p>
+          <span class="text-xs text-emerald-600 font-extrabold flex items-center gap-1">
+            <i class="sicon-shipping-fast"></i>
+            <span>شحن مجاني لكافة مدن المملكة</span>
+          </span>
+        </div>
+        <div class="w-full bg-stone-200 h-2 rounded-full overflow-hidden">
+          <div id="page-free-shipping-bar" class="bg-black h-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        
+        <!-- RIGHT: Items Table / List (8 cols) -->
+        <div class="lg:col-span-8">
+          <div id="cart-page-items" class="divide-y divide-stone-100 border-t border-b border-stone-100">
+            <!-- Items rendered via JS -->
+          </div>
+
+          <!-- Empty State -->
+          <div id="cart-page-empty" class="hidden text-center py-20">
+            <div class="w-20 h-20 rounded-full bg-stone-100 mx-auto flex items-center justify-center text-stone-400 mb-4">
+              <i class="sicon-shopping-bag text-3xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-black mb-2">سلة المشتريات فارغة حالياً</h3>
+            <p class="text-xs text-stone-400 max-w-sm mx-auto mb-6">لم تقم بإضافة أي عطور إلى سلتك بعد. استكشف مجموعاتنا العطرية الفاخرة.</p>
+            <a href="/category.html?cat=all" class="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-black text-white text-xs font-bold hover:bg-stone-800 transition">
+              <span>تصفح العطور الآن</span>
+              <i class="sicon-keyboard_arrow_left text-xs"></i>
+            </a>
+          </div>
+
+          <!-- Back to Shopping Link -->
+          <div class="mt-6 flex items-center justify-between">
+            <a href="/category.html?cat=all" class="text-xs font-bold text-stone-600 hover:text-black flex items-center gap-1.5 transition">
+              <i class="sicon-keyboard_arrow_right"></i>
+              <span>متابعة التسوق وإضافة عطور أخرى</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- LEFT: Summary Card (4 cols) -->
+        <div id="cart-page-summary-wrapper" class="lg:col-span-4">
+          <div class="p-6 rounded-2xl bg-stone-50 border border-stone-200/80 text-right space-y-4">
+            <h3 class="text-sm font-extrabold text-black pb-3 border-b border-stone-200/80">ملخص الطلب</h3>
+
+            <!-- Coupon Input -->
+            <div class="space-y-1.5">
+              <label class="text-[11px] font-bold text-stone-600 block">كوبون الخصم أو قسيمة التخفيض:</label>
+              <div class="flex gap-2">
+                <input id="coupon-code-input" type="text" placeholder="أدخل الكوبون (مثال: NOTE10)" class="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs uppercase focus:outline-none focus:border-black font-mono">
+                <button onclick="applyCoupon()" class="px-4 py-2 rounded-xl bg-black text-white text-xs font-bold hover:bg-stone-800 transition shrink-0">
+                  تطبيق
+                </button>
+              </div>
+              <p id="coupon-msg" class="text-[11px] font-bold hidden"></p>
+            </div>
+
+            <!-- Price Breakdown -->
+            <div class="space-y-2.5 text-xs text-stone-600 pt-2 border-t border-stone-200/80">
+              <div class="flex items-center justify-between">
+                <span>المجموع الفرعي:</span>
+                <span id="page-subtotal" class="font-bold text-black">0 ر.س</span>
+              </div>
+              <div id="discount-row" class="hidden flex items-center justify-between text-emerald-600 font-bold">
+                <span>خصم الكوبون (10%):</span>
+                <span id="page-discount">- 0 ر.س</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span>الشحن والتوصيل:</span>
+                <span id="page-shipping" class="font-bold text-black">مجاني</span>
+              </div>
+              <div class="flex items-center justify-between text-stone-400 text-[11px]">
+                <span>ضريبة القيمة المضافة (15%):</span>
+                <span>مشمولة في الأسعار</span>
+              </div>
+            </div>
+
+            <!-- Total -->
+            <div class="pt-3 border-t border-stone-200/80 flex items-center justify-between">
+              <div>
+                <span class="text-xs text-stone-500 font-medium block">الإجمالي النهائي:</span>
+                <span id="page-grand-total" class="text-2xl font-extrabold text-black">0 ر.س</span>
+              </div>
+            </div>
+
+            <!-- Checkout CTA -->
+            <button onclick="proceedToCheckout()" class="w-full py-3.5 rounded-full bg-black hover:bg-stone-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition duration-300 shadow-lg active:scale-98">
+              <span>إتمام الدفع الآمن</span>
+              <i class="sicon-lock text-sm"></i>
+            </button>
+
+            <!-- Golden Guarantee Box -->
+            <div class="p-3 rounded-xl bg-white border border-stone-200/60 text-[11px] text-stone-600 flex items-center gap-2.5">
+              <i class="sicon-shield-check text-black text-lg shrink-0"></i>
+              <span>مشمول بـ <strong>الضمان الذهبي</strong>: عينة تجربة مجانية مرفقة مع كل عطر وحق الاسترجاع خلال 3 أيام.</span>
+            </div>
+
+            <!-- Payment Methods Icons -->
+            <div class="pt-2">
+              <span class="text-[10px] text-stone-400 font-bold uppercase tracking-wider block mb-2 text-center">طرق الدفع المتاحة</span>
+              <div class="flex flex-wrap items-center justify-center gap-1.5">
+                <span class="px-2 py-0.5 rounded bg-white border border-stone-200 text-[10px] font-bold">مدى</span>
+                <span class="px-2 py-0.5 rounded bg-white border border-stone-200 text-[10px] font-bold">Apple Pay</span>
+                <span class="px-2 py-0.5 rounded bg-white border border-stone-200 text-[10px] font-bold">Visa</span>
+                <span class="px-2 py-0.5 rounded bg-white border border-stone-200 text-[10px] font-bold">Mastercard</span>
+                <span class="px-2 py-0.5 rounded bg-[#3EEDBF] text-black text-[10px] font-extrabold">tabby</span>
+                <span class="px-2 py-0.5 rounded bg-[#E4A951] text-white text-[10px] font-extrabold">tamara</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Checkout Success Modal -->
+  <div id="checkout-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 text-center space-y-4 shadow-2xl">
+      <div class="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center">
+        <i class="sicon-check-circle text-3xl"></i>
+      </div>
+      <h3 class="text-xl font-bold text-black">شكراً لاختيارك دار نوت للعطور!</h3>
+      <p class="text-xs text-stone-600 leading-relaxed">
+        تم استلام طلبك بنجاح وسيتواصل معك فريق الشحن والتوصيل خلال ساعات. تم إرسال تفاصيل الفاتورة ورقم التتبع إلى بريدك الإلكتروني وهاتفك.
+      </p>
+      <div class="p-3 bg-stone-50 rounded-xl text-xs font-mono font-bold text-black">
+        رقم الطلب: #NOTE-2026-9814
+      </div>
+      <button onclick="clearAndGoHome()" class="w-full py-3 rounded-full bg-black text-white text-xs font-bold hover:bg-stone-800 transition">
+        العودة للصفحة الرئيسية
+      </button>
+    </div>
+  </div>
+
+  <!-- Store Footer -->
+  <footer class="w-full py-8 px-4 bg-stone-900 text-stone-400 text-xs text-center border-t border-stone-800">
+    <p>دار نوت للعطور (NOTE Perfumes) © 2026 | السجل التجاري: 1010713359 | الرقم الضريبي: 310103613800003</p>
+  </footer>
+
+  <script src="/products-data.js?v=20261020_2320"></script>
+
+  <script>
+    let discountRate = 0;
+
+    function renderCartPage() {
+      const cart = CartManager.getCart();
+      const itemsContainer = document.getElementById('cart-page-items');
+      const emptyState = document.getElementById('cart-page-empty');
+      const summaryWrapper = document.getElementById('cart-page-summary-wrapper');
+      const shippingBar = document.getElementById('page-free-shipping-bar');
+      const shippingText = document.getElementById('page-free-shipping-text');
+
+      if (!itemsContainer) return;
+
+      const total = CartManager.getTotal();
+      const freeShippingThreshold = 300;
+
+      if (cart.length === 0) {
+        itemsContainer.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        summaryWrapper.classList.add('hidden');
+        if (shippingBar) shippingBar.style.width = '0%';
+        if (shippingText) shippingText.textContent = 'أضف منتجات بقيمة 300 ر.س لتحصل على شحن مجاني';
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      summaryWrapper.classList.remove('hidden');
+
+      // Free shipping progress
+      const percentage = Math.min(100, Math.round((total / freeShippingThreshold) * 100));
+      if (shippingBar) shippingBar.style.width = percentage + '%';
+      if (shippingText) {
+        if (total >= freeShippingThreshold) {
+          shippingText.innerHTML = '🎉 <span class="text-emerald-700">لقد حصلت على شحن مجاني لكافة مناطق المملكة!</span>';
+        } else {
+          const remaining = freeShippingThreshold - total;
+          shippingText.innerHTML = `متبقي <strong class="text-black">${remaining} ر.س</strong> للحصول على شحن مجاني`;
+        }
+      }
+
+      // Render Items
+      itemsContainer.innerHTML = cart.map(item => `
+        <div class="py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-right">
+          <div class="flex items-center gap-4 w-full sm:w-auto">
+            <a href="/product.html?id=${item.id}" class="w-20 h-20 rounded-xl bg-stone-50 p-2 shrink-0 border border-stone-100 flex items-center justify-center">
+              <img src="${item.img}" alt="${item.title}" class="w-full h-full object-contain">
+            </a>
+            <div>
+              <a href="/product.html?id=${item.id}" class="text-sm font-bold text-black hover:underline block">${item.title}</a>
+              <span class="text-xs text-stone-400 block mt-0.5">${item.size || '100 مل'} • Extrait de Parfum</span>
+              <span class="text-xs font-bold text-stone-700 block mt-1">${item.price} ر.س</span>
+            </div>
+          </div>
+
+          <!-- Quantity Stepper -->
+          <div class="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
+            <div class="flex items-center border border-stone-200 rounded-full h-9 px-3 gap-3 text-xs font-bold bg-stone-50">
+              <button onclick="updateCartItemQty('${item.id}', -1)" class="text-stone-500 hover:text-black w-4 text-center text-sm">-</button>
+              <span class="min-w-[16px] text-center">${item.quantity}</span>
+              <button onclick="updateCartItemQty('${item.id}', 1)" class="text-stone-500 hover:text-black w-4 text-center text-sm">+</button>
+            </div>
+
+            <!-- Line Total -->
+            <span class="text-sm font-extrabold text-black min-w-[70px] text-left">${item.price * item.quantity} ر.س</span>
+
+            <!-- Remove Button -->
+            <button onclick="removeCartItem('${item.id}')" class="text-stone-400 hover:text-rose-600 transition p-1.5" title="حذف">
+              <i class="sicon-trash text-base"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      // Update Financials
+      updateFinancials(total);
+    }
+
+    function updateCartItemQty(id, delta) {
+      CartManager.updateQuantity(id, delta);
+      renderCartPage();
+    }
+
+    function removeCartItem(id) {
+      CartManager.removeItem(id);
+      renderCartPage();
+    }
+
+    function applyCoupon() {
+      const code = document.getElementById('coupon-code-input').value.trim().toUpperCase();
+      const msg = document.getElementById('coupon-msg');
+      if (code === 'NOTE10' || code === 'GOLD' || code === 'NOTE2026') {
+        discountRate = 0.10; // 10%
+        msg.textContent = 'تم تطبيق خصم 10% بنجاح!';
+        msg.className = 'text-[11px] font-bold text-emerald-600 block';
+      } else {
+        discountRate = 0;
+        msg.textContent = 'رمز الكوبون غير صالح أو منتهي الصلاحية';
+        msg.className = 'text-[11px] font-bold text-rose-600 block';
+      }
+      renderCartPage();
+    }
+
+    function updateFinancials(subtotal) {
+      const subtotalEl = document.getElementById('page-subtotal');
+      const discountRow = document.getElementById('discount-row');
+      const discountEl = document.getElementById('page-discount');
+      const shippingEl = document.getElementById('page-shipping');
+      const grandTotalEl = document.getElementById('page-grand-total');
+
+      subtotalEl.textContent = `${subtotal} ر.س`;
+
+      let discountAmount = 0;
+      if (discountRate > 0) {
+        discountAmount = Math.round(subtotal * discountRate);
+        discountRow.classList.remove('hidden');
+        discountEl.textContent = `- ${discountAmount} ر.س`;
+      } else {
+        discountRow.classList.add('hidden');
+      }
+
+      let shippingCost = 0;
+      if (subtotal < 300 && subtotal > 0) {
+        shippingCost = 25;
+        shippingEl.textContent = '25 ر.س';
+      } else {
+        shippingEl.textContent = 'مجاني';
+      }
+
+      const grandTotal = Math.max(0, subtotal - discountAmount + shippingCost);
+      grandTotalEl.textContent = `${grandTotal} ر.س`;
+    }
+
+    function proceedToCheckout() {
+      const modal = document.getElementById('checkout-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function clearAndGoHome() {
+      localStorage.removeItem('note_cart');
+      window.location.href = '/';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCartPage();
+    });
+  </script>
+
+  <!-- Floating WhatsApp Luxury Button -->
+  <div id="floating-whatsapp-container" class="fixed bottom-6 left-6 z-[90] flex items-center flex-row-reverse group select-none" style="margin-bottom: env(safe-area-inset-bottom, 0px);">
+    <a id="floating-whatsapp" href="https://wa.me/966565955420?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D9%86%D9%88%D8%AA%20%D9%84%D9%84%D8%B9%D8%B7%D9%88%D8%B1%D8%8C%20%D8%A3%D9%88%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%A7%D9%84%D9%85%D9%86%D8%AA%D8%AC%D8%A7%D8%AA" target="_blank" rel="noopener noreferrer" class="relative z-10 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white flex items-center justify-center shadow-[0_6px_25px_rgba(37,211,102,0.45)] hover:shadow-[0_8px_30px_rgba(37,211,102,0.65)] hover:scale-105 active:scale-95 transition-all duration-300" aria-label="تواصل معنا عبر واتساب">
+      <span class="absolute inset-0 rounded-full bg-[#25D366] opacity-30 animate-ping pointer-events-none"></span>
+      <svg class="relative z-10 w-7 h-7 sm:w-8 sm:h-8 fill-current drop-shadow-sm" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.155.57 4.177 1.564 5.927l-1.656 6.049 6.222-1.632c1.705.932 3.659 1.464 5.738 1.464 6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12zm0 21.818c-1.895 0-3.652-.522-5.163-1.429l-.37-.22-3.842 1.008 1.025-3.742-.241-.384c-.997-1.589-1.524-3.435-1.524-5.342 0-5.413 4.406-9.818 9.819-9.818 5.414 0 9.818 4.405 9.818 9.818 0 5.414-4.404 9.818-9.818 9.818z"/>
+      </svg>
+    </a>
+    <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/90 text-white text-xs font-semibold shadow-xl backdrop-blur mr-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      تواصل معنا مباشرة عبر واتساب
+    </span>
+  </div>
+</body>
+</html>
