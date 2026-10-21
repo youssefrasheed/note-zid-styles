@@ -726,6 +726,19 @@ app_js_code = f"""/**
     }}
   }}
 
+  // Arabic Text Normalization (Removes Tashkeel, Normalizes Alef/Yeh/Teh)
+  function normalizeArabic(text) {{
+    if (!text) return '';
+    return text
+      .toString()
+      .toLowerCase()
+      .replace(/[ً-ٰٟ]/g, '')
+      .replace(/[أإآٱ]/g, 'ا')
+      .replace(/ى/g, 'ي')
+      .replace(/ة/g, 'ه')
+      .trim();
+  }}
+
   // 12. Search & Mobile Drawer
   function openSearchModal() {{
     const m = document.getElementById('search-modal');
@@ -733,8 +746,13 @@ app_js_code = f"""/**
     m.classList.remove('hidden');
     setTimeout(() => {{
       m.classList.remove('opacity-0');
-      m.querySelector('div').classList.remove('scale-95');
-      document.getElementById('search-input')?.focus();
+      const inner = m.querySelector('div');
+      if (inner) inner.classList.remove('scale-95');
+      const input = document.getElementById('search-input');
+      if (input) {{
+        input.focus();
+        if (input.value) handleLiveSearch(input.value);
+      }}
     }}, 10);
   }}
 
@@ -742,10 +760,92 @@ app_js_code = f"""/**
     const m = document.getElementById('search-modal');
     if (!m) return;
     m.classList.add('opacity-0');
-    m.querySelector('div').classList.add('scale-95');
+    const inner = m.querySelector('div');
+    if (inner) inner.classList.add('scale-95');
     setTimeout(() => {{
       m.classList.add('hidden');
     }}, 300);
+  }}
+
+  function handleLiveSearch(query) {{
+    const rawTrimmed = (query || '').trim();
+    const normalized = normalizeArabic(rawTrimmed);
+    const resultsContainer = document.getElementById('search-results');
+    const quickTags = document.getElementById('search-quick-tags');
+    const footer = document.getElementById('search-modal-footer');
+    const countEl = document.getElementById('search-results-count');
+    const viewAllLink = document.getElementById('search-view-all-link');
+
+    if (!resultsContainer) return;
+
+    if (!rawTrimmed) {{
+      resultsContainer.innerHTML = '';
+      if (quickTags) quickTags.classList.remove('hidden');
+      if (footer) footer.classList.add('hidden');
+      return;
+    }}
+
+    if (quickTags) quickTags.classList.add('hidden');
+
+    const matches = noteProductsCatalog.filter(p => {{
+      const title = normalizeArabic(p.title);
+      const titleEn = (p.title_en || '').toLowerCase();
+      const notes = normalizeArabic(p.notes);
+      const desc = normalizeArabic(p.description);
+      const cat = normalizeArabic(p.cat_ar);
+      return title.includes(normalized) || 
+             titleEn.includes(rawTrimmed.toLowerCase()) || 
+             notes.includes(normalized) || 
+             desc.includes(normalized) || 
+             cat.includes(normalized);
+    }});
+
+    if (footer) footer.classList.remove('hidden');
+    if (countEl) countEl.textContent = `تم العثور على ${{matches.length}} عطر`;
+    if (viewAllLink) viewAllLink.href = `/categories?cat=all&search=${{encodeURIComponent(rawTrimmed)}}`;
+
+    if (matches.length === 0) {{
+      resultsContainer.innerHTML = `
+        <div class="py-10 text-center text-stone-400">
+          <i class="sicon-search text-3xl mb-2 block opacity-40"></i>
+          <p class="text-sm font-bold text-black mb-1">لم نجد أي نتائج تطابق "${{rawTrimmed}}"</p>
+          <p class="text-xs text-stone-400">جرب البحث بكلمات أخرى مثل: مسك، توباكو، عود، عنبر، باودر</p>
+        </div>
+      `;
+      return;
+    }}
+
+    resultsContainer.innerHTML = matches.slice(0, 8).map(p => {{
+      const zidSlug = zidSlugMap[p.id] || p.id;
+      const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+      return `
+        <div class="py-3 flex items-center justify-between gap-4 hover:bg-stone-50 px-2.5 rounded-xl transition cursor-pointer" onclick="closeSearchModal(); NoteRouter.navigate('/products/${{zidSlug}}')">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-14 h-14 rounded-xl bg-stone-50 p-1 shrink-0 flex items-center justify-center border border-stone-100">
+              <img src="${{imgUrl}}" alt="${{p.title}}" class="w-full h-full object-contain">
+            </div>
+            <div class="min-w-0">
+              <h4 class="text-xs sm:text-sm font-bold text-black truncate">${{p.title}}</h4>
+              <p class="text-[10px] sm:text-[11px] text-stone-400 font-normal truncate">${{p.notes || p.cat_ar || ''}}</p>
+              <span class="text-xs font-extrabold text-black block mt-0.5">${{p.price}} ر.س</span>
+            </div>
+          </div>
+          <button onclick="event.stopPropagation(); CartManager.addItem('${{p.id}}'); closeSearchModal();" class="shrink-0 px-3.5 py-1.5 rounded-full bg-black text-white hover:bg-stone-800 text-[11px] font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
+            <span>أضف للسلة</span>
+            <i class="sicon-shopping-bag text-xs"></i>
+          </button>
+        </div>
+      `;
+    }}).join('');
+  }}
+
+  function fillAndSearch(keyword) {{
+    const inp = document.getElementById('search-input');
+    if (inp) {{
+      inp.value = keyword;
+      inp.focus();
+      handleLiveSearch(keyword);
+    }}
   }}
 
   function openMobileMenu() {{
@@ -1248,15 +1348,21 @@ app_js_code = f"""/**
       filtered = filtered.filter(p => p.cat === activeCategory);
     }}
 
-    // Filter by search
+    // Filter by search (searches whole catalog with Arabic normalization)
     if (categorySearchQuery) {{
-      filtered = filtered.filter(p => 
-        (p.title && p.title.toLowerCase().includes(categorySearchQuery)) ||
-        (p.title_en && p.title_en.toLowerCase().includes(categorySearchQuery)) ||
-        (p.notes && p.notes.toLowerCase().includes(categorySearchQuery)) ||
-        (p.slogan && p.slogan.toLowerCase().includes(categorySearchQuery)) ||
-        (p.description && p.description.toLowerCase().includes(categorySearchQuery))
-      );
+      const normQuery = normalizeArabic(categorySearchQuery);
+      filtered = noteProductsCatalog.filter(p => {{
+        const title = normalizeArabic(p.title);
+        const titleEn = (p.title_en || '').toLowerCase();
+        const notes = normalizeArabic(p.notes);
+        const desc = normalizeArabic(p.description);
+        const cat = normalizeArabic(p.cat_ar);
+        return title.includes(normQuery) || 
+               titleEn.includes(categorySearchQuery.toLowerCase()) || 
+               notes.includes(normQuery) || 
+               desc.includes(normQuery) || 
+               cat.includes(normQuery);
+      }});
     }}
 
     // Sort
@@ -1663,6 +1769,14 @@ app_js_code = f"""/**
       }} else if (target.route === 'category') {{
         contentEl.innerHTML = T.category;
         selectCategory(target.cat, false);
+        const searchParam = new URLSearchParams(window.location.search).get('search');
+        if (searchParam) {{
+          setTimeout(() => {{
+            const inp = document.getElementById('cat-search-input');
+            if (inp) inp.value = searchParam;
+            handleCategorySearch(searchParam);
+          }}, 30);
+        }}
         handleHeaderScroll();
       }} else if (target.route === 'cart') {{
         contentEl.innerHTML = T.cart;
@@ -1798,6 +1912,16 @@ app_js_code = f"""/**
     NoteRouter.route();
   }});
 
+  // Global Escape key listener to close modals
+  document.addEventListener('keydown', function(e) {{
+    if (e.key === 'Escape') {{
+      closeSearchModal();
+      closeMobileMenu();
+      CartManager.closeDrawer();
+      closeQuickView();
+    }}
+  }});
+
   // Global Exports for Inlined HTML Handlers
   window.productsData = productsData;
   window.noteProductsCatalog = noteProductsCatalog;
@@ -1811,6 +1935,9 @@ app_js_code = f"""/**
   window.closeQuickView = closeQuickView;
   window.openSearchModal = openSearchModal;
   window.closeSearchModal = closeSearchModal;
+  window.handleLiveSearch = handleLiveSearch;
+  window.fillAndSearch = fillAndSearch;
+  window.normalizeArabic = normalizeArabic;
   window.openMobileMenu = openMobileMenu;
   window.closeMobileMenu = closeMobileMenu;
   window.goToHeroSlide = goToHeroSlide;
