@@ -914,7 +914,7 @@ const noteProductsCatalog = [
   },
   {
     "id": "pkg-royal-tobacco",
-    "title": "باقة رويال توباكو الفاخرة",
+    "title": "رويال توباكو",
     "title_en": "ROYAL TOBACCO PACKAGE",
     "cat": "packages",
     "cat_ar": "مجموعات وباقات نوت",
@@ -938,7 +938,7 @@ const noteProductsCatalog = [
   },
   {
     "id": "pkg-powderose",
-    "title": "باقة باودروز المتكاملة",
+    "title": "باودروز",
     "title_en": "POWDEROSE PACKAGE",
     "cat": "packages",
     "cat_ar": "مجموعات وباقات نوت",
@@ -962,7 +962,7 @@ const noteProductsCatalog = [
   },
   {
     "id": "pkg-summer-escape",
-    "title": "باقة سمر إسكيب الصيفية",
+    "title": "سمر إسكيب",
     "title_en": "SUMMER ESCAPE PACKAGE",
     "cat": "packages",
     "cat_ar": "مجموعات وباقات نوت",
@@ -986,7 +986,7 @@ const noteProductsCatalog = [
   },
   {
     "id": "pkg-her-signature",
-    "title": "باقة هير سغنتشر النسائية",
+    "title": "هير سفنتشر",
     "title_en": "HER SIGNATURE PACKAGE",
     "cat": "packages",
     "cat_ar": "مجموعات وباقات نوت",
@@ -1010,7 +1010,7 @@ const noteProductsCatalog = [
   },
   {
     "id": "pkg-mens-signature",
-    "title": "باقة مِنز سغنتشر الرجالية الفاخرة",
+    "title": "مِنز سفنتشر",
     "title_en": "MEN'S SIGNATURE PACKAGE",
     "cat": "packages",
     "cat_ar": "مجموعات وباقات نوت",
@@ -1034,7 +1034,7 @@ const noteProductsCatalog = [
   },
   {
     "id": "pkg-night-signature",
-    "title": "باقة نايت سغنتشر الليلية",
+    "title": "نايت سفنتشر",
     "title_en": "NIGHT SIGNATURE PACKAGE",
     "cat": "packages",
     "cat_ar": "مجموعات وباقات نوت",
@@ -1058,7 +1058,7 @@ const noteProductsCatalog = [
   },
   {
     "id": "pkg-tolah-collection",
-    "title": "مجموعة التولات الخاصة (اختر أي 3 تولات)",
+    "title": "مجموعة التولات الخاصة",
     "title_en": "TOLAH COLLECTION (ANY 3 TOLLAHS)",
     "cat": "packages",
     "cat_ar": "مجموعات وباقات نوت",
@@ -1082,7 +1082,7 @@ const noteProductsCatalog = [
   },
   {
     "id": "pkg-all-over-collection",
-    "title": "مجموعة معطرات الجسم (اختر أي 3 معطرات)",
+    "title": "مجموعة معطرات الجسم",
     "title_en": "ALL OVER SPRAY COLLECTION (ANY 3 SPRAYS)",
     "cat": "packages",
     "cat_ar": "مجموعات وباقات نوت",
@@ -1106,7 +1106,7 @@ const noteProductsCatalog = [
   },
   {
     "id": "musk-bundle-gift",
-    "title": "باقة مِسك الملكية مع هدية حصرية",
+    "title": "مِسك الملكية",
     "title_en": "ROYAL MUSK BUNDLE WITH EXCLUSIVE GIFT",
     "cat": "packages",
     "cat_ar": "مجموعات نوت",
@@ -1130,7 +1130,7 @@ const noteProductsCatalog = [
   },
   {
     "id": "musk-bundle",
-    "title": "باقة مِسك الكلاسيكية",
+    "title": "مِسك الكلاسيكية",
     "title_en": "CLASSIC MUSK BUNDLE",
     "cat": "packages",
     "cat_ar": "مجموعات نوت",
