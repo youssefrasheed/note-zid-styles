@@ -287,6 +287,35 @@ header nav a:not(.active-link) {{
   padding-bottom: 2px !important;
 }}
 
+/* Bottom Navigation Bar Cart Badge Perfect Centering */
+.cart-badge,
+.header-sm .cart-badge,
+.cart-sm .cart-badge,
+.cart-btn .cart-badge {{
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  line-height: 1 !important;
+  direction: ltr !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  padding: 0 2px !important;
+  margin: 0 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-feature-settings: "tnum" !important;
+  font-variant-numeric: tabular-nums !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  border-radius: 9999px !important;
+  box-sizing: border-box !important;
+  position: absolute !important;
+  top: -5px !important;
+  left: -2px !important;
+  background-color: #f44336 !important;
+  color: #ffffff !important;
+}}
+
 /* Floating WhatsApp Button - Elevated above Mobile Bottom Navigation */
 #floating-whatsapp-container {{
   bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important;
