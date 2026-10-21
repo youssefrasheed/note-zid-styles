@@ -2371,7 +2371,7 @@ app_js_code = f"""/**
       const zidSlug = zidSlugMap[item.id] || item.id;
       const imgUrl = (item.img.startsWith('http') ? '' : ASSET_HOST) + item.img;
       return `
-        <div class="py-4 sm:py-6 flex items-center justify-between gap-4 text-right">
+        <div class="note-cart-page-item py-4 sm:py-6 flex items-center justify-between gap-4 text-right">
           <div class="flex items-center gap-3 sm:gap-4 flex-grow">
             <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-stone-50 p-2 flex-shrink-0 flex items-center justify-center border border-stone-200/80 block">
               <img src="${{imgUrl}}" alt="${{item.title}}" class="w-full h-full object-contain">

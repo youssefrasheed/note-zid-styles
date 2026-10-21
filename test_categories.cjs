@@ -1,6 +1,6 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 let source=fs.readFileSync(__dirname+'/test_live.cjs','utf8');source=source.slice(0,source.indexOf('const product='));source=source.replace("const source=", "const integration=").replace("runInContext(source+", "runInContext(integration+");
-source+=`\nvm.runInContext('this.categoryAPI={registerCategories,categoryProducts};',ctx);
+source+=`\nvm.runInContext('this.categoryAPI={registerCategories,categoryProducts,recommendationProducts};',ctx);
 const products=[{id:'a',name:'A',price:100,quantity:1,categories:[{id:1,name:'Shared name'}]},{id:'b',name:'B',price:100,quantity:1,categories:[{id:2,name:'Shared name'}]}];
 const categories=[{id:1,name:'Shared name'},{id:2,name:'Shared name'}];
 ctx.categoryAPI.registerCategories(categories);ctx.testAPI.sync.applyToCatalog(products);
@@ -15,5 +15,12 @@ ctx.testAPI.sync.applyToCatalog([...products,{...fresh,categories:[{id:998,name:
 assert.equal(ctx.categoryAPI.categoryProducts('zid-999').length,0);assert.equal(ctx.categoryAPI.categoryProducts('zid-998').length,1);
 ctx.testAPI.sync.applyToCatalog([{...fresh,price:410,sale_price:229}]);assert.equal(ctx.noteProductsCatalog[0].tag,'خصم 44.1%');
 ctx.testAPI.sync.applyToCatalog([{...fresh,price:410,sale_price:null}]);assert.equal(ctx.noteProductsCatalog[0].tag,'');
+ctx.categoryAPI.registerCategories([{id:1697258,name:'الأكثر مبيعاً'},{id:1759471,name:'المقترحات'}]);
+ctx.testAPI.sync.applyToCatalog([{...fresh,id:'chosen',categories:[{id:1697258},{id:1759471}]},{...fresh,id:'unselected',sold_products_count:999,categories:[]}]);
+assert.equal(ctx.categoryAPI.categoryProducts('bestsellers').length,1);assert.equal(ctx.categoryAPI.categoryProducts('bestsellers')[0].id,'chosen');
+assert.equal(ctx.categoryAPI.recommendationProducts([])[0].id,'chosen');assert.equal(ctx.categoryAPI.recommendationProducts([{product_id:'chosen'}]).length,0);
+ctx.categoryAPI.registerCategories([{id:1697258,is_published:false},{id:1759471,is_published:false}]);
+ctx.testAPI.sync.applyToCatalog([{...fresh,id:'chosen',categories:[{id:1697258},{id:1759471}]}]);
+assert.equal(ctx.categoryAPI.categoryProducts('bestsellers').length,0);assert.equal(ctx.categoryAPI.recommendationProducts([]).length,0);
 console.log('PASS: exact live category membership/counts, new product/category, reassignment, latest-first, discount percentage and no-sale badge');`;
 vm.runInThisContext('(function(require,__dirname){'+source+'})')(require,__dirname);
