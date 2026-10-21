@@ -1314,7 +1314,7 @@ app_js_code = f"""/**
         <div>
           <!-- Frameless Image Container with Clean Shadow/Scale -->
           <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-            ${{isOutOfStock ? `<span class="note-out-of-stock-sticker out-of-stock">غير متاح</span>` : (p.tag ? `<span class="absolute top-2.5 right-2.5 z-10 text-[9px] sm:text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm"> ${{p.tag}} </span>` : '')}}
+            ${{isOutOfStock ? `<span class="note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="absolute top-2 right-2 z-10 text-[10px] px-2 py-1 rounded-full bg-black text-white">خصم ${{p.discount}}</span>` : ''}}` : (p.tag ? `<span class="absolute top-2.5 right-2.5 z-10 text-[9px] sm:text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm"> ${{p.tag}} </span>` : '')}}
             <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
           </div>
 
@@ -2080,7 +2080,7 @@ app_js_code = f"""/**
         <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 overflow-hidden">
-              ${{isOutOfStock ? `<span class="note-out-of-stock-sticker out-of-stock">غير متاح</span>` : (p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.tag}}</span>` : '')}}
+              ${{isOutOfStock ? `<span class="note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="absolute top-2 right-2 z-10 text-[10px] px-2 py-1 rounded-full bg-black text-white">خصم ${{p.discount}}</span>` : ''}}` : (p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.tag}}</span>` : '')}}
               <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
             </div>
 
@@ -2245,21 +2245,14 @@ app_js_code = f"""/**
     const countEl = document.getElementById('cat-products-count');
     if (!container) return;
 
-    let filtered = [...noteProductsCatalog];
-
-    // Filter by category
-    if (activeCategory === 'bestsellers') {{
-      filtered = filtered.filter(p => p.bestseller || (p.tag && p.tag.includes('مبيعاً')) || (p.tag && p.tag.includes('طلباً')));
-    }} else if (activeCategory === 'new') {{
-      filtered = filtered.filter(p => (p.tag && p.tag.includes('جديد')) || (p.tag && p.tag.includes('حصري')) || p.id.includes('niche'));
-    }} else if (activeCategory !== 'all') {{
-      filtered = filtered.filter(p => p.cat === activeCategory);
-    }}
+    refreshCategoryUI();
+    let filtered = categoryProducts(activeCategory);
+    const categoryTotal=filtered.length;
 
     // Filter by search (searches whole catalog with Arabic normalization)
     if (categorySearchQuery) {{
       const normQuery = normalizeArabic(categorySearchQuery);
-      filtered = noteProductsCatalog.filter(p => {{
+      filtered = filtered.filter(p => {{
         const title = normalizeArabic(p.title);
         const titleEn = (p.title_en || '').toLowerCase();
         const notes = normalizeArabic(p.notes);
@@ -2281,11 +2274,11 @@ app_js_code = f"""/**
     }} else if (categorySort === 'rating') {{
       filtered.sort((a, b) => (b.rating || 5) - (a.rating || 5));
     }} else if (categorySort === 'newest') {{
-      filtered.reverse();
+      filtered.sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));
     }}
 
     if (countEl) {{
-      countEl.textContent = `عرض ${{filtered.length}} من ${{noteProductsCatalog.length}} منتج`;
+      countEl.textContent = `عرض ${{filtered.length}} من ${{categoryTotal}} منتج`;
     }}
 
     if (filtered.length === 0) {{
@@ -2304,7 +2297,7 @@ app_js_code = f"""/**
         <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-              ${{isOutOfStock ? `<span class="note-out-of-stock-sticker out-of-stock">غير متاح</span>` : (p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.tag}}</span>` : '')}}
+              ${{isOutOfStock ? `<span class="note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="absolute top-2 right-2 z-10 text-[10px] px-2 py-1 rounded-full bg-black text-white">خصم ${{p.discount}}</span>` : ''}}` : (p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.tag}}</span>` : '')}}
               <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
             </div>
 
@@ -2527,7 +2520,7 @@ app_js_code = f"""/**
     const amount=Number.isFinite(Number(subtotal)) ? Number(subtotal) : 0;
     for(const id of ['page-subtotal','page-grand-total']) {{
       const el=document.getElementById(id);
-      if(el) el.textContent=amount.toLocaleString('ar-SA',{{maximumFractionDigits:2}})+' ر.س';
+      if(el) el.textContent=amount.toLocaleString('en-US',{{maximumFractionDigits:2}})+' ر.س';
     }}
     document.getElementById('discount-row')?.classList.add('hidden');
     const shipping=document.getElementById('page-shipping');

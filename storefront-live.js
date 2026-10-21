@@ -22,8 +22,8 @@
   const originalCatalog = noteProductsCatalog.slice();
   noteProductsCatalog.splice(0);
   productsData.splice(0);
-  ZidSyncManager.CACHE_KEY = 'note_zid_catalog_v8';
-  ZidSyncManager.CACHE_TIME_KEY = 'note_zid_catalog_time_v8';
+  ZidSyncManager.CACHE_KEY = 'note_zid_catalog_v9';
+  ZidSyncManager.CACHE_TIME_KEY = 'note_zid_catalog_time_v9';
   ZidSyncManager.loadCachedData = function() {
     try {
       const cached = localStorage.getItem(this.CACHE_KEY);
@@ -39,7 +39,7 @@
   };
   ZidSyncManager.applyToCatalog = function(results) {
     if (!Array.isArray(results)) throw new Error('Invalid product catalog');
-    const next = results.filter(z => z.id && liveMoney(z.price) !== null).map(z => {
+    const next = results.filter(z => z.id && !z.is_draft && liveMoney(z.price) !== null).map(z => {
       const slug = z.slug || z.id;
       // A stable Zid UUID is the only product identity. Slugs are route aliases only.
       const prior = originalCatalog.find(p => p.id === z.id || (zidSlugMap[p.id] || p.id) === slug || (zidSlugMap[p.id] || p.id) === z.id) || {};
@@ -53,11 +53,11 @@
       const img = liveImage(z.images?.[0], z.id) || fallbackImg || '';
       const img_box = liveImage(z.images?.[1], z.id) || fallbackImgBox || null;
       const entry = {...prior, id:z.id, zid_id:z.id, slug, title:z.name || '', title_en:z.name_en || '', price: sale ?? price, old_price:old,
-        discount:old ? Math.round((old - sale)/old*100)+'%' : null,
+        discount:old ? Number(((old-sale)/old*100).toFixed(1))+'%' : null,
         img: img, img_box: img_box,
         cat:category, cat_ar:categories.find(c => String(c.id) === catUrlMap[category]?.split('/')[2])?.name || categories[0]?.name || prior.cat_ar || '',
         category_ids:categories.map(c => String(c.id)),
-        bestseller:sold > 0, sold_count:sold, tag:old ? 'خصم' : '',
+        bestseller:sold > 0, sold_count:sold, tag:old ? 'خصم '+Number(((old-sale)/old*100).toFixed(1))+'%' : '',
         rating:Number(z.rating?.average) || 0, reviews_count:Number(z.rating?.total_count) || 0,
         in_stock:z.in_stock !== false && (z.is_infinite === true || Number(z.quantity) > 0), stock:z.is_infinite ? Infinity : Number(z.quantity),
         product_class:z.product_class, has_options:z.has_options, has_fields:z.has_fields,
@@ -68,9 +68,53 @@
     });
     noteProductsCatalog.splice(0, noteProductsCatalog.length, ...next);
     productsData.splice(0, productsData.length, ...next);
+    const merged=new Map(zidCategories.map(c=>[c.id,c]));
+    for(const z of results)for(const c of z.categories||[])if(!merged.has(String(c.id)))merged.set(String(c.id),c);
+    registerCategories([...merged.values()]);
     liveCatalogReady = true;
     try { localStorage.setItem(this.CACHE_KEY, JSON.stringify(results)); localStorage.setItem(this.CACHE_TIME_KEY, String(Date.now())); } catch(e) {}
   };
+  // Category membership is always Zid's ID, never a guess from product names.
+  let zidCategories=[];
+  const categoryKeys={perfumes:'1748533',niche:'1759040',travel:'1759043','all-over':'1759042',linen:'1759044','body-care':'1759046',tollah:'1421002',packages:'1752110'};
+  function categoryKey(id) {return String(id)==='1697258'?'bestsellers':String(id)==='1327929'?'new':'zid-'+id;}
+  function registerCategories(input) {
+    const flattened=[];
+    function walk(items,parent) {for(const c of items||[]) {if(!c?.id || c.is_published===false)continue;flattened.push({...c,id:String(c.id),parent_id:c.parent_id||parent});walk(c.sub_categories,c.id);}}
+    walk(input);
+    zidCategories=[...new Map(flattened.map(c=>[c.id,c])).values()];
+    for(const c of zidCategories) {const key=categoryKey(c.id);catUrlMap[key]='/categories/'+c.id+'/'+encodeURIComponent(c.slug||c.name);if(!['new','bestsellers'].includes(key))categoryMeta[key]={title:c.name,desc:c.description||''};}
+    for(const [key,id] of Object.entries(categoryKeys)) {const c=zidCategories.find(c=>c.id===id);if(c)catUrlMap[key]=catUrlMap[categoryKey(id)];}
+  }
+  function categoryProducts(key,products=noteProductsCatalog) {
+    if(key==='all')return products.slice();
+    if(key==='new')return products.slice().sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));
+    if(key==='bestsellers')return products.filter(p=>p.sold_count>0).sort((a,b)=>b.sold_count-a.sold_count);
+    const id=key.startsWith('zid-')?key.slice(4):categoryKeys[key];
+    if(!id)return [];
+    const ids=new Set([String(id)]);
+    for(let n=0;n<zidCategories.length;n++)for(const c of zidCategories)if(ids.has(String(c.parent_id)))ids.add(c.id);
+    return products.filter(p=>(p.category_ids||[]).some(cid=>ids.has(String(cid))));
+  }
+  function refreshCategoryUI() {
+    const bar=document.getElementById('category-pills-bar');
+    if(bar) {
+      const entries=[{key:'all',name:'جميع المنتجات'},{key:'bestsellers',name:'الأكثر مبيعاً'},{key:'new',name:'أحدث المنتجات'},...zidCategories.filter(c=>!['1697258','1327929'].includes(c.id)).map(c=>({key:categoryKey(c.id),name:c.name}))];
+      const html=entries.map(({key,name})=>'<button id="pill-'+key+'" data-note-category="'+key+'" onclick="selectCategory(\''+key+'\')" class="cat-pill px-4 py-2 rounded-full border whitespace-nowrap '+(key===activeCategory?'cat-pill-active bg-black text-white border-black':'border-stone-200 text-stone-700')+'">'+escapeHTML(name)+' ('+categoryProducts(key).length+')</button>').join('');
+      if(bar.innerHTML!==html)bar.innerHTML=html;
+    }
+    const meta=categoryMeta[activeCategory]||categoryMeta.all;
+    const title=document.getElementById('cat-title'),desc=document.getElementById('cat-desc');
+    if(title){title.textContent=meta.title;document.title=meta.title+' | نوت للعطور';}if(desc)desc.textContent=meta.desc;
+    const count=document.getElementById('cat-products-count');if(count){count.classList.remove('hidden','sm:inline-block');count.style.display='inline-block';}
+    // Curated navigation points to actual populated dashboard categories. Exact category URLs remain distinct.
+    for(const a of document.querySelectorAll('#note-luxury-storefront a[href*="/categories/"]')) {
+      const match=a.getAttribute('href')?.match(/\/categories\/(\d+)\//);if(!match)continue;
+      const replacements={'1500261':'niche','1310036':'travel','1688838':'all-over','1750048':'body-care','1310037':'linen'};
+      const alias=replacements[match[1]];if(alias&&catUrlMap[alias])a.setAttribute('href',catUrlMap[alias]);
+    }
+  }
+
   ZidSyncManager.loadCachedData();
   ZidSyncManager.fetchLiveCatalog = async function(timeoutMs=15000) {
     if (this.pending) return this.pending;
@@ -89,6 +133,10 @@
           if (!data.next && !(data.pages_count > page)) break;
           if (++page > 100) throw new Error('Catalog pagination limit');
         }
+        try {
+          const categoriesResponse=await fetch('/api/v1/categories',{cache:'no-store',signal:controller.signal,headers:{Accept:'application/json'}});
+          if(categoriesResponse.ok) {const data=await categoriesResponse.json();const list=Array.isArray(data)?data:data.results;if(Array.isArray(list))registerCategories(list);}
+        } catch(error) {console.warn('NOTE: category refresh unavailable',error.message);}
         this.applyToCatalog(all);
         this.lastSuccess = Date.now();
         return all;
@@ -120,6 +168,7 @@
       }
     }
     initSliders();
+    refreshCategoryUI();
     if (document.getElementById('catalog-products-grid')) renderCatalog();
     CartManager.renderDrawer();
     if (document.getElementById('cart-page-items')) renderCartPage();
@@ -127,7 +176,7 @@
   initSliders = function() {
     const groups = {
       'slider-bestsellers':noteProductsCatalog.filter(p => p.bestseller).sort((a,b) => b.sold_count-a.sold_count),
-      'slider-niche':noteProductsCatalog.filter(p => p.cat === 'niche'),
+      'slider-niche':categoryProducts('niche'),
       'slider-new':noteProductsCatalog.slice().sort((a,b) => String(b.created_at).localeCompare(String(a.created_at)))
     };
     Object.entries(groups).forEach(([id,products]) => {
@@ -143,11 +192,10 @@
     const product=noteProductsCatalog.find(p => p.id===key || p.id.replace(/-/g,'')===key || p.slug===key);
     return product?.id || null;
   };
-  const categoryRouteAliases={1748533:'perfumes',1500261:'niche',1759040:'niche',1697258:'bestsellers',1327929:'new',1759041:'new',1310036:'travel',1759043:'travel',1688838:'all-over',1759042:'all-over',1752110:'packages',1759047:'packages',1759085:'packages',1310037:'linen',1759044:'linen',1759045:'linen',1421002:'tollah',1750048:'body-care',1759046:'body-care'};
-  const originalResolveCategory=NoteRouter.resolveCategory;
   NoteRouter.resolveCategory=function(path,params) {
     const categoryId=decodeURIComponent(path).match(/\/categor(?:y|ies)\/(\d+)/)?.[1];
-    return params.get('cat') || categoryRouteAliases[categoryId] || originalResolveCategory.call(this,path,params);
+    if(categoryId)return categoryKey(categoryId);
+    return params.get('cat') || 'all';
   };
   const originalNavigate=NoteRouter.navigate;
   NoteRouter.navigate = function(url) {
