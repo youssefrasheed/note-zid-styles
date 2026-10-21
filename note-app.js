@@ -1360,7 +1360,7 @@
       </section>
 
       <!-- Details Modal Backdrop -->
-      <div id="note-modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 99999; backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 16px;">
+      <div id="note-modal-backdrop" onclick="if (event.target === this) window.noteCloseModal()" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 99999; backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 16px;">
         <div id="note-modal-box" style="background: #FFFFFF; border-radius: 20px; max-width: 650px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 24px; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: right;">
           <button onclick="window.noteCloseModal()" style="position: absolute; top: 16px; left: 16px; background: #F3F4F6; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; justify-content: center; color: #4B5563;">✕</button>
           <div id="note-modal-content"></div>
@@ -1368,6 +1368,12 @@
       </div>
     `;
   }
+
+  // Close modal on Escape
+  window.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") window.noteCloseModal();
+  });
+
 
   // Interactive filtering
   window.noteFilterCategory = function(catKey) {
