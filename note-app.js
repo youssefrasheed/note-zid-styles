@@ -1879,6 +1879,39 @@ header nav a.active-link {
           }
         });
       }
+    },
+
+    refreshDomPrices: function() {
+      try {
+        // Update PDP if currently active
+        if (typeof currentProduct !== 'undefined' && currentProduct) {
+          const live = noteProductsCatalog.find(p => p.id === currentProduct.id);
+          if (live) {
+            currentProduct.price = live.price;
+            currentProduct.old_price = live.old_price;
+            currentProduct.discount = live.discount;
+            currentProduct.in_stock = live.in_stock;
+
+            const pEl = document.getElementById('pdp-price');
+            if (pEl && live.price) pEl.textContent = `${live.price} ر.س`;
+
+            const opEl = document.getElementById('pdp-old-price');
+            if (opEl) {
+              if (live.old_price) {
+                opEl.textContent = `${live.old_price} ر.س`;
+                opEl.classList.remove('hidden');
+              } else {
+                opEl.classList.add('hidden');
+              }
+            }
+          }
+        }
+
+        // Update Cart Drawer if open
+        if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) {
+          CartManager.renderDrawer();
+        }
+      } catch(e) {}
     }
   };
 
@@ -3462,20 +3495,8 @@ header nav a.active-link {
     });
   }
 
-  // 19.5 Native Zid Loader Dismissal
-  function dismissZidLoader() {
-    const loader = document.getElementById('loader-container');
-    if (!loader) return;
-    loader.style.transition = 'opacity 0.4s ease-out';
-    loader.style.opacity = '0';
-    loader.style.pointerEvents = 'none';
-    setTimeout(() => {
-      try { loader.remove(); } catch(e) {}
-    }, 400);
-  }
-
-  // 20. Shell Mounter
-  async function mountShell() {
+  // 20. Shell Mounter (Instant Zero-Delay Synchronous Execution)
+  function mountShell() {
     const mainEl = document.querySelector('.tp-home') || 
                    document.querySelector('.main.app-content') || 
                    document.querySelector('.app-content') || 
@@ -3487,28 +3508,10 @@ header nav a.active-link {
       return;
     }
 
-    // Move Zid's native loader to body if inside mainEl to keep it animating during sync
-    const nativeLoader = document.getElementById('loader-container');
-    if (nativeLoader && nativeLoader.parentElement === mainEl) {
-      document.body.appendChild(nativeLoader);
-    }
-
-    // Remove Rozia footers, headers and native sections (preserve native #loader-container)
+    // Remove Rozia footers, headers and native sections
     document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer').forEach(el => {
       el.remove();
     });
-
-    // Live Sync with Zid: check cache freshness while Zid native loader animates
-    const lastSync = parseInt(localStorage.getItem(ZidSyncManager.CACHE_TIME_KEY) || '0', 10);
-    const isCacheFresh = (Date.now() - lastSync) < ZidSyncManager.TTL_MS;
-
-    if (!isCacheFresh) {
-      // First boot or expired cache: race live fetch against 750ms timeout
-      await ZidSyncManager.fetchLiveCatalog(750);
-    } else {
-      // Cache fresh: revalidate quietly in background
-      setTimeout(() => ZidSyncManager.fetchLiveCatalog(3000), 1000);
-    }
 
     // Check if storefront shell already mounted
     let shell = document.getElementById('note-luxury-storefront');
@@ -3532,7 +3535,7 @@ header nav a.active-link {
       const cleanupInterval = setInterval(() => {
         document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer').forEach(el => el.remove());
         Array.from(mainEl.children).forEach(child => {
-          if (child !== shell && child.id !== 'note-luxury-storefront' && child.id !== 'loader-container') {
+          if (child !== shell && child.id !== 'note-luxury-storefront') {
             child.remove();
           }
         });
@@ -3540,11 +3543,15 @@ header nav a.active-link {
       setTimeout(() => clearInterval(cleanupInterval), 3000);
     }
 
-    // Route to current page (with live synced data)
+    // Route to current page immediately (0ms)
     NoteRouter.route();
 
-    // Smoothly dismiss Zid's native entrance loader
-    setTimeout(dismissZidLoader, 150);
+    // Background Live Sync with Zid (Completely non-blocking, zero layout shift)
+    setTimeout(() => {
+      ZidSyncManager.fetchLiveCatalog(5000).then(() => {
+        ZidSyncManager.refreshDomPrices();
+      });
+    }, 200);
   }
 
   // 21. Global Link Interception for Instant SPA Navigation
