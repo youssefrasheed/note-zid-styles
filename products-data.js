@@ -1288,6 +1288,8 @@ const CartManager = {
       itemsContainer.innerHTML = '';
       if (emptyState) emptyState.classList.remove('hidden');
       if (footerEl) footerEl.classList.add('hidden');
+      const recsContainer = document.getElementById('cart-drawer-recommendations');
+      if (recsContainer) recsContainer.classList.add('hidden');
       if (shippingProgress) shippingProgress.style.width = '0%';
       if (shippingText) shippingText.textContent = 'أضف منتجات بقيمة 300 ر.س لتحصل على شحن مجاني';
       return;
@@ -1338,6 +1340,58 @@ const CartManager = {
         </button>
       </div>
     `).join('');
+
+    // Render Drawer Recommendations
+    const recsContainer = document.getElementById('cart-drawer-recommendations');
+    const recsList = document.getElementById('cart-drawer-recs-list');
+    if (recsContainer && recsList) {
+      const inCartIds = new Set(cart.map(i => i.id));
+      const pool = [
+        'for-him-30ml',
+        'for-her-30ml',
+        'powderose-30ml',
+        'musk-toffee-oil',
+        'all-over-royal-tobacco',
+        'all-over-choconilla',
+        'linen-royal-tobacco',
+        'linen-oud-rosewood',
+        'roayal-tobacco',
+        'note-for-him',
+        'oud-rosewood',
+        'musk'
+      ];
+      const recs = pool
+        .filter(id => !inCartIds.has(id))
+        .map(id => noteProductsCatalog.find(p => p.id === id))
+        .filter(Boolean)
+        .slice(0, 2);
+
+      if (recs.length > 0) {
+        recsContainer.classList.remove('hidden');
+        recsList.innerHTML = recs.map(p => `
+          <div class="flex items-center justify-between gap-3 p-2.5 bg-white rounded-xl border border-stone-200/70 shadow-xs">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-11 h-11 rounded-lg bg-stone-50 p-1 border border-stone-100 shrink-0 flex items-center justify-center">
+                <img src="${p.img}" alt="${p.title}" class="w-full h-full object-contain">
+              </div>
+              <div class="min-w-0">
+                <h5 class="text-[11px] font-bold text-black truncate">${p.title}</h5>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span class="text-xs font-extrabold text-black">${p.price} ر.س</span>
+                  ${p.old_price ? `<span class="text-[10px] text-stone-400 line-through">${p.old_price} ر.س</span>` : ''}
+                </div>
+              </div>
+            </div>
+            <button onclick="CartManager.addItem('${p.id}', 1)" class="px-3 py-1.5 rounded-full bg-black hover:bg-stone-800 text-white text-[10px] font-bold shrink-0 transition flex items-center gap-1 active:scale-95 shadow-xs" title="إضافة سريعة">
+              <i class="sicon-plus text-[9px]"></i>
+              <span>أضف</span>
+            </button>
+          </div>
+        `).join('');
+      } else {
+        recsContainer.classList.add('hidden');
+      }
+    }
   }
 };
 

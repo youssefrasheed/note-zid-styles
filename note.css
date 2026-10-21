@@ -162,14 +162,25 @@ footer::before,
   opacity: 1 !important;
 }
 
-/* Category Filter Pills Container - No Truncation or Clipping */
+/* Category Filter Pills Container - Sticky Responsive Smooth Scroll */
 .cat-pills-container,
 #category-pills-bar {
   display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 8px 10px !important;
-  overflow: visible !important;
-  white-space: normal !important;
+  gap: 8px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  white-space: nowrap !important;
+  scroll-behavior: smooth !important;
+}
+
+@media (min-width: 1024px) {
+  .cat-pills-container,
+  #category-pills-bar {
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+    white-space: normal !important;
+  }
 }
 
 .cat-pill {

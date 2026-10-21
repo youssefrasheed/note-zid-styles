@@ -113,6 +113,20 @@
               <span>متابعة التسوق وإضافة عطور أخرى</span>
             </a>
           </div>
+
+          <!-- Recommendations Section in Cart Page -->
+          <div id="cart-page-recommendations-section" class="mt-12 pt-8 border-t border-stone-200 text-right">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <span class="text-[10px] text-stone-400 font-bold uppercase tracking-wider block mb-1">COMPLETE YOUR COLLECTION</span>
+                <h3 class="text-base sm:text-lg font-extrabold text-black">عطور ومنتجات مختارة تكمل مجموعتك العطرية</h3>
+              </div>
+              <span class="text-xs text-stone-400 hidden sm:block">ترشيحات مختارة بعناية لتجربة فاخرة</span>
+            </div>
+            <div id="cart-page-recs-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+              <!-- Rendered dynamically via JS -->
+            </div>
+          </div>
         </div>
 
         <!-- LEFT: Summary Card (4 cols) -->
@@ -157,6 +171,33 @@
               <div>
                 <span class="text-xs text-stone-500 font-medium block">الإجمالي النهائي:</span>
                 <span id="page-grand-total" class="text-2xl font-extrabold text-black">0 ر.س</span>
+              </div>
+            </div>
+
+            <!-- Exclusive Checkout Order Upsell -->
+            <div id="checkout-upsell-card" class="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-right space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-extrabold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <i class="sicon-sparkles text-amber-600"></i>
+                  <span>عرض إتمام الطلب الحصري</span>
+                </span>
+                <span class="text-[9px] bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded-full">وفر 55%</span>
+              </div>
+              <div class="flex items-center gap-2.5">
+                <div class="w-12 h-12 rounded-xl bg-white p-1 border border-amber-100 shrink-0 flex items-center justify-center">
+                  <img id="upsell-img" src="/products/NOTE_For_Her_30ml_v02.webp" alt="NOTE 30ml" class="w-full h-full object-contain">
+                </div>
+                <div class="flex-grow min-w-0">
+                  <h5 id="upsell-title" class="text-xs font-bold text-black truncate">عطر نوت فور هير (30 مل)</h5>
+                  <p class="text-[10px] text-stone-500 truncate">حجم السفر المثالي للحقيبة والمكتب</p>
+                  <div class="flex items-center gap-1.5 mt-0.5">
+                    <span id="upsell-price" class="text-xs font-extrabold text-rose-600">89 ر.س</span>
+                    <span id="upsell-old-price" class="text-[10px] text-stone-400 line-through">199 ر.س</span>
+                  </div>
+                </div>
+                <button id="upsell-add-btn" class="px-2.5 py-1.5 rounded-xl bg-black hover:bg-stone-800 text-white text-[11px] font-bold transition shrink-0 shadow-sm active:scale-95">
+                  + أضف للطلب
+                </button>
               </div>
             </div>
 
@@ -217,6 +258,51 @@
       </p>
       <div class="p-3 bg-stone-50 rounded-xl text-xs font-mono font-bold text-black">
         رقم الطلب: #NOTE-2026-9814
+      </div>
+
+      <!-- VIP Gift for Next Order -->
+      <div class="p-3.5 bg-stone-50 rounded-xl border border-stone-200/80 text-right space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-black flex items-center gap-1.5">
+            <i class="sicon-gift text-emerald-600"></i>
+            <span>هدية نوت لطلبك القادم (خصم 10%)</span>
+          </span>
+          <button onclick="navigator.clipboard.writeText('NOTE-VIP10'); alert('تم نسخ كود الخصم NOTE-VIP10 بنجاح!');" class="text-[10px] font-bold text-stone-600 hover:text-black underline cursor-pointer">
+            نسخ الكود
+          </button>
+        </div>
+        <div class="p-2 bg-white rounded-lg border border-stone-200 flex items-center justify-between font-mono text-xs font-bold text-black">
+          <span>NOTE-VIP10</span>
+          <span class="text-[10px] font-sans text-emerald-600">فعّال لطلبك القادم</span>
+        </div>
+      </div>
+
+      <!-- Recommended Fragrances for Next Order -->
+      <div class="text-right pt-2 border-t border-stone-100">
+        <span class="text-[11px] font-bold text-stone-500 block mb-2">عطور استثنائية نرشحها لطلبك القادم:</span>
+        <div class="grid grid-cols-3 gap-2">
+          <a href="/product.html?id=roayal-tobacco" class="p-2 bg-stone-50 hover:bg-stone-100 rounded-xl border border-stone-100 text-center block transition group">
+            <div class="w-12 h-12 mx-auto mb-1 flex items-center justify-center">
+              <img src="/products/NOTE_Royal_Tobacco_Flat_Lay.webp" alt="رويال توباكو" class="max-h-full max-w-full object-contain group-hover:scale-105 transition">
+            </div>
+            <h6 class="text-[10px] font-bold text-black line-clamp-1">رويال توباكو</h6>
+            <span class="text-[10px] font-extrabold text-black block">229 ر.س</span>
+          </a>
+          <a href="/product.html?id=oud-rosewood" class="p-2 bg-stone-50 hover:bg-stone-100 rounded-xl border border-stone-100 text-center block transition group">
+            <div class="w-12 h-12 mx-auto mb-1 flex items-center justify-center">
+              <img src="/products/NOTE_Oud_Rosewood_Flat_Lay.webp" alt="عود روزوود" class="max-h-full max-w-full object-contain group-hover:scale-105 transition">
+            </div>
+            <h6 class="text-[10px] font-bold text-black line-clamp-1">عود روزوود</h6>
+            <span class="text-[10px] font-extrabold text-black block">189 ر.س</span>
+          </a>
+          <a href="/product.html?id=aura" class="p-2 bg-stone-50 hover:bg-stone-100 rounded-xl border border-stone-100 text-center block transition group">
+            <div class="w-12 h-12 mx-auto mb-1 flex items-center justify-center">
+              <img src="/products/NOTE_Aura_Flat_Lay.webp" alt="أورا" class="max-h-full max-w-full object-contain group-hover:scale-105 transition">
+            </div>
+            <h6 class="text-[10px] font-bold text-black line-clamp-1">أورا (Aura)</h6>
+            <span class="text-[10px] font-extrabold text-black block">179 ر.س</span>
+          </a>
+        </div>
       </div>
       <button onclick="clearAndGoHome()" class="w-full py-3 rounded-full bg-black text-white text-xs font-bold hover:bg-stone-800 transition">
         العودة للصفحة الرئيسية
@@ -306,6 +392,100 @@
 
       // Update Financials
       updateFinancials(total);
+
+      // Update Upsell and Recommendations
+      updateCheckoutUpsell(cart);
+      renderCartPageRecommendations(cart);
+    }
+
+    function updateCheckoutUpsell(cart) {
+      const upsellCard = document.getElementById('checkout-upsell-card');
+      if (!upsellCard) return;
+
+      const inCartIds = new Set(cart.map(i => i.id));
+      const upsellPool = [
+        { id: 'for-her-30ml', title: 'عطر نوت فور هير (30 مل)', price: 89, old_price: 199, img: '/products/NOTE_For_Her_30ml_v02.webp' },
+        { id: 'for-him-30ml', title: 'عطر نوت فور هِم (30 مل)', price: 89, old_price: 199, img: '/products/NOTE_For_Him_30ml_v02.webp' },
+        { id: 'powderose-30ml', title: 'عطر باودر روز (30 مل)', price: 89, old_price: 199, img: '/products/NOTE_Powderose_30ml_v01.webp' },
+        { id: 'musk-toffee-oil', title: 'تولة مسك توفي نقي', price: 69, old_price: 140, img: '/products/NOTE_Musk_Toffee_v01.webp' },
+        { id: 'all-over-royal-tobacco', title: 'معطر الجسم رويال توباكو', price: 99, old_price: 180, img: '/products/NOTE_Royal_Tobacco_All_Over_v01.webp' }
+      ];
+
+      const item = upsellPool.find(u => !inCartIds.has(u.id));
+      if (!item || cart.length === 0) {
+        upsellCard.classList.add('hidden');
+        return;
+      }
+
+      upsellCard.classList.remove('hidden');
+      document.getElementById('upsell-img').src = item.img;
+      document.getElementById('upsell-title').textContent = item.title;
+      document.getElementById('upsell-price').textContent = `${item.price} ر.س`;
+      document.getElementById('upsell-old-price').textContent = `${item.old_price} ر.س`;
+      
+      const btn = document.getElementById('upsell-add-btn');
+      btn.onclick = function() {
+        CartManager.addItem(item.id, 1);
+        renderCartPage();
+        CartManager.showToast('تمت إضافة ' + item.title + ' لطلبك بنجاح');
+      };
+    }
+
+    function renderCartPageRecommendations(cart) {
+      const recsGrid = document.getElementById('cart-page-recs-grid');
+      const recsSec = document.getElementById('cart-page-recommendations-section');
+      if (!recsGrid || !recsSec) return;
+
+      if (cart.length === 0) {
+        recsSec.classList.add('hidden');
+        return;
+      }
+      recsSec.classList.remove('hidden');
+
+      const inCartIds = new Set(cart.map(i => i.id));
+      const pool = [
+        'for-him-30ml',
+        'for-her-30ml',
+        'powderose-30ml',
+        'musk-toffee-oil',
+        'all-over-royal-tobacco',
+        'all-over-choconilla',
+        'linen-royal-tobacco',
+        'linen-oud-rosewood',
+        'roayal-tobacco',
+        'note-for-him',
+        'oud-rosewood',
+        'musk',
+        'aura'
+      ];
+
+      const recs = pool
+        .filter(id => !inCartIds.has(id))
+        .map(id => noteProductsCatalog.find(p => p.id === id))
+        .filter(Boolean)
+        .slice(0, 4);
+
+      recsGrid.innerHTML = recs.map(p => `
+        <div class="p-3 rounded-2xl bg-stone-50 border border-stone-200/70 flex flex-col justify-between text-center group hover:border-black transition">
+          <div>
+            <div class="relative aspect-square mb-2 p-2 flex items-center justify-center bg-white rounded-xl border border-stone-100 overflow-hidden">
+              <img src="${p.img}" alt="${p.title}" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+            </div>
+            <h5 class="text-xs font-bold text-black line-clamp-1 mb-1">${p.title}</h5>
+            <p class="text-[10px] text-stone-400 line-clamp-1 mb-2">${p.size || '100 مل'}</p>
+          </div>
+          <div>
+            <div class="flex items-center justify-center gap-1.5 mb-2">
+              <span class="text-xs font-extrabold text-black">${p.price} ر.س</span>
+              ${p.old_price ? `<span class="text-[10px] text-stone-400 line-through">${p.old_price} ر.س</span>` : ''}
+            </div>
+            <button onclick="CartManager.addItem('${p.id}', 1); renderCartPage();" class="w-full py-2 rounded-full bg-black hover:bg-stone-800 text-white text-[11px] font-bold transition flex items-center justify-center gap-1 active:scale-95 shadow-xs">
+              <i class="sicon-plus text-[10px]"></i>
+              <span>أضف للسلة</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
     }
 
     function updateCartItemQty(id, delta) {

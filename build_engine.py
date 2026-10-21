@@ -229,14 +229,25 @@ footer::before,
   opacity: 1 !important;
 }}
 
-/* Category Filter Pills Container - No Truncation or Clipping */
+/* Category Filter Pills Container - Sticky Responsive Smooth Scroll */
 .cat-pills-container,
 #category-pills-bar {{
   display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 8px 10px !important;
-  overflow: visible !important;
-  white-space: normal !important;
+  gap: 8px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  white-space: nowrap !important;
+  scroll-behavior: smooth !important;
+}}
+
+@media (min-width: 1024px) {{
+  .cat-pills-container,
+  #category-pills-bar {{
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+    white-space: normal !important;
+  }}
 }}
 
 .cat-pill {{
@@ -532,6 +543,8 @@ app_js_code = f"""/**
         itemsContainer.innerHTML = '';
         if (emptyState) emptyState.classList.remove('hidden');
         if (footerEl) footerEl.classList.add('hidden');
+        const recsContainer = document.getElementById('cart-drawer-recommendations');
+        if (recsContainer) recsContainer.classList.add('hidden');
         if (shippingProgress) shippingProgress.style.width = '0%';
         if (shippingText) shippingText.textContent = 'أضف منتجات بقيمة 300 ر.س لتحصل على شحن مجاني';
         return;
@@ -582,6 +595,61 @@ app_js_code = f"""/**
           </div>
         `;
       }}).join('');
+
+      // Render Drawer Recommendations
+      const recsContainer = document.getElementById('cart-drawer-recommendations');
+      const recsList = document.getElementById('cart-drawer-recs-list');
+      if (recsContainer && recsList) {{
+        const inCartIds = new Set(cart.map(i => i.id));
+        const pool = [
+          'for-him-30ml',
+          'for-her-30ml',
+          'powderose-30ml',
+          'musk-toffee-oil',
+          'all-over-royal-tobacco',
+          'all-over-choconilla',
+          'linen-royal-tobacco',
+          'linen-oud-rosewood',
+          'roayal-tobacco',
+          'note-for-him',
+          'oud-rosewood',
+          'musk'
+        ];
+        const recs = pool
+          .filter(id => !inCartIds.has(id))
+          .map(id => noteProductsCatalog.find(p => p.id === id))
+          .filter(Boolean)
+          .slice(0, 2);
+
+        if (recs.length > 0) {{
+          recsContainer.classList.remove('hidden');
+          recsList.innerHTML = recs.map(p => {{
+            const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+            return `
+              <div class="flex items-center justify-between gap-3 p-2.5 bg-white rounded-xl border border-stone-200/70 shadow-xs">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-11 h-11 rounded-lg bg-stone-50 p-1 border border-stone-100 shrink-0 flex items-center justify-center">
+                    <img src="${{imgUrl}}" alt="${{p.title}}" class="w-full h-full object-contain">
+                  </div>
+                  <div class="min-w-0">
+                    <h5 class="text-[11px] font-bold text-black truncate">${{p.title}}</h5>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                      <span class="text-xs font-extrabold text-black">${{p.price}} ر.س</span>
+                      ${{p.old_price ? `<span class="text-[10px] text-stone-400 line-through">${{p.old_price}} ر.س</span>` : ''}}
+                    </div>
+                  </div>
+                </div>
+                <button onclick="CartManager.addItem('${{p.id}}', 1)" class="px-3 py-1.5 rounded-full bg-black hover:bg-stone-800 text-white text-[10px] font-bold shrink-0 transition flex items-center gap-1 active:scale-95 shadow-xs" title="إضافة سريعة">
+                  <i class="sicon-plus text-[9px]"></i>
+                  <span>أضف</span>
+                </button>
+              </div>
+            `;
+          }}).join('');
+        }} else {{
+          recsContainer.classList.add('hidden');
+        }}
+      }}
     }}
   }};
 
@@ -1307,6 +1375,7 @@ app_js_code = f"""/**
     if (activeBtn) {{
       activeBtn.classList.add('cat-pill-active', 'bg-black', 'text-white', 'border-black');
       activeBtn.classList.remove('border-stone-200', 'text-stone-700');
+      activeBtn.scrollIntoView({{ behavior: 'smooth', inline: 'center', block: 'nearest' }});
     }}
 
     // Update Header Text
@@ -1322,7 +1391,23 @@ app_js_code = f"""/**
 
   function handleCategorySearch(val) {{
     categorySearchQuery = (val || '').trim().toLowerCase();
+    const clearBtn = document.getElementById('cat-search-clear');
+    if (clearBtn) {{
+      if (categorySearchQuery.length > 0) clearBtn.classList.remove('hidden');
+      else clearBtn.classList.add('hidden');
+    }}
     renderCatalog();
+  }}
+
+  function clearCatSearch() {{
+    const inp = document.getElementById('cat-search-input');
+    if (inp) {{
+      inp.value = '';
+      handleCategorySearch('');
+      inp.focus();
+    }}
+    const clearBtn = document.getElementById('cat-search-clear');
+    if (clearBtn) clearBtn.classList.add('hidden');
   }}
 
   function handleCategorySort(val) {{
@@ -1507,6 +1592,109 @@ app_js_code = f"""/**
     }}).join('');
 
     updateCartFinancials(total);
+    updateCheckoutUpsell(cart);
+    renderCartPageRecommendations(cart);
+  }}
+
+  function updateCheckoutUpsell(cart) {{
+    const upsellCard = document.getElementById('checkout-upsell-card');
+    if (!upsellCard) return;
+
+    const inCartIds = new Set(cart.map(i => i.id));
+    const upsellPool = [
+      {{ id: 'for-her-30ml', title: 'عطر نوت فور هير (30 مل)', price: 89, old_price: 199, img: '/products/NOTE_For_Her_30ml_v02.webp' }},
+      {{ id: 'for-him-30ml', title: 'عطر نوت فور هِم (30 مل)', price: 89, old_price: 199, img: '/products/NOTE_For_Him_30ml_v02.webp' }},
+      {{ id: 'powderose-30ml', title: 'عطر باودر روز (30 مل)', price: 89, old_price: 199, img: '/products/NOTE_Powderose_30ml_v01.webp' }},
+      {{ id: 'musk-toffee-oil', title: 'تولة مسك توفي نقي', price: 69, old_price: 140, img: '/products/NOTE_Musk_Toffee_v01.webp' }},
+      {{ id: 'all-over-royal-tobacco', title: 'معطر الجسم رويال توباكو', price: 99, old_price: 180, img: '/products/NOTE_Royal_Tobacco_All_Over_v01.webp' }}
+    ];
+
+    const item = upsellPool.find(u => !inCartIds.has(u.id));
+    if (!item || cart.length === 0) {{
+      upsellCard.classList.add('hidden');
+      return;
+    }}
+
+    upsellCard.classList.remove('hidden');
+    const imgUrl = (item.img.startsWith('http') ? '' : ASSET_HOST) + item.img;
+    const imgEl = document.getElementById('upsell-img');
+    if (imgEl) imgEl.src = imgUrl;
+    const titleEl = document.getElementById('upsell-title');
+    if (titleEl) titleEl.textContent = item.title;
+    const priceEl = document.getElementById('upsell-price');
+    if (priceEl) priceEl.textContent = `${{item.price}} ر.س`;
+    const oldPriceEl = document.getElementById('upsell-old-price');
+    if (oldPriceEl) oldPriceEl.textContent = `${{item.old_price}} ر.س`;
+    
+    const btn = document.getElementById('upsell-add-btn');
+    if (btn) {{
+      btn.onclick = function() {{
+        CartManager.addItem(item.id, 1);
+        renderCartPage();
+        CartManager.showToast('تمت إضافة ' + item.title + ' لطلبك بنجاح');
+      }};
+    }}
+  }}
+
+  function renderCartPageRecommendations(cart) {{
+    const recsGrid = document.getElementById('cart-page-recs-grid');
+    const recsSec = document.getElementById('cart-page-recommendations-section');
+    if (!recsGrid || !recsSec) return;
+
+    if (cart.length === 0) {{
+      recsSec.classList.add('hidden');
+      return;
+    }}
+    recsSec.classList.remove('hidden');
+
+    const inCartIds = new Set(cart.map(i => i.id));
+    const pool = [
+      'for-him-30ml',
+      'for-her-30ml',
+      'powderose-30ml',
+      'musk-toffee-oil',
+      'all-over-royal-tobacco',
+      'all-over-choconilla',
+      'linen-royal-tobacco',
+      'linen-oud-rosewood',
+      'roayal-tobacco',
+      'note-for-him',
+      'oud-rosewood',
+      'musk',
+      'aura'
+    ];
+
+    const recs = pool
+      .filter(id => !inCartIds.has(id))
+      .map(id => noteProductsCatalog.find(p => p.id === id))
+      .filter(Boolean)
+      .slice(0, 4);
+
+    recsGrid.innerHTML = recs.map(p => {{
+      const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+      const zidSlug = zidSlugMap[p.id] || p.id;
+      return `
+        <div class="p-3 rounded-2xl bg-stone-50 border border-stone-200/70 flex flex-col justify-between text-center group hover:border-black transition">
+          <div>
+            <div class="relative aspect-square mb-2 p-2 flex items-center justify-center bg-white rounded-xl border border-stone-100 overflow-hidden cursor-pointer" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
+              <img src="${{imgUrl}}" alt="${{p.title}}" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+            </div>
+            <h5 class="text-xs font-bold text-black line-clamp-1 mb-1 cursor-pointer hover:underline" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">${{p.title}}</h5>
+            <p class="text-[10px] text-stone-400 line-clamp-1 mb-2">${{p.size || '100 مل'}}</p>
+          </div>
+          <div>
+            <div class="flex items-center justify-center gap-1.5 mb-2">
+              <span class="text-xs font-extrabold text-black">${{p.price}} ر.س</span>
+              ${{p.old_price ? `<span class="text-[10px] text-stone-400 line-through">${{p.old_price}} ر.س</span>` : ''}}
+            </div>
+            <button onclick="CartManager.addItem('${{p.id}}', 1); renderCartPage();" class="w-full py-2 rounded-full bg-black hover:bg-stone-800 text-white text-[11px] font-bold transition flex items-center justify-center gap-1 active:scale-95 shadow-xs">
+              <i class="sicon-plus text-[10px]"></i>
+              <span>أضف للسلة</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }}).join('');
   }}
 
   function applyCartCoupon() {{
@@ -1969,6 +2157,7 @@ app_js_code = f"""/**
   window.handleSearch = handleCategorySearch;
   window.handleSort = handleCategorySort;
   window.resetFilters = resetCategoryFilters;
+  window.clearCatSearch = clearCatSearch;
   window.focusSearchInput = function() {{
     const el = document.getElementById('cat-search-input');
     if (el) el.focus();
