@@ -47,6 +47,8 @@ shared_modals_html = quickview_match.group(1).strip() if quickview_match else ""
 
 drawer_match = re.search(r'(<!-- ================= UNIVERSAL SLIDE-OUT CART DRAWER.*?)(<script src="/products-data\.js)', index_html, re.DOTALL)
 cart_drawer_html = drawer_match.group(1).strip() if drawer_match else ""
+cart_drawer_html = cart_drawer_html.replace('<div class="px-5 py-3 bg-stone-50 border-b border-stone-100">', '<div hidden class="px-5 py-3 bg-stone-50 border-b border-stone-100">')
+cart_drawer_html = re.sub(r'<div([^>]*id="cart-free-shipping[^>]*)(>)', r'<div hidden \1\2', cart_drawer_html)
 
 # 3. Extract Main Bodies from Subpages
 def get_main_body(html_str):
@@ -60,6 +62,12 @@ def get_main_body(html_str):
 product_template = get_main_body(product_html)
 category_template = get_main_body(category_html)
 cart_template = get_main_body(cart_html)
+# Zid checkout is authoritative for shipping, coupons and the final payable total.
+cart_template = re.sub(r'<!-- Coupon Input -->.*?<!-- Price Breakdown -->', '<p class="text-xs text-stone-600">يمكنك إدخال كوبون الخصم في صفحة الدفع الآمنة. يتم التحقق منه واحتساب الخصم بواسطة زد.</p><!-- Price Breakdown -->', cart_template, flags=re.S)
+cart_template = cart_template.replace('الإجمالي النهائي:', 'إجمالي المنتجات قبل الشحن والخصومات:')
+cart_template = cart_template.replace('خصم الكوبون (10%):', 'خصم الكوبون:')
+cart_template = re.sub(r'<!-- Free Shipping Meter -->.*?(?=<div class="grid grid-cols-1 lg:grid-cols-12)', '', cart_template, flags=re.S)
+
 faqs_template = get_main_body(faqs_html)
 contact_template = get_main_body(contact_html)
 privacy_template = get_main_body(privacy_html)
@@ -2509,50 +2517,19 @@ app_js_code = f"""/**
   }}
 
   function applyCartCoupon() {{
-    const inp = document.getElementById('coupon-code-input');
-    const msg = document.getElementById('coupon-msg');
-    if (!inp || !msg) return;
-    const code = inp.value.trim().toUpperCase();
-    if (code === 'NOTE10' || code === 'GOLD' || code === 'NOTE2026') {{
-      cartDiscountRate = 0.10;
-      msg.textContent = 'تم تطبيق خصم 10% بنجاح!';
-      msg.className = 'text-[11px] font-bold text-emerald-600 block';
-    }} else {{
-      cartDiscountRate = 0;
-      msg.textContent = 'رمز الكوبون غير صالح أو منتهي الصلاحية';
-      msg.className = 'text-[11px] font-bold text-rose-600 block';
-    }}
-    updateCartFinancials(CartManager.getTotal());
+    const msg=document.getElementById('coupon-msg');
+    if(msg) {{msg.textContent='يمكنك إدخال كوبون الخصم والتحقق منه في صفحة الدفع الآمنة.';msg.classList.remove('hidden');}}
   }}
 
   function updateCartFinancials(subtotal) {{
-    const subtotalEl = document.getElementById('page-subtotal');
-    const discountRow = document.getElementById('discount-row');
-    const discountEl = document.getElementById('page-discount');
-    const shippingEl = document.getElementById('page-shipping');
-    const grandTotalEl = document.getElementById('page-grand-total');
-
-    if (subtotalEl) subtotalEl.textContent = `${{subtotal}} ر.س`;
-
-    let discountAmount = 0;
-    if (cartDiscountRate > 0) {{
-      discountAmount = Math.round(subtotal * cartDiscountRate);
-      if (discountRow) discountRow.classList.remove('hidden');
-      if (discountEl) discountEl.textContent = `- ${{discountAmount}} ر.س`;
-    }} else {{
-      if (discountRow) discountRow.classList.add('hidden');
+    const amount=Number.isFinite(Number(subtotal)) ? Number(subtotal) : 0;
+    for(const id of ['page-subtotal','page-grand-total']) {{
+      const el=document.getElementById(id);
+      if(el) el.textContent=amount.toLocaleString('ar-SA',{{maximumFractionDigits:2}})+' ر.س';
     }}
-
-    let shippingCost = 0;
-    if (subtotal < 300 && subtotal > 0) {{
-      shippingCost = 25;
-      if (shippingEl) shippingEl.textContent = '25 ر.س';
-    }} else {{
-      if (shippingEl) shippingEl.textContent = 'مجاني';
-    }}
-
-    const grandTotal = Math.max(0, subtotal - discountAmount + shippingCost);
-    if (grandTotalEl) grandTotalEl.textContent = `${{grandTotal}} ر.س`;
+    document.getElementById('discount-row')?.classList.add('hidden');
+    const shipping=document.getElementById('page-shipping');
+    if(shipping) shipping.textContent='يُحسب عند الدفع';
   }}
 
   async function proceedToCheckout() {{
