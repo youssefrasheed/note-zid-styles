@@ -256,6 +256,77 @@ header nav a.active-link {
     margin-bottom: 0 !important;
   }
 }
+
+/* ==========================================================================
+   NOTE PERFUMES - LUXURY INITIAL SPLASH & SYNC LOADER
+   ========================================================================== */
+#loader-container {
+  display: none !important;
+}
+
+#note-luxury-splash {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  background-color: #000000 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 1 !important;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.45s !important;
+}
+
+#note-luxury-splash.splash-dismissed {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+@keyframes noteSplashPulse {
+  0%, 100% {
+    opacity: 0.75;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes noteSplashBar {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(30%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.note-splash-logo {
+  animation: noteSplashPulse 1.6s ease-in-out infinite !important;
+}
+
+.note-splash-progress {
+  width: 50px !important;
+  height: 2px !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+  position: relative !important;
+  margin-top: 22px !important;
+}
+
+.note-splash-progress-bar {
+  width: 100% !important;
+  height: 100% !important;
+  background: #ffffff !important;
+  border-radius: 999px !important;
+  animation: noteSplashBar 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+}
 `;
     document.head.appendChild(s);
   }
@@ -1665,6 +1736,226 @@ header nav a.active-link {
     "base": "المسك وخشب الصندل"
   }];
 
+  // Official Zid Product UUID Mapping (All 39 Storefront Items)
+  const ZID_PRODUCT_MAP = {
+    'roayal-tobacco': '764d587d-7cba-46b3-8d34-265ee4bc4b6a',
+    'royal-tobacco': '764d587d-7cba-46b3-8d34-265ee4bc4b6a',
+    'oud-rosewood': '7a28376c-3973-4822-b6b2-b3a6a4e7013e',
+    'musk': '9ba63129-20bc-4a0f-b49f-17d06e130ad9',
+    'note-musk': '9ba63129-20bc-4a0f-b49f-17d06e130ad9',
+    'مسك': '9ba63129-20bc-4a0f-b49f-17d06e130ad9',
+    'aura': '54805f9b-53c4-4e4c-a75a-5173eda716c8',
+    'bn': '9be5ff2f-3d33-4402-b511-e099805c681d',
+    'powderose': 'b99d66f3-c201-4de6-af2d-4e991f483a6b',
+    'note-gold': '5d98daa5-1b6b-4196-a0d8-f51631cb1f51',
+    'نوت-قولد-الطلب-المسبق': '5d98daa5-1b6b-4196-a0d8-f51631cb1f51',
+    'musk-bukhor': '4251cc74-23ba-45b0-9268-03b740df88bd',
+    'مسك-بخور': '4251cc74-23ba-45b0-9268-03b740df88bd',
+    'note-phantom': '08874f48-8caf-441f-876b-de578508105a',
+    'note-for-him': 'cc5e1bb2-bebc-4ef7-9e1b-af52362bc852',
+    'note-for-her': '21b12ed7-3415-44d5-b135-4782b295d4b7',
+    'for-her': '21b12ed7-3415-44d5-b135-4782b295d4b7',
+    'royal-powder': '1c6e8d65-9c1e-42d8-a9c3-265e7daa1a81',
+    'رويال-باودر': '1c6e8d65-9c1e-42d8-a9c3-265e7daa1a81',
+    'attraction': 'fe61d38b-6088-46d8-a88c-f44e64e5991a',
+    'niche-oud': '809c89af-6e6f-44fa-99a2-ac1f13418e0a',
+    'niche-royal-leather': '620ef67b-39ba-41f0-a4f2-f9ce56cf3b1c',
+    'niche-blue': 'c6380d1f-f89b-4914-a194-3d82f56af915',
+    'niche-amber': '8c331e9f-18cf-46d8-81e1-94a80ed45224',
+    'choconilla': '7a9286bf-4d38-447a-9b9f-fcd006e35e9b',
+    'all-over-choconilla': '7a9286bf-4d38-447a-9b9f-fcd006e35e9b',
+    'bahr': '7de839f3-86a9-4fac-ba15-fad102696e73',
+    'بحر': '7de839f3-86a9-4fac-ba15-fad102696e73',
+    'all-over-bahr': '7de839f3-86a9-4fac-ba15-fad102696e73',
+    'asal': 'fe2daa2f-28ca-4342-8c7e-2b8e8dbbc95a',
+    'عسل': 'fe2daa2f-28ca-4342-8c7e-2b8e8dbbc95a',
+    'بحر-1': 'fe2daa2f-28ca-4342-8c7e-2b8e8dbbc95a',
+    'all-over-asal': 'fe2daa2f-28ca-4342-8c7e-2b8e8dbbc95a',
+    'powderose-all-over-soray': '8bdd1101-df55-4f0e-8645-f6c669932b69',
+    'all-over-powderose': '8bdd1101-df55-4f0e-8645-f6c669932b69',
+    'powderose-spray': '8bdd1101-df55-4f0e-8645-f6c669932b69',
+    'all-over-spray-tuffi': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
+    'all-over-note-tuffi': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
+    'عطر-نوت-توفي': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
+    'tuffi-spray': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
+    'all-over-spray-royal-tobacco': '5d373011-9e95-472c-bec6-51fd8ed457dc',
+    'all-over-royal-tobacco': '5d373011-9e95-472c-bec6-51fd8ed457dc',
+    'royal-tobacco-spray': '5d373011-9e95-472c-bec6-51fd8ed457dc',
+    'baby-for-him': 'b842b800-4943-437a-914c-5150b2b7e119',
+    'for-him-30ml': 'b842b800-4943-437a-914c-5150b2b7e119',
+    'baby-for-her': 'b6a05619-9007-4453-9c5b-f53b56f37613',
+    'for-her-30ml': 'b6a05619-9007-4453-9c5b-f53b56f37613',
+    'baby-powderose': 'a8b86b67-4c55-447a-8645-83bdd50ded3b',
+    'powderose-30ml': 'a8b86b67-4c55-447a-8645-83bdd50ded3b',
+    'baby-royal-tobacco': '8f727798-26e3-44ac-af64-473b55971ad3',
+    'royal-tobacco-30ml': '8f727798-26e3-44ac-af64-473b55971ad3',
+    'baby-oud-rosewood': 'ad7d2b47-8ca2-447a-8d9e-ab32bf379425',
+    'oud-rosewood-30ml': 'ad7d2b47-8ca2-447a-8d9e-ab32bf379425',
+    'tollah-musk-tuffi': '95f09483-d32f-44f5-a91d-16fb85567e65',
+    'note-toffe': '95f09483-d32f-44f5-a91d-16fb85567e65',
+    'musk-toffee-oil': '95f09483-d32f-44f5-a91d-16fb85567e65',
+    'tollah-sugar-oud': 'dcea75e0-ac06-424d-a0ac-0bd94848b9c6',
+    'sugar-oud': 'dcea75e0-ac06-424d-a0ac-0bd94848b9c6',
+    'tollah-lady-rose': '0dda8a6b-c912-4d29-8f97-cf4cfe072409',
+    'lady-rose': '0dda8a6b-c912-4d29-8f97-cf4cfe072409',
+    'tollah-amber-musk': 'f0206dc9-332b-44e1-b05e-827ffa61ba40',
+    'amber-musk-oil': 'f0206dc9-332b-44e1-b05e-827ffa61ba40',
+    'tollah-pure-tuffi': '1f091171-fc32-4414-b1fc-35694f8008f3',
+    'pure-tuffi': '1f091171-fc32-4414-b1fc-35694f8008f3',
+    'معطر-الجو-و-المفارش-رويال-توباكو': 'd9779e9f-411a-43c7-8142-09e882baacee',
+    'linen-royal-tobacco': 'd9779e9f-411a-43c7-8142-09e882baacee',
+    'معطر-الجو-و-المفارش-باودر-روز': '3bc8e5e4-a805-40f7-9bb1-fb0038fb3c37',
+    'linen-powderose': '3bc8e5e4-a805-40f7-9bb1-fb0038fb3c37',
+    'معطر-الجو-و-المفارش-عود-روز-وود': '8a62dee7-ea33-4c54-a39a-ca25096701b9',
+    'linen-oud-rosewood': '8a62dee7-ea33-4c54-a39a-ca25096701b9',
+    'مجموعة-معطرات-الجو-و-المفارش': '83561f07-7f51-43a4-a632-2030d6b71bc1',
+    'pkg-linen-collection': '83561f07-7f51-43a4-a632-2030d6b71bc1',
+    'linen-collection': '83561f07-7f51-43a4-a632-2030d6b71bc1',
+    'مرطب-و-شور-جل': '0fc4a4f6-5c93-41a4-b727-d950bfcb6e30',
+    'shower-gel': '0fc4a4f6-5c93-41a4-b727-d950bfcb6e30',
+    'hyaluronic-moisturizer': '0fc4a4f6-5c93-41a4-b727-d950bfcb6e30',
+    '3-معطر-للجسم-بالكامل': '4e22b431-43a0-4cd8-9e45-f6a671f2620c',
+    'pkg-all-over-collection': '4e22b431-43a0-4cd8-9e45-f6a671f2620c'
+  };
+
+  // 5.1 Zid Live Sync Manager (Fail-Safe Stale-While-Revalidate Engine)
+  const ZidSyncManager = {
+    CACHE_KEY: 'note_zid_catalog_v5',
+    CACHE_TIME_KEY: 'note_zid_catalog_time_v5',
+    TTL_MS: 5 * 60 * 1000,
+
+    loadCachedData: function() {
+      try {
+        const cached = localStorage.getItem(this.CACHE_KEY);
+        if (cached) {
+          const items = JSON.parse(cached);
+          if (Array.isArray(items) && items.length > 0) {
+            this.applyToCatalog(items);
+            return true;
+          }
+        }
+      } catch (e) {}
+      return false;
+    },
+
+    fetchLiveCatalog: async function(timeoutMs = 750) {
+      try {
+        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        let timer = null;
+        if (controller) {
+          timer = setTimeout(() => controller.abort(), timeoutMs);
+        }
+
+        const res = await fetch('/api/v1/products?page_size=100', {
+          signal: controller ? controller.signal : undefined,
+          headers: { 'Accept': 'application/json' }
+        });
+        if (timer) clearTimeout(timer);
+
+        if (!res.ok) return null;
+        const data = await res.json();
+        const results = data.results || [];
+        if (results.length > 0) {
+          try {
+            localStorage.setItem(this.CACHE_KEY, JSON.stringify(results));
+            localStorage.setItem(this.CACHE_TIME_KEY, Date.now().toString());
+          } catch(e) {}
+          this.applyToCatalog(results);
+          return results;
+        }
+      } catch (err) {
+        // Fail-safe silent catch
+      }
+      return null;
+    },
+
+    applyToCatalog: function(zidResults) {
+      if (!Array.isArray(zidResults)) return;
+
+      zidResults.forEach(zp => {
+        const zId = zp.id;
+        const zSlug = (zp.slug || '').toLowerCase();
+        const zName = (zp.name || '').trim();
+        const zPrice = zp.sale_price || zp.price;
+        const zOldPrice = zp.sale_price ? zp.price : null;
+        const inStock = zp.in_stock !== false && (zp.is_infinite || zp.quantity > 0);
+
+        let matched = null;
+
+        // 1. Match by ZID_PRODUCT_MAP
+        for (const localKey in ZID_PRODUCT_MAP) {
+          if (ZID_PRODUCT_MAP[localKey] === zId) {
+            matched = noteProductsCatalog.find(p => p.id.toLowerCase() === localKey.toLowerCase());
+            if (matched) break;
+          }
+        }
+
+        // 2. Match by zidSlugMap
+        if (!matched && typeof zidSlugMap !== 'undefined') {
+          for (const localKey in zidSlugMap) {
+            if (zidSlugMap[localKey].toLowerCase() === zSlug) {
+              matched = noteProductsCatalog.find(p => p.id.toLowerCase() === localKey.toLowerCase());
+              if (matched) break;
+            }
+          }
+        }
+
+        // 3. Match by direct slug or ID
+        if (!matched) {
+          matched = noteProductsCatalog.find(p => {
+            const pid = p.id.toLowerCase();
+            return pid === zSlug || zSlug.includes(pid) || pid.includes(zSlug);
+          });
+        }
+
+        // 4. Match by title
+        if (!matched) {
+          const cleanZName = zName.replace('عطر ', '').trim().toLowerCase();
+          matched = noteProductsCatalog.find(p => {
+            const cleanTitle = (p.title || '').replace('عطر ', '').trim().toLowerCase();
+            return cleanTitle === cleanZName || (p.title_en && p.title_en.toLowerCase() === zName.toLowerCase());
+          });
+        }
+
+        if (matched) {
+          if (zPrice && !isNaN(zPrice)) {
+            matched.price = Math.round(Number(zPrice));
+          }
+          if (zOldPrice && !isNaN(zOldPrice)) {
+            matched.old_price = Math.round(Number(zOldPrice));
+            const disc = Math.round(((zOldPrice - zPrice) / zOldPrice) * 100);
+            matched.discount = disc + '%';
+          } else if (!zp.sale_price) {
+            matched.old_price = null;
+            matched.discount = null;
+          }
+          matched.in_stock = inStock;
+
+          // If the title changed in Zid Dashboard, keep title updated
+          if (zName && !zName.includes('BABY') && !zName.includes('All OVER') && !zName.includes('Tollah')) {
+            matched.zid_title = zName;
+          }
+        }
+      });
+
+      // Synchronize bestsellers list (productsData)
+      if (typeof productsData !== 'undefined' && Array.isArray(productsData)) {
+        productsData.forEach(bp => {
+          const full = noteProductsCatalog.find(p => p.id === bp.id);
+          if (full) {
+            bp.price = full.price;
+            bp.old_price = full.old_price;
+            bp.discount = full.discount;
+            bp.in_stock = full.in_stock;
+          }
+        });
+      }
+    }
+  };
+
+  // Load existing cached prices immediately (0ms)
+  ZidSyncManager.loadCachedData();
+
   // 6. Templates
   const T = {
     header: "<!-- ================= 1. HEADER / NAVIGATION (100% LAVERNE ARCHITECTURE) ================= -->\n  <!-- Starts 100% transparent with white text, transforms into frosted blur (backdrop-blur-xl bg-white/70 text-black) on scroll -->\n  <header id=\"site-header\" class=\"fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 bg-transparent text-white border-b border-white/10\">\n    <div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-24 flex items-center justify-between transition-all duration-300\">\n      \n      <!-- Right: Mobile Menu + Logo -->\n      <div class=\"flex items-center gap-4 shrink-0\">\n        <button id=\"mobile-menu-btn\" onclick=\"openMobileMenu()\" class=\"lg:hidden p-2 text-inherit hover:opacity-75 transition\" aria-label=\"القائمة\">\n          <i class=\"sicon-menu text-xl\"></i>\n        </button>\n        <a href=\"/\" class=\"block group py-1\">\n          <img id=\"store-logo\" src=\"https://youssefrasheed.github.io/note-zid-styles/logo_white_crisp.png\" alt=\"NOTE Perfumes\" class=\"h-8 sm:h-9 lg:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105\">\n        </a>\n      </div>\n\n      <!-- Center: Clean Minimalist Nav Links -->\n      <nav id=\"nav-links\" class=\"hidden lg:flex items-center justify-center gap-7 text-sm font-semibold whitespace-nowrap text-inherit transition-colors\">\n\n        <a href=\"/\" class=\"hover:opacity-70 transition pb-0.5 border-b-2 border-current\">الرئيسية</a>\n        <a href=\"/categories\" class=\"hover:opacity-70 transition pb-0.5\">جميع المنتجات</a>\n        <a href=\"/categories/1748533/perfumes\" class=\"hover:opacity-70 transition pb-0.5\">العطور</a>\n        <a href=\"/categories/1500261/عطور-النيش\" class=\"hover:opacity-70 transition pb-0.5\">عطور النيش</a>\n        <a href=\"/categories/1697258/الأكثر-مبيعا\" class=\"hover:opacity-70 transition pb-0.5\">الأكثر مبيعاً</a>\n        <a href=\"/categories/1327929/newest-products\" class=\"hover:opacity-70 transition pb-0.5\">أحدث المنتجات</a>\n      \n      </nav>\n\n      <!-- Left: Search, User, Cart, Language -->\n      <div id=\"header-actions\" class=\"flex items-center justify-end gap-3 sm:gap-4 text-inherit transition-colors\">\n        <!-- Search -->\n        <button onclick=\"openSearchModal()\" class=\"w-9 h-9 flex items-center justify-center hover:opacity-75 transition\" title=\"البحث\" aria-label=\"البحث\">\n          <i class=\"sicon-search text-lg\"></i>\n        </button>\n\n        <!-- User Profile -->\n        <a href=\"/faqs.html\" class=\"w-9 h-9 flex items-center justify-center hover:opacity-75 transition\" title=\"الأسئلة الشائعة\">\n          <i class=\"sicon-user text-lg\"></i>\n        </a>\n\n        <!-- Cart with badge -->\n        <button onclick=\"CartManager.openDrawer()\" class=\"relative w-9 h-9 flex items-center justify-center hover:opacity-75 transition\" title=\"سلة المشتريات\" aria-label=\"السلة\">\n          <i class=\"sicon-shopping-bag text-xl\"></i>\n          <span id=\"cart-counter-badge\" class=\"absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-black text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-md\">0</span>\n        </button>\n\n        <!-- Language Switcher -->\n        <div class=\"hidden sm:flex items-center gap-1 text-xs font-bold border-r border-current/30 pr-3 mr-1\">\n          <span>العربية</span>\n          <i class=\"sicon-keyboard_arrow_down text-[10px] opacity-75\"></i>\n        </div>\n      </div>\n\n    </div>\n  </header>",
@@ -3026,75 +3317,6 @@ header nav a.active-link {
     if (grandTotalEl) grandTotalEl.textContent = `${grandTotal} ر.س`;
   }
 
-  const ZID_PRODUCT_MAP = {
-    'roayal-tobacco': '764d587d-7cba-46b3-8d34-265ee4bc4b6a',
-    'royal-tobacco': '764d587d-7cba-46b3-8d34-265ee4bc4b6a',
-    'oud-rosewood': '7a28376c-3973-4822-b6b2-b3a6a4e7013e',
-    'musk': '9ba63129-20bc-4a0f-b49f-17d06e130ad9',
-    'note-musk': '9ba63129-20bc-4a0f-b49f-17d06e130ad9',
-    'مسك': '9ba63129-20bc-4a0f-b49f-17d06e130ad9',
-    'aura': '54805f9b-53c4-4e4c-a75a-5173eda716c8',
-    'bn': '9be5ff2f-3d33-4402-b511-e099805c681d',
-    'powderose': 'b99d66f3-c201-4de6-af2d-4e991f483a6b',
-    'note-gold': '5d98daa5-1b6b-4196-a0d8-f51631cb1f51',
-    'نوت-قولد-الطلب-المسبق': '5d98daa5-1b6b-4196-a0d8-f51631cb1f51',
-    'musk-bukhor': '4251cc74-23ba-45b0-9268-03b740df88bd',
-    'مسك-بخور': '4251cc74-23ba-45b0-9268-03b740df88bd',
-    'note-phantom': '08874f48-8caf-441f-876b-de578508105a',
-    'note-for-him': 'cc5e1bb2-bebc-4ef7-9e1b-af52362bc852',
-    'note-for-her': '21b12ed7-3415-44d5-b135-4782b295d4b7',
-    'royal-powder': '1c6e8d65-9c1e-42d8-a9c3-265e7daa1a81',
-    'رويال-باودر': '1c6e8d65-9c1e-42d8-a9c3-265e7daa1a81',
-    'attraction': 'fe61d38b-6088-46d8-a88c-f44e64e5991a',
-    'niche-oud': '809c89af-6e6f-44fa-99a2-ac1f13418e0a',
-    'niche-royal-leather': '620ef67b-39ba-41f0-a4f2-f9ce56cf3b1c',
-    'niche-blue': 'c6380d1f-f89b-4914-a194-3d82f56af915',
-    'niche-amber': '8c331e9f-18cf-46d8-81e1-94a80ed45224',
-    'choconilla': '7a9286bf-4d38-447a-9b9f-fcd006e35e9b',
-    'bahr': '7de839f3-86a9-4fac-ba15-fad102696e73',
-    'بحر': '7de839f3-86a9-4fac-ba15-fad102696e73',
-    'asal': 'fe2daa2f-28ca-4342-8c7e-2b8e8dbbc95a',
-    'عسل': 'fe2daa2f-28ca-4342-8c7e-2b8e8dbbc95a',
-    'بحر-1': 'fe2daa2f-28ca-4342-8c7e-2b8e8dbbc95a',
-    'powderose-all-over-soray': '8bdd1101-df55-4f0e-8645-f6c669932b69',
-    'all-over-powderose': '8bdd1101-df55-4f0e-8645-f6c669932b69',
-    'powderose-spray': '8bdd1101-df55-4f0e-8645-f6c669932b69',
-    'all-over-spray-tuffi': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
-    'عطر-نوت-توفي': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
-    'tuffi-spray': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
-    'all-over-spray-royal-tobacco': '5d373011-9e95-472c-bec6-51fd8ed457dc',
-    'royal-tobacco-spray': '5d373011-9e95-472c-bec6-51fd8ed457dc',
-    'baby-for-him': 'b842b800-4943-437a-914c-5150b2b7e119',
-    'baby-for-her': 'b6a05619-9007-4453-9c5b-f53b56f37613',
-    'baby-powderose': 'a8b86b67-4c55-447a-8645-83bdd50ded3b',
-    'baby-royal-tobacco': '8f727798-26e3-44ac-af64-473b55971ad3',
-    'baby-oud-rosewood': 'ad7d2b47-8ca2-447a-8d9e-ab32bf379425',
-    'tollah-musk-tuffi': '95f09483-d32f-44f5-a91d-16fb85567e65',
-    'note-toffe': '95f09483-d32f-44f5-a91d-16fb85567e65',
-    'musk-toffee-oil': '95f09483-d32f-44f5-a91d-16fb85567e65',
-    'tollah-sugar-oud': 'dcea75e0-ac06-424d-a0ac-0bd94848b9c6',
-    'sugar-oud': 'dcea75e0-ac06-424d-a0ac-0bd94848b9c6',
-    'tollah-lady-rose': '0dda8a6b-c912-4d29-8f97-cf4cfe072409',
-    'lady-rose': '0dda8a6b-c912-4d29-8f97-cf4cfe072409',
-    'tollah-amber-musk': 'f0206dc9-332b-44e1-b05e-827ffa61ba40',
-    'amber-musk-oil': 'f0206dc9-332b-44e1-b05e-827ffa61ba40',
-    'tollah-pure-tuffi': '1f091171-fc32-4414-b1fc-35694f8008f3',
-    'pure-tuffi': '1f091171-fc32-4414-b1fc-35694f8008f3',
-    'معطر-الجو-و-المفارش-رويال-توباكو': 'd9779e9f-411a-43c7-8142-09e882baacee',
-    'linen-royal-tobacco': 'd9779e9f-411a-43c7-8142-09e882baacee',
-    'معطر-الجو-و-المفارش-باودر-روز': '3bc8e5e4-a805-40f7-9bb1-fb0038fb3c37',
-    'linen-powderose': '3bc8e5e4-a805-40f7-9bb1-fb0038fb3c37',
-    'معطر-الجو-و-المفارش-عود-روز-وود': '8a62dee7-ea33-4c54-a39a-ca25096701b9',
-    'linen-oud-rosewood': '8a62dee7-ea33-4c54-a39a-ca25096701b9',
-    'مجموعة-معطرات-الجو-و-المفارش': '83561f07-7f51-43a4-a632-2030d6b71bc1',
-    'linen-collection': '83561f07-7f51-43a4-a632-2030d6b71bc1',
-    'مرطب-و-شور-جل': '0fc4a4f6-5c93-41a4-b727-d950bfcb6e30',
-    'shower-gel': '0fc4a4f6-5c93-41a4-b727-d950bfcb6e30',
-    'hyaluronic-moisturizer': '0fc4a4f6-5c93-41a4-b727-d950bfcb6e30',
-    '3-معطر-للجسم-بالكامل': '4e22b431-43a0-4cd8-9e45-f6a671f2620c',
-    'pkg-all-over-collection': '4e22b431-43a0-4cd8-9e45-f6a671f2620c'
-  };
-
   async function proceedToCheckout() {
     const cart = CartManager.getCart();
     if (!cart || cart.length === 0) {
@@ -3311,8 +3533,18 @@ header nav a.active-link {
     });
   }
 
+  // 19.5 Luxury Splash Dismissal
+  function dismissSplashScreen() {
+    const splash = document.getElementById('note-luxury-splash');
+    if (!splash) return;
+    splash.classList.add('splash-dismissed');
+    setTimeout(() => {
+      try { splash.remove(); } catch(e) {}
+    }, 450);
+  }
+
   // 20. Shell Mounter
-  function mountShell() {
+  async function mountShell() {
     const mainEl = document.querySelector('.tp-home') || 
                    document.querySelector('.main.app-content') || 
                    document.querySelector('.app-content') || 
@@ -3324,10 +3556,38 @@ header nav a.active-link {
       return;
     }
 
-    // Remove Rozia footers, headers and native sections
-    document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer').forEach(el => {
+    // Ensure luxury splash screen is present
+    let splash = document.getElementById('note-luxury-splash');
+    if (!splash) {
+      splash = document.createElement('div');
+      splash.id = 'note-luxury-splash';
+      splash.innerHTML = `
+        <div class="flex flex-col items-center justify-center text-center">
+          <img src="${ASSET_HOST}/logo_white_crisp.png" alt="NOTE Perfumes" class="h-8 sm:h-10 w-auto object-contain note-splash-logo">
+          <div class="note-splash-progress">
+            <div class="note-splash-progress-bar"></div>
+          </div>
+        </div>
+      `;
+      (document.body || document.documentElement).appendChild(splash);
+    }
+
+    // Remove Rozia footers, headers and native sections & native loader
+    document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer, #loader-container').forEach(el => {
       el.remove();
     });
+
+    // Live Sync with Zid: check cache freshness
+    const lastSync = parseInt(localStorage.getItem(ZidSyncManager.CACHE_TIME_KEY) || '0', 10);
+    const isCacheFresh = (Date.now() - lastSync) < ZidSyncManager.TTL_MS;
+
+    if (!isCacheFresh) {
+      // First boot or expired cache: race live fetch against 750ms timeout
+      await ZidSyncManager.fetchLiveCatalog(750);
+    } else {
+      // Cache fresh: revalidate quietly in background
+      setTimeout(() => ZidSyncManager.fetchLiveCatalog(3000), 1000);
+    }
 
     // Check if storefront shell already mounted
     let shell = document.getElementById('note-luxury-storefront');
@@ -3349,9 +3609,9 @@ header nav a.active-link {
 
       // Clean up duplicate native Rozia injections
       const cleanupInterval = setInterval(() => {
-        document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer').forEach(el => el.remove());
+        document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer, #loader-container').forEach(el => el.remove());
         Array.from(mainEl.children).forEach(child => {
-          if (child !== shell && child.id !== 'note-luxury-storefront') {
+          if (child !== shell && child.id !== 'note-luxury-storefront' && child.id !== 'note-luxury-splash') {
             child.remove();
           }
         });
@@ -3359,8 +3619,11 @@ header nav a.active-link {
       setTimeout(() => clearInterval(cleanupInterval), 3000);
     }
 
-    // Route to current page
+    // Route to current page (with live synced data)
     NoteRouter.route();
+
+    // Smoothly dismiss splash screen
+    setTimeout(dismissSplashScreen, 180);
   }
 
   // 21. Global Link Interception for Instant SPA Navigation
