@@ -99,10 +99,21 @@
     for(let n=0;n<zidCategories.length;n++)for(const c of zidCategories)if(ids.has(String(c.parent_id)))ids.add(c.id);
     return products.filter(p=>(p.category_ids||[]).some(cid=>ids.has(String(cid))));
   }
+  function syncHomeCategoryOrder() {
+    const grid=document.querySelector?.('#curated-sets .grid');
+    if(!grid || !zidCategories.length)return;
+    const aliases={'1500261':'1759040','1310036':'1759043','1688838':'1759042','1750048':'1759046','1310037':'1759044'};
+    const ranks=new Map(zidCategories.map((c,index)=>[c.id,index]));
+    const cards=Array.from(grid.children);
+    const rank=card=>{const id=card.getAttribute('href')?.match(/\/categories\/(\d+)\//)?.[1];return ranks.get(aliases[id]||id)??Number.MAX_SAFE_INTEGER;};
+    const sorted=cards.slice().sort((a,b)=>rank(a)-rank(b));
+    if(sorted.some((card,index)=>card!==cards[index]))sorted.forEach(card=>grid.appendChild(card));
+  }
   function refreshCategoryUI() {
+    syncHomeCategoryOrder();
     const bar=document.getElementById('category-pills-bar');
     if(bar) {
-      const entries=[{key:'all',name:'جميع المنتجات'},{key:'bestsellers',name:'الأكثر مبيعاً'},{key:'new',name:'أحدث المنتجات'},...zidCategories.filter(c=>!['1697258','1327929'].includes(c.id)).map(c=>({key:categoryKey(c.id),name:c.name}))];
+      const entries=[{key:'all',name:'جميع المنتجات'},...zidCategories.map(c=>({key:categoryKey(c.id),name:c.name}))];
       const html=entries.filter(e=>{const id=e.key==='bestsellers'?'1697258':e.key==='new'?'1327929':e.key.replace('zid-','');return e.key==='all'||(!hiddenCategoryIds.has(id)&&(!categoryListAuthoritative||zidCategories.some(c=>c.id===id)));}).map(({key,name})=>'<button id="pill-'+key+'" data-note-category="'+key+'" onclick="selectCategory(\''+key+'\')" class="cat-pill px-4 py-2 rounded-full border whitespace-nowrap '+(key===activeCategory?'cat-pill-active bg-black text-white border-black':'border-stone-200 text-stone-700')+'">'+escapeHTML(name)+' ('+categoryProducts(key).length+')</button>').join('');
       if(bar.innerHTML!==html)bar.innerHTML=html;
     }
@@ -121,12 +132,37 @@
   }
 
   ZidSyncManager.loadCachedData();
+  // Category visibility/order have a lightweight refresh independent of product cache.
+  ZidSyncManager.fetchLiveCategories=function() {
+    if(this.categoryPending)return this.categoryPending;
+    this.categoryPending=(async()=>{
+      const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),7000);
+      try {
+        const response=await fetch('/api/v1/categories?_note_refresh='+Date.now(),{cache:'no-store',signal:controller.signal,headers:{Accept:'application/json'}});
+        if(!response.ok)throw Error('Category list unavailable');
+        const data=await response.json(),list=Array.isArray(data)?data:data.results;
+        if(!Array.isArray(list))throw Error('Invalid categories');
+        const snapshot=JSON.stringify(list);this.categoryLastSuccess=Date.now();
+        if(categoryListAuthoritative&&snapshot===this.categorySnapshot)return true;
+        this.categorySnapshot=snapshot;registerCategories(list);categoryListAuthoritative=true;
+        refreshCategoryUI();initSliders();
+        if(document.getElementById('catalog-products-grid'))renderCatalog();
+        if(document.getElementById('cart-page-items'))renderCartPage();
+        CartManager.renderDrawer();
+        return true;
+      } catch(error){console.warn('NOTE: category refresh unavailable',error.message);return false;}
+      finally{clearTimeout(timer);this.categoryPending=null;}
+    })();return this.categoryPending;
+  };
+  setInterval(()=>{if(!document.hidden)ZidSyncManager.fetchLiveCategories();},10000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)ZidSyncManager.fetchLiveCategories();});
   ZidSyncManager.fetchLiveCatalog = async function(timeoutMs=15000) {
     if (this.pending) return this.pending;
     this.pending = (async () => {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
+        const categoriesRequest=this.fetchLiveCategories();
         const all = [], seen = new Set();
         let page = 1;
         while (true) {
@@ -138,10 +174,7 @@
           if (!data.next && !(data.pages_count > page)) break;
           if (++page > 100) throw new Error('Catalog pagination limit');
         }
-        try {
-          const categoriesResponse=await fetch('/api/v1/categories',{cache:'no-store',signal:controller.signal,headers:{Accept:'application/json'}});
-          if(categoriesResponse.ok) {const data=await categoriesResponse.json();const list=Array.isArray(data)?data:data.results;if(Array.isArray(list)){registerCategories(list);categoryListAuthoritative=true;}}
-        } catch(error) {console.warn('NOTE: category refresh unavailable',error.message);}
+        await categoriesRequest;
         this.applyToCatalog(all);
         this.lastSuccess = Date.now();
         return all;
@@ -179,6 +212,7 @@
     if (document.getElementById('cart-page-items')) renderCartPage();
   };
   initSliders = function() {
+    refreshCategoryUI();
     const groups = {
       'slider-bestsellers':categoryProducts('bestsellers'),
       'slider-niche':categoryProducts('niche'),
@@ -207,6 +241,7 @@
   const originalNavigate=NoteRouter.navigate;
   NoteRouter.navigate = function(url) {
     if (/^\/(checkout|auth|account)(\/|\?|$)/.test(url)) {location.href=url; return;}
+    if(Date.now()-(ZidSyncManager.categoryLastSuccess||0)>3000)ZidSyncManager.fetchLiveCategories();
     return originalNavigate.call(this,url);
   };
   const originalPDP=initPDP;

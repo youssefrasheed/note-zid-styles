@@ -1,6 +1,6 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 let source=fs.readFileSync(__dirname+'/test_live.cjs','utf8');source=source.slice(0,source.indexOf('const product='));source=source.replace("const source=", "const integration=").replace("runInContext(source+", "runInContext(integration+");
-source+=`\nvm.runInContext('this.categoryAPI={registerCategories,categoryProducts,recommendationProducts};',ctx);
+source+=`\nvm.runInContext('this.categoryAPI={registerCategories,categoryProducts,recommendationProducts,syncHomeCategoryOrder};',ctx);
 const products=[{id:'a',name:'A',price:100,quantity:1,categories:[{id:1,name:'Shared name'}]},{id:'b',name:'B',price:100,quantity:1,categories:[{id:2,name:'Shared name'}]}];
 const categories=[{id:1,name:'Shared name'},{id:2,name:'Shared name'}];
 ctx.categoryAPI.registerCategories(categories);ctx.testAPI.sync.applyToCatalog(products);
@@ -22,5 +22,11 @@ assert.equal(ctx.categoryAPI.recommendationProducts([])[0].id,'chosen');assert.e
 ctx.categoryAPI.registerCategories([{id:1697258,is_published:false},{id:1759471,is_published:false}]);
 ctx.testAPI.sync.applyToCatalog([{...fresh,id:'chosen',categories:[{id:1697258},{id:1759471}]}]);
 assert.equal(ctx.categoryAPI.categoryProducts('bestsellers').length,0);assert.equal(ctx.categoryAPI.recommendationProducts([]).length,0);
+const cards=['1500261','1748533','1310036'].map(id=>({id,getAttribute:()=>'/categories/'+id+'/slug'}));
+const grid={children:cards,appendChild(card){this.children.splice(this.children.indexOf(card),1);this.children.push(card)}};
+ctx.document.querySelector=()=>grid;
+ctx.categoryAPI.registerCategories([{id:1759043},{id:1748533},{id:1759040}]);ctx.categoryAPI.syncHomeCategoryOrder();assert.deepEqual(grid.children.map(c=>c.id),['1310036','1748533','1500261']);
+ctx.categoryAPI.registerCategories([{id:1759040},{id:1759043},{id:1748533}]);ctx.categoryAPI.syncHomeCategoryOrder();assert.deepEqual(grid.children.map(c=>c.id),['1500261','1310036','1748533']);
+assert.equal(new Set(grid.children).size,3);
 console.log('PASS: exact live category membership/counts, new product/category, reassignment, latest-first, discount percentage and no-sale badge');`;
 vm.runInThisContext('(function(require,__dirname){'+source+'})')(require,__dirname);
