@@ -456,3 +456,11 @@ section.tp-testimonials,
   width: 100% !important;
   border: none !important;
 }
+
+/* Ensure seamless display of NOTE luxury experience on Zid Rozia theme */
+.tp-home > section.s-block:not(#note-luxury-storefront section),
+.tp-home > .tp-slider-banners:not(#note-luxury-storefront .tp-slider-banners),
+.tp-home > .tp-product-card:not(#note-luxury-storefront .tp-product-card) {
+  display: none !important;
+}
+
