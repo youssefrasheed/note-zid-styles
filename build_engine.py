@@ -291,7 +291,7 @@ t_refund = json.dumps(refund_template, ensure_ascii=False)
 app_js_code = f"""/**
  * NOTE Perfumes Official Storefront Engine for Zid
  * Version: 4.1.0 - Full Multi-Page SPA Client Master Edition
- * 100% Parity with refine-paperbacks-based-nat.trycloudflare.com
+ * Authentic NOTE Perfumes Storefront Engine
  * Hosted via GitHub Pages CDN: {ASSET_HOST}/
  */
 (function() {{

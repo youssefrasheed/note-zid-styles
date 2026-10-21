@@ -1,7 +1,7 @@
 /**
  * NOTE Perfumes Official Storefront Engine for Zid
  * Version: 4.1.0 - Full Multi-Page SPA Client Master Edition
- * 100% Parity with refine-paperbacks-based-nat.trycloudflare.com
+ * Authentic NOTE Perfumes Storefront Engine
  * Hosted via GitHub Pages CDN: https://youssefrasheed.github.io/note-zid-styles/
  */
 (function() {
