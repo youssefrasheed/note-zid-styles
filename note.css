@@ -62,8 +62,33 @@
 
 
 /* ==========================================================================
-   NOTE PERFUMES - 100% LAVERNE LUXURY CLONE THEME FOR ZID
+   NOTE PERFUMES - 100% LAVERNE MASTER EDITION FOR ZID
+   Host: https://youssefrasheed.github.io/note-zid-styles
    ========================================================================== */
+
+/* Enforce EXACT 16px Root Calibration (Matches Preview Link 100%) */
+html, :root {
+  font-size: 16px !important;
+  background-color: #000000 !important;
+  -webkit-text-size-adjust: 100% !important;
+  -moz-text-size-adjust: 100% !important;
+  text-size-adjust: 100% !important;
+}
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #000000 !important;
+  font-family: 'Laverne', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 16px !important;
+  overflow-x: hidden !important;
+}
+
+* {
+  font-family: 'Laverne', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+/* Eradicate Rozia Native Headers, Footers, and Blocks */
 section[section-id],
 footer[section-id],
 header[section-id],
@@ -80,9 +105,8 @@ header.bg-header-transparent,
 .tp-product-card,
 .tp-banners,
 .tp-title-section,
-.padding-t-b,
-.tp-home > *:not(#note-luxury-storefront),
-.main.app-content > *:not(#note-luxury-storefront):not(.tp-home) {
+.whatsapp-icon,
+.footer {
   display: none !important;
 }
 
@@ -99,11 +123,6 @@ footer::before,
   opacity: 0 !important;
 }
 
-/* Eradicate Rozia native duplicate floating WhatsApp button */
-.whatsapp-icon {
-  display: none !important;
-}
-
 .main.app-content, .tp-home {
   padding: 0 !important;
   margin: 0 !important;
@@ -113,31 +132,32 @@ footer::before,
   background: #ffffff !important;
 }
 
-html {
-  background-color: #000000 !important;
-}
-
-body {
-  margin: 0 !important;
-  padding: 0 !important;
-  background: #000000 !important;
-  font-family: 'Laverne', sans-serif !important;
-  overflow-x: hidden !important;
-}
-
 #note-luxury-storefront {
   background: #ffffff !important;
   min-height: 100vh !important;
+  width: 100% !important;
 }
 
 #note-store-footer {
   background: #000000 !important;
 }
 
+/* Helper Classes */
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.cat-pill-active {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-color: #000000 !important;
+}
+
+.thumb-active {
+  border-color: #000000 !important;
+  opacity: 1 !important;
 }

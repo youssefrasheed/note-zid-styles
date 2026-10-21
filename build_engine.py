@@ -4,80 +4,144 @@ import re
 import json
 
 ASSET_HOST = "https://youssefrasheed.github.io/note-zid-styles"
+PREVIEW_DIR = "/Users/yousefsoom/.gemini/antigravity/scratch/zid-store-preview"
 
-SRC_HTML = "/Users/yousefsoom/.gemini/antigravity/scratch/zid-store-preview/index.html"
-SRC_PRODUCTS = "/Users/yousefsoom/.gemini/antigravity/scratch/zid-store-preview/products-data.js"
 OUT_JS = "/Users/yousefsoom/note-zid-styles/note-app.js"
 OUT_CSS = "/Users/yousefsoom/note-zid-styles/note.css"
 
-with open(SRC_HTML, "r", encoding="utf-8") as f:
-    html = f.read()
+def read_preview(fname):
+    with open(os.path.join(PREVIEW_DIR, fname), "r", encoding="utf-8") as f:
+        return f.read()
 
-with open(SRC_PRODUCTS, "r", encoding="utf-8") as f:
-    products_code = f.read()
+index_html = read_preview("index.html")
+product_html = read_preview("product.html")
+category_html = read_preview("category.html")
+cart_html = read_preview("cart.html")
+faqs_html = read_preview("faqs.html")
+contact_html = read_preview("contact.html")
+privacy_html = read_preview("privacy.html")
+terms_html = read_preview("terms.html")
+refund_html = read_preview("refund-policy.html")
+products_data_js = read_preview("products-data.js")
 
 # 1. Extract Fonts CSS
 fonts_css = ""
-for m in re.finditer(r"<style>(.*?)</style>", html, re.DOTALL):
+for m in re.finditer(r"<style>(.*?)</style>", index_html, re.DOTALL):
     fonts_css += m.group(1).strip() + "\n"
 
-# 2. Extract HTML markup
-header_pos = html.find("<!-- ================= 1. HEADER / NAVIGATION")
-script_pos = html.find("<!-- ================= 12. STORE JAVASCRIPT ================= -->")
-drawer_pos = html.find("<!-- ================= UNIVERSAL SLIDE-OUT CART DRAWER ================= -->")
-drawer_end = html.rfind('<script src="/products-data.js')
+# 2. Extract Components from index.html
+header_match = re.search(r'(<!-- ================= 1\. HEADER / NAVIGATION.*?)(<!-- ================= 2\. CINEMATIC HERO)', index_html, re.DOTALL)
+header_html = header_match.group(1).strip() if header_match else ""
 
-main_body = html[header_pos:script_pos].strip()
-drawer_part = html[drawer_pos:drawer_end].strip()
+home_match = re.search(r'(<!-- ================= 2\. CINEMATIC HERO.*?)(<!-- ================= 10\. STORE FOOTER)', index_html, re.DOTALL)
+home_html = home_match.group(1).strip() if home_match else ""
 
-total_markup = main_body + "\n" + drawer_part
+footer_match = re.search(r'(<!-- ================= 10\. STORE FOOTER.*?)(<!-- ================= 11\. QUICK VIEW MODAL)', index_html, re.DOTALL)
+footer_html = footer_match.group(1).strip() if footer_match else ""
+footer_html = footer_html.replace('<footer class="w-full pt-16', '<footer id="note-store-footer" class="w-full pt-16')
 
-# URL replacements
-url_replacements = [
-    (r'<footer class="w-full pt-16', '<footer id="note-store-footer" class="w-full pt-16'),
-    (r'src="/assets/', f'src="{ASSET_HOST}/assets/'),
-    (r'srcset="/assets/', f'srcset="{ASSET_HOST}/assets/'),
-    (r'src="/products/', f'src="{ASSET_HOST}/products/'),
-    (r'srcset="/products/', f'srcset="{ASSET_HOST}/products/'),
-    (r'src="/logo_white_crisp.png"', f'src="{ASSET_HOST}/logo_white_crisp.png"'),
-    (r'src="/logo_dark_crisp.png"', f'src="{ASSET_HOST}/logo_dark_crisp.png"'),
-    # Official Category URLs on Zid
-    (r'href="/category\.html\?cat=all"', 'href="/categories"'),
-    (r'href="/category\.html\?cat=perfumes"', 'href="/categories/1748533/perfumes"'),
-    (r'href="/category\.html\?cat=niche"', 'href="/categories/1500261/عطور-النيش"'),
-    (r'href="/category\.html\?cat=bestsellers"', 'href="/categories/1697258/الأكثر-مبيعا"'),
-    (r'href="/category\.html\?cat=new"', 'href="/categories/1327929/newest-products"'),
-    (r'href="/category\.html\?cat=travel"', 'href="/categories/1310036/30ml-perfumes"'),
-    (r'href="/category\.html\?cat=all-over"', 'href="/categories/1688838/all-over-spray"'),
-    (r'href="/category\.html\?cat=packages"', 'href="/categories/1752110/packages"'),
-    (r'href="/category\.html\?cat=linen"', 'href="/categories/1310037/معطرات-جو-وجسم"'),
-    (r'href="/category\.html\?cat=tollah"', 'href="/categories/1421002/tollah"'),
-    (r'href="/category\.html\?cat=bodycare"', 'href="/categories/1750048/body-care-products"'),
-    (r'href="/cart\.html"', 'href="/cart"'),
-]
+quickview_match = re.search(r'(<!-- ================= 11\. QUICK VIEW MODAL.*?)(<!-- ================= 12\. STORE JAVASCRIPT)', index_html, re.DOTALL)
+shared_modals_html = quickview_match.group(1).strip() if quickview_match else ""
 
-for pattern, repl in url_replacements:
-    total_markup = re.sub(pattern, repl, total_markup)
+drawer_match = re.search(r'(<!-- ================= UNIVERSAL SLIDE-OUT CART DRAWER.*?)(<script src="/products-data\.js)', index_html, re.DOTALL)
+cart_drawer_html = drawer_match.group(1).strip() if drawer_match else ""
 
-# 3. Extract productsData from index.html
-pdata_match = re.search(r'const productsData = \[(.*?)\];\s*// Helper to generate', html, re.DOTALL)
+# 3. Extract Main Bodies from Subpages
+def get_main_body(html_str):
+    m = re.search(r'<main.*?>(.*?)</main>', html_str, re.DOTALL)
+    if not m:
+        raise ValueError("Could not find <main> tag")
+    tag_m = re.search(r'<main([^>]*)>', html_str)
+    attrs = tag_m.group(1) if tag_m else ''
+    return f'<main id="page-main-wrapper" {attrs}>{m.group(1)}</main>'
+
+product_template = get_main_body(product_html)
+category_template = get_main_body(category_html)
+cart_template = get_main_body(cart_html)
+faqs_template = get_main_body(faqs_html)
+contact_template = get_main_body(contact_html)
+privacy_template = get_main_body(privacy_html)
+terms_template = get_main_body(terms_html)
+refund_template = get_main_body(refund_html)
+
+# Add checkout modal to cart template
+checkout_modal_match = re.search(r'(<!-- Checkout Success Modal.*?</div>\s*</div>)', cart_html, re.DOTALL)
+if checkout_modal_match:
+    cart_template += "\n" + checkout_modal_match.group(1).strip()
+
+# 4. Normalize URLs across all templates
+def normalize_urls(markup):
+    replacements = [
+        (r'src="/assets/', f'src="{ASSET_HOST}/assets/'),
+        (r'srcset="/assets/', f'srcset="{ASSET_HOST}/assets/'),
+        (r'src="/products/', f'src="{ASSET_HOST}/products/'),
+        (r'srcset="/products/', f'srcset="{ASSET_HOST}/products/'),
+        (r'src="/fonts/', f'src="{ASSET_HOST}/fonts/'),
+        (r'src="/logo_white_crisp.png"', f'src="{ASSET_HOST}/logo_white_crisp.png"'),
+        (r'src="/logo_dark_crisp.png"', f'src="{ASSET_HOST}/logo_dark_crisp.png"'),
+    ]
+    for pattern, repl in replacements:
+        markup = re.sub(pattern, repl, markup)
+    return markup
+
+header_html = normalize_urls(header_html)
+home_html = normalize_urls(home_html)
+footer_html = normalize_urls(footer_html)
+shared_modals_html = normalize_urls(shared_modals_html)
+cart_drawer_html = normalize_urls(cart_drawer_html)
+
+product_template = normalize_urls(product_template)
+category_template = normalize_urls(category_template)
+cart_template = normalize_urls(cart_template)
+faqs_template = normalize_urls(faqs_template)
+contact_template = normalize_urls(contact_template)
+privacy_template = normalize_urls(privacy_template)
+terms_template = normalize_urls(terms_template)
+refund_template = normalize_urls(refund_template)
+
+# 5. Extract Products Datasets
+pdata_match = re.search(r'const productsData = \[(.*?)\];\s*// Helper to generate', index_html, re.DOTALL)
 if pdata_match:
     products_data_json_str = '[' + pdata_match.group(1).strip() + ']'
 else:
     raise ValueError("Could not extract productsData")
 
-# Also extract full catalog from products-data.js
-catalog_match = re.search(r'const noteProductsCatalog = \[(.*?)\];', products_code, re.DOTALL)
+catalog_match = re.search(r'const noteProductsCatalog = \[(.*?)\];', products_data_js, re.DOTALL)
 if catalog_match:
     full_catalog_str = '[' + catalog_match.group(1).strip() + ']'
 else:
     raise ValueError("Could not extract noteProductsCatalog")
 
-# Suppression CSS
-suppression_css = """
+# 6. Suppression & Calibration CSS
+suppression_css = f"""
 /* ==========================================================================
-   NOTE PERFUMES - 100% LAVERNE LUXURY CLONE THEME FOR ZID
+   NOTE PERFUMES - 100% LAVERNE MASTER EDITION FOR ZID
+   Host: {ASSET_HOST}
    ========================================================================== */
+
+/* Enforce EXACT 16px Root Calibration (Matches Preview Link 100%) */
+html, :root {{
+  font-size: 16px !important;
+  background-color: #000000 !important;
+  -webkit-text-size-adjust: 100% !important;
+  -moz-text-size-adjust: 100% !important;
+  text-size-adjust: 100% !important;
+}}
+
+body {{
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #000000 !important;
+  font-family: 'Laverne', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 16px !important;
+  overflow-x: hidden !important;
+}}
+
+* {{
+  font-family: 'Laverne', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}}
+
+/* Eradicate Rozia Native Headers, Footers, and Blocks */
 section[section-id],
 footer[section-id],
 header[section-id],
@@ -94,85 +158,93 @@ header.bg-header-transparent,
 .tp-product-card,
 .tp-banners,
 .tp-title-section,
-.padding-t-b,
-.tp-home > *:not(#note-luxury-storefront),
-.main.app-content > *:not(#note-luxury-storefront):not(.tp-home) {
+.whatsapp-icon,
+.footer {{
   display: none !important;
-}
+}}
 
 /* Eradicate Rozia's 50% olive background pseudo-element on footer */
 footer::after,
 footer::before,
 #note-store-footer::after,
-#note-store-footer::before {
+#note-store-footer::before {{
   display: none !important;
   content: none !important;
   height: 0 !important;
   width: 0 !important;
   background: transparent !important;
   opacity: 0 !important;
-}
+}}
 
-/* Eradicate Rozia native duplicate floating WhatsApp button */
-.whatsapp-icon {
-  display: none !important;
-}
-
-.main.app-content, .tp-home {
+.main.app-content, .tp-home {{
   padding: 0 !important;
   margin: 0 !important;
   max-width: 100% !important;
   width: 100% !important;
   overflow: visible !important;
   background: #ffffff !important;
-}
+}}
 
-html {
-  background-color: #000000 !important;
-}
-
-body {
-  margin: 0 !important;
-  padding: 0 !important;
-  background: #000000 !important;
-  font-family: 'Laverne', sans-serif !important;
-  overflow-x: hidden !important;
-}
-
-#note-luxury-storefront {
+#note-luxury-storefront {{
   background: #ffffff !important;
   min-height: 100vh !important;
-}
+  width: 100% !important;
+}}
 
-#note-store-footer {
+#note-store-footer {{
   background: #000000 !important;
-}
+}}
 
-.scrollbar-none::-webkit-scrollbar {
+/* Helper Classes */
+.scrollbar-none::-webkit-scrollbar {{
   display: none;
-}
-.scrollbar-none {
+}}
+.scrollbar-none {{
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
+}}
+
+.cat-pill-active {{
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-color: #000000 !important;
+}}
+
+.thumb-active {{
+  border-color: #000000 !important;
+  opacity: 1 !important;
+}}
 """
 
-# Update note.css with fonts + suppression
 with open(OUT_CSS, "w", encoding="utf-8") as f:
     f.write(fonts_css + "\n" + suppression_css)
 print(f"Updated {OUT_CSS} ({os.path.getsize(OUT_CSS)} bytes)")
 
-# 4. Construct note-app.js
-markup_escaped = json.dumps(total_markup, ensure_ascii=False)
+# 7. Build note-app.js
+t_header = json.dumps(header_html, ensure_ascii=False)
+t_home = json.dumps(home_html, ensure_ascii=False)
+t_footer = json.dumps(footer_html, ensure_ascii=False)
+t_modals = json.dumps(shared_modals_html, ensure_ascii=False)
+t_drawer = json.dumps(cart_drawer_html, ensure_ascii=False)
 
-app_js_content = f"""/**
+t_prod = json.dumps(product_template, ensure_ascii=False)
+t_cat = json.dumps(category_template, ensure_ascii=False)
+t_cart = json.dumps(cart_template, ensure_ascii=False)
+t_faqs = json.dumps(faqs_template, ensure_ascii=False)
+t_contact = json.dumps(contact_template, ensure_ascii=False)
+t_priv = json.dumps(privacy_template, ensure_ascii=False)
+t_terms = json.dumps(terms_template, ensure_ascii=False)
+t_refund = json.dumps(refund_template, ensure_ascii=False)
+
+app_js_code = f"""/**
  * NOTE Perfumes Official Storefront Engine for Zid
- * Version: 3.0.0 - Approved Client Master Edition (100% Matching refine-paperbacks-based-nat.trycloudflare.com)
- * Hosted via GitHub Pages CDN: https://youssefrasheed.github.io/note-zid-styles/
+ * Version: 4.0.0 - Full Multi-Page SPA Client Master Edition
+ * 100% Parity with refine-paperbacks-based-nat.trycloudflare.com
+ * Hosted via GitHub Pages CDN: {ASSET_HOST}/
  */
 (function() {{
   "use strict";
-  console.log("NOTE Perfumes Master Engine v3.0.0 Starting...");
+  console.log("NOTE Perfumes Master Engine v4.0.0 Starting...");
 
   const ASSET_HOST = "{ASSET_HOST}";
 
@@ -196,14 +268,23 @@ app_js_content = f"""/**
     'royal-powder': 'رويال-باودر'
   }};
 
-  // 1. Inject Tailwind CDN if not loaded
+  // 1. Inject Salla Icons CSS if not loaded
+  if (!document.getElementById("salla-icons-css")) {{
+    const sallaLink = document.createElement("link");
+    sallaLink.id = "salla-icons-css";
+    sallaLink.rel = "stylesheet";
+    sallaLink.href = "https://assets.salla.cloud/fonts/sallaicons.css";
+    document.head.appendChild(sallaLink);
+  }}
+
+  // 2. Inject Tailwind CDN if not loaded
   if (!window.tailwind) {{
     const twScript = document.createElement("script");
     twScript.src = "https://cdn.tailwindcss.com";
     document.head.appendChild(twScript);
   }}
 
-  // 2. Configure Tailwind
+  // 3. Configure Tailwind
   if (!window.tailwindConfigApplied) {{
     window.tailwindConfigApplied = true;
     window.tailwind = window.tailwind || {{}};
@@ -226,7 +307,7 @@ app_js_content = f"""/**
     }};
   }}
 
-  // 3. Inject Suppression & Font Styles
+  // 4. Inject Suppression & 16px Font Calibration Styles
   if (!document.getElementById("note-master-inline-css")) {{
     const s = document.createElement("style");
     s.id = "note-master-inline-css";
@@ -234,11 +315,34 @@ app_js_content = f"""/**
     document.head.appendChild(s);
   }}
 
-  // 4. Products Data
+  // Enforce root 16px immediately
+  try {{
+    document.documentElement.style.setProperty('font-size', '16px', 'important');
+    if (document.body) document.body.style.setProperty('font-size', '16px', 'important');
+  }} catch(e) {{}}
+
+  // 5. Products Data
   const productsData = {products_data_json_str};
   const noteProductsCatalog = {full_catalog_str};
 
-  // 5. Cart Manager (Global localStorage Architecture)
+  // 6. Templates
+  const T = {{
+    header: {t_header},
+    home: {t_home},
+    footer: {t_footer},
+    modals: {t_modals},
+    drawer: {t_drawer},
+    product: {t_prod},
+    category: {t_cat},
+    cart: {t_cart},
+    faqs: {t_faqs},
+    contact: {t_contact},
+    privacy: {t_priv},
+    terms: {t_terms},
+    refund: {t_refund}
+  }};
+
+  // 7. Cart Manager (Global localStorage Architecture)
   const CartManager = {{
     getCart: function() {{
       try {{
@@ -251,6 +355,9 @@ app_js_content = f"""/**
       localStorage.setItem('note_cart', JSON.stringify(cart));
       this.updateBadge();
       this.renderDrawer();
+      if (typeof window.renderCartPage === 'function' && document.getElementById('cart-page-items')) {{
+        window.renderCartPage();
+      }}
     }},
     addItem: function(productId, quantity = 1) {{
       const product = productsData.find(p => p.id === productId) || noteProductsCatalog.find(p => p.id === productId);
@@ -385,7 +492,7 @@ app_js_content = f"""/**
           shippingText.innerHTML = '<span class="text-emerald-600 font-bold">🎉 تهانينا! لقد حصلت على شحن مجاني لكافة مدن المملكة</span>';
         }} else {{
           const remaining = freeShippingThreshold - total;
-          shippingText.innerHTML = 'متبقي <strong class="text-black font-extrabold">' + remaining + ' ر.س</strong> للحصول على <span class="font-bold text-emerald-600">شحن مجاني</span>';
+          shippingText.innerHTML = `متبقي <strong class="text-black font-extrabold">${{remaining}} ر.س</strong> للحصول على <span class="font-bold text-emerald-600">شحن مجاني</span>`;
         }}
       }}
       
@@ -393,15 +500,14 @@ app_js_content = f"""/**
       if (totalEl) totalEl.textContent = total + ' ر.س';
       
       itemsContainer.innerHTML = cart.map(item => {{
-        const zidSlug = zidSlugMap[item.id] || item.id;
         const imgUrl = (item.img.startsWith('http') ? '' : ASSET_HOST) + item.img;
         return `
           <div class="flex items-center gap-3 py-3 border-b border-stone-100 last:border-b-0 text-right">
-            <a href="/products/${{zidSlug}}" class="w-16 h-16 rounded-xl bg-stone-50 p-1 flex-shrink-0 flex items-center justify-center border border-stone-100 block">
+            <a href="/product.html?id=${{item.id}}" onclick="NoteRouter.navigate('/product.html?id=${{item.id}}'); CartManager.closeDrawer();" class="w-16 h-16 rounded-xl bg-stone-50 p-1 flex-shrink-0 flex items-center justify-center border border-stone-100 block">
               <img src="${{imgUrl}}" alt="${{item.title}}" class="w-full h-full object-contain">
             </a>
             <div class="flex-grow">
-              <a href="/products/${{zidSlug}}" class="hover:underline">
+              <a href="/product.html?id=${{item.id}}" onclick="NoteRouter.navigate('/product.html?id=${{item.id}}'); CartManager.closeDrawer();" class="hover:underline">
                 <h4 class="text-xs font-bold text-black line-clamp-1">${{item.title}}</h4>
               </a>
               <span class="text-[10px] text-stone-400 block">${{item.size || '100 مل'}}</span>
@@ -423,12 +529,11 @@ app_js_content = f"""/**
     }}
   }};
 
-  // 6. Product Card Rendering
+  // 8. Product Card Rendering
   function renderProductCard(p, index) {{
-    const zidSlug = zidSlugMap[p.id] || p.id;
     const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
     return `
-      <div class="min-w-[175px] sm:min-w-[270px] max-w-[185px] sm:max-w-[280px] shrink-0 p-1 flex flex-col justify-between text-center group cursor-pointer bg-transparent" style="scroll-snap-align: start;" onclick="window.location.href='/products/${{zidSlug}}'">
+      <div class="min-w-[175px] sm:min-w-[270px] max-w-[185px] sm:max-w-[280px] shrink-0 p-1 flex flex-col justify-between text-center group cursor-pointer bg-transparent" style="scroll-snap-align: start;" onclick="NoteRouter.navigate('/product.html?id=${{p.id}}')">
         <div>
           <!-- Frameless Image Container with Clean Shadow/Scale -->
           <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
@@ -458,7 +563,7 @@ app_js_content = f"""/**
     `;
   }}
 
-  // 7. Sliders Initialization
+  // 9. Sliders Initialization
   function initSliders() {{
     const bestTrack = document.getElementById('slider-bestsellers');
     if (bestTrack) {{
@@ -487,7 +592,7 @@ app_js_content = f"""/**
     }}
   }}
 
-  // 8. Header Scroll Glassmorphism
+  // 10. Header Scroll Glassmorphism
   function handleHeaderScroll() {{
     const header = document.getElementById('site-header');
     const storeLogo = document.getElementById('store-logo');
@@ -495,7 +600,15 @@ app_js_content = f"""/**
     if (!header) return;
 
     const scrollY = window.scrollY || 0;
-    const heroHeight = hero ? hero.offsetHeight : 800;
+    
+    // If not on homepage (no hero), keep solid frosted white
+    if (!hero) {{
+      header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 text-black shadow-sm border-b border-stone-200/50 backdrop-blur-xl bg-white/85';
+      if (storeLogo) storeLogo.src = ASSET_HOST + '/logo_dark_crisp.png';
+      return;
+    }}
+
+    const heroHeight = hero.offsetHeight || 800;
 
     if (scrollY > 20) {{
       if (scrollY >= (heroHeight - 90)) {{
@@ -511,7 +624,7 @@ app_js_content = f"""/**
     }}
   }}
 
-  // 9. Quick View Modal
+  // 11. Quick View Modal
   function openQuickView(idx) {{
     const p = productsData[idx];
     if (!p) return;
@@ -556,7 +669,7 @@ app_js_content = f"""/**
     }}
   }}
 
-  // 10. Search & Mobile Drawer
+  // 12. Search & Mobile Drawer
   function openSearchModal() {{
     const m = document.getElementById('search-modal');
     if (!m) return;
@@ -598,7 +711,7 @@ app_js_content = f"""/**
     }}, 300);
   }}
 
-  // 11. Hero Auto-Rotating Carousel
+  // 13. Hero Auto-Rotating Carousel
   let currentHeroIndex = 0;
   let heroTimer = null;
   const HERO_DURATION = 5000;
@@ -682,7 +795,7 @@ app_js_content = f"""/**
     startHeroTimer();
   }}
 
-  // 12. Offers Auto-Rotating Carousel (3s Interval)
+  // 14. Offers Auto-Rotating Carousel (3s Interval)
   let currentOfferIndex = 0;
   let offerTimer = null;
   const OFFER_DURATION = 3000;
@@ -767,8 +880,659 @@ app_js_content = f"""/**
     startOfferTimer();
   }}
 
-  // 13. Mount & Initialize Master Storefront
-  function mountStorefront() {{
+  // 15. PDP (Product Detail Page) Controller
+  let currentProduct = null;
+  let pdpQuantity = 1;
+
+  function initPDP(prodId) {{
+    pdpQuantity = 1;
+    currentProduct = noteProductsCatalog.find(p => p.id === prodId) || 
+                     noteProductsCatalog.find(p => p.id === zidSlugMap[prodId]) || 
+                     noteProductsCatalog[0];
+
+    document.title = `${{currentProduct.title}} | دار نوت للعطور NOTE Perfumes`;
+
+    const breadCat = document.getElementById('pdp-breadcrumb-cat');
+    if (breadCat) {{
+      breadCat.textContent = currentProduct.cat_ar || 'العطور';
+      breadCat.onclick = (e) => {{
+        e.preventDefault();
+        NoteRouter.navigate('/category.html?cat=' + currentProduct.cat);
+      }};
+    }}
+    const breadTitle = document.getElementById('pdp-breadcrumb-title');
+    if (breadTitle) breadTitle.textContent = currentProduct.title;
+
+    const catName = document.getElementById('pdp-category-name');
+    if (catName) catName.textContent = `${{currentProduct.cat_ar || 'العطور الفاخرة'}} • ${{currentProduct.concentration ? currentProduct.concentration.toUpperCase() : 'EXTRAIT DE PARFUM'}}`;
+
+    const titleEl = document.getElementById('pdp-title');
+    if (titleEl) titleEl.textContent = currentProduct.title;
+
+    const titleEn = document.getElementById('pdp-title-en');
+    if (titleEn) titleEn.textContent = currentProduct.title_en || '';
+
+    const ratingNum = document.getElementById('pdp-rating-num');
+    if (ratingNum) ratingNum.textContent = currentProduct.rating || '4.91';
+
+    const ratingCount = document.getElementById('pdp-rating-count');
+    if (ratingCount) ratingCount.textContent = `(${{currentProduct.reviews_count || 170}} تقييم موثق)`;
+
+    const tagBadge = document.getElementById('pdp-tag-badge');
+    if (tagBadge) {{
+      if (currentProduct.tag) {{
+        tagBadge.textContent = currentProduct.tag;
+        tagBadge.classList.remove('hidden');
+      }} else {{
+        tagBadge.classList.add('hidden');
+      }}
+    }}
+
+    const priceEl = document.getElementById('pdp-price');
+    if (priceEl) priceEl.textContent = `${{currentProduct.price}} ر.س`;
+
+    const oldPriceEl = document.getElementById('pdp-old-price');
+    if (oldPriceEl) oldPriceEl.textContent = `${{currentProduct.old_price}} ر.س`;
+
+    const discountBadge = document.getElementById('pdp-discount-badge');
+    if (discountBadge) discountBadge.textContent = `وفر ${{currentProduct.discount || '45%'}}`;
+
+    const tabbyPrice = (currentProduct.price / 4).toFixed(2);
+    const tabbyEl = document.getElementById('pdp-tabby-price');
+    if (tabbyEl) tabbyEl.textContent = `${{tabbyPrice}} ر.س`;
+
+    const mainImg = document.getElementById('pdp-main-image');
+    const mainImgUrl = (currentProduct.img.startsWith('http') ? '' : ASSET_HOST) + currentProduct.img;
+    if (mainImg) {{
+      mainImg.src = mainImgUrl;
+      mainImg.alt = currentProduct.title;
+    }}
+
+    // Thumbnails
+    const thumbsContainer = document.getElementById('pdp-thumbnails');
+    if (thumbsContainer) {{
+      thumbsContainer.innerHTML = '';
+      const images = [currentProduct.img];
+      if (currentProduct.img_box && currentProduct.img_box !== currentProduct.img) {{
+        images.push(currentProduct.img_box);
+      }}
+
+      images.forEach((img, idx) => {{
+        const fullUrl = (img.startsWith('http') ? '' : ASSET_HOST) + img;
+        const btn = document.createElement('button');
+        btn.className = `w-14 h-14 sm:w-16 sm:h-16 rounded-xl border-2 p-1 bg-stone-50 transition-all flex items-center justify-center ${{idx === 0 ? 'thumb-active border-black' : 'border-stone-200 opacity-60 hover:opacity-100'}}`;
+        btn.onclick = () => {{
+          if (mainImg) mainImg.src = fullUrl;
+          document.querySelectorAll('#pdp-thumbnails button').forEach(b => {{
+            b.classList.remove('thumb-active', 'border-black');
+            b.classList.add('border-stone-200', 'opacity-60');
+          }});
+          btn.classList.add('thumb-active', 'border-black');
+          btn.classList.remove('border-stone-200', 'opacity-60');
+        }};
+        btn.innerHTML = `<img src="${{fullUrl}}" alt="${{currentProduct.title}}" class="w-full h-full object-contain">`;
+        thumbsContainer.appendChild(btn);
+      }});
+    }}
+
+    const sloganEl = document.getElementById('pdp-slogan');
+    if (sloganEl) sloganEl.textContent = currentProduct.slogan || '';
+
+    const notesSummary = document.getElementById('pdp-notes-summary');
+    if (notesSummary) notesSummary.textContent = currentProduct.notes || '';
+
+    const link30 = document.getElementById('pdp-30ml-link');
+    if (link30) {{
+      const travelVersion = noteProductsCatalog.find(p => p.id === `${{currentProduct.id}}-30ml` || (p.title.includes(currentProduct.title.replace('عطر ', '')) && p.cat === 'travel'));
+      if (travelVersion) {{
+        link30.onclick = (e) => {{
+          e.preventDefault();
+          NoteRouter.navigate(`/product.html?id=${{travelVersion.id}}`);
+        }};
+        link30.classList.remove('hidden');
+      }} else {{
+        link30.classList.add('hidden');
+      }}
+    }}
+
+    const pyrTop = document.getElementById('pdp-pyramid-top');
+    if (pyrTop) pyrTop.textContent = currentProduct.top || currentProduct.notes || '';
+
+    const pyrHeart = document.getElementById('pdp-pyramid-heart');
+    if (pyrHeart) pyrHeart.textContent = currentProduct.heart || currentProduct.slogan || '';
+
+    const pyrBase = document.getElementById('pdp-pyramid-base');
+    if (pyrBase) pyrBase.textContent = currentProduct.base || 'المسك الأبيض وخشب الصندل والعنبر';
+
+    const fullDesc = document.getElementById('pdp-full-description');
+    if (fullDesc) fullDesc.innerHTML = `<p>${{currentProduct.description || ''}}</p>`;
+
+    renderRelatedProducts();
+  }}
+
+  function changePDPQuantity(delta) {{
+    pdpQuantity += delta;
+    if (pdpQuantity < 1) pdpQuantity = 1;
+    const qtyVal = document.getElementById('pdp-qty-val');
+    if (qtyVal) qtyVal.textContent = pdpQuantity;
+  }}
+
+  function addToCartCurrentProduct() {{
+    if (!currentProduct) return;
+    CartManager.addItem(currentProduct.id, pdpQuantity);
+  }}
+
+  function buyNowCurrentProduct() {{
+    if (!currentProduct) return;
+    CartManager.addItem(currentProduct.id, pdpQuantity);
+    NoteRouter.navigate('/cart.html');
+  }}
+
+  function renderRelatedProducts() {{
+    const container = document.getElementById('pdp-related-grid');
+    if (!container || !currentProduct) return;
+
+    let related = noteProductsCatalog.filter(p => p.id !== currentProduct.id && (p.cat === currentProduct.cat || p.bestseller)).slice(0, 4);
+    if (related.length < 4) {{
+      related = noteProductsCatalog.filter(p => p.id !== currentProduct.id).slice(0, 4);
+    }}
+
+    container.innerHTML = related.map(p => {{
+      const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+      return `
+        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300" onclick="NoteRouter.navigate('/product.html?id=${{p.id}}')">
+          <div>
+            <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 overflow-hidden">
+              ${{p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.tag}}</span>` : ''}}
+              <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
+            </div>
+
+            <div class="pt-1 pb-1 text-center space-y-1">
+              <h4 class="text-xs sm:text-sm font-bold text-black group-hover:text-stone-600 transition line-clamp-1">${{p.title}}</h4>
+              <p class="text-[10px] sm:text-[11px] text-stone-400 font-normal line-clamp-1">${{p.notes}}</p>
+              
+              <div class="flex items-center justify-center gap-2 pt-1">
+                <span class="text-black font-extrabold text-xs sm:text-sm">${{p.price}} ر.س</span>
+                <span class="text-stone-400 line-through text-[10px] sm:text-xs font-normal">${{p.old_price}} ر.س</span>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="event.stopPropagation(); CartManager.addItem('${{p.id}}')" class="w-full mt-2.5 py-2 px-3 rounded-full bg-black text-white hover:bg-stone-800 active:scale-95 transition flex items-center justify-center gap-2 font-bold text-[11px] shadow-sm">
+            <span>إضافة للسلة</span>
+            <i class="sicon-shopping-bag text-xs"></i>
+          </button>
+        </div>
+      `;
+    }}).join('');
+  }}
+
+  // 16. Category Controller
+  let activeCategory = 'all';
+  let categorySearchQuery = '';
+  let categorySort = 'popular';
+
+  const categoryMeta = {{
+    'all': {{
+      title: 'جميع المنتجات',
+      desc: 'تصفح المجموعة الكاملة من أروع إبداعات دار نوت للعطور، توليفات نيش استثنائية وباقات حصرية صُممت لتناسب ذوقك الرفيع.'
+    }},
+    'perfumes': {{
+      title: 'العطور الفاخرة (100 مل)',
+      desc: 'مجموعة العطور الأساسية بتركيز Extrait de Parfum وثبات يتجاوز 24 ساعة بمكونات نادرة مستخلصة بعناية.'
+    }},
+    'niche': {{
+      title: 'عطور النيش الملكية',
+      desc: 'أفخم ما أبدعته دار نوت العطرية، توليفات خاصة جداً تحاكي الترف والندرة بثبات وفوحان لا يُضاهى.'
+    }},
+    'bestsellers': {{
+      title: 'الأكثر مبيعاً',
+      desc: 'العطور الأكثر طلباً وشهرة لدى عملاء NOTE في المملكة والخليج، اختيارات مجربة ومحبوبة بإجماع الذواقة.'
+    }},
+    'new': {{
+      title: 'أحدث المنتجات والإصدارات',
+      desc: 'أحدث ابتكارات دار نوت للموسم الحالي، روائح عصرية مبتكرة تمنحك إطلالة فريدة ومتميزة.'
+    }},
+    'travel': {{
+      title: 'عطور بيبي (30 مل)',
+      desc: 'نفس تركيز العطور الأصلية الفاخرة بحجم مدمج 30 مل مثالي للحقيبة، السفر، السيارة والهدية الراقية.'
+    }},
+    'all-over': {{
+      title: 'معطر للجسم بالكامل (All-Over Spray)',
+      desc: 'رذاذ فاخر شامل للجسم والشعر يغمرك بانتعاش فوري خفيف وعبق آسر يدوم طوال اليوم.'
+    }},
+    'linen': {{
+      title: 'معطرات الجو والمفارش',
+      desc: 'تركيبات حصرية تملأ أرجاء منزلك ومفارشك بنفحات ملكية تدوم طويلاً وتضفي لمسة من البهجة والفخامة.'
+    }},
+    'body-care': {{
+      title: 'منتجات العناية بالبشرة والجسم',
+      desc: 'لوشنات وزيوت ترطيب فاخرة غنية بخلاصات العطور النقية لترطيب عميق ورائحة آسرة.'
+    }},
+    'tollah': {{
+      title: 'تولات مِسك ودهن عود نقي',
+      desc: 'أدهان نقية فاخرة ومسك مخلط بتركيز صافٍ لمحبي التميز والأصالة الشرقية الأصيلة.'
+    }},
+    'packages': {{
+      title: 'مجموعات نوت والباقات الفاخرة',
+      desc: 'باقات متكاملة ومجموعات هدايا راقية تجمع بين أجمل عطور الدار بأسعار استثنائية وتغليف ملوكي.'
+    }}
+  }};
+
+  function selectCategory(cat, updateURL = true) {{
+    activeCategory = cat || 'all';
+    if (updateURL) {{
+      const newUrl = `/category.html?cat=${{activeCategory}}`;
+      window.history.pushState({{ path: newUrl }}, '', newUrl);
+    }}
+
+    // Update Pills
+    document.querySelectorAll('.cat-pill').forEach(btn => {{
+      btn.classList.remove('cat-pill-active', 'bg-black', 'text-white', 'border-black');
+      btn.classList.add('border-stone-200', 'text-stone-700');
+    }});
+    const activeBtn = document.getElementById(`pill-${{activeCategory}}`);
+    if (activeBtn) {{
+      activeBtn.classList.add('cat-pill-active', 'bg-black', 'text-white', 'border-black');
+      activeBtn.classList.remove('border-stone-200', 'text-stone-700');
+    }}
+
+    // Update Header Text
+    const meta = categoryMeta[activeCategory] || categoryMeta['all'];
+    const catTitle = document.getElementById('cat-title');
+    if (catTitle) catTitle.textContent = meta.title;
+    const catDesc = document.getElementById('cat-desc');
+    if (catDesc) catDesc.textContent = meta.desc;
+    document.title = `${{meta.title}} | دار نوت للعطور NOTE Perfumes`;
+
+    renderCatalog();
+  }}
+
+  function handleCategorySearch(val) {{
+    categorySearchQuery = (val || '').trim().toLowerCase();
+    renderCatalog();
+  }}
+
+  function handleCategorySort(val) {{
+    categorySort = val;
+    renderCatalog();
+  }}
+
+  function resetCategoryFilters() {{
+    categorySearchQuery = '';
+    const searchInp = document.getElementById('cat-search-input');
+    if (searchInp) searchInp.value = '';
+    categorySort = 'popular';
+    const sortSelect = document.getElementById('cat-sort-select');
+    if (sortSelect) sortSelect.value = 'popular';
+    selectCategory('all');
+  }}
+
+  function renderCatalog() {{
+    const container = document.getElementById('catalog-products-grid');
+    const noProducts = document.getElementById('cat-no-products');
+    const countEl = document.getElementById('cat-products-count');
+    if (!container) return;
+
+    let filtered = [...noteProductsCatalog];
+
+    // Filter by category
+    if (activeCategory === 'bestsellers') {{
+      filtered = filtered.filter(p => p.bestseller || (p.tag && p.tag.includes('مبيعاً')) || (p.tag && p.tag.includes('طلباً')));
+    }} else if (activeCategory === 'new') {{
+      filtered = filtered.filter(p => (p.tag && p.tag.includes('جديد')) || (p.tag && p.tag.includes('حصري')) || p.id.includes('niche'));
+    }} else if (activeCategory !== 'all') {{
+      filtered = filtered.filter(p => p.cat === activeCategory);
+    }}
+
+    // Filter by search
+    if (categorySearchQuery) {{
+      filtered = filtered.filter(p => 
+        (p.title && p.title.toLowerCase().includes(categorySearchQuery)) ||
+        (p.title_en && p.title_en.toLowerCase().includes(categorySearchQuery)) ||
+        (p.notes && p.notes.toLowerCase().includes(categorySearchQuery)) ||
+        (p.slogan && p.slogan.toLowerCase().includes(categorySearchQuery)) ||
+        (p.description && p.description.toLowerCase().includes(categorySearchQuery))
+      );
+    }}
+
+    // Sort
+    if (categorySort === 'price-asc') {{
+      filtered.sort((a, b) => a.price - b.price);
+    }} else if (categorySort === 'price-desc') {{
+      filtered.sort((a, b) => b.price - a.price);
+    }} else if (categorySort === 'rating') {{
+      filtered.sort((a, b) => (b.rating || 5) - (a.rating || 5));
+    }} else if (categorySort === 'newest') {{
+      filtered.reverse();
+    }}
+
+    if (countEl) {{
+      countEl.textContent = `عرض ${{filtered.length}} من ${{noteProductsCatalog.length}} منتج`;
+    }}
+
+    if (filtered.length === 0) {{
+      container.innerHTML = '';
+      if (noProducts) noProducts.classList.remove('hidden');
+      return;
+    }}
+
+    if (noProducts) noProducts.classList.add('hidden');
+
+    container.innerHTML = filtered.map(p => {{
+      const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+      return `
+        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300" onclick="NoteRouter.navigate('/product.html?id=${{p.id}}')">
+          <div>
+            <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
+              ${{p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.tag}}</span>` : ''}}
+              <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
+            </div>
+
+            <div class="pt-1 pb-1 text-center space-y-1">
+              <h4 class="text-xs sm:text-sm font-bold text-black group-hover:text-stone-600 transition line-clamp-1">${{p.title}}</h4>
+              <p class="text-[10px] sm:text-[11px] text-stone-400 font-normal line-clamp-1">${{p.notes}}</p>
+              
+              <div class="flex items-center justify-center gap-2 pt-1">
+                <span class="text-black font-extrabold text-xs sm:text-sm">${{p.price}} ر.س</span>
+                <span class="text-stone-400 line-through text-[10px] sm:text-xs font-normal">${{p.old_price}} ر.س</span>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="event.stopPropagation(); CartManager.addItem('${{p.id}}')" class="w-full mt-2.5 py-2 px-3 rounded-full bg-black text-white hover:bg-stone-800 active:scale-95 transition flex items-center justify-center gap-2 font-bold text-[11px] sm:text-xs shadow-sm">
+            <span>إضافة للسلة</span>
+            <i class="sicon-shopping-bag text-xs"></i>
+          </button>
+        </div>
+      `;
+    }}).join('');
+  }}
+
+  // 17. Cart Page Controller
+  let cartDiscountRate = 0;
+
+  function renderCartPage() {{
+    document.title = 'سلة المشتريات | دار نوت للعطور NOTE Perfumes';
+    const itemsContainer = document.getElementById('cart-page-items');
+    const emptyState = document.getElementById('cart-page-empty');
+    const summaryWrapper = document.getElementById('cart-page-summary-wrapper');
+    const freeShippingText = document.getElementById('page-free-shipping-text');
+    const freeShippingBar = document.getElementById('page-free-shipping-bar');
+
+    if (!itemsContainer) return;
+
+    const cart = CartManager.getCart();
+    const total = CartManager.getTotal();
+    const freeShippingThreshold = 300;
+
+    if (cart.length === 0) {{
+      itemsContainer.innerHTML = '';
+      if (emptyState) emptyState.classList.remove('hidden');
+      if (summaryWrapper) summaryWrapper.classList.add('hidden');
+      if (freeShippingBar) freeShippingBar.style.width = '0%';
+      if (freeShippingText) freeShippingText.textContent = 'أضف منتجات بقيمة 300 ر.س لتحصل على شحن مجاني';
+      return;
+    }}
+
+    if (emptyState) emptyState.classList.add('hidden');
+    if (summaryWrapper) summaryWrapper.classList.remove('hidden');
+
+    if (freeShippingBar && freeShippingText) {{
+      const percentage = Math.min(100, Math.round((total / freeShippingThreshold) * 100));
+      freeShippingBar.style.width = percentage + '%';
+      if (total >= freeShippingThreshold) {{
+        freeShippingText.innerHTML = '<span class="text-emerald-600 font-bold">🎉 تهانينا! لقد حصلت على شحن مجاني لكافة مدن المملكة</span>';
+      }} else {{
+        const remaining = freeShippingThreshold - total;
+        freeShippingText.innerHTML = `متبقي <strong class="text-black font-extrabold">${{remaining}} ر.س</strong> للحصول على <span class="font-bold text-emerald-600">شحن مجاني</span>`;
+      }}
+    }}
+
+    itemsContainer.innerHTML = cart.map(item => {{
+      const imgUrl = (item.img.startsWith('http') ? '' : ASSET_HOST) + item.img;
+      return `
+        <div class="py-4 sm:py-6 flex items-center justify-between gap-4 text-right">
+          <div class="flex items-center gap-3 sm:gap-4 flex-grow">
+            <a href="/product.html?id=${{item.id}}" onclick="NoteRouter.navigate('/product.html?id=${{item.id}}')" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-stone-50 p-2 flex-shrink-0 flex items-center justify-center border border-stone-200/80 block">
+              <img src="${{imgUrl}}" alt="${{item.title}}" class="w-full h-full object-contain">
+            </a>
+            <div class="space-y-1">
+              <a href="/product.html?id=${{item.id}}" onclick="NoteRouter.navigate('/product.html?id=${{item.id}}')" class="hover:underline">
+                <h4 class="text-xs sm:text-sm font-bold text-black">${{item.title}}</h4>
+              </a>
+              <span class="text-[11px] text-stone-400 block">${{item.size || '100 مل'}}</span>
+              <span class="text-xs font-bold text-black sm:hidden block">${{item.price}} ر.س</span>
+            </div>
+          </div>
+
+          <!-- Quantity Stepper -->
+          <div class="flex items-center border border-stone-200 rounded-full h-8 px-2 sm:px-3 gap-2 sm:gap-3 text-xs font-bold bg-white">
+            <button onclick="CartManager.updateQuantity('${{item.id}}', -1); renderCartPage();" class="text-stone-500 hover:text-black w-4 text-center">-</button>
+            <span class="min-w-[16px] text-center">${{item.quantity}}</span>
+            <button onclick="CartManager.updateQuantity('${{item.id}}', 1); renderCartPage();" class="text-stone-500 hover:text-black w-4 text-center">+</button>
+          </div>
+
+          <!-- Total for line -->
+          <div class="hidden sm:block text-left min-w-[80px]">
+            <span class="text-sm font-extrabold text-black">${{item.price * item.quantity}} ر.س</span>
+          </div>
+
+          <!-- Delete -->
+          <button onclick="CartManager.removeItem('${{item.id}}'); renderCartPage();" class="text-stone-400 hover:text-rose-600 transition p-1" title="حذف">
+            <i class="sicon-trash text-base"></i>
+          </button>
+        </div>
+      `;
+    }}).join('');
+
+    updateCartFinancials(total);
+  }}
+
+  function applyCartCoupon() {{
+    const inp = document.getElementById('coupon-code-input');
+    const msg = document.getElementById('coupon-msg');
+    if (!inp || !msg) return;
+    const code = inp.value.trim().toUpperCase();
+    if (code === 'NOTE10' || code === 'GOLD' || code === 'NOTE2026') {{
+      cartDiscountRate = 0.10;
+      msg.textContent = 'تم تطبيق خصم 10% بنجاح!';
+      msg.className = 'text-[11px] font-bold text-emerald-600 block';
+    }} else {{
+      cartDiscountRate = 0;
+      msg.textContent = 'رمز الكوبون غير صالح أو منتهي الصلاحية';
+      msg.className = 'text-[11px] font-bold text-rose-600 block';
+    }}
+    updateCartFinancials(CartManager.getTotal());
+  }}
+
+  function updateCartFinancials(subtotal) {{
+    const subtotalEl = document.getElementById('page-subtotal');
+    const discountRow = document.getElementById('discount-row');
+    const discountEl = document.getElementById('page-discount');
+    const shippingEl = document.getElementById('page-shipping');
+    const grandTotalEl = document.getElementById('page-grand-total');
+
+    if (subtotalEl) subtotalEl.textContent = `${{subtotal}} ر.س`;
+
+    let discountAmount = 0;
+    if (cartDiscountRate > 0) {{
+      discountAmount = Math.round(subtotal * cartDiscountRate);
+      if (discountRow) discountRow.classList.remove('hidden');
+      if (discountEl) discountEl.textContent = `- ${{discountAmount}} ر.س`;
+    }} else {{
+      if (discountRow) discountRow.classList.add('hidden');
+    }}
+
+    let shippingCost = 0;
+    if (subtotal < 300 && subtotal > 0) {{
+      shippingCost = 25;
+      if (shippingEl) shippingEl.textContent = '25 ر.س';
+    }} else {{
+      if (shippingEl) shippingEl.textContent = 'مجاني';
+    }}
+
+    const grandTotal = Math.max(0, subtotal - discountAmount + shippingCost);
+    if (grandTotalEl) grandTotalEl.textContent = `${{grandTotal}} ر.س`;
+  }}
+
+  function proceedToCheckout() {{
+    const modal = document.getElementById('checkout-modal');
+    if (modal) {{
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }}
+  }}
+
+  // 18. Contact Form Handler
+  function handleContactSubmit(e) {{
+    e.preventDefault();
+    const successEl = document.getElementById('contact-success-msg');
+    if (successEl) successEl.classList.remove('hidden');
+    e.target.reset();
+    setTimeout(() => {{
+      if (successEl) successEl.classList.add('hidden');
+    }}, 5000);
+  }}
+
+  // 19. Router Engine
+  const NoteRouter = {{
+    resolveProductId: function(path, params) {{
+      if (params.get('id')) return params.get('id');
+      const decoded = decodeURIComponent(path).toLowerCase();
+      for (const p of noteProductsCatalog) {{
+        if (decoded.includes(p.id)) return p.id;
+      }}
+      for (const k in zidSlugMap) {{
+        if (decoded.includes(zidSlugMap[k])) return k;
+      }}
+      for (const p of noteProductsCatalog) {{
+        const cleanTitle = p.title.replace('عطر ', '').trim().toLowerCase();
+        if (decoded.includes(cleanTitle)) return p.id;
+      }}
+      return 'roayal-tobacco';
+    }},
+
+    resolveCategory: function(path, params) {{
+      if (params.get('cat')) return params.get('cat');
+      const decoded = decodeURIComponent(path).toLowerCase();
+      if (decoded.includes('perfumes')) return 'perfumes';
+      if (decoded.includes('نيش') || decoded.includes('niche')) return 'niche';
+      if (decoded.includes('مبيعا') || decoded.includes('bestseller')) return 'bestsellers';
+      if (decoded.includes('new')) return 'new';
+      if (decoded.includes('30ml') || decoded.includes('travel')) return 'travel';
+      if (decoded.includes('all-over') || decoded.includes('جسم')) return 'all-over';
+      if (decoded.includes('package') || decoded.includes('مجموعات')) return 'packages';
+      if (decoded.includes('linen') || decoded.includes('معطرات')) return 'linen';
+      if (decoded.includes('tollah') || decoded.includes('تول')) return 'tollah';
+      if (decoded.includes('body') || decoded.includes('عناية')) return 'body-care';
+      return 'all';
+    }},
+
+    detectRoute: function() {{
+      const path = window.location.pathname.toLowerCase();
+      const params = new URLSearchParams(window.location.search);
+
+      if (path.includes('/product') || params.has('id')) {{
+        return {{ route: 'product', id: this.resolveProductId(path, params) }};
+      }}
+      if (path.includes('/categor') || params.has('cat')) {{
+        return {{ route: 'category', cat: this.resolveCategory(path, params) }};
+      }}
+      if (path.includes('/cart')) {{
+        return {{ route: 'cart' }};
+      }}
+      if (path.includes('/faq')) {{
+        return {{ route: 'faqs' }};
+      }}
+      if (path.includes('/contact')) {{
+        return {{ route: 'contact' }};
+      }}
+      if (path.includes('/privacy')) {{
+        return {{ route: 'privacy' }};
+      }}
+      if (path.includes('/terms')) {{
+        return {{ route: 'terms' }};
+      }}
+      if (path.includes('/refund')) {{
+        return {{ route: 'refund' }};
+      }}
+      return {{ route: 'home' }};
+    }},
+
+    navigate: function(url) {{
+      if (!url) return;
+      if (url.startsWith('http') && !url.includes(window.location.hostname)) {{
+        window.location.href = url;
+        return;
+      }}
+      window.history.pushState({{ path: url }}, '', url);
+      this.route();
+      window.scrollTo({{ top: 0, behavior: 'instant' }});
+    }},
+
+    route: function() {{
+      const target = this.detectRoute();
+      console.log("NOTE Router Target:", target);
+
+      const contentEl = document.getElementById('page-content');
+      if (!contentEl) {{
+        console.warn("page-content container missing, re-mounting shell...");
+        mountShell();
+        return;
+      }}
+
+      // Reset scroll listeners
+      window.removeEventListener('scroll', handleHeaderScroll);
+
+      if (target.route === 'home') {{
+        document.title = "NOTE Perfumes | دار نوت للعطور الفاخرة";
+        contentEl.innerHTML = T.home;
+        initSliders();
+        initHeroCarousel();
+        initOffersCarousel();
+        handleHeaderScroll();
+        window.addEventListener('scroll', handleHeaderScroll, {{ passive: true }});
+      }} else if (target.route === 'product') {{
+        contentEl.innerHTML = T.product;
+        initPDP(target.id);
+        handleHeaderScroll();
+      }} else if (target.route === 'category') {{
+        contentEl.innerHTML = T.category;
+        selectCategory(target.cat, false);
+        handleHeaderScroll();
+      }} else if (target.route === 'cart') {{
+        contentEl.innerHTML = T.cart;
+        renderCartPage();
+        handleHeaderScroll();
+      }} else if (target.route === 'faqs') {{
+        document.title = "الأسئلة الشائعة ومركز المساعدة | NOTE Perfumes";
+        contentEl.innerHTML = T.faqs;
+        handleHeaderScroll();
+      }} else if (target.route === 'contact') {{
+        document.title = "تواصل معنا | دار نوت للعطور NOTE Perfumes";
+        contentEl.innerHTML = T.contact;
+        handleHeaderScroll();
+      }} else if (target.route === 'privacy') {{
+        document.title = "سياسة الخصوصية | دار نوت للعطور NOTE Perfumes";
+        contentEl.innerHTML = T.privacy;
+        handleHeaderScroll();
+      }} else if (target.route === 'terms') {{
+        document.title = "الشروط والأحكام | دار نوت للعطور NOTE Perfumes";
+        contentEl.innerHTML = T.terms;
+        handleHeaderScroll();
+      }} else if (target.route === 'refund') {{
+        document.title = "سياسة الاستبدال والاسترجاع والضمان الذهبي | NOTE Perfumes";
+        contentEl.innerHTML = T.refund;
+        handleHeaderScroll();
+      }}
+
+      CartManager.updateBadge();
+    }}
+  }};
+
+  // 20. Shell Mounter
+  function mountShell() {{
     const mainEl = document.querySelector('.tp-home') || 
                    document.querySelector('.main.app-content') || 
                    document.querySelector('.app-content') || 
@@ -776,51 +1540,82 @@ app_js_content = f"""/**
                    document.body;
 
     if (!mainEl) {{
-      setTimeout(mountStorefront, 50);
+      setTimeout(mountShell, 50);
       return;
     }}
 
-    // Remove Rozia default footers, headers and native sections completely
+    // Remove Rozia footers, headers and native sections
     document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer').forEach(el => {{
       el.remove();
     }});
 
-    // Completely replace mainEl content with our luxury storefront
-    mainEl.innerHTML = '';
+    // Check if storefront shell already mounted
+    let shell = document.getElementById('note-luxury-storefront');
+    if (!shell) {{
+      mainEl.innerHTML = '';
+      shell = document.createElement('div');
+      shell.id = 'note-luxury-storefront';
+      shell.className = 'w-full bg-white text-black antialiased selection:bg-black selection:text-white min-h-screen flex flex-col justify-between';
+      
+      shell.innerHTML = `
+        ${{T.header}}
+        <div id="page-content" class="w-full flex-grow"></div>
+        ${{T.footer}}
+        ${{T.modals}}
+        ${{T.drawer}}
+      `;
 
-    const storefrontContainer = document.createElement('div');
-    storefrontContainer.id = 'note-luxury-storefront';
-    storefrontContainer.className = 'w-full bg-white text-black antialiased selection:bg-black selection:text-white';
-    storefrontContainer.innerHTML = {markup_escaped};
+      mainEl.appendChild(shell);
 
-    mainEl.appendChild(storefrontContainer);
+      // Clean up duplicate native Rozia injections
+      const cleanupInterval = setInterval(() => {{
+        document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer').forEach(el => el.remove());
+        Array.from(mainEl.children).forEach(child => {{
+          if (child !== shell && child.id !== 'note-luxury-storefront') {{
+            child.remove();
+          }}
+        }});
+      }}, 300);
+      setTimeout(() => clearInterval(cleanupInterval), 3000);
+    }}
 
-    // Keep removing any late-injected Rozia blocks
-    const cleanupInterval = setInterval(() => {{
-      document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer').forEach(el => el.remove());
-      Array.from(mainEl.children).forEach(child => {{
-        if (child !== storefrontContainer && child.id !== 'note-luxury-storefront') {{
-          child.remove();
-        }}
-      }});
-    }}, 300);
-    setTimeout(() => clearInterval(cleanupInterval), 3000);
-
-    // Initialize all components
-    initSliders();
-    handleHeaderScroll();
-    initHeroCarousel();
-    initOffersCarousel();
-    CartManager.updateBadge();
-
-    window.addEventListener('scroll', handleHeaderScroll, {{ passive: true }});
-    console.log("NOTE Perfumes Master Storefront Mounted Successfully!");
+    // Route to current page
+    NoteRouter.route();
   }}
 
-  // Global Exports for Interactive Event Handlers
+  // 21. Global Link Interception for Instant SPA Navigation
+  document.addEventListener('click', function(e) {{
+    const a = e.target.closest('a');
+    if (!a) return;
+    const href = a.getAttribute('href');
+    if (!href) return;
+
+    if (href.startsWith('#') || href.startsWith('tel:') || href.startsWith('mailto:') || href.startsWith('javascript:') || href.includes('wa.me')) {{
+      return;
+    }}
+    if (a.getAttribute('target') === '_blank') {{
+      return;
+    }}
+
+    if (href.startsWith('/') || href.startsWith('./') || href.includes(window.location.hostname)) {{
+      e.preventDefault();
+      closeMobileMenu();
+      closeSearchModal();
+      CartManager.closeDrawer();
+      NoteRouter.navigate(href);
+    }}
+  }});
+
+  // Handle browser back/forward
+  window.addEventListener('popstate', function() {{
+    NoteRouter.route();
+  }});
+
+  // Global Exports for Inlined HTML Handlers
   window.productsData = productsData;
   window.noteProductsCatalog = noteProductsCatalog;
   window.CartManager = CartManager;
+  window.NoteRouter = NoteRouter;
   window.renderProductCard = renderProductCard;
   window.initSliders = initSliders;
   window.scrollSlider = scrollSlider;
@@ -838,14 +1633,52 @@ app_js_content = f"""/**
   window.nextOfferSlide = nextOfferSlide;
   window.prevOfferSlide = prevOfferSlide;
 
+  // PDP Handlers
+  window.changePDPQuantity = changePDPQuantity;
+  window.addToCartCurrentProduct = addToCartCurrentProduct;
+  window.buyNowCurrentProduct = buyNowCurrentProduct;
+
+  // Category Handlers & Aliases
+  window.selectCategory = selectCategory;
+  window.handleCategorySearch = handleCategorySearch;
+  window.handleCategorySort = handleCategorySort;
+  window.resetCategoryFilters = resetCategoryFilters;
+  window.handleSearch = handleCategorySearch;
+  window.handleSort = handleCategorySort;
+  window.resetFilters = resetCategoryFilters;
+  window.focusSearchInput = function() {{
+    const el = document.getElementById('cat-search-input');
+    if (el) el.focus();
+  }};
+
+  // Cart Page Handlers & Aliases
+  window.renderCartPage = renderCartPage;
+  window.applyCartCoupon = applyCartCoupon;
+  window.applyCoupon = applyCartCoupon;
+  window.updateCartItemQty = function(id, delta) {{
+    CartManager.updateQuantity(id, delta);
+    renderCartPage();
+  }};
+  window.removeCartItem = function(id) {{
+    CartManager.removeItem(id);
+    renderCartPage();
+  }};
+  window.clearAndGoHome = function() {{
+    localStorage.removeItem('note_cart');
+    NoteRouter.navigate('/');
+  }};
+  window.proceedToCheckout = proceedToCheckout;
+  window.handleContactSubmit = handleContactSubmit;
+
   if (document.readyState === 'loading') {{
-    document.addEventListener('DOMContentLoaded', mountStorefront);
+    document.addEventListener('DOMContentLoaded', mountShell);
   }} else {{
-    mountStorefront();
+    mountShell();
   }}
 }})();
 """
 
 with open(OUT_JS, "w", encoding="utf-8") as f:
-    f.write(app_js_content)
+    f.write(app_js_code)
 print(f"Generated {OUT_JS} ({os.path.getsize(OUT_JS)} bytes)")
+
