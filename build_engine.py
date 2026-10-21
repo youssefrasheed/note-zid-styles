@@ -229,6 +229,21 @@ footer::before,
   opacity: 1 !important;
 }}
 
+/* Category Filter Pills Container - No Truncation or Clipping */
+.cat-pills-container,
+#category-pills-bar {{
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px 10px !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}}
+
+.cat-pill {{
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}}
+
 /* Active Nav Links Underline (100% Reference Parity) */
 #nav-links a.border-b-2,
 header nav a.border-b-2,
