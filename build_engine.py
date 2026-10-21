@@ -620,6 +620,45 @@ app_js_code = f"""/**
           if (zName && !zName.includes('BABY') && !zName.includes('All OVER') && !zName.includes('Tollah')) {{
             matched.zid_title = zName;
           }}
+        }} else if (zPrice && !isNaN(zPrice)) {{
+          // Dynamically register newly added products from Zid Dashboard
+          const firstImg = (zp.images && zp.images[0] && zp.images[0].image && (zp.images[0].image.large || zp.images[0].image.full_size)) || '';
+          const secondImg = (zp.images && zp.images[1] && zp.images[1].image && (zp.images[1].image.large || zp.images[1].image.full_size)) || '';
+
+          let catSlug = 'perfumes';
+          let catAr = 'العطور';
+          if (zp.categories && zp.categories[0]) {{
+            catSlug = zp.categories[0].slug || 'perfumes';
+            catAr = zp.categories[0].name || 'العطور';
+          }}
+
+          const newProductEntry = {{
+            id: zSlug || zId,
+            zid_id: zId,
+            title: zName,
+            title_en: zp.name_en || zName,
+            cat: catSlug,
+            cat_ar: catAr,
+            size: '100 مل',
+            concentration: 'Eau de Parfum',
+            tag: 'جديد',
+            bestseller: false,
+            price: Math.round(Number(zPrice)),
+            old_price: zOldPrice ? Math.round(Number(zOldPrice)) : null,
+            discount: zOldPrice ? Math.round(((zOldPrice - zPrice) / zOldPrice) * 100) + '%' : null,
+            rating: 4.9,
+            reviews_count: 12,
+            in_stock: inStock,
+            img: firstImg || '/products/NOTE_Royal_Tobacco_Flat_Lay.webp',
+            img_box: secondImg || firstImg || null,
+            notes: '',
+            slogan: zName,
+            description: (zp.description || zName).replace(/<[^>]*>/g, '').trim(),
+            top: '',
+            heart: '',
+            base: ''
+          }};
+          noteProductsCatalog.push(newProductEntry);
         }}
       }});
 
@@ -666,6 +705,11 @@ app_js_code = f"""/**
         // Update Cart Drawer if open
         if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) {{
           CartManager.renderDrawer();
+        }}
+
+        // Update Catalog Grid if on catalog / category page
+        if (typeof renderCatalog === 'function' && document.getElementById('catalog-products-grid')) {{
+          renderCatalog();
         }}
       }} catch(e) {{}}
     }}
