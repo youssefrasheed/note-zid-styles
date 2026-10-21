@@ -374,6 +374,71 @@ header nav a:not(.active-link) {{
   transition: filter 0.3s ease !important;
 }}
 
+/* Recommended Products Modern Desktop & Mobile Scroll */
+.note-compact-recs {{
+  display: flex !important;
+  gap: 8px !important;
+  overflow-x: auto !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #d6d3d1 transparent !important;
+  scroll-snap-type: none !important;
+  padding: 4px 2px 6px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overscroll-behavior-x: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+  cursor: grab !important;
+  user-select: none !important;
+}}
+.note-compact-recs:active {{
+  cursor: grabbing !important;
+}}
+.note-compact-recs::-webkit-scrollbar {{
+  display: block !important;
+  height: 4px !important;
+}}
+.note-compact-recs::-webkit-scrollbar-track {{
+  background: #f5f5f4 !important;
+  border-radius: 9999px !important;
+}}
+.note-compact-recs::-webkit-scrollbar-thumb {{
+  background: #d6d3d1 !important;
+  border-radius: 9999px !important;
+}}
+.note-compact-recs::-webkit-scrollbar-thumb:hover {{
+  background: #78716c !important;
+}}
+
+.note-recs-nav {{
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}}
+.note-recs-btn {{
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 9999px !important;
+  border: 1px solid #e7e5e4 !important;
+  background: #ffffff !important;
+  color: #1c1917 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+}}
+.note-recs-btn:hover {{
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-color: #000000 !important;
+}}
+.note-recs-btn:active {{
+  transform: scale(0.92) !important;
+}}
+
 /* Floating WhatsApp Button - Elevated above Mobile Bottom Navigation */
 #floating-whatsapp-container {{
   bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important;
@@ -1273,28 +1338,106 @@ app_js_code = f"""/**
     const bestTrack = document.getElementById('slider-bestsellers');
     if (bestTrack) {{
       bestTrack.innerHTML = productsData.slice(0, 6).map((p, i) => renderProductCard(p, i)).join('');
+      enableSliderDragAndWheel(bestTrack);
     }}
 
     const nicheTrack = document.getElementById('slider-niche');
     if (nicheTrack) {{
       nicheTrack.innerHTML = productsData.slice(6, 10).map((p, i) => renderProductCard(p, i + 6)).join('');
+      enableSliderDragAndWheel(nicheTrack);
     }}
 
     const newTrack = document.getElementById('slider-new');
     if (newTrack) {{
       newTrack.innerHTML = productsData.slice(10, 16).map((p, i) => renderProductCard(p, i + 10)).join('');
+      enableSliderDragAndWheel(newTrack);
     }}
   }}
 
   function scrollSlider(id, direction) {{
     const slider = document.getElementById(id);
     if (!slider) return;
-    const scrollAmount = slider.clientWidth * 0.75;
-    if (direction === 'prev') {{
-      slider.scrollBy({{ left: -scrollAmount, behavior: 'smooth' }});
+    const card = slider.firstElementChild;
+    const cardWidth = card ? (card.offsetWidth + 20) : 260;
+    const scrollAmount = Math.max(slider.clientWidth * 0.75, cardWidth);
+    
+    // In RTL, moving left into next items requires a negative scrollLeft delta
+    let delta = 0;
+    if (direction === 'left' || direction === 'next') {{
+      delta = -scrollAmount;
     }} else {{
-      slider.scrollBy({{ left: scrollAmount, behavior: 'smooth' }});
+      delta = scrollAmount;
     }}
+    slider.scrollBy({{ left: delta, behavior: 'smooth' }});
+  }}
+
+  function enableSliderDragAndWheel(slider) {{
+    if (!slider || slider._wheelDragAttached || typeof slider.addEventListener !== 'function') return;
+    slider._wheelDragAttached = true;
+    
+    // Mouse Wheel -> Smooth horizontal card scroll on desktop
+    let wheelTimer = null;
+    let wheelDelta = 0;
+    slider.addEventListener('wheel', (e) => {{
+      if (Math.abs(e.deltaY) >= Math.abs(e.deltaX)) {{
+        if (slider.scrollWidth > slider.clientWidth) {{
+          e.preventDefault();
+          wheelDelta += e.deltaY;
+          clearTimeout(wheelTimer);
+          wheelTimer = setTimeout(() => {{
+            const dir = wheelDelta > 0 ? 'left' : 'right';
+            scrollSlider(slider.id, dir);
+            wheelDelta = 0;
+          }}, 30);
+        }}
+      }}
+    }}, {{ passive: false }});
+
+    // Mouse Drag-to-Scroll (Desktop Grab & Drag)
+    let isDown = false, startX = 0, scrollStart = 0, hasMoved = false;
+    slider.style.cursor = 'grab';
+
+    slider.addEventListener('mousedown', (e) => {{
+      if (e.button !== 0) return;
+      isDown = true;
+      hasMoved = false;
+      startX = e.pageX;
+      scrollStart = slider.scrollLeft;
+      slider.style.cursor = 'grabbing';
+      slider.style.scrollBehavior = 'auto';
+      slider.style.scrollSnapType = 'none';
+    }});
+
+    const stopDrag = () => {{
+      if (!isDown) return;
+      isDown = false;
+      slider.style.cursor = 'grab';
+      slider.style.scrollBehavior = '';
+      slider.style.scrollSnapType = '';
+      setTimeout(() => {{ hasMoved = false; }}, 60);
+    }};
+
+    if (typeof window !== 'undefined' && window.addEventListener) {{
+      window.addEventListener('mouseup', stopDrag);
+    }}
+    slider.addEventListener('mouseleave', stopDrag);
+
+    slider.addEventListener('mousemove', (e) => {{
+      if (!isDown) return;
+      const diff = e.pageX - startX;
+      if (Math.abs(diff) > 4) {{
+        hasMoved = true;
+        e.preventDefault();
+        slider.scrollLeft = scrollStart - diff;
+      }}
+    }});
+
+    slider.addEventListener('click', (e) => {{
+      if (hasMoved) {{
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    }}, true);
   }}
 
   // 10. Header Scroll Glassmorphism
