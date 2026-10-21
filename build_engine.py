@@ -233,6 +233,8 @@ footer::before,
 .cat-pills-container,
 #category-pills-bar {{
   display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
   gap: 8px !important;
   overflow-x: auto !important;
   overflow-y: hidden !important;
@@ -245,6 +247,7 @@ footer::before,
   .cat-pills-container,
   #category-pills-bar {{
     flex-wrap: wrap !important;
+    justify-content: center !important;
     overflow: visible !important;
     white-space: normal !important;
   }}

@@ -53,6 +53,8 @@
 
     #category-pills-bar {
       display: flex !important;
+      justify-content: flex-start !important;
+      align-items: center !important;
       gap: 8px !important;
       overflow-x: auto !important;
       overflow-y: hidden !important;
@@ -63,6 +65,7 @@
     @media (min-width: 1024px) {
       #category-pills-bar {
         flex-wrap: wrap !important;
+        justify-content: center !important;
         overflow: visible !important;
         white-space: normal !important;
       }
@@ -167,11 +170,11 @@
       <!-- ================= STICKY CONTROLS & CATEGORY PILLS BAR ================= -->
       <div id="sticky-catalog-controls" class="sticky top-20 sm:top-24 z-30 bg-white/95 backdrop-blur-md pt-3 pb-3 border-b border-stone-200/80 mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 transition-all duration-300 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.06)]">
         
-        <!-- Controls Row: Search Input + Sorting Dropdown + Product Count -->
-        <div class="flex items-center justify-between gap-3 mb-2.5 sm:mb-3">
+        <!-- Controls Row: Search Input + Sorting Dropdown + Product Count (Centered Axis) -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-2.5 sm:mb-3 max-w-3xl mx-auto">
           
           <!-- Live Search Field -->
-          <div class="relative flex-grow max-w-md sm:max-w-lg">
+          <div class="relative w-full sm:w-80 md:w-96 max-w-md">
             <i class="sicon-search absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-sm"></i>
             <input id="cat-search-input" oninput="handleSearch(this.value)" type="text" placeholder="ابحث بالاسم، المكونات، الرائحة..." class="w-full pr-10 pl-8 py-2 rounded-full border border-stone-200/90 text-xs focus:outline-none focus:border-black transition bg-stone-50/70 hover:bg-white focus:bg-white shadow-xs">
             <button id="cat-search-clear" onclick="clearCatSearch()" class="hidden absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-black text-xs transition" title="مسح">
@@ -180,7 +183,7 @@
           </div>
 
           <!-- Right Side: Count and Sort Dropdown -->
-          <div class="flex items-center gap-2 sm:gap-3 text-xs font-bold text-stone-600 shrink-0">
+          <div class="flex items-center justify-center gap-2 sm:gap-3 text-xs font-bold text-stone-600 shrink-0">
             <span id="cat-products-count" class="text-stone-500 whitespace-nowrap hidden sm:inline-block">عرض 0 منتج</span>
 
             <div class="flex items-center gap-1.5">
@@ -197,8 +200,8 @@
 
         </div>
 
-        <!-- Category Filter Pills Bar (Horizontal Scrollable with Smooth Drag/Swipe) -->
-        <div id="category-pills-bar" class="cat-pills-container flex items-center gap-2 overflow-x-auto scrollbar-none py-1 text-xs font-bold -mx-1 px-1">
+        <!-- Category Filter Pills Bar (Centered Horizontal Axis) -->
+        <div id="category-pills-bar" class="cat-pills-container flex items-center justify-start lg:justify-center gap-2 overflow-x-auto scrollbar-none py-1 text-xs font-bold -mx-1 px-1">
           <button onclick="selectCategory('all')" id="pill-all" class="cat-pill shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-stone-200 text-stone-700 hover:border-black transition cat-pill-active">
             الكل (جميع المنتجات)
           </button>
