@@ -95,8 +95,14 @@
   };
   NoteRouter.resolveProductId = function(path, params) {
     const key=params.get('id') || decodeURIComponent(path).split('/').filter(Boolean).pop();
-    const product=noteProductsCatalog.find(p => p.id===key || p.slug===key);
+    const product=noteProductsCatalog.find(p => p.id===key || p.id.replace(/-/g,'')===key || p.slug===key);
     return product?.id || null;
+  };
+  const categoryRouteAliases={1748533:'perfumes',1500261:'niche',1759040:'niche',1697258:'bestsellers',1327929:'new',1759041:'new',1310036:'travel',1759043:'travel',1688838:'all-over',1759042:'all-over',1752110:'packages',1759047:'packages',1759085:'packages',1310037:'linen',1759044:'linen',1759045:'linen',1421002:'tollah',1750048:'body-care',1759046:'body-care'};
+  const originalResolveCategory=NoteRouter.resolveCategory;
+  NoteRouter.resolveCategory=function(path,params) {
+    const categoryId=decodeURIComponent(path).match(/\/categor(?:y|ies)\/(\d+)/)?.[1];
+    return params.get('cat') || categoryRouteAliases[categoryId] || originalResolveCategory.call(this,path,params);
   };
   const originalNavigate=NoteRouter.navigate;
   NoteRouter.navigate = function(url) {
