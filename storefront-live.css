@@ -32,6 +32,7 @@
 }
 
 #cart-drawer-recommendations {
+  padding: 4px 14px 6px !important;
   padding: 6px 14px !important;
   margin: 0 !important;
   background: #fafaf9 !important;
@@ -268,4 +269,8 @@ body:not(.note-ready) header.header-nav,
 body:not(.note-ready) footer:not(#note-store-footer) {
   display: none !important;
   visibility: hidden !important;
+}
+
+#cart-drawer-recommendations .flex > span:last-child {
+  display: none !important;
 }
