@@ -114,16 +114,16 @@
             </a>
           </div>
 
-          <!-- Recommendations Section in Cart Page -->
-          <div id="cart-page-recommendations-section" class="mt-12 pt-8 border-t border-stone-200 text-right">
-            <div class="flex items-center justify-between mb-5">
+          <!-- Recommendations Section in Cart Page (Compact) -->
+          <div id="cart-page-recommendations-section" class="mt-8 pt-6 border-t border-stone-200 text-right">
+            <div class="flex items-center justify-between mb-3">
               <div>
-                <span class="text-[10px] text-stone-400 font-bold uppercase tracking-wider block mb-1">COMPLETE YOUR COLLECTION</span>
-                <h3 class="text-base sm:text-lg font-extrabold text-black">عطور ومنتجات مختارة تكمل مجموعتك العطرية</h3>
+                <span class="text-[9px] text-stone-400 font-bold uppercase tracking-wider block">RECOMMENDED FOR YOU</span>
+                <h3 class="text-xs sm:text-sm font-extrabold text-black">ترشيحات تكمل مجموعتك العطرية</h3>
               </div>
-              <span class="text-xs text-stone-400 hidden sm:block">ترشيحات مختارة بعناية لتجربة فاخرة</span>
+              <span class="text-[10px] text-stone-400 hidden sm:block">إضافة سريعة بنقرة واحدة</span>
             </div>
-            <div id="cart-page-recs-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            <div id="cart-page-recs-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
               <!-- Rendered dynamically via JS -->
             </div>
           </div>
@@ -174,29 +174,28 @@
               </div>
             </div>
 
-            <!-- Exclusive Checkout Order Upsell -->
-            <div id="checkout-upsell-card" class="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-right space-y-2.5">
-              <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <i class="sicon-sparkles text-amber-600"></i>
-                  <span>عرض إتمام الطلب الحصري</span>
-                </span>
-                <span class="text-[9px] bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded-full">وفر 55%</span>
-              </div>
-              <div class="flex items-center gap-2.5">
-                <div class="w-12 h-12 rounded-xl bg-white p-1 border border-amber-100 shrink-0 flex items-center justify-center">
-                  <img id="upsell-img" src="/products/NOTE_For_Her_30ml_v02.webp" alt="NOTE 30ml" class="w-full h-full object-contain">
-                </div>
-                <div class="flex-grow min-w-0">
-                  <h5 id="upsell-title" class="text-xs font-bold text-black truncate">عطر نوت فور هير (30 مل)</h5>
-                  <p class="text-[10px] text-stone-500 truncate">حجم السفر المثالي للحقيبة والمكتب</p>
-                  <div class="flex items-center gap-1.5 mt-0.5">
-                    <span id="upsell-price" class="text-xs font-extrabold text-rose-600">89 ر.س</span>
-                    <span id="upsell-old-price" class="text-[10px] text-stone-400 line-through">199 ر.س</span>
+            <!-- Exclusive Checkout Order Upsell (Compact Slim Bar) -->
+            <div id="checkout-upsell-card" class="p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/70 text-right">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="w-9 h-9 rounded-lg bg-white p-0.5 border border-amber-100 shrink-0 flex items-center justify-center">
+                    <img id="upsell-img" src="/products/NOTE_For_Her_30ml_v02.webp" alt="NOTE 30ml" class="w-full h-full object-contain">
+                  </div>
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-[9px] font-extrabold text-amber-800 bg-amber-100/90 px-1.5 py-0.2 rounded">عرض خاص</span>
+                      <h5 id="upsell-title" class="text-[11px] font-bold text-black truncate">عطر نوت فور هير (30 مل)</h5>
+                    </div>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                      <span id="upsell-price" class="text-[11px] font-extrabold text-rose-600">89 ر.س</span>
+                      <span id="upsell-old-price" class="text-[9px] text-stone-400 line-through">199 ر.س</span>
+                      <span class="text-[9px] text-emerald-600 font-bold hidden sm:inline">(وفر 55%)</span>
+                    </div>
                   </div>
                 </div>
-                <button id="upsell-add-btn" class="px-2.5 py-1.5 rounded-xl bg-black hover:bg-stone-800 text-white text-[11px] font-bold transition shrink-0 shadow-sm active:scale-95">
-                  + أضف للطلب
+                <button id="upsell-add-btn" class="px-2.5 py-1 rounded-lg bg-black hover:bg-stone-800 text-white text-[10px] font-bold transition shrink-0 shadow-xs active:scale-95 flex items-center gap-1">
+                  <i class="sicon-plus text-[9px]"></i>
+                  <span>أضف للطلب</span>
                 </button>
               </div>
             </div>
@@ -466,21 +465,21 @@
         .slice(0, 4);
 
       recsGrid.innerHTML = recs.map(p => `
-        <div class="p-3 rounded-2xl bg-stone-50 border border-stone-200/70 flex flex-col justify-between text-center group hover:border-black transition">
+        <div class="p-2 sm:p-2.5 rounded-xl bg-stone-50/80 border border-stone-200/70 flex flex-col justify-between text-center group hover:border-black transition">
           <div>
-            <div class="relative aspect-square mb-2 p-2 flex items-center justify-center bg-white rounded-xl border border-stone-100 overflow-hidden">
-              <img src="${p.img}" alt="${p.title}" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+            <div class="h-16 sm:h-20 mb-1.5 p-1 flex items-center justify-center bg-white rounded-lg border border-stone-100 overflow-hidden">
+              <img src="${p.img}" alt="${p.title}" class="max-h-full max-w-full object-contain group-hover:scale-105 transition duration-300">
             </div>
-            <h5 class="text-xs font-bold text-black line-clamp-1 mb-1">${p.title}</h5>
-            <p class="text-[10px] text-stone-400 line-clamp-1 mb-2">${p.size || '100 مل'}</p>
+            <h5 class="text-[11px] font-bold text-black truncate mb-0.5">${p.title}</h5>
+            <p class="text-[9px] text-stone-400 truncate mb-1">${p.size || '100 مل'}</p>
           </div>
           <div>
-            <div class="flex items-center justify-center gap-1.5 mb-2">
-              <span class="text-xs font-extrabold text-black">${p.price} ر.س</span>
-              ${p.old_price ? `<span class="text-[10px] text-stone-400 line-through">${p.old_price} ر.س</span>` : ''}
+            <div class="flex items-center justify-center gap-1.5 mb-1.5">
+              <span class="text-[11px] font-extrabold text-black">${p.price} ر.س</span>
+              ${p.old_price ? `<span class="text-[9px] text-stone-400 line-through">${p.old_price} ر.س</span>` : ''}
             </div>
-            <button onclick="CartManager.addItem('${p.id}', 1); renderCartPage();" class="w-full py-2 rounded-full bg-black hover:bg-stone-800 text-white text-[11px] font-bold transition flex items-center justify-center gap-1 active:scale-95 shadow-xs">
-              <i class="sicon-plus text-[10px]"></i>
+            <button onclick="CartManager.addItem('${p.id}', 1); renderCartPage();" class="w-full py-1.5 rounded-lg bg-black hover:bg-stone-800 text-white text-[10px] font-bold transition flex items-center justify-center gap-1 active:scale-95 shadow-xs">
+              <i class="sicon-plus text-[9px]"></i>
               <span>أضف للسلة</span>
             </button>
           </div>

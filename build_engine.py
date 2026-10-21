@@ -622,27 +622,27 @@ app_js_code = f"""/**
           .filter(id => !inCartIds.has(id))
           .map(id => noteProductsCatalog.find(p => p.id === id))
           .filter(Boolean)
-          .slice(0, 2);
+          .slice(0, 1);
 
         if (recs.length > 0) {{
           recsContainer.classList.remove('hidden');
           recsList.innerHTML = recs.map(p => {{
             const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
             return `
-              <div class="flex items-center justify-between gap-3 p-2.5 bg-white rounded-xl border border-stone-200/70 shadow-xs">
-                <div class="flex items-center gap-2.5 min-w-0">
-                  <div class="w-11 h-11 rounded-lg bg-stone-50 p-1 border border-stone-100 shrink-0 flex items-center justify-center">
+              <div class="flex items-center justify-between gap-2.5 p-2 bg-white rounded-xl border border-stone-200/70 shadow-xs">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="w-9 h-9 rounded-lg bg-stone-50 p-0.5 border border-stone-100 shrink-0 flex items-center justify-center">
                     <img src="${{imgUrl}}" alt="${{p.title}}" class="w-full h-full object-contain">
                   </div>
                   <div class="min-w-0">
                     <h5 class="text-[11px] font-bold text-black truncate">${{p.title}}</h5>
                     <div class="flex items-center gap-1.5 mt-0.5">
-                      <span class="text-xs font-extrabold text-black">${{p.price}} ر.س</span>
-                      ${{p.old_price ? `<span class="text-[10px] text-stone-400 line-through">${{p.old_price}} ر.س</span>` : ''}}
+                      <span class="text-[11px] font-extrabold text-black">${{p.price}} ر.س</span>
+                      ${{p.old_price ? `<span class="text-[9px] text-stone-400 line-through">${{p.old_price}} ر.س</span>` : ''}}
                     </div>
                   </div>
                 </div>
-                <button onclick="CartManager.addItem('${{p.id}}', 1)" class="px-3 py-1.5 rounded-full bg-black hover:bg-stone-800 text-white text-[10px] font-bold shrink-0 transition flex items-center gap-1 active:scale-95 shadow-xs" title="إضافة سريعة">
+                <button onclick="CartManager.addItem('${{p.id}}', 1)" class="px-2.5 py-1 rounded-lg bg-black hover:bg-stone-800 text-white text-[10px] font-bold shrink-0 transition flex items-center gap-1 active:scale-95 shadow-xs" title="إضافة سريعة">
                   <i class="sicon-plus text-[9px]"></i>
                   <span>أضف</span>
                 </button>
