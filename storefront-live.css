@@ -19,3 +19,5 @@
 button:disabled{opacity:.5;cursor:not-allowed}
 @media(max-width:640px){.note-mini-card{flex-basis:142px;max-width:142px}#cart-page-recommendations-section{padding:10px!important}}
 @media(prefers-reduced-motion:reduce){.note-compact-recs{scroll-behavior:auto!important}}
+
+button[aria-label="حذف المنتج من السلة"]{color:#57534e!important}button[aria-label="حذف المنتج من السلة"]:hover{color:#be123c!important}

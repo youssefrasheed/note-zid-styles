@@ -1,13 +1,13 @@
 /**
  * NOTE Perfumes Official Storefront Engine for Zid
- * Version: 4.2.0 - Full Multi-Page SPA Client Master Edition
+ * Version: 4.2.1 - Full Multi-Page SPA Client Master Edition
  * Authentic NOTE Perfumes Storefront Engine
  * Hosted via GitHub Pages CDN: https://youssefrasheed.github.io/note-zid-styles/
  */
 (function() {
   "use strict";
   if (/^\/(checkout|auth|account)(\/|$)/.test(location.pathname) || new URLSearchParams(location.search).get("native")==="1") return;
-  console.log("NOTE Perfumes Master Engine v4.2.0 Starting...");
+  console.log("NOTE Perfumes Master Engine v4.2.1 Starting...");
 
   const ASSET_HOST = "https://youssefrasheed.github.io/note-zid-styles";
 
@@ -3638,7 +3638,7 @@ header nav a.active-link {
     }
   });
 
-  const integrationStyles=document.createElement("style");integrationStyles.id="note-live-styles";integrationStyles.textContent="/* NOTE 4.2: compact, accessible cart suggestions and bundle choices */\n#cart-page-recommendations-section{margin-top:16px!important;padding:14px!important;border-radius:16px!important}\n#cart-page-recommendations-section h3,#cart-page-recommendations-section h2{font-size:14px!important;margin-bottom:10px!important}\n.note-compact-recs{display:flex!important;gap:10px!important;overflow-x:auto!important;scrollbar-width:thin;scroll-snap-type:none!important;padding:4px 0 8px!important;width:100%;max-width:100%;overscroll-behavior-x:contain}\n.note-mini-card{flex:0 0 152px;max-width:152px;min-width:0;background:#fafaf9;border:1px solid #e7e5e4;border-radius:12px;padding:8px;box-sizing:border-box;color:#111;text-align:right}\n.note-mini-card a{display:grid;grid-template-columns:44px 1fr;column-gap:7px;align-items:center;text-decoration:none;color:inherit}\n.note-mini-card img{width:44px;height:48px;object-fit:contain;grid-row:span 2;border-radius:6px;background:white}\n.note-mini-card span{font-size:10px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}\n.note-mini-card strong{font-size:11px;white-space:nowrap}\n.note-mini-card button{width:100%;min-height:30px;font-size:10px;border-radius:20px;background:#111;color:white;margin-top:6px;cursor:pointer}\n.note-bundle-options{margin:18px 0;padding:16px;border:1px solid #d6d3d1;border-radius:14px;clear:both;width:100%;font-size:13px}\n.note-bundle-options h3{font-weight:700;margin-bottom:12px}\n.note-bundle-options fieldset{margin:12px 0;border:0;padding:0}\n.note-bundle-options legend{font-weight:700;margin-bottom:6px}\n.note-bundle-options label{display:block;font-size:12px;margin:6px 0}\n.note-bundle-options select{display:block;width:100%;min-height:44px;background:white;color:#111;border:1px solid #a8a29e;border-radius:8px;padding:9px;margin-top:4px}\n.note-bundle-options select:focus-visible,.note-mini-card button:focus-visible{outline:2px solid #a58b52;outline-offset:3px}\n.note-empty-products{padding:16px;font-size:13px;color:#78716c}\nbutton:disabled{opacity:.5;cursor:not-allowed}\n@media(max-width:640px){.note-mini-card{flex-basis:142px;max-width:142px}#cart-page-recommendations-section{padding:10px!important}}\n@media(prefers-reduced-motion:reduce){.note-compact-recs{scroll-behavior:auto!important}}\n";document.head.append(integrationStyles);
+  const integrationStyles=document.createElement("style");integrationStyles.id="note-live-styles";integrationStyles.textContent="/* NOTE 4.2: compact, accessible cart suggestions and bundle choices */\n#cart-page-recommendations-section{margin-top:16px!important;padding:14px!important;border-radius:16px!important}\n#cart-page-recommendations-section h3,#cart-page-recommendations-section h2{font-size:14px!important;margin-bottom:10px!important}\n.note-compact-recs{display:flex!important;gap:10px!important;overflow-x:auto!important;scrollbar-width:thin;scroll-snap-type:none!important;padding:4px 0 8px!important;width:100%;max-width:100%;overscroll-behavior-x:contain}\n.note-mini-card{flex:0 0 152px;max-width:152px;min-width:0;background:#fafaf9;border:1px solid #e7e5e4;border-radius:12px;padding:8px;box-sizing:border-box;color:#111;text-align:right}\n.note-mini-card a{display:grid;grid-template-columns:44px 1fr;column-gap:7px;align-items:center;text-decoration:none;color:inherit}\n.note-mini-card img{width:44px;height:48px;object-fit:contain;grid-row:span 2;border-radius:6px;background:white}\n.note-mini-card span{font-size:10px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}\n.note-mini-card strong{font-size:11px;white-space:nowrap}\n.note-mini-card button{width:100%;min-height:30px;font-size:10px;border-radius:20px;background:#111;color:white;margin-top:6px;cursor:pointer}\n.note-bundle-options{margin:18px 0;padding:16px;border:1px solid #d6d3d1;border-radius:14px;clear:both;width:100%;font-size:13px}\n.note-bundle-options h3{font-weight:700;margin-bottom:12px}\n.note-bundle-options fieldset{margin:12px 0;border:0;padding:0}\n.note-bundle-options legend{font-weight:700;margin-bottom:6px}\n.note-bundle-options label{display:block;font-size:12px;margin:6px 0}\n.note-bundle-options select{display:block;width:100%;min-height:44px;background:white;color:#111;border:1px solid #a8a29e;border-radius:8px;padding:9px;margin-top:4px}\n.note-bundle-options select:focus-visible,.note-mini-card button:focus-visible{outline:2px solid #a58b52;outline-offset:3px}\n.note-empty-products{padding:16px;font-size:13px;color:#78716c}\nbutton:disabled{opacity:.5;cursor:not-allowed}\n@media(max-width:640px){.note-mini-card{flex-basis:142px;max-width:142px}#cart-page-recommendations-section{padding:10px!important}}\n@media(prefers-reduced-motion:reduce){.note-compact-recs{scroll-behavior:auto!important}}\n\nbutton[aria-label=\"\u062d\u0630\u0641 \u0627\u0644\u0645\u0646\u062a\u062c \u0645\u0646 \u0627\u0644\u0633\u0644\u0629\"]{color:#57534e!important}button[aria-label=\"\u062d\u0630\u0641 \u0627\u0644\u0645\u0646\u062a\u062c \u0645\u0646 \u0627\u0644\u0633\u0644\u0629\"]:hover{color:#be123c!important}\n";document.head.append(integrationStyles);
   // Live storefront integration. Kept separately so rebuilding templates preserves fixes.
   const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const liveImage = image => image?.image?.large || image?.image?.full_size || image?.image?.thumbnail || '';
@@ -3788,6 +3788,7 @@ header nav a.active-link {
               if(option.disabled) option.textContent+=' — نفدت الكمية';
               select.add(option);
             });
+            if(group.items.length===1 && Number(group.required_selection_count)===1 && !select.options[1]?.disabled) select.value=group.items[0].item_id;
             const priorChoice=savedChoices.filter(c=>c.group===group.selection_group_id)[slot];
             if(priorChoice && [...select.options].some(o=>o.value===priorChoice.value && !o.disabled)) select.value=priorChoice.value;
             select.onchange=() => {selects.forEach(s => [...s.options].forEach(o => {const item=group.items.find(i=>i.item_id===o.value); if(item) o.disabled=!(item.is_infinite || item.quantity>0) || (!group.allow_duplicate_items && selects.some(other=>other!==s && other.value===o.value));}));};
@@ -3821,7 +3822,7 @@ header nav a.active-link {
   CartManager.getCart=function() {
     return rawGetCart.call(this).map(item => {
       const p=noteProductsCatalog.find(p=>p.id===(item.product_id || item.id) || p.slug===item.id || ZID_PRODUCT_MAP[item.id]===p.id);
-      return p ? {...item,product_id:p.id,title:p.title,price:p.price,old_price:p.old_price,img:p.img,size:(item.sub_items?.map(s=>s.name).join('، ')) || p.size,available:p.in_stock} : {...item,available:false};
+      return p ? {...item,product_id:p.id,title:p.title,price:p.price,old_price:p.old_price,img:p.img,size:(item.sub_items?.map(s=>(s.quantity>1 ? s.quantity+' × ' : '')+s.name).join('، ')) || p.size,available:p.in_stock} : {...item,available:false};
     });
   };
   CartManager.addItem=function(id,quantity=1,selections) {
@@ -3834,7 +3835,7 @@ header nav a.active-link {
     const key=p.id+(sorted.length ? '-'+encodeURIComponent(JSON.stringify(sorted.map(({id,quantity,selection_group_id})=>({id,quantity,selection_group_id})))) : '');
     const cart=this.getCart(),existing=cart.find(i=>i.id===key);
     if(existing) existing.quantity+=quantity;
-    else cart.push({id:key,product_id:p.id,title:p.title,price:p.price,old_price:p.old_price,img:p.img,size:sub.map(s=>s.name).join('، ') || p.size,quantity,sub_items:sub});
+    else cart.push({id:key,product_id:p.id,title:p.title,price:p.price,old_price:p.old_price,img:p.img,size:sub.map(s=>(s.quantity>1 ? s.quantity+' × ' : '')+s.name).join('، ') || p.size,quantity,sub_items:sub});
     this.saveCart(cart);this.showToast('تمت إضافة '+escapeHTML(p.title)+' إلى سلتك');this.openDrawer();return true;
   };
   addToCartCurrentProduct=function() {try {return currentProduct && CartManager.addItem(currentProduct.id,pdpQuantity,collectBundleSelections(currentProduct));} catch(e) {CartManager.showToast(e.message);return false;}};

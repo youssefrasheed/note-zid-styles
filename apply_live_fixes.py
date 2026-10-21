@@ -2,7 +2,7 @@ from pathlib import Path
 import re
 
 def apply_live_fixes(base):
-    base=base.replace('4.1.0','4.2.0')
+    base=base.replace('4.1.0','4.2.1')
     # Native checkout, account and optional native product configuration retain Zid's UI.
     base=base.replace('  "use strict";','  "use strict";\n  if (/^\\/(checkout|auth|account)(\\/|$)/.test(location.pathname) || new URLSearchParams(location.search).get("native")==="1") return;')
     base=base.replace('  ZidSyncManager.loadCachedData();','  // Fresh catalog is loaded after the integration is initialized.')
