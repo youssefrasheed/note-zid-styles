@@ -127,12 +127,16 @@
     if(title){title.textContent=meta.title;document.title=meta.title+' | نوت للعطور';}if(desc)desc.textContent=meta.desc;
     const count=document.getElementById('cat-products-count');if(count){count.classList.remove('hidden','sm:inline-block');count.style.display='inline-block';}
     // Curated navigation points to actual populated dashboard categories. Exact category URLs remain distinct.
-    for(const a of document.querySelectorAll('#note-luxury-storefront a[href*="/categories/"]')) {
+    for(const a of document.querySelectorAll('#note-luxury-storefront a[href*="/categories/"], #mobile-menu-drawer a[href*="/categories/"]')) {
       const match=a.getAttribute('href')?.match(/\/categories\/(\d+)\//);if(!match)continue;
       const replacements={'1500261':'niche','1310036':'travel','1688838':'all-over','1750048':'body-care','1310037':'linen'};
       const alias=replacements[match[1]];if(alias&&catUrlMap[alias])a.setAttribute('href',catUrlMap[alias]);
       const target=a.getAttribute('href')?.match(/\/categories\/(\d+)\//)?.[1];
       const liveCategory=zidCategories.find(c=>c.id===target);
+      if(liveCategory && a.closest?.('#mobile-menu-drawer')) {
+        a.textContent=liveCategory.name;
+        a.setAttribute('aria-label',liveCategory.name);
+      }
       if(liveCategory && a.closest?.('#curated-sets')) {
         const heading=a.querySelector('h3');if(heading)heading.textContent=liveCategory.name;
         a.setAttribute('aria-label',liveCategory.name);
