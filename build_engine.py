@@ -2275,6 +2275,14 @@ app_js_code = f"""/**
       filtered.sort((a, b) => (b.rating || 5) - (a.rating || 5));
     }} else if (categorySort === 'newest') {{
       filtered.sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));
+    }} else {{
+      const catId = typeof resolveCurrentCategoryId === 'function' ? resolveCurrentCategoryId(activeCategory) : null;
+      filtered.sort((a, b) => {{
+        const rankA = typeof getProductCategoryRank === 'function' ? getProductCategoryRank(a, catId) : (a.display_order ?? 999999);
+        const rankB = typeof getProductCategoryRank === 'function' ? getProductCategoryRank(b, catId) : (b.display_order ?? 999999);
+        if (rankA !== rankB) return rankA - rankB;
+        return (Number(b.sold_count) || 0) - (Number(a.sold_count) || 0);
+      }});
     }}
 
     if (countEl) {{

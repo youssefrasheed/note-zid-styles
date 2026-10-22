@@ -63,6 +63,8 @@
         img: img, img_box: img_box,
         cat:category, cat_ar:categories.find(c => String(c.id) === catUrlMap[category]?.split('/')[2])?.name || categories[0]?.name || prior.cat_ar || '',
         category_ids:categories.map(c => String(c.id)),
+        display_order: (z.display_order !== null && z.display_order !== undefined && Number.isFinite(Number(z.display_order))) ? Number(z.display_order) : 999999,
+        category_orders: Object.fromEntries(categories.map(c => [String(c.id), (c.display_order !== null && c.display_order !== undefined && Number.isFinite(Number(c.display_order))) ? Number(c.display_order) : null])),
         bestseller:sold > 0, sold_count:sold, tag:old ? 'خصم '+Number(((old-sale)/old*100).toFixed(1))+'%' : '',
         rating:Number(z.rating?.average) || 0, reviews_count:Number(z.rating?.total_count) || 0,
         in_stock:z.in_stock !== false && (z.is_infinite === true || Number(z.quantity) > 0), stock:z.is_infinite ? Infinity : Number(z.quantity),
@@ -85,6 +87,25 @@
   const hiddenCategoryIds=new Set();
   const categoryKeys={perfumes:'1748533',niche:'1759040',travel:'1759043','all-over':'1759042',linen:'1759044','body-care':'1759046',tollah:'1421002',packages:'1752110'};
   function categoryKey(id) {return String(id)==='1697258'?'bestsellers':String(id)==='1327929'?'new':'zid-'+id;}
+  function resolveCurrentCategoryId(key) {
+    if(!key || key==='all') return null;
+    if(key==='new') return '1327929';
+    if(key==='bestsellers') return '1697258';
+    if(key.startsWith('zid-')) return key.slice(4);
+    return categoryKeys[key] || null;
+  }
+  function getProductCategoryRank(p, targetCategoryId) {
+    if (targetCategoryId) {
+      const catOrder = p.category_orders?.[String(targetCategoryId)];
+      if (catOrder !== null && catOrder !== undefined && Number.isFinite(Number(catOrder))) {
+        return Number(catOrder);
+      }
+    }
+    if (p.display_order !== null && p.display_order !== undefined && Number.isFinite(Number(p.display_order))) {
+      return Number(p.display_order);
+    }
+    return 999999;
+  }
   function registerCategories(input) {
     const flattened=[];
     function walk(items,parent) {for(const c of items||[]) {if(!c?.id || c.is_published===false)continue;flattened.push({...c,id:String(c.id),parent_id:c.parent_id||parent});walk(c.sub_categories,c.id);}}
@@ -95,14 +116,34 @@
     for(const [key,id] of Object.entries(categoryKeys)) {const c=zidCategories.find(c=>c.id===id);if(c)catUrlMap[key]=catUrlMap[categoryKey(id)];}
   }
   function categoryProducts(key,products=noteProductsCatalog) {
-    if(key==='all')return products.slice();
-    if(key==='new'&&(hiddenCategoryIds.has('1327929')||(categoryListAuthoritative&&!zidCategories.some(c=>c.id==='1327929'))))return [];
+    let list = [];
+    let targetCatId = null;
+    if (key === 'all') {
+      list = products.slice();
+    } else if (key === 'new' && (hiddenCategoryIds.has('1327929') || (categoryListAuthoritative && !zidCategories.some(c=>c.id==='1327929')))) {
+      return [];
+    } else {
+      const id = key === 'new' ? '1327929' : key === 'bestsellers' ? '1697258' : key.startsWith('zid-') ? key.slice(4) : categoryKeys[key];
+      if (!id || hiddenCategoryIds.has(String(id)) || (categoryListAuthoritative && !zidCategories.some(c=>c.id===String(id)))) return [];
+      targetCatId = String(id);
+      const ids = new Set([targetCatId]);
+      for (let n=0; n<zidCategories.length; n++) {
+        for (const c of zidCategories) {
+          if (ids.has(String(c.parent_id))) ids.add(String(c.id));
+        }
+      }
+      list = products.filter(p => (p.category_ids || []).some(cid => ids.has(String(cid))));
+    }
 
-    const id=key==='new'?'1327929':key==='bestsellers'?'1697258':key.startsWith('zid-')?key.slice(4):categoryKeys[key];
-    if(!id || hiddenCategoryIds.has(String(id)) || (categoryListAuthoritative&&!zidCategories.some(c=>c.id===String(id))))return [];
-    const ids=new Set([String(id)]);
-    for(let n=0;n<zidCategories.length;n++)for(const c of zidCategories)if(ids.has(String(c.parent_id)))ids.add(c.id);
-    return products.filter(p=>(p.category_ids||[]).some(cid=>ids.has(String(cid))));
+    return list.slice().sort((a, b) => {
+      const rankA = getProductCategoryRank(a, targetCatId);
+      const rankB = getProductCategoryRank(b, targetCatId);
+      if (rankA !== rankB) return rankA - rankB;
+      const soldA = Number(a.sold_count) || 0;
+      const soldB = Number(b.sold_count) || 0;
+      if (soldB !== soldA) return soldB - soldA;
+      return String(b.created_at || '').localeCompare(String(a.created_at || ''));
+    });
   }
   function syncHomeCategoryOrder() {
     const grid=document.querySelector?.('#curated-sets .grid');
