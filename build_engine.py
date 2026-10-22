@@ -726,6 +726,13 @@ app_js_code = f"""/**
     if (document.body) document.body.style.setProperty('font-size', '16px', 'important');
   }} catch(e) {{}}
 
+  // Universal Price Formatter: Guarantees consistent 'X ر.س' with zero duplication
+  function formatPrice(val) {{
+    if (val === null || val === undefined || val === '' || val === 'null' || val === 'undefined') return '';
+    const clean = String(val).replace(/ر\.س/g, '').replace(/SAR/gi, '').trim();
+    return clean ? `${{clean}} ر.س` : '';
+  }}
+
   // 5. Products Data
   const productsData = {products_data_json_str};
   const noteProductsCatalog = {full_catalog_str};
@@ -997,12 +1004,12 @@ app_js_code = f"""/**
             currentProduct.in_stock = live.in_stock;
 
             const pEl = document.getElementById('pdp-price');
-            if (pEl && live.price) pEl.textContent = `${{live.price}} ر.س`;
+            if (pEl && live.price) pEl.textContent = formatPrice(live.price);
 
             const opEl = document.getElementById('pdp-old-price');
             if (opEl) {{
-              if (live.old_price) {{
-                opEl.textContent = `${{live.old_price}} ر.س`;
+              if (live.old_price && formatPrice(live.old_price)) {{
+                opEl.textContent = formatPrice(live.old_price);
                 opEl.classList.remove('hidden');
               }} else {{
                 opEl.classList.add('hidden');
@@ -1215,8 +1222,8 @@ app_js_code = f"""/**
         }}
       }}
       
-      if (subtotalEl) subtotalEl.textContent = total + ' ر.س';
-      if (totalEl) totalEl.textContent = total + ' ر.س';
+      if (subtotalEl) subtotalEl.textContent = formatPrice(total);
+      if (totalEl) totalEl.textContent = formatPrice(total);
       
       itemsContainer.innerHTML = cart.map(item => {{
         const zidSlug = zidSlugMap[item.id] || item.id;
@@ -1237,7 +1244,7 @@ app_js_code = f"""/**
                   <span class="min-w-[16px] text-center font-extrabold text-stone-900">${{item.quantity}}</span>
                   <button onclick="CartManager.updateQuantity('${{item.id}}', 1)" class="w-5 h-5 rounded-full flex items-center justify-center text-stone-600 hover:text-black hover:bg-stone-100 transition" aria-label="زيادة الكمية">+</button>
                 </div>
-                <span class="text-xs sm:text-sm font-black text-stone-900">${{item.price * item.quantity}} ر.س</span>
+                <span class="text-xs sm:text-sm font-black text-stone-900">${{formatPrice(item.price * item.quantity)}}</span>
               </div>
             </div>
             <button onclick="CartManager.removeItem('${{item.id}}')" class="text-stone-400 hover:text-rose-600 p-2 transition flex items-center justify-center rounded-lg hover:bg-rose-50" aria-label="حذف المنتج من السلة" title="حذف">
@@ -1285,8 +1292,8 @@ app_js_code = f"""/**
                   <div class="min-w-0">
                     <h5 class="text-[11px] font-bold text-black truncate">${{p.title}}</h5>
                     <div class="flex items-center gap-1.5 mt-0.5">
-                      <span class="text-[11px] font-extrabold text-black">${{p.price}} ر.س</span>
-                      ${{p.old_price ? `<span class="text-[9px] text-stone-400 line-through">${{p.old_price}} ر.س</span>` : ''}}
+                      <span class="text-[11px] font-extrabold text-black">${{formatPrice(p.price)}}</span>
+                      ${{p.old_price && formatPrice(p.old_price) ? `<span class="text-[9px] text-stone-400 line-through">${{formatPrice(p.old_price)}}</span>` : ''}}
                     </div>
                   </div>
                 </div>
@@ -1325,8 +1332,8 @@ app_js_code = f"""/**
             
             <!-- Clean Price Row -->
             <div class="flex items-center justify-center gap-2 pt-1">
-              <span class="text-rose-600 font-extrabold text-sm sm:text-base">${{p.price}} ر.س</span>
-              ${{p.old_price ? `<span class="text-stone-400 line-through text-[11px] sm:text-xs font-normal">${{p.old_price}} ر.س</span>` : ''}}
+              <span class="text-rose-600 font-extrabold text-sm sm:text-base">${{formatPrice(p.price)}}</span>
+              ${{p.old_price && formatPrice(p.old_price) ? `<span class="text-stone-400 line-through text-[11px] sm:text-xs font-normal">${{formatPrice(p.old_price)}}</span>` : ''}}
             </div>
           </div>
         </div>
@@ -1505,7 +1512,7 @@ app_js_code = f"""/**
     const modalBase = document.getElementById('modal-base');
     if (modalBase) modalBase.innerHTML = '<strong>القاعدة:</strong> ' + (p.base || '');
     const modalPrice = document.getElementById('modal-price');
-    if (modalPrice) modalPrice.textContent = String(p.price).includes('ر.س') ? p.price : `${{p.price}} ر.س`;
+    if (modalPrice) modalPrice.textContent = formatPrice(p.price);
 
     const isOutOfStock = p.in_stock === false || p.stock === 0;
     const buyBtn = document.getElementById('modal-buy-btn');
@@ -1646,7 +1653,7 @@ app_js_code = f"""/**
                 ${{isOutOfStock ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 shrink-0">غير متاح</span>' : ''}}
               </div>
               <p class="text-[10px] sm:text-[11px] text-stone-400 font-normal truncate">${{p.notes || p.cat_ar || ''}}</p>
-              <span class="text-xs font-extrabold text-black block mt-0.5">${{p.price}} ر.س</span>
+              <span class="text-xs font-extrabold text-black block mt-0.5">${{formatPrice(p.price)}}</span>
             </div>
           </div>
           ${{isOutOfStock ? `
@@ -1914,17 +1921,25 @@ app_js_code = f"""/**
     }}
 
     const priceEl = document.getElementById('pdp-price');
-    if (priceEl) priceEl.textContent = `${{currentProduct.price}} ر.س`;
+    if (priceEl && currentProduct.price) priceEl.textContent = formatPrice(currentProduct.price);
 
     const oldPriceEl = document.getElementById('pdp-old-price');
-    if (oldPriceEl) oldPriceEl.textContent = `${{currentProduct.old_price}} ر.س`;
+    if (oldPriceEl) {{
+      if (currentProduct.old_price && formatPrice(currentProduct.old_price)) {{
+        oldPriceEl.textContent = formatPrice(currentProduct.old_price);
+        oldPriceEl.classList.remove('hidden');
+      }} else {{
+        oldPriceEl.classList.add('hidden');
+      }}
+    }}
 
     const discountBadge = document.getElementById('pdp-discount-badge');
     if (discountBadge) discountBadge.textContent = `وفر ${{currentProduct.discount || '45%'}}`;
 
-    const tabbyPrice = (currentProduct.price / 4).toFixed(2);
+    const numPrice = Number(String(currentProduct.price).replace(/[^0-9.]/g, '')) || 0;
+    const tabbyPrice = (numPrice / 4).toFixed(2);
     const tabbyEl = document.getElementById('pdp-tabby-price');
-    if (tabbyEl) tabbyEl.textContent = `${{tabbyPrice}} ر.س`;
+    if (tabbyEl) tabbyEl.textContent = formatPrice(tabbyPrice);
 
     const mainImg = document.getElementById('pdp-main-image');
     const mainImgUrl = (currentProduct.img.startsWith('http') ? '' : ASSET_HOST) + currentProduct.img;
@@ -2089,8 +2104,8 @@ app_js_code = f"""/**
               <p class="text-[10px] sm:text-[11px] text-stone-400 font-normal line-clamp-1">${{p.notes}}</p>
               
               <div class="flex items-center justify-center gap-2 pt-1">
-                <span class="text-black font-extrabold text-xs sm:text-sm">${{p.price}} ر.س</span>
-                ${{p.old_price ? `<span class="text-stone-400 line-through text-[10px] sm:text-xs font-normal">${{p.old_price}} ر.س</span>` : ''}}
+                <span class="text-black font-extrabold text-xs sm:text-sm">${{formatPrice(p.price)}}</span>
+                ${{p.old_price && formatPrice(p.old_price) ? `<span class="text-stone-400 line-through text-[10px] sm:text-xs font-normal">${{formatPrice(p.old_price)}}</span>` : ''}}
               </div>
             </div>
           </div>
@@ -2314,8 +2329,8 @@ app_js_code = f"""/**
               <p class="text-[10px] sm:text-[11px] text-stone-400 font-normal line-clamp-1">${{p.notes}}</p>
               
               <div class="flex items-center justify-center gap-2 pt-1">
-                <span class="text-black font-extrabold text-xs sm:text-sm">${{p.price}} ر.س</span>
-                ${{p.old_price ? `<span class="text-stone-400 line-through text-[10px] sm:text-xs font-normal">${{p.old_price}} ر.س</span>` : ''}}
+                <span class="text-black font-extrabold text-xs sm:text-sm">${{formatPrice(p.price)}}</span>
+                ${{p.old_price && formatPrice(p.old_price) ? `<span class="text-stone-400 line-through text-[10px] sm:text-xs font-normal">${{formatPrice(p.old_price)}}</span>` : ''}}
               </div>
             </div>
           </div>
@@ -2389,7 +2404,7 @@ app_js_code = f"""/**
                 <h4 class="text-xs sm:text-sm font-bold text-black">${{item.title}}</h4>
               </a>
               <span class="text-[11px] text-stone-400 block">${{item.size || '100 مل'}}</span>
-              <span class="text-xs font-bold text-black sm:hidden block">${{item.price}} ر.س</span>
+              <span class="text-xs font-bold text-black sm:hidden block">${{formatPrice(item.price)}}</span>
             </div>
           </div>
 
@@ -2402,7 +2417,7 @@ app_js_code = f"""/**
 
           <!-- Total for line -->
           <div class="hidden sm:block text-left min-w-[80px]">
-            <span class="text-sm font-extrabold text-black">${{item.price * item.quantity}} ر.س</span>
+            <span class="text-sm font-extrabold text-black">${{formatPrice(item.price * item.quantity)}}</span>
           </div>
 
           <!-- Delete -->
@@ -2444,9 +2459,9 @@ app_js_code = f"""/**
     const titleEl = document.getElementById('upsell-title');
     if (titleEl) titleEl.textContent = item.title;
     const priceEl = document.getElementById('upsell-price');
-    if (priceEl) priceEl.textContent = `${{item.price}} ر.س`;
+    if (priceEl) priceEl.textContent = formatPrice(item.price);
     const oldPriceEl = document.getElementById('upsell-old-price');
-    if (oldPriceEl) oldPriceEl.textContent = `${{item.old_price}} ر.س`;
+    if (oldPriceEl) oldPriceEl.textContent = formatPrice(item.old_price);
     
     const btn = document.getElementById('upsell-add-btn');
     if (btn) {{
@@ -2506,8 +2521,8 @@ app_js_code = f"""/**
           </div>
           <div>
             <div class="flex items-center justify-center gap-1.5 mb-2">
-              <span class="text-xs font-extrabold text-black">${{p.price}} ر.س</span>
-              ${{p.old_price ? `<span class="text-[10px] text-stone-400 line-through">${{p.old_price}} ر.س</span>` : ''}}
+              <span class="text-xs font-extrabold text-black">${{formatPrice(p.price)}}</span>
+              ${{p.old_price && formatPrice(p.old_price) ? `<span class="text-[10px] text-stone-400 line-through">${{formatPrice(p.old_price)}}</span>` : ''}}
             </div>
             <button onclick="CartManager.addItem('${{p.id}}', 1); renderCartPage();" class="w-full py-2 rounded-full bg-black hover:bg-stone-800 text-white text-[11px] font-bold transition flex items-center justify-center gap-1 active:scale-95 shadow-xs">
               <i class="sicon-plus text-[10px]"></i>
@@ -2903,6 +2918,7 @@ app_js_code = f"""/**
   }});
 
   // Global Exports for Inlined HTML Handlers
+  window.formatPrice = formatPrice;
   window.productsData = productsData;
   window.noteProductsCatalog = noteProductsCatalog;
   window.CartManager = CartManager;

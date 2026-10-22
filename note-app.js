@@ -538,6 +538,13 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     if (document.body) document.body.style.setProperty('font-size', '16px', 'important');
   } catch(e) {}
 
+  // Universal Price Formatter: Guarantees consistent 'X ر.س' with zero duplication
+  function formatPrice(val) {
+    if (val === null || val === undefined || val === '' || val === 'null' || val === 'undefined') return '';
+    const clean = String(val).replace(/ر\.س/g, '').replace(/SAR/gi, '').trim();
+    return clean ? `${clean} ر.س` : '';
+  }
+
   // 5. Products Data
   const productsData = [// --- 1. الأكثر مبيعاً (Bestsellers: 0..5) ---
       {
@@ -2228,12 +2235,12 @@ body:not(.note-ready) footer:not(#note-store-footer) {
             currentProduct.in_stock = live.in_stock;
 
             const pEl = document.getElementById('pdp-price');
-            if (pEl && live.price) pEl.textContent = `${live.price} ر.س`;
+            if (pEl && live.price) pEl.textContent = formatPrice(live.price);
 
             const opEl = document.getElementById('pdp-old-price');
             if (opEl) {
-              if (live.old_price) {
-                opEl.textContent = `${live.old_price} ر.س`;
+              if (live.old_price && formatPrice(live.old_price)) {
+                opEl.textContent = formatPrice(live.old_price);
                 opEl.classList.remove('hidden');
               } else {
                 opEl.classList.add('hidden');
@@ -2446,8 +2453,8 @@ body:not(.note-ready) footer:not(#note-store-footer) {
         }
       }
       
-      if (subtotalEl) subtotalEl.textContent = total + ' ر.س';
-      if (totalEl) totalEl.textContent = total + ' ر.س';
+      if (subtotalEl) subtotalEl.textContent = formatPrice(total);
+      if (totalEl) totalEl.textContent = formatPrice(total);
       
       itemsContainer.innerHTML = cart.map(item => {
         const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
@@ -2468,7 +2475,7 @@ body:not(.note-ready) footer:not(#note-store-footer) {
                   <span class="min-w-[16px] text-center font-extrabold text-stone-900">${item.quantity}</span>
                   <button onclick="CartManager.updateQuantity('${item.id}', 1)" class="w-5 h-5 rounded-full flex items-center justify-center text-stone-600 hover:text-black hover:bg-stone-100 transition" aria-label="زيادة الكمية">+</button>
                 </div>
-                <span class="text-xs sm:text-sm font-black text-stone-900">${item.price * item.quantity} ر.س</span>
+                <span class="text-xs sm:text-sm font-black text-stone-900">${formatPrice(item.price * item.quantity)}</span>
               </div>
             </div>
             <button onclick="CartManager.removeItem('${item.id}')" class="text-stone-400 hover:text-rose-600 p-2 transition flex items-center justify-center rounded-lg hover:bg-rose-50" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px">
@@ -2516,8 +2523,8 @@ body:not(.note-ready) footer:not(#note-store-footer) {
                   <div class="min-w-0">
                     <h5 class="text-[11px] font-bold text-black truncate">${escapeHTML(p.title)}</h5>
                     <div class="flex items-center gap-1.5 mt-0.5">
-                      <span class="text-[11px] font-extrabold text-black">${p.price} ر.س</span>
-                      ${p.old_price ? `<span class="text-[9px] text-stone-400 line-through">${p.old_price ?? ""} ر.س</span>` : ''}
+                      <span class="text-[11px] font-extrabold text-black">${formatPrice(p.price)}</span>
+                      ${p.old_price && formatPrice(p.old_price) ? `<span class="text-[9px] text-stone-400 line-through">${formatPrice(p.old_price)}</span>` : ''}
                     </div>
                   </div>
                 </div>
@@ -2556,8 +2563,8 @@ body:not(.note-ready) footer:not(#note-store-footer) {
             
             <!-- Clean Price Row -->
             <div class="flex items-center justify-center gap-2 pt-1">
-              <span class="text-rose-600 font-extrabold text-sm sm:text-base">${p.price} ر.س</span>
-              ${p.old_price ? `<span class="text-stone-400 line-through text-[11px] sm:text-xs font-normal">${p.old_price ?? ""} ر.س</span>` : ''}
+              <span class="text-rose-600 font-extrabold text-sm sm:text-base">${formatPrice(p.price)}</span>
+              ${p.old_price && formatPrice(p.old_price) ? `<span class="text-stone-400 line-through text-[11px] sm:text-xs font-normal">${formatPrice(p.old_price)}</span>` : ''}
             </div>
           </div>
         </div>
@@ -2736,7 +2743,7 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     const modalBase = document.getElementById('modal-base');
     if (modalBase) modalBase.innerHTML = '<strong>القاعدة:</strong> ' + (p.base || '');
     const modalPrice = document.getElementById('modal-price');
-    if (modalPrice) modalPrice.textContent = String(p.price).includes('ر.س') ? p.price : `${p.price} ر.س`;
+    if (modalPrice) modalPrice.textContent = formatPrice(p.price);
 
     const isOutOfStock = p.in_stock === false || p.stock === 0;
     const buyBtn = document.getElementById('modal-buy-btn');
@@ -2877,7 +2884,7 @@ body:not(.note-ready) footer:not(#note-store-footer) {
                 ${isOutOfStock ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 shrink-0">غير متاح</span>' : ''}
               </div>
               <p class="text-[10px] sm:text-[11px] text-stone-400 font-normal truncate">${p.notes || p.cat_ar || ''}</p>
-              <span class="text-xs font-extrabold text-black block mt-0.5">${p.price} ر.س</span>
+              <span class="text-xs font-extrabold text-black block mt-0.5">${formatPrice(p.price)}</span>
             </div>
           </div>
           ${isOutOfStock ? `
@@ -3145,17 +3152,25 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     }
 
     const priceEl = document.getElementById('pdp-price');
-    if (priceEl) priceEl.textContent = `${currentProduct.price} ر.س`;
+    if (priceEl && currentProduct.price) priceEl.textContent = formatPrice(currentProduct.price);
 
     const oldPriceEl = document.getElementById('pdp-old-price');
-    if (oldPriceEl) oldPriceEl.textContent = `${currentProduct.old_price} ر.س`;
+    if (oldPriceEl) {
+      if (currentProduct.old_price && formatPrice(currentProduct.old_price)) {
+        oldPriceEl.textContent = formatPrice(currentProduct.old_price);
+        oldPriceEl.classList.remove('hidden');
+      } else {
+        oldPriceEl.classList.add('hidden');
+      }
+    }
 
     const discountBadge = document.getElementById('pdp-discount-badge');
     if (discountBadge) discountBadge.textContent = `وفر ${currentProduct.discount || '45%'}`;
 
-    const tabbyPrice = (currentProduct.price / 4).toFixed(2);
+    const numPrice = Number(String(currentProduct.price).replace(/[^0-9.]/g, '')) || 0;
+    const tabbyPrice = (numPrice / 4).toFixed(2);
     const tabbyEl = document.getElementById('pdp-tabby-price');
-    if (tabbyEl) tabbyEl.textContent = `${tabbyPrice} ر.س`;
+    if (tabbyEl) tabbyEl.textContent = formatPrice(tabbyPrice);
 
     const mainImg = document.getElementById('pdp-main-image');
     const mainImgUrl = (currentProduct.img.startsWith('http') ? '' : ASSET_HOST) + currentProduct.img;
@@ -3320,8 +3335,8 @@ body:not(.note-ready) footer:not(#note-store-footer) {
               <p class="text-[10px] sm:text-[11px] text-stone-400 font-normal line-clamp-1">${p.notes}</p>
               
               <div class="flex items-center justify-center gap-2 pt-1">
-                <span class="text-black font-extrabold text-xs sm:text-sm">${p.price} ر.س</span>
-                ${p.old_price ? `<span class="text-stone-400 line-through text-[10px] sm:text-xs font-normal">${p.old_price ?? ""} ر.س</span>` : ''}
+                <span class="text-black font-extrabold text-xs sm:text-sm">${formatPrice(p.price)}</span>
+                ${p.old_price && formatPrice(p.old_price) ? `<span class="text-stone-400 line-through text-[10px] sm:text-xs font-normal">${formatPrice(p.old_price)}</span>` : ''}
               </div>
             </div>
           </div>
@@ -3545,8 +3560,8 @@ body:not(.note-ready) footer:not(#note-store-footer) {
               <p class="text-[10px] sm:text-[11px] text-stone-400 font-normal line-clamp-1">${p.notes}</p>
               
               <div class="flex items-center justify-center gap-2 pt-1">
-                <span class="text-black font-extrabold text-xs sm:text-sm">${p.price} ر.س</span>
-                ${p.old_price ? `<span class="text-stone-400 line-through text-[10px] sm:text-xs font-normal">${p.old_price ?? ""} ر.س</span>` : ''}
+                <span class="text-black font-extrabold text-xs sm:text-sm">${formatPrice(p.price)}</span>
+                ${p.old_price && formatPrice(p.old_price) ? `<span class="text-stone-400 line-through text-[10px] sm:text-xs font-normal">${formatPrice(p.old_price)}</span>` : ''}
               </div>
             </div>
           </div>
@@ -3620,7 +3635,7 @@ body:not(.note-ready) footer:not(#note-store-footer) {
                 <h4 class="text-xs sm:text-sm font-bold text-black">${escapeHTML(item.title)}</h4>
               </a>
               <span class="text-[11px] text-stone-400 block">${item.size || '100 مل'}</span>
-              <span class="text-xs font-bold text-black sm:hidden block">${item.price} ر.س</span>
+              <span class="text-xs font-bold text-black sm:hidden block">${formatPrice(item.price)}</span>
             </div>
           </div>
 
@@ -3633,7 +3648,7 @@ body:not(.note-ready) footer:not(#note-store-footer) {
 
           <!-- Total for line -->
           <div class="hidden sm:block text-left min-w-[80px]">
-            <span class="text-sm font-extrabold text-black">${item.price * item.quantity} ر.س</span>
+            <span class="text-sm font-extrabold text-black">${formatPrice(item.price * item.quantity)}</span>
           </div>
 
           <!-- Delete -->
@@ -3675,9 +3690,9 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     const titleEl = document.getElementById('upsell-title');
     if (titleEl) titleEl.textContent = item.title;
     const priceEl = document.getElementById('upsell-price');
-    if (priceEl) priceEl.textContent = `${item.price} ر.س`;
+    if (priceEl) priceEl.textContent = formatPrice(item.price);
     const oldPriceEl = document.getElementById('upsell-old-price');
-    if (oldPriceEl) oldPriceEl.textContent = `${item.old_price} ر.س`;
+    if (oldPriceEl) oldPriceEl.textContent = formatPrice(item.old_price);
     
     const btn = document.getElementById('upsell-add-btn');
     if (btn) {
@@ -3737,8 +3752,8 @@ body:not(.note-ready) footer:not(#note-store-footer) {
           </div>
           <div>
             <div class="flex items-center justify-center gap-1.5 mb-2">
-              <span class="text-xs font-extrabold text-black">${p.price} ر.س</span>
-              ${p.old_price ? `<span class="text-[10px] text-stone-400 line-through">${p.old_price ?? ""} ر.س</span>` : ''}
+              <span class="text-xs font-extrabold text-black">${formatPrice(p.price)}</span>
+              ${p.old_price && formatPrice(p.old_price) ? `<span class="text-[10px] text-stone-400 line-through">${formatPrice(p.old_price)}</span>` : ''}
             </div>
             <button onclick="CartManager.addItem('${p.id}', 1); renderCartPage();" class="w-full py-2 rounded-full bg-black hover:bg-stone-800 text-white text-[11px] font-bold transition flex items-center justify-center gap-1 active:scale-95 shadow-xs">
               <i class="sicon-plus text-[10px]"></i>
@@ -4126,6 +4141,13 @@ body:not(.note-ready) footer:not(#note-store-footer) {
   const integrationStyles=document.createElement("style");integrationStyles.id="note-live-styles";integrationStyles.textContent="/* NOTE 4.3: High-Visibility Cart Items, Micro-Compact Recommendations & Seamless Zid Loader */\n#cart-drawer:not(.hidden):not([hidden]) {\n  display: flex !important;\n  flex-direction: column !important;\n  height: 100vh !important;\n  height: 100dvh !important;\n  max-height: 100dvh !important;\n  overflow: hidden !important;\n}\n\n#cart-drawer-items {\n  flex: 1 1 auto !important;\n  overflow-y: auto !important;\n  min-height: 160px !important;\n  max-height: calc(100dvh - 280px) !important;\n  padding: 12px 16px !important;\n  overscroll-behavior: contain !important;\n  -webkit-overflow-scrolling: touch !important;\n}\n\n.note-cart-item {\n  display: flex !important;\n  align-items: center !important;\n  gap: 12px !important;\n  padding: 10px 12px !important;\n  margin-bottom: 8px !important;\n  background: #ffffff !important;\n  border: 1px solid #f0eee9 !important;\n  border-radius: 14px !important;\n  box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;\n  text-align: right !important;\n}\n\n#cart-drawer-recommendations {\n  padding: 4px 14px 6px !important;\n  padding: 6px 14px !important;\n  margin: 0 !important;\n  background: #fafaf9 !important;\n  border-top: 1px solid #f0eee9 !important;\n  border-bottom: 1px solid #f0eee9 !important;\n  flex-shrink: 0 !important;\n}\n\n#cart-drawer-recommendations h3,\n#cart-drawer-recommendations h2,\n#cart-drawer-recommendations .note-recs-title {\n  font-size: 10px !important;\n  font-weight: 700 !important;\n  color: #57534e !important;\n  margin-bottom: 4px !important;\n}\n\n.note-compact-recs {\n  display: flex !important;\n  gap: 8px !important;\n  overflow-x: auto !important;\n  scrollbar-width: none !important;\n  scroll-snap-type: none !important;\n  padding: 2px 0 4px !important;\n  width: 100% !important;\n  max-width: 100% !important;\n  overscroll-behavior-x: contain !important;\n  -webkit-overflow-scrolling: touch !important;\n}\n.note-compact-recs::-webkit-scrollbar {\n  display: none !important;\n}\n\n.note-mini-card {\n  flex: 0 0 auto !important;\n  width: auto !important;\n  max-width: 175px !important;\n  min-width: 135px !important;\n  height: 38px !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: space-between !important;\n  gap: 6px !important;\n  padding: 3px 6px 3px 4px !important;\n  background: #ffffff !important;\n  border: 1px solid #e7e5e4 !important;\n  border-radius: 9999px !important;\n  box-sizing: border-box !important;\n  box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;\n  color: #111 !important;\n  text-align: right !important;\n}\n\n.note-mini-card a {\n  display: inline-flex !important;\n  align-items: center !important;\n  gap: 6px !important;\n  text-decoration: none !important;\n  color: inherit !important;\n  min-width: 0 !important;\n  flex: 1 1 auto !important;\n}\n\n.note-mini-card img {\n  width: 28px !important;\n  height: 28px !important;\n  object-fit: contain !important;\n  border-radius: 9999px !important;\n  background: #fafaf9 !important;\n  flex-shrink: 0 !important;\n}\n\n.note-mini-card .note-mini-info {\n  display: flex !important;\n  flex-direction: column !important;\n  min-width: 0 !important;\n  line-height: 1.15 !important;\n}\n\n.note-mini-card .note-mini-title {\n  font-size: 9.5px !important;\n  font-weight: 700 !important;\n  color: #111 !important;\n  white-space: nowrap !important;\n  overflow: hidden !important;\n  text-overflow: ellipsis !important;\n  max-width: 65px !important;\n  display: block !important;\n}\n\n.note-mini-card .note-mini-price {\n  font-size: 9.5px !important;\n  font-weight: 800 !important;\n  color: #a58b52 !important;\n  white-space: nowrap !important;\n  display: block !important;\n}\n\n.note-mini-card button {\n  flex-shrink: 0 !important;\n  width: auto !important;\n  min-width: 32px !important;\n  height: 24px !important;\n  padding: 0 7px !important;\n  font-size: 9.5px !important;\n  font-weight: 700 !important;\n  border-radius: 9999px !important;\n  background: #111111 !important;\n  color: #ffffff !important;\n  margin: 0 !important;\n  border: none !important;\n  cursor: pointer !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  transition: background 0.15s, transform 0.15s !important;\n}\n\n.note-mini-card button:hover {\n  background: #333333 !important;\n}\n\n.note-mini-card button:active {\n  transform: scale(0.92) !important;\n}\n\n#cart-drawer-footer {\n  padding: 12px 16px 14px !important;\n  border-top: 1px solid #f0eee9 !important;\n  background: #ffffff !important;\n  flex-shrink: 0 !important;\n}\n\n#cart-page-recommendations-section {\n  margin-top: 20px !important;\n  padding: 14px !important;\n  border-radius: 16px !important;\n}\n#cart-page-recommendations-section h3,\n#cart-page-recommendations-section h2 {\n  font-size: 13px !important;\n  margin-bottom: 8px !important;\n}\n\n.note-bundle-options {\n  margin: 18px 0;\n  padding: 16px;\n  border: 1px solid #d6d3d1;\n  border-radius: 14px;\n  clear: both;\n  width: 100%;\n  font-size: 13px;\n}\n.note-bundle-options h3 {\n  font-weight: 700;\n  margin-bottom: 12px;\n}\n.note-bundle-options fieldset {\n  margin: 12px 0;\n  border: 0;\n  padding: 0;\n}\n.note-bundle-options legend {\n  font-weight: 700;\n  margin-bottom: 6px;\n}\n.note-bundle-options label {\n  display: block;\n  font-size: 12px;\n  margin: 6px 0;\n}\n.note-bundle-options select {\n  display: block;\n  width: 100%;\n  min-height: 44px;\n  background: white;\n  color: #111;\n  border: 1px solid #a8a29e;\n  border-radius: 8px;\n  padding: 9px;\n  margin-top: 4px;\n}\n.note-bundle-options select:focus-visible,\n.note-mini-card button:focus-visible {\n  outline: 2px solid #a58b52;\n  outline-offset: 3px;\n}\n\n.note-empty-products {\n  padding: 16px;\n  font-size: 13px;\n  color: #78716c;\n}\n\nbutton:disabled {\n  opacity: .5;\n  cursor: not-allowed;\n}\n\n@media(prefers-reduced-motion:reduce){\n  .note-compact-recs{scroll-behavior:auto!important}\n}\n\nbutton[aria-label=\"\u062d\u0630\u0641 \u0627\u0644\u0645\u0646\u062a\u062c \u0645\u0646 \u0627\u0644\u0633\u0644\u0629\"] {\n  color: #78716c !important;\n  transition: color 0.15s ease !important;\n}\nbutton[aria-label=\"\u062d\u0630\u0641 \u0627\u0644\u0645\u0646\u062a\u062c \u0645\u0646 \u0627\u0644\u0633\u0644\u0629\"]:hover {\n  color: #be123c !important;\n}\n\n/* Continuous Luxury Brand Loader - Active from frame 0 until .note-ready is added */\nbody:not(.note-ready)::before {\n  content: \"\" !important;\n  position: fixed !important;\n  inset: 0 !important;\n  width: 100vw !important;\n  height: 100vh !important;\n  height: 100dvh !important;\n  background-color: #ffffff !important;\n  background-image: url('https://youssefrasheed.github.io/note-zid-styles/logo_dark_crisp.png') !important;\n  background-repeat: no-repeat !important;\n  background-position: center calc(50% - 25px) !important;\n  background-size: 130px auto !important;\n  z-index: 99999999 !important;\n  pointer-events: all !important;\n  opacity: 1 !important;\n  visibility: visible !important;\n  animation: none !important;\n  transition: opacity 0.4s ease-out, visibility 0.4s ease-out !important;\n}\n\nbody:not(.note-ready)::after {\n  content: \"\" !important;\n  position: fixed !important;\n  top: calc(50% + 40px) !important;\n  left: 50% !important;\n  margin-left: -13px !important;\n  width: 26px !important;\n  height: 26px !important;\n  border: 2.5px solid #eceae5 !important;\n  border-top-color: #121212 !important;\n  border-radius: 50% !important;\n  z-index: 999999999 !important;\n  animation: noteSpinRing 0.75s linear infinite !important;\n  pointer-events: none !important;\n  opacity: 1 !important;\n  visibility: visible !important;\n  transition: opacity 0.4s ease-out, visibility 0.4s ease-out !important;\n}\n\nbody.note-ready::before,\nbody.note-ready::after {\n  opacity: 0 !important;\n  visibility: hidden !important;\n  pointer-events: none !important;\n}\n\n@keyframes noteLoaderPulse {\n  0%, 100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n  50% {\n    transform: scale(0.96);\n    opacity: 0.75;\n  }\n}\n\n@keyframes noteSpinRing {\n  to { transform: rotate(360deg); }\n}\n\nbody[class*=\"checkout\"]::before,\nbody[class*=\"checkout\"]::after,\nbody[class*=\"auth\"]::before,\nbody[class*=\"auth\"]::after,\nbody[class*=\"account\"]::before,\nbody[class*=\"account\"]::after {\n  display: none !important;\n  opacity: 0 !important;\n  visibility: hidden !important;\n}\n\n#loader-container {\n  display: none !important;\n}\n\nbody:not(.note-ready) section[section-id],\nbody:not(.note-ready) .tp-home,\nbody:not(.note-ready) .tp-bar-header,\nbody:not(.note-ready) header.header-nav,\nbody:not(.note-ready) footer:not(#note-store-footer) {\n  display: none !important;\n  visibility: hidden !important;\n}\n\n#cart-drawer-recommendations .flex > span:last-child {\n  display: none !important;\n}\n\n/* Active Nav Links Underline (100% Reference Parity) */\n#nav-links a.border-b-2,\nheader nav a.border-b-2,\n#nav-links a.active-link,\nheader nav a.active-link {\n  border-bottom: 2px solid currentColor !important;\n  padding-bottom: 2px !important;\n  opacity: 1 !important;\n}\n\n#nav-links a:not(.active-link),\nheader nav a:not(.active-link) {\n  border-bottom: 2px solid transparent !important;\n  padding-bottom: 2px !important;\n}\n\n/* Bottom Navigation Bar Cart Badge Perfect Centering */\n.cart-badge,\n.header-sm .cart-badge,\n.cart-sm .cart-badge,\n.cart-btn .cart-badge {\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  text-align: center !important;\n  line-height: 1 !important;\n  direction: ltr !important;\n  min-width: 18px !important;\n  height: 18px !important;\n  padding: 0 2px !important;\n  margin: 0 !important;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif !important;\n  font-feature-settings: \"tnum\" !important;\n  font-variant-numeric: tabular-nums !important;\n  font-size: 11px !important;\n  font-weight: 800 !important;\n  border-radius: 9999px !important;\n  box-sizing: border-box !important;\n  position: absolute !important;\n  top: -5px !important;\n  left: -2px !important;\n  background-color: #f44336 !important;\n  color: #ffffff !important;\n}\n\n/* Out of Stock (\"\u063a\u064a\u0631 \u0645\u062a\u0627\u062d\") Luxury Sticker & State */\n.note-out-of-stock-sticker,\n.out-of-stock,\n.tp-product-image .out-of-stock {\n  position: absolute !important;\n  top: 50% !important;\n  left: 50% !important;\n  transform: translate(-50%, -50%) rotate(-18deg) !important;\n  z-index: 25 !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  width: max-content !important;\n  height: max-content !important;\n  background: #e11d48 !important;\n  color: #ffffff !important;\n  font-family: inherit !important;\n  font-size: 11px !important;\n  font-weight: 800 !important;\n  letter-spacing: 0.5px !important;\n  padding: 4px 14px !important;\n  border-radius: 9999px !important;\n  border: 1.5px solid #ffffff !important;\n  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35) !important;\n  pointer-events: none !important;\n  white-space: nowrap !important;\n}\n\n@media (min-width: 640px) {\n  .note-out-of-stock-sticker,\n  .out-of-stock,\n  .tp-product-image .out-of-stock {\n    font-size: 12px !important;\n    padding: 5px 16px !important;\n  }\n}\n\n.note-out-of-stock-sticker.pdp-sticker {\n  font-size: 14px !important;\n  padding: 6px 22px !important;\n  border-width: 2px !important;\n  box-shadow: 0 6px 20px rgba(225, 29, 72, 0.4) !important;\n}\n\n@media (min-width: 640px) {\n  .note-out-of-stock-sticker.pdp-sticker {\n    font-size: 16px !important;\n    padding: 8px 26px !important;\n  }\n}\n\n.is-out-of-stock img,\n.product-item-out-of-stock img,\n#pdp-main-image-container.is-out-of-stock #pdp-main-image {\n  filter: grayscale(0.55) opacity(0.85) !important;\n  transition: filter 0.3s ease !important;\n}\n\n/* Recommended Products Modern Desktop & Mobile Scroll */\n.note-compact-recs {\n  display: flex !important;\n  gap: 8px !important;\n  overflow-x: auto !important;\n  scrollbar-width: thin !important;\n  scrollbar-color: #d6d3d1 transparent !important;\n  scroll-snap-type: none !important;\n  padding: 4px 2px 6px !important;\n  width: 100% !important;\n  max-width: 100% !important;\n  overscroll-behavior-x: contain !important;\n  -webkit-overflow-scrolling: touch !important;\n  cursor: grab !important;\n  user-select: none !important;\n}\n.note-compact-recs:active {\n  cursor: grabbing !important;\n}\n.note-compact-recs::-webkit-scrollbar {\n  display: block !important;\n  height: 4px !important;\n}\n.note-compact-recs::-webkit-scrollbar-track {\n  background: #f5f5f4 !important;\n  border-radius: 9999px !important;\n}\n.note-compact-recs::-webkit-scrollbar-thumb {\n  background: #d6d3d1 !important;\n  border-radius: 9999px !important;\n}\n.note-compact-recs::-webkit-scrollbar-thumb:hover {\n  background: #78716c !important;\n}\n\n.note-recs-nav {\n  display: inline-flex !important;\n  align-items: center !important;\n  gap: 4px !important;\n}\n.note-recs-btn {\n  width: 22px !important;\n  height: 22px !important;\n  border-radius: 9999px !important;\n  border: 1px solid #e7e5e4 !important;\n  background: #ffffff !important;\n  color: #1c1917 !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  cursor: pointer !important;\n  transition: all 0.15s ease !important;\n  padding: 0 !important;\n  flex-shrink: 0 !important;\n  box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;\n}\n.note-recs-btn:hover {\n  background: #000000 !important;\n  color: #ffffff !important;\n  border-color: #000000 !important;\n}\n.note-recs-btn:active {\n  transform: scale(0.92) !important;\n}\n\n/* More legible cart products and recommendations, including narrow screens. */\n.note-mini-card {min-width:210px!important;max-width:240px!important;height:60px!important;padding:6px 8px!important;gap:8px!important;}\n.note-mini-card img {width:42px!important;height:42px!important;}\n.note-mini-card .note-mini-title {font-size:12px!important;max-width:118px!important;white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.35!important;}\n.note-mini-card .note-mini-price {font-size:12px!important;}\n.note-mini-card button {font-size:11px!important;min-width:38px!important;height:34px!important;}\n#cart-drawer-recommendations h3,#cart-drawer-recommendations h2 {font-size:12px!important;}\n.note-cart-item > a {width:76px!important;height:76px!important;}\n.note-cart-item h4 {font-size:14px!important;line-height:1.45!important;-webkit-line-clamp:2!important;}\n.note-cart-item .text-\\[11px\\] {font-size:12px!important;}\n.note-cart-page-item h4 {font-size:14px!important;line-height:1.45!important;}\n.note-cart-page-item > div:first-child {min-width:0;}\n.note-cart-page-item > div:first-child > a {width:80px!important;height:80px!important;}\n.note-cart-page-item > div:first-child > div {min-width:0;}\n.note-cart-page-item .text-\\[11px\\] {font-size:12px!important;}\n.note-cart-page-item .font-bold.text-black {font-size:14px!important;}\n@media(max-width:639px) {\n .note-cart-page-item {display:grid!important;grid-template-columns:minmax(0,1fr) auto;gap:10px!important;}\n .note-cart-page-item > div:first-child {grid-column:1 / -1;}\n .note-cart-page-item > div:nth-child(2) {justify-self:start;min-height:38px;}\n .note-cart-page-item > div:nth-child(2) button {min-width:28px;min-height:34px;}\n .note-cart-page-item > button {justify-self:end;}\n}\n";document.head.append(integrationStyles);
 
   // Live storefront integration. Kept separately so rebuilding templates preserves fixes.
+  const formatPrice = typeof window.formatPrice === 'function' ? window.formatPrice : function(val) {
+    if (val === null || val === undefined || val === '' || val === 'null' || val === 'undefined') return '';
+    const clean = String(val).replace(/ر\.س/g, '').replace(/SAR/gi, '').trim();
+    return clean ? `${clean} ر.س` : '';
+  };
+  if (!window.formatPrice) window.formatPrice = formatPrice;
+
   const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const KNOWN_PRODUCT_FALLBACKS = {
     '83561f07-7f51-43a4-a632-2030d6b71bc1': '/products/06_Linen_Spray_Trio_Dark.webp',
@@ -4646,7 +4668,7 @@ body:not(.note-ready) footer:not(#note-store-footer) {
           <img src="${escapeHTML(p.img)}" alt="${escapeHTML(p.title)}" loading="lazy">
           <div class="note-mini-info">
             <span class="note-mini-title">${escapeHTML(p.title)}</span>
-            <strong class="note-mini-price">${p.price} ر.س</strong>
+            <strong class="note-mini-price">${formatPrice(p.price)}</strong>
           </div>
         </a>
         <button type="button" data-product="${p.id}" aria-label="أضف ${escapeHTML(p.title)} للسلة">${p.product_class==='dynamic_bundle' ? 'اختار' : 'أضف'}</button>
@@ -4925,6 +4947,7 @@ body:not(.note-ready) footer:not(#note-store-footer) {
   }, true);
 
   // Global Exports for Inlined HTML Handlers
+  window.formatPrice = formatPrice;
   window.productsData = productsData;
   window.noteProductsCatalog = noteProductsCatalog;
   window.CartManager = CartManager;
