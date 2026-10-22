@@ -3,7 +3,7 @@
 .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock),
 #pdp-tag-badge,
 #pdp-discount-badge {
-  font-family: inherit !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Tajawal", Arial, sans-serif !important;
   font-size: 11px !important;
   font-weight: 700 !important;
   line-height: 1.2 !important;
@@ -27,10 +27,11 @@
 .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock) bdi,
 #pdp-tag-badge bdi,
 #pdp-discount-badge bdi {
-  font-family: inherit !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
   font-weight: 800 !important;
   direction: ltr !important;
   unicode-bidi: isolate !important;
+  display: inline-block !important;
   color: #111111 !important;
 }
 @media(max-width:639px){
@@ -361,7 +362,11 @@
     const token=++bundleRequest;
     const tag=document.getElementById('pdp-tag-badge');if(tag) tag.hidden=!product.tag;
     const old=document.getElementById('pdp-old-price'); if (old) old.hidden=!product.old_price;
-    const discount=document.getElementById('pdp-discount-badge'); if (discount) discount.hidden=!product.discount;
+    const discount=document.getElementById('pdp-discount-badge');
+    if (discount) {
+      discount.hidden=!product.discount;
+      if (product.discount) discount.innerHTML = `<span>وفر</span> <bdi dir="ltr">${product.discount}</bdi>`;
+    }
     const rating=document.getElementById('pdp-rating-num'); if (rating) rating.textContent=product.reviews_count ? product.rating : 'لا توجد تقييمات';
     const count=document.getElementById('pdp-rating-count'); if (count) count.textContent='('+product.reviews_count+' تقييم)';
     const description=document.getElementById('pdp-full-description'); if(description) description.textContent=product.description;

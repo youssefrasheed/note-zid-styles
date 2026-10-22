@@ -202,7 +202,7 @@
           <div class="flex items-baseline gap-3 pt-1 border-b border-stone-100 pb-5">
             <span id="pdp-price" class="text-3xl font-extrabold text-black">229 ر.س</span>
             <span id="pdp-old-price" class="text-base text-stone-400 line-through font-normal">410 ر.س</span>
-            <span id="pdp-discount-badge" class="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-600 text-xs font-bold border border-rose-200">وفر 45%</span>
+            <span id="pdp-discount-badge" class="note-product-badge"><span>وفر</span> <bdi dir="ltr">45%</bdi></span>
             <span class="text-xs text-stone-400 font-light mr-auto">شامل الضريبة المضافة</span>
           </div>
 
@@ -684,7 +684,7 @@
       // Price & Discount
       document.getElementById('pdp-price').textContent = `${currentProduct.price} ر.س`;
       document.getElementById('pdp-old-price').textContent = `${currentProduct.old_price} ر.س`;
-      document.getElementById('pdp-discount-badge').textContent = `وفر ${currentProduct.discount || '45%'}`;
+      document.getElementById('pdp-discount-badge').innerHTML = `<span>وفر</span> <bdi dir="ltr">${currentProduct.discount || '45%'}</bdi>`;
 
       // Tabby Price
       const tabbyPrice = (currentProduct.price / 4).toFixed(2);

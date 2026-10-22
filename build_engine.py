@@ -329,7 +329,7 @@ header nav a:not(.active-link) {{
 .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock),
 #pdp-tag-badge,
 #pdp-discount-badge {{
-  font-family: inherit !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Tajawal", Arial, sans-serif !important;
   font-size: 11px !important;
   font-weight: 700 !important;
   line-height: 1.2 !important;
@@ -354,10 +354,11 @@ header nav a:not(.active-link) {{
 .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock) bdi,
 #pdp-tag-badge bdi,
 #pdp-discount-badge bdi {{
-  font-family: inherit !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
   font-weight: 800 !important;
   direction: ltr !important;
   unicode-bidi: isolate !important;
+  display: inline-block !important;
   color: #111111 !important;
 }}
 
@@ -1369,7 +1370,7 @@ app_js_code = f"""/**
         <div>
           <!-- Frameless Image Container with Clean Shadow/Scale -->
           <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-            ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"> ${{p.discount ? `<span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi>` : escapeHTML(p.tag)}} </span>` : '')}}
+            ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap">${{escapeHTML(p.tag)}}</span>` : ''))}}
             <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
           </div>
 
@@ -1982,7 +1983,7 @@ app_js_code = f"""/**
     }}
 
     const discountBadge = document.getElementById('pdp-discount-badge');
-    if (discountBadge) discountBadge.textContent = `وفر ${{currentProduct.discount || '45%'}}`;
+    if (discountBadge) discountBadge.innerHTML = `<span>وفر</span> <bdi dir="ltr">${{currentProduct.discount || '45%'}}</bdi>`;
 
     const numPrice = Number(String(currentProduct.price).replace(/[^0-9.]/g, '')) || 0;
     const tabbyPrice = (numPrice / 4).toFixed(2);
@@ -2143,7 +2144,7 @@ app_js_code = f"""/**
         <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 overflow-hidden">
-              ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap">${{p.discount ? `<span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi>` : escapeHTML(p.tag)}}</span>` : '')}}
+              ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap">${{escapeHTML(p.tag)}}</span>` : ''))}}
               <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
             </div>
 
@@ -2368,7 +2369,7 @@ app_js_code = f"""/**
         <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-              ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap">${{p.discount ? `<span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi>` : escapeHTML(p.tag)}}</span>` : '')}}
+              ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap">${{escapeHTML(p.tag)}}</span>` : ''))}}
               <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
             </div>
 
