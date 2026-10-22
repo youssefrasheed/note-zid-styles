@@ -113,7 +113,7 @@
     syncHomeCategoryOrder();
     const bar=document.getElementById('category-pills-bar');
     if(bar) {
-      const entries=[{key:'all',name:'جميع المنتجات'},...zidCategories.map(c=>({key:categoryKey(c.id),name:c.name}))];
+      const entries=[{key:'all',name:'جميع المنتجات'},...zidCategories.filter(c=>c.id!=='1759471').map(c=>({key:categoryKey(c.id),name:c.name}))];
       const html=entries.filter(e=>{const id=e.key==='bestsellers'?'1697258':e.key==='new'?'1327929':e.key.replace('zid-','');return e.key==='all'||(!hiddenCategoryIds.has(id)&&(!categoryListAuthoritative||zidCategories.some(c=>c.id===id)));}).map(({key,name})=>'<button id="pill-'+key+'" data-note-category="'+key+'" onclick="selectCategory(\''+key+'\')" class="cat-pill px-4 py-2 rounded-full border whitespace-nowrap '+(key===activeCategory?'cat-pill-active bg-black text-white border-black':'border-stone-200 text-stone-700')+'">'+escapeHTML(name)+' ('+categoryProducts(key).length+')</button>').join('');
       if(bar.innerHTML!==html)bar.innerHTML=html;
     }
@@ -127,7 +127,7 @@
       const replacements={'1500261':'niche','1310036':'travel','1688838':'all-over','1750048':'body-care','1310037':'linen'};
       const alias=replacements[match[1]];if(alias&&catUrlMap[alias])a.setAttribute('href',catUrlMap[alias]);
       const target=a.getAttribute('href')?.match(/\/categories\/(\d+)\//)?.[1];
-      a.hidden=hiddenCategoryIds.has(target)||(categoryListAuthoritative&&!zidCategories.some(c=>c.id===target));
+      a.hidden=target==='1759471'||hiddenCategoryIds.has(target)||(categoryListAuthoritative&&!zidCategories.some(c=>c.id===target));
     }
   }
 
