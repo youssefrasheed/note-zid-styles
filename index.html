@@ -1130,7 +1130,7 @@
           <div>
             <!-- Frameless Image Container with Clean Shadow/Scale -->
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-              ${p.tag ? `<span class="absolute top-2.5 right-2.5 z-10 text-[9px] sm:text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm"> ${p.tag} </span>` : ''}
+              ${p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap shadow-xs"> ${p.tag} </span>` : ''}
               <img src="${p.img}" alt="${p.title}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
             </div>
 

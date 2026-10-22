@@ -325,6 +325,52 @@ header nav a:not(.active-link) {{
   color: #ffffff !important;
 }}
 
+/* Product Badge / Discount Tag (Transparent Luxury Pill with Crisp Dark Text) */
+.note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock),
+#pdp-tag-badge,
+#pdp-discount-badge {{
+  font-family: inherit !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  padding: 3px 8.5px !important;
+  min-height: 22px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  direction: rtl !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.18) !important;
+  border-radius: 9999px !important;
+  color: #111111 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}}
+
+.note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock) bdi,
+#pdp-tag-badge bdi,
+#pdp-discount-badge bdi {{
+  font-family: inherit !important;
+  font-weight: 800 !important;
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+  color: #111111 !important;
+}}
+
+@media (max-width: 639px) {{
+  .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock),
+  #pdp-tag-badge,
+  #pdp-discount-badge {{
+    font-size: 10px !important;
+    padding: 2.5px 7px !important;
+    min-height: 20px !important;
+  }}
+}}
+
 /* Out of Stock ("غير متاح") Luxury Sticker & State */
 .note-out-of-stock-sticker,
 .out-of-stock,
@@ -339,7 +385,9 @@ header nav a:not(.active-link) {{
   justify-content: center !important;
   width: max-content !important;
   height: max-content !important;
-  background: #e11d48 !important;
+  background: rgba(225, 29, 72, 0.82) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
   color: #ffffff !important;
   font-family: inherit !important;
   font-size: 11px !important;
@@ -347,8 +395,8 @@ header nav a:not(.active-link) {{
   letter-spacing: 0.5px !important;
   padding: 4px 14px !important;
   border-radius: 9999px !important;
-  border: 1.5px solid #ffffff !important;
-  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.25) !important;
   pointer-events: none !important;
   white-space: nowrap !important;
 }}
@@ -1321,7 +1369,7 @@ app_js_code = f"""/**
         <div>
           <!-- Frameless Image Container with Clean Shadow/Scale -->
           <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-            ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="absolute top-2 right-2 z-10 text-[10px] px-2 py-1 rounded-full bg-black text-white"><span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 text-[9px] sm:text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm"> ${{p.discount ? `<span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi>` : escapeHTML(p.tag)}} </span>` : '')}}
+            ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"> ${{p.discount ? `<span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi>` : escapeHTML(p.tag)}} </span>` : '')}}
             <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
           </div>
 
@@ -2095,7 +2143,7 @@ app_js_code = f"""/**
         <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 overflow-hidden">
-              ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="absolute top-2 right-2 z-10 text-[10px] px-2 py-1 rounded-full bg-black text-white"><span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.tag ? `<span class="note-product-badge absolute top-2 right-2 z-10 text-[9px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.discount ? `<span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi>` : escapeHTML(p.tag)}}</span>` : '')}}
+              ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap">${{p.discount ? `<span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi>` : escapeHTML(p.tag)}}</span>` : '')}}
               <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
             </div>
 
@@ -2320,7 +2368,7 @@ app_js_code = f"""/**
         <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-              ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="absolute top-2 right-2 z-10 text-[10px] px-2 py-1 rounded-full bg-black text-white"><span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.tag ? `<span class="note-product-badge absolute top-2 right-2 z-10 text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.discount ? `<span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi>` : escapeHTML(p.tag)}}</span>` : '')}}
+              ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap">${{p.discount ? `<span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi>` : escapeHTML(p.tag)}}</span>` : '')}}
               <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
             </div>
 
