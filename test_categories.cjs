@@ -9,7 +9,9 @@ const fresh={...products[0],id:'new-product',slug:'new-product',name:'منتج �
 ctx.testAPI.sync.applyToCatalog([...products,fresh]);
 assert.equal(ctx.categoryAPI.categoryProducts('zid-999')[0].id,'new-product');
 assert.equal(ctx.NoteRouter.resolveCategory('/categories/999/new-category',new URLSearchParams()),'zid-999');
-assert.equal(ctx.categoryAPI.categoryProducts('new')[0].id,'new-product');
+assert.equal(ctx.categoryAPI.categoryProducts('new').length,0);
+ctx.testAPI.sync.applyToCatalog([...products,{...fresh,categories:[{id:1327929}]}]);
+assert.deepEqual(Array.from(ctx.categoryAPI.categoryProducts('new'),p=>p.id),['new-product']);
 assert.equal(ctx.categoryAPI.categoryProducts('all').length,products.length+1);
 ctx.testAPI.sync.applyToCatalog([...products,{...fresh,categories:[{id:998,name:'تصنيف آخر'}]}]);
 assert.equal(ctx.categoryAPI.categoryProducts('zid-999').length,0);assert.equal(ctx.categoryAPI.categoryProducts('zid-998').length,1);

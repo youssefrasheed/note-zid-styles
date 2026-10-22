@@ -97,9 +97,8 @@
   function categoryProducts(key,products=noteProductsCatalog) {
     if(key==='all')return products.slice();
     if(key==='new'&&(hiddenCategoryIds.has('1327929')||(categoryListAuthoritative&&!zidCategories.some(c=>c.id==='1327929'))))return [];
-    if(key==='new')return products.slice().sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));
 
-    const id=key==='bestsellers'?'1697258':key.startsWith('zid-')?key.slice(4):categoryKeys[key];
+    const id=key==='new'?'1327929':key==='bestsellers'?'1697258':key.startsWith('zid-')?key.slice(4):categoryKeys[key];
     if(!id || hiddenCategoryIds.has(String(id)) || (categoryListAuthoritative&&!zidCategories.some(c=>c.id===String(id))))return [];
     const ids=new Set([String(id)]);
     for(let n=0;n<zidCategories.length;n++)for(const c of zidCategories)if(ids.has(String(c.parent_id)))ids.add(c.id);
