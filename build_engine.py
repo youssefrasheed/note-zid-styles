@@ -2757,6 +2757,8 @@ app_js_code = f"""/**
       else activeKey = null;
     }}
     
+    const navAliases = {{'zid-1748533':'perfumes','zid-1759040':'niche','zid-1697258':'bestsellers','zid-1327929':'new'}};
+    activeKey = navAliases[activeKey] || activeKey;
     navLinks.forEach(link => {{
       const linkCat = getLinkCategory(link);
       const isMatch = activeKey && (linkCat === activeKey);

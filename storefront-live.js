@@ -1,3 +1,4 @@
+  const navHoverStyle=document.createElement('style');navHoverStyle.textContent='#nav-links a:hover,#nav-links a:focus-visible{border-bottom:2px solid currentColor!important;}';document.head.append(navHoverStyle);
   const badgeStyle=document.createElement('style');badgeStyle.textContent=`
 .note-product-badge,#pdp-discount-badge {font-family:Arial,Tahoma,sans-serif!important;font-size:14px!important;font-weight:700!important;line-height:1.4!important;padding:7px 12px!important;min-height:34px;display:inline-flex!important;align-items:center;justify-content:center;gap:5px;direction:rtl;white-space:nowrap!important;box-sizing:border-box;}
 .note-product-badge bdi {font-family:Arial,sans-serif!important;direction:ltr;unicode-bidi:isolate;}
