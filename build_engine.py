@@ -1325,8 +1325,8 @@ app_js_code = f"""/**
             
             <!-- Clean Price Row -->
             <div class="flex items-center justify-center gap-2 pt-1">
-              <span class="text-rose-600 font-extrabold text-sm sm:text-base">${{p.price}}</span>
-              <span class="text-stone-400 line-through text-[11px] sm:text-xs font-normal">${{p.old_price}}</span>
+              <span class="text-rose-600 font-extrabold text-sm sm:text-base">${{p.price}} ر.س</span>
+              ${{p.old_price ? `<span class="text-stone-400 line-through text-[11px] sm:text-xs font-normal">${{p.old_price}} ر.س</span>` : ''}}
             </div>
           </div>
         </div>
@@ -1505,7 +1505,7 @@ app_js_code = f"""/**
     const modalBase = document.getElementById('modal-base');
     if (modalBase) modalBase.innerHTML = '<strong>القاعدة:</strong> ' + (p.base || '');
     const modalPrice = document.getElementById('modal-price');
-    if (modalPrice) modalPrice.textContent = p.price;
+    if (modalPrice) modalPrice.textContent = String(p.price).includes('ر.س') ? p.price : `${{p.price}} ر.س`;
 
     const isOutOfStock = p.in_stock === false || p.stock === 0;
     const buyBtn = document.getElementById('modal-buy-btn');
@@ -2090,7 +2090,7 @@ app_js_code = f"""/**
               
               <div class="flex items-center justify-center gap-2 pt-1">
                 <span class="text-black font-extrabold text-xs sm:text-sm">${{p.price}} ر.س</span>
-                <span class="text-stone-400 line-through text-[10px] sm:text-xs font-normal">${{p.old_price}} ر.س</span>
+                ${{p.old_price ? `<span class="text-stone-400 line-through text-[10px] sm:text-xs font-normal">${{p.old_price}} ر.س</span>` : ''}}
               </div>
             </div>
           </div>
@@ -2315,7 +2315,7 @@ app_js_code = f"""/**
               
               <div class="flex items-center justify-center gap-2 pt-1">
                 <span class="text-black font-extrabold text-xs sm:text-sm">${{p.price}} ر.س</span>
-                <span class="text-stone-400 line-through text-[10px] sm:text-xs font-normal">${{p.old_price}} ر.س</span>
+                ${{p.old_price ? `<span class="text-stone-400 line-through text-[10px] sm:text-xs font-normal">${{p.old_price}} ر.س</span>` : ''}}
               </div>
             </div>
           </div>
