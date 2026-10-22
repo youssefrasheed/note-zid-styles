@@ -132,6 +132,11 @@
       const replacements={'1500261':'niche','1310036':'travel','1688838':'all-over','1750048':'body-care','1310037':'linen'};
       const alias=replacements[match[1]];if(alias&&catUrlMap[alias])a.setAttribute('href',catUrlMap[alias]);
       const target=a.getAttribute('href')?.match(/\/categories\/(\d+)\//)?.[1];
+      const liveCategory=zidCategories.find(c=>c.id===target);
+      if(liveCategory && a.closest?.('#curated-sets')) {
+        const heading=a.querySelector('h3');if(heading)heading.textContent=liveCategory.name;
+        a.setAttribute('aria-label',liveCategory.name);
+      }
       a.hidden=target==='1759471'||hiddenCategoryIds.has(target)||(categoryListAuthoritative&&!zidCategories.some(c=>c.id===target));
     }
   }
