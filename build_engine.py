@@ -1314,7 +1314,7 @@ app_js_code = f"""/**
         <div>
           <!-- Frameless Image Container with Clean Shadow/Scale -->
           <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-            ${{isOutOfStock ? `<span class="note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="absolute top-2 right-2 z-10 text-[10px] px-2 py-1 rounded-full bg-black text-white">خصم ${{p.discount}}</span>` : ''}}` : (p.tag ? `<span class="absolute top-2.5 right-2.5 z-10 text-[9px] sm:text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm"> ${{p.tag}} </span>` : '')}}
+            ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="absolute top-2 right-2 z-10 text-[10px] px-2 py-1 rounded-full bg-black text-white"><span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 text-[9px] sm:text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm"> ${{p.discount ? `<span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi>` : escapeHTML(p.tag)}} </span>` : '')}}
             <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
           </div>
 
@@ -2080,7 +2080,7 @@ app_js_code = f"""/**
         <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 overflow-hidden">
-              ${{isOutOfStock ? `<span class="note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="absolute top-2 right-2 z-10 text-[10px] px-2 py-1 rounded-full bg-black text-white">خصم ${{p.discount}}</span>` : ''}}` : (p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.tag}}</span>` : '')}}
+              ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="absolute top-2 right-2 z-10 text-[10px] px-2 py-1 rounded-full bg-black text-white"><span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.tag ? `<span class="note-product-badge absolute top-2 right-2 z-10 text-[9px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.discount ? `<span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi>` : escapeHTML(p.tag)}}</span>` : '')}}
               <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
             </div>
 
@@ -2297,7 +2297,7 @@ app_js_code = f"""/**
         <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-              ${{isOutOfStock ? `<span class="note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="absolute top-2 right-2 z-10 text-[10px] px-2 py-1 rounded-full bg-black text-white">خصم ${{p.discount}}</span>` : ''}}` : (p.tag ? `<span class="absolute top-2 right-2 z-10 text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.tag}}</span>` : '')}}
+              ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="absolute top-2 right-2 z-10 text-[10px] px-2 py-1 rounded-full bg-black text-white"><span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.tag ? `<span class="note-product-badge absolute top-2 right-2 z-10 text-[9px] sm:text-[10px] font-medium px-2 py-0.5 rounded-full bg-black text-white whitespace-nowrap shadow-sm">${{p.discount ? `<span>خصم</span><bdi dir="ltr">${{p.discount}}</bdi>` : escapeHTML(p.tag)}}</span>` : '')}}
               <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
             </div>
 
