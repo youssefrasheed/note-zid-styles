@@ -3570,14 +3570,6 @@ body:not(.note-ready) footer:not(#note-store-footer) {
       filtered.sort((a, b) => (b.rating || 5) - (a.rating || 5));
     } else if (categorySort === 'newest') {
       filtered.sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));
-    } else {
-      const catId = typeof resolveCurrentCategoryId === 'function' ? resolveCurrentCategoryId(activeCategory) : null;
-      filtered.sort((a, b) => {
-        const rankA = typeof getProductCategoryRank === 'function' ? getProductCategoryRank(a, catId) : (a.display_order ?? 999999);
-        const rankB = typeof getProductCategoryRank === 'function' ? getProductCategoryRank(b, catId) : (b.display_order ?? 999999);
-        if (rankA !== rankB) return rankA - rankB;
-        return (Number(b.sold_count) || 0) - (Number(a.sold_count) || 0);
-      });
     }
 
     if (countEl) {
@@ -4330,6 +4322,8 @@ body:not(.note-ready) footer:not(#note-store-footer) {
       if (catOrder !== null && catOrder !== undefined && Number.isFinite(Number(catOrder))) {
         return Number(catOrder);
       }
+      // Unranked members follow explicitly ordered members in source order.
+      return Number.MAX_SAFE_INTEGER;
     }
     if (p.display_order !== null && p.display_order !== undefined && Number.isFinite(Number(p.display_order))) {
       return Number(p.display_order);
@@ -4369,10 +4363,7 @@ body:not(.note-ready) footer:not(#note-store-footer) {
       const rankA = getProductCategoryRank(a, targetCatId);
       const rankB = getProductCategoryRank(b, targetCatId);
       if (rankA !== rankB) return rankA - rankB;
-      const soldA = Number(a.sold_count) || 0;
-      const soldB = Number(b.sold_count) || 0;
-      if (soldB !== soldA) return soldB - soldA;
-      return String(b.created_at || '').localeCompare(String(a.created_at || ''));
+      return 0; // Stable source order for equal or unset ranks.
     });
   }
   function syncHomeCategoryOrder() {
@@ -4501,7 +4492,7 @@ body:not(.note-ready) footer:not(#note-store-footer) {
     const groups = {
       'slider-bestsellers':categoryProducts('bestsellers'),
       'slider-niche':categoryProducts('niche'),
-      'slider-new':noteProductsCatalog.slice().sort((a,b) => String(b.created_at).localeCompare(String(a.created_at)))
+      'slider-new':categoryProducts('new')
     };
     Object.entries(groups).forEach(([id,products]) => {
       const track=document.getElementById(id);

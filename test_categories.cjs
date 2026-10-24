@@ -30,5 +30,24 @@ ctx.document.querySelector=()=>grid;
 ctx.categoryAPI.registerCategories([{id:1759043},{id:1748533},{id:1759040}]);ctx.categoryAPI.syncHomeCategoryOrder();assert.deepEqual(grid.children.map(c=>c.id),['1310036','1748533','1500261']);
 ctx.categoryAPI.registerCategories([{id:1759040},{id:1759043},{id:1748533}]);ctx.categoryAPI.syncHomeCategoryOrder();assert.deepEqual(grid.children.map(c=>c.id),['1500261','1310036','1748533']);
 assert.equal(new Set(grid.children).size,3);
+
+const ranked=[
+ {...fresh,id:'a',display_order:0,sold_products_count:999,created_at:'2099',categories:[{id:1,display_order:2},{id:2,display_order:0}]},
+ {...fresh,id:'b',display_order:99,categories:[{id:1,display_order:0},{id:2,display_order:2}]},
+ {...fresh,id:'c',display_order:1,categories:[{id:1,display_order:null}]},
+ {...fresh,id:'d',display_order:0,sold_products_count:99999,categories:[{id:1,display_order:2}]}
+];
+ctx.categoryAPI.registerCategories([{id:1},{id:2}]);ctx.testAPI.sync.applyToCatalog(ranked);
+assert.deepEqual(Array.from(ctx.categoryAPI.categoryProducts('zid-1'),p=>p.id),['b','a','d','c']);
+assert.deepEqual(Array.from(ctx.categoryAPI.categoryProducts('zid-2'),p=>p.id),['a','b']);
+ranked[0].categories[0].display_order=0;ranked[1].categories[0].display_order=3;
+ctx.testAPI.sync.applyToCatalog(ranked);
+assert.deepEqual(Array.from(ctx.categoryAPI.categoryProducts('zid-1'),p=>p.id),['a','d','b','c']);
+const tracks={};ctx.document.querySelector=()=>null;
+ctx.document.getElementById=id=>id.startsWith('slider-')?(tracks[id]||=( {innerHTML:'',closest:()=>null})):null;
+ctx.renderProductCard=p=>p.id+',';
+ctx.categoryAPI.registerCategories([{id:1327929}]);
+ctx.testAPI.sync.applyToCatalog([{...fresh,id:'manual',categories:[{id:1327929,display_order:0}]},{...fresh,id:'outside',created_at:'9999',categories:[]}]);
+ctx.initSliders();assert.equal(tracks['slider-new'].innerHTML,'manual,');
 console.log('PASS: exact live category membership/counts, new product/category, reassignment, latest-first, discount percentage and no-sale badge');`;
 vm.runInThisContext('(function(require,__dirname){'+source+'})')(require,__dirname);
