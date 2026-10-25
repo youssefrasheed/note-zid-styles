@@ -5,9 +5,13 @@
   function start() {
     if (!config.enabled || location.pathname !== '/' || document.getElementById('note-welcome')) return;
     try { if (sessionStorage.getItem(key)) return; } catch (_) {}
-    setTimeout(function () {
-      if (location.pathname !== '/' || !document.getElementById('note-luxury-storefront')) return;
-      if (document.querySelector('dialog[open], [aria-modal="true"]')) return;
+    let attempts = 0;
+    setTimeout(function show() {
+      if (location.pathname !== '/') return;
+      if (!document.getElementById('note-luxury-storefront') || Array.from(document.querySelectorAll('dialog[open], [aria-modal="true"]')).some(el => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden')) {
+        if (++attempts < 60) setTimeout(show, 1000);
+        return;
+      }
       const dialog = document.createElement('dialog');
       dialog.id = 'note-welcome';
       dialog.dir = 'rtl';
