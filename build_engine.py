@@ -3031,6 +3031,7 @@ app_js_code = f"""/**
 """
 
 app_js_code = fix_startup(apply_live_fixes(app_js_code))
+app_js_code += "\n" + read_preview("welcome-popup.js")
 
 with open(OUT_JS, "w", encoding="utf-8") as f:
     f.write(app_js_code)
