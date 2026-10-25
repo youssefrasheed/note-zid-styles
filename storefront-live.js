@@ -26,13 +26,16 @@
 }
 .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock) bdi,
 #pdp-tag-badge bdi,
-#pdp-discount-badge bdi {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
-  font-weight: 800 !important;
+#pdp-discount-badge bdi,
+.note-vat-rate,
+.note-percent-val,
+#cart-page-summary-wrapper bdi,
+#cart-drawer-footer bdi {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Tajawal", Arial, sans-serif !important;
+  font-weight: 700 !important;
   direction: ltr !important;
   unicode-bidi: isolate !important;
   display: inline-block !important;
-  color: #111111 !important;
 }
 @media(max-width:639px){
   .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock),
@@ -311,7 +314,19 @@
     if (document.getElementById('catalog-products-grid')) renderCatalog();
     CartManager.renderDrawer();
     if (document.getElementById('cart-page-items')) renderCartPage();
+    formatVatPercent();
   };
+  function formatVatPercent() {
+    const summary = document.getElementById('cart-page-summary-wrapper') || document.body;
+    if (!summary) return;
+    const spans = summary.querySelectorAll('span');
+    for (let i = 0; i < spans.length; i++) {
+      const el = spans[i];
+      if (el.children.length === 0 && el.textContent.includes('ضريبة القيمة المضافة') && !el.querySelector?.('.note-vat-rate')) {
+        el.innerHTML = el.textContent.replace(/ضريبة القيمة المضافة(\s*\([^)]*\))?/g, 'ضريبة القيمة المضافة (<bdi class="note-vat-rate" dir="ltr">15%</bdi>):');
+      }
+    }
+  }
   initSliders = function() {
     refreshCategoryUI();
     const groups = {
