@@ -8,7 +8,7 @@
     let attempts = 0;
     setTimeout(function show() {
       if (location.pathname !== '/') return;
-      if (!document.getElementById('note-luxury-storefront') || Array.from(document.querySelectorAll('dialog[open], [aria-modal="true"]')).some(el => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden')) {
+      if (!document.getElementById('note-luxury-storefront') || Array.from(document.querySelectorAll('dialog[open], [aria-modal="true"]')).some(el => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el); return el.getAttribute('aria-hidden') !== 'true' && r.width > 0 && r.height > 0 && r.right > 0 && r.left < innerWidth && r.bottom > 0 && r.top < innerHeight && s.visibility !== 'hidden' && Number(s.opacity) > 0; })) {
         if (++attempts < 60) setTimeout(show, 1000);
         return;
       }
