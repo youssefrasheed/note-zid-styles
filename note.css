@@ -562,11 +562,24 @@ body:not(.note-ready) footer:not(#note-store-footer) {
   display: block !important;
   background: #ffffff !important;
   border: 1px solid #e7e5e4 !important;
-  border-radius: 16px !important;
-  padding: 14px 16px !important;
-  margin-bottom: 12px !important;
+  border-radius: 18px !important;
+  padding: 16px 18px !important;
+  margin-bottom: 14px !important;
   box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
   text-align: right !important;
+}
+.note-cart-item .cart-drawer-thumb,
+.note-cart-item > div:first-child > div:first-child > a {
+  width: 80px !important;
+  height: 80px !important;
+  border-radius: 14px !important;
+}
+@media (min-width: 640px) {
+  .note-cart-item .cart-drawer-thumb,
+  .note-cart-item > div:first-child > div:first-child > a {
+    width: 96px !important;
+    height: 96px !important;
+  }
 }
 #cart-drawer-coupon-box {
   flex-shrink: 0 !important;

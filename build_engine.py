@@ -637,11 +637,24 @@ body:not(.note-ready) footer:not(#note-store-footer) {{
   display: block !important;
   background: #ffffff !important;
   border: 1px solid #e7e5e4 !important;
-  border-radius: 16px !important;
-  padding: 14px 16px !important;
-  margin-bottom: 12px !important;
+  border-radius: 18px !important;
+  padding: 16px 18px !important;
+  margin-bottom: 14px !important;
   box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
   text-align: right !important;
+}}
+.note-cart-item .cart-drawer-thumb,
+.note-cart-item > div:first-child > div:first-child > a {{
+  width: 80px !important;
+  height: 80px !important;
+  border-radius: 14px !important;
+}}
+@media (min-width: 640px) {{
+  .note-cart-item .cart-drawer-thumb,
+  .note-cart-item > div:first-child > div:first-child > a {{
+    width: 96px !important;
+    height: 96px !important;
+  }}
 }}
 #cart-drawer-coupon-box {{
   flex-shrink: 0 !important;
@@ -1387,41 +1400,41 @@ app_js_code = f"""/**
         const itemLineTotal = item.price * item.quantity;
         
         return `
-          <div class="note-cart-item rounded-2xl border border-stone-200/90 bg-white p-3.5 sm:p-4 mb-3 transition-all shadow-2xs text-right">
+          <div class="note-cart-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right">
             <!-- Top Row: Thumbnail + Info (Title & Red Sale Price) + Coral Red ✕ Delete Button -->
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-center gap-3 min-w-0 flex-1">
-                <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}'); CartManager.closeDrawer();" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-white p-1 border border-stone-200/70 shrink-0 flex items-center justify-center overflow-hidden hover:opacity-90 transition">
+            <div class="flex items-start justify-between gap-3 sm:gap-4">
+              <div class="flex items-center gap-3.5 sm:gap-4 min-w-0 flex-1">
+                <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}'); CartManager.closeDrawer();" class="cart-drawer-thumb w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white p-1.5 border border-stone-200/80 shrink-0 flex items-center justify-center overflow-hidden hover:opacity-90 transition">
                   <img src="${{imgUrl}}" alt="${{item.title}}" class="w-full h-full object-contain">
                 </a>
-                <div class="min-w-0 flex-1">
+                <div class="min-w-0 flex-1 space-y-1">
                   <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}'); CartManager.closeDrawer();" class="block hover:text-stone-700 transition">
-                    <h4 class="text-xs sm:text-sm font-bold text-black line-clamp-1 leading-snug">${{item.title}}</h4>
+                    <h4 class="text-sm sm:text-base font-bold text-black line-clamp-2 leading-snug">${{item.title}}</h4>
                   </a>
-                  <div class="flex items-baseline gap-2 mt-1">
-                    ${{oldPriceVal ? `<span class="line-through text-stone-400 text-xs">${{formatPrice(oldPriceVal)}}</span>` : ''}}
-                    <span class="text-red-500 font-extrabold text-xs sm:text-sm">${{formatPrice(item.price)}}</span>
+                  <div class="flex items-baseline gap-2 pt-0.5">
+                    ${{oldPriceVal ? `<span class="line-through text-stone-400 text-xs sm:text-sm">${{formatPrice(oldPriceVal)}}</span>` : ''}}
+                    <span class="text-red-500 font-extrabold text-sm sm:text-base">${{formatPrice(item.price)}}</span>
                   </div>
                 </div>
               </div>
-              <button onclick="CartManager.removeItem('${{item.id}}')" class="w-6 h-6 rounded-full bg-[#f87171] hover:bg-[#ef4444] text-white flex items-center justify-center text-xs font-bold transition shadow-2xs shrink-0 cursor-pointer" aria-label="حذف المنتج من السلة" title="حذف">
-                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+              <button onclick="CartManager.removeItem('${{item.id}}')" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#f87171] hover:bg-[#ef4444] text-white flex items-center justify-center text-xs font-bold transition shadow-2xs shrink-0 cursor-pointer" aria-label="حذف المنتج من السلة" title="حذف">
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
               </button>
             </div>
 
             <!-- Subtle Divider -->
-            <div class="my-3 border-t border-stone-100"></div>
+            <div class="my-3.5 border-t border-stone-100"></div>
 
             <!-- Bottom Row: Stepper (- 1 +) on one side, Line Total on the other side -->
             <div class="flex items-center justify-between">
-              <div class="flex items-center border border-stone-200 rounded-lg h-8 sm:h-9 px-2 gap-3 bg-white text-stone-700 font-bold shadow-2xs">
-                <button onclick="CartManager.updateQuantity('${{item.id}}', -1)" class="w-5 h-full text-center text-stone-500 hover:text-black transition cursor-pointer text-sm font-bold" aria-label="تقليل الكمية">−</button>
-                <span class="min-w-[16px] text-center font-extrabold text-black text-xs sm:text-sm">${{item.quantity}}</span>
-                <button onclick="CartManager.updateQuantity('${{item.id}}', 1)" class="w-5 h-full text-center text-stone-500 hover:text-black transition cursor-pointer text-sm font-bold" aria-label="زيادة الكمية">+</button>
+              <div class="flex items-center border border-stone-200 rounded-xl h-9 sm:h-10 px-3 gap-3.5 bg-white text-stone-700 font-bold shadow-2xs min-w-[105px] sm:min-w-[115px]">
+                <button onclick="CartManager.updateQuantity('${{item.id}}', -1)" class="w-6 h-full text-center text-stone-500 hover:text-black transition cursor-pointer text-base sm:text-lg font-bold" aria-label="تقليل الكمية">−</button>
+                <span class="min-w-[20px] text-center font-black text-black text-sm sm:text-base">${{item.quantity}}</span>
+                <button onclick="CartManager.updateQuantity('${{item.id}}', 1)" class="w-6 h-full text-center text-stone-500 hover:text-black transition cursor-pointer text-base sm:text-lg font-bold" aria-label="زيادة الكمية">+</button>
               </div>
-              <div class="text-xs sm:text-sm font-bold text-stone-800">
-                <span class="text-stone-500 text-[11px] ml-1">المجموع:</span>
-                <span class="font-extrabold text-black">${{formatPrice(itemLineTotal)}}</span>
+              <div class="text-sm sm:text-base font-bold text-stone-800">
+                <span class="text-stone-500 text-xs sm:text-[13px] ml-1 font-medium">المجموع:</span>
+                <span class="font-black text-black">${{formatPrice(itemLineTotal)}}</span>
               </div>
             </div>
           </div>
