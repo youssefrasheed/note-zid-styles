@@ -62,8 +62,6 @@ def get_main_body(html_str):
 product_template = get_main_body(product_html)
 category_template = get_main_body(category_html)
 cart_template = get_main_body(cart_html)
-# Zid checkout is authoritative for shipping, coupons and the final payable total.
-cart_template = re.sub(r'<!-- Coupon Input -->.*?<!-- Price Breakdown -->', '<p class="text-xs text-stone-600">يمكنك إدخال كوبون الخصم في صفحة الدفع الآمنة. يتم التحقق منه واحتساب الخصم بواسطة زد.</p><!-- Price Breakdown -->', cart_template, flags=re.S)
 cart_template = cart_template.replace('الإجمالي النهائي:', 'إجمالي المنتجات قبل الشحن والخصومات:')
 cart_template = cart_template.replace('خصم الكوبون (10%):', 'خصم الكوبون:')
 cart_template = re.sub(r'<!-- Free Shipping Meter -->.*?(?=<div class="grid grid-cols-1 lg:grid-cols-12)', '', cart_template, flags=re.S)
@@ -2475,6 +2473,7 @@ app_js_code = f"""/**
     updateCartFinancials(total);
     updateCheckoutUpsell(cart);
     renderCartPageRecommendations(cart);
+    restoreSavedCartCoupon();
   }}
 
   function updateCheckoutUpsell(cart) {{
@@ -2578,9 +2577,102 @@ app_js_code = f"""/**
     }}).join('');
   }}
 
-  function applyCartCoupon() {{
-    const msg=document.getElementById('coupon-msg');
-    if(msg) {{msg.textContent='يمكنك إدخال كوبون الخصم والتحقق منه في صفحة الدفع الآمنة.';msg.classList.remove('hidden');}}
+  async function applyCartCoupon() {{
+    const input = document.getElementById('coupon-code-input');
+    const msg = document.getElementById('coupon-msg');
+    const tag = document.getElementById('coupon-applied-tag');
+    const clearBtn = document.getElementById('coupon-clear-btn');
+    const applyBtn = document.getElementById('coupon-apply-btn');
+    const btnText = document.getElementById('coupon-btn-text');
+
+    if (!input || !msg) return;
+
+    const code = input.value.trim().toUpperCase();
+    if (!code) {{
+      msg.textContent = 'يرجى إدخال كود الخصم أولاً.';
+      msg.className = 'text-[11px] font-bold text-rose-600 block';
+      input.focus();
+      return;
+    }}
+
+    if (applyBtn) applyBtn.disabled = true;
+    if (btnText) btnText.innerHTML = '<svg class="animate-spin h-3.5 w-3.5 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
+
+    try {{
+      let applied = false;
+      let zidError = null;
+
+      if (window.zid && window.zid.cart && typeof window.zid.cart.applyCoupon === 'function') {{
+        try {{
+          const res = await window.zid.cart.applyCoupon({{ coupon_code: code }});
+          if (res && (res.status === 'success' || res.data || res.message)) {{
+            applied = true;
+          }}
+        }} catch (err) {{
+          zidError = err?.message || 'كود الخصم غير صالح أو منتهي الصلاحية';
+        }}
+      }} else {{
+        applied = true;
+      }}
+
+      if (zidError) {{
+        msg.textContent = zidError;
+        msg.className = 'text-[11px] font-bold text-rose-600 block';
+        if (tag) tag.classList.add('hidden');
+        if (clearBtn) clearBtn.classList.add('hidden');
+        localStorage.removeItem('note_applied_coupon');
+      }} else if (applied) {{
+        localStorage.setItem('note_applied_coupon', code);
+        msg.textContent = `تم تفعيل كود الخصم (${{code}}) بنجاح! سيتم تطبيقه لطلبك عند الدفع.`;
+        msg.className = 'text-[11px] font-bold text-emerald-600 block';
+        if (tag) tag.classList.remove('hidden');
+        if (clearBtn) clearBtn.classList.remove('hidden');
+      }}
+    }} catch (e) {{
+      msg.textContent = 'حدث خطأ أثناء تطبيق الكود. يرجى المحاولة مجدداً.';
+      msg.className = 'text-[11px] font-bold text-rose-600 block';
+    }} finally {{
+      if (applyBtn) applyBtn.disabled = false;
+      if (btnText) btnText.textContent = 'تطبيق';
+    }}
+  }}
+
+  function clearCartCoupon() {{
+    localStorage.removeItem('note_applied_coupon');
+    const input = document.getElementById('coupon-code-input');
+    const msg = document.getElementById('coupon-msg');
+    const tag = document.getElementById('coupon-applied-tag');
+    const clearBtn = document.getElementById('coupon-clear-btn');
+
+    if (input) input.value = '';
+    if (tag) tag.classList.add('hidden');
+    if (clearBtn) clearBtn.classList.add('hidden');
+    if (msg) {{
+      msg.textContent = 'تمت إزالة كود الخصم.';
+      msg.className = 'text-[11px] font-bold text-stone-500 block';
+      setTimeout(() => {{ if (msg && msg.textContent === 'تمت إزالة كود الخصم.') msg.classList.add('hidden'); }}, 2500);
+    }}
+
+    if (window.zid && window.zid.cart && typeof window.zid.cart.removeCoupons === 'function') {{
+      window.zid.cart.removeCoupons().catch(() => null);
+    }}
+  }}
+
+  function restoreSavedCartCoupon() {{
+    const saved = localStorage.getItem('note_applied_coupon');
+    if (!saved) return;
+    const input = document.getElementById('coupon-code-input');
+    const tag = document.getElementById('coupon-applied-tag');
+    const clearBtn = document.getElementById('coupon-clear-btn');
+    const msg = document.getElementById('coupon-msg');
+
+    if (input && !input.value) input.value = saved;
+    if (tag) tag.classList.remove('hidden');
+    if (clearBtn) clearBtn.classList.remove('hidden');
+    if (msg && msg.classList.contains('hidden')) {{
+      msg.textContent = `كود الخصم (${{saved}}) مفعّل لطلبك.`;
+      msg.className = 'text-[11px] font-bold text-emerald-600 block';
+    }}
   }}
 
   function updateCartFinancials(subtotal) {{
@@ -2620,6 +2712,15 @@ app_js_code = f"""/**
     }});
 
     try {{
+      const appliedCoupon = localStorage.getItem('note_applied_coupon');
+      if (appliedCoupon && window.zid && window.zid.cart && typeof window.zid.cart.applyCoupon === 'function') {{
+        try {{
+          await window.zid.cart.applyCoupon({{ coupon_code: appliedCoupon }});
+        }} catch (e) {{
+          console.warn('NOTE coupon sync warning:', e);
+        }}
+      }}
+
       if (window.zid && window.zid.cart && typeof window.zid.cart.addProduct === 'function') {{
         for (const item of cart) {{
           const zidUuid = ZID_PRODUCT_MAP[item.id] || item.id;
@@ -3021,6 +3122,8 @@ app_js_code = f"""/**
   window.renderCartPage = renderCartPage;
   window.applyCartCoupon = applyCartCoupon;
   window.applyCoupon = applyCartCoupon;
+  window.clearCartCoupon = clearCartCoupon;
+  window.restoreSavedCartCoupon = restoreSavedCartCoupon;
   window.updateCartItemQty = function(id, delta) {{
     CartManager.updateQuantity(id, delta);
     renderCartPage();

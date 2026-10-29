@@ -135,15 +135,47 @@
             <h3 class="text-sm font-extrabold text-black pb-3 border-b border-stone-200/80">ملخص الطلب</h3>
 
             <!-- Coupon Input -->
-            <div class="space-y-1.5">
-              <label class="text-[11px] font-bold text-stone-600 block">كوبون الخصم أو قسيمة التخفيض:</label>
+            <div id="note-cart-coupon-section" class="pt-1 pb-1 space-y-2">
+              <div class="flex items-center justify-between">
+                <label for="coupon-code-input" class="text-[11px] font-bold text-stone-700 flex items-center gap-1.5 cursor-pointer">
+                  <i class="sicon-discount-coupon text-stone-500 text-xs"></i>
+                  <span>كوبون الخصم أو قسيمة التخفيض:</span>
+                </label>
+                <span id="coupon-applied-tag" class="hidden text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">مفعّل ✓</span>
+              </div>
               <div class="flex gap-2">
-                <input id="coupon-code-input" type="text" placeholder="أدخل الكوبون (مثال: NOTE10)" class="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs uppercase focus:outline-none focus:border-black font-mono">
-                <button onclick="applyCoupon()" class="px-4 py-2 rounded-xl bg-black text-white text-xs font-bold hover:bg-stone-800 transition shrink-0">
-                  تطبيق
+                <div class="relative flex-1">
+                  <input 
+                    id="coupon-code-input" 
+                    type="text" 
+                    placeholder="أدخل كود الخصم (مثال: NOTE5)" 
+                    autocomplete="off"
+                    autocapitalize="characters"
+                    spellcheck="false"
+                    class="w-full h-10 px-3.5 pl-8 rounded-xl border border-stone-200 bg-white text-xs uppercase font-mono tracking-wider focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition placeholder:text-stone-400"
+                    dir="ltr"
+                    style="text-align: right;"
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();applyCartCoupon();}"
+                  >
+                  <button 
+                    id="coupon-clear-btn" 
+                    type="button" 
+                    onclick="clearCartCoupon()" 
+                    class="hidden absolute left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-stone-200/70 hover:bg-stone-300 text-stone-600 flex items-center justify-center text-xs transition cursor-pointer"
+                    title="إزالة الكوبون"
+                    aria-label="إزالة الكوبون"
+                  >×</button>
+                </div>
+                <button 
+                  id="coupon-apply-btn" 
+                  type="button" 
+                  onclick="applyCartCoupon()" 
+                  class="h-10 px-5 rounded-xl bg-black hover:bg-stone-800 active:scale-95 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shrink-0 shadow-xs cursor-pointer"
+                >
+                  <span id="coupon-btn-text">تطبيق</span>
                 </button>
               </div>
-              <p id="coupon-msg" class="text-[11px] font-bold hidden"></p>
+              <p id="coupon-msg" class="text-[11px] font-bold hidden leading-relaxed transition-all"></p>
             </div>
 
             <!-- Price Breakdown -->
@@ -497,19 +529,106 @@
       renderCartPage();
     }
 
-    function applyCoupon() {
-      const code = document.getElementById('coupon-code-input').value.trim().toUpperCase();
+    async function applyCartCoupon() {
+      const input = document.getElementById('coupon-code-input');
       const msg = document.getElementById('coupon-msg');
-      if (code === 'NOTE10' || code === 'GOLD' || code === 'NOTE2026') {
-        discountRate = 0.10; // 10%
-        msg.textContent = 'تم تطبيق خصم 10% بنجاح!';
-        msg.className = 'text-[11px] font-bold text-emerald-600 block';
-      } else {
-        discountRate = 0;
-        msg.textContent = 'رمز الكوبون غير صالح أو منتهي الصلاحية';
+      const tag = document.getElementById('coupon-applied-tag');
+      const clearBtn = document.getElementById('coupon-clear-btn');
+      const applyBtn = document.getElementById('coupon-apply-btn');
+      const btnText = document.getElementById('coupon-btn-text');
+
+      if (!input || !msg) return;
+
+      const code = input.value.trim().toUpperCase();
+      if (!code) {
+        msg.textContent = 'يرجى إدخال كود الخصم أولاً.';
         msg.className = 'text-[11px] font-bold text-rose-600 block';
+        input.focus();
+        return;
       }
-      renderCartPage();
+
+      if (applyBtn) applyBtn.disabled = true;
+      if (btnText) btnText.innerHTML = '<svg class="animate-spin h-3.5 w-3.5 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
+
+      try {
+        let applied = false;
+        let zidError = null;
+
+        if (window.zid && window.zid.cart && typeof window.zid.cart.applyCoupon === 'function') {
+          try {
+            const res = await window.zid.cart.applyCoupon({ coupon_code: code });
+            if (res && (res.status === 'success' || res.data || res.message)) {
+              applied = true;
+            }
+          } catch (err) {
+            zidError = err?.message || 'كود الخصم غير صالح أو منتهي الصلاحية';
+          }
+        } else {
+          applied = true;
+        }
+
+        if (zidError) {
+          msg.textContent = zidError;
+          msg.className = 'text-[11px] font-bold text-rose-600 block';
+          if (tag) tag.classList.add('hidden');
+          if (clearBtn) clearBtn.classList.add('hidden');
+          localStorage.removeItem('note_applied_coupon');
+        } else if (applied) {
+          localStorage.setItem('note_applied_coupon', code);
+          msg.textContent = `تم تفعيل كود الخصم (${code}) بنجاح! سيتم تطبيقه لطلبك عند الدفع.`;
+          msg.className = 'text-[11px] font-bold text-emerald-600 block';
+          if (tag) tag.classList.remove('hidden');
+          if (clearBtn) clearBtn.classList.remove('hidden');
+        }
+      } catch (e) {
+        msg.textContent = 'حدث خطأ أثناء تطبيق الكود. يرجى المحاولة مجدداً.';
+        msg.className = 'text-[11px] font-bold text-rose-600 block';
+      } finally {
+        if (applyBtn) applyBtn.disabled = false;
+        if (btnText) btnText.textContent = 'تطبيق';
+      }
+    }
+
+    function clearCartCoupon() {
+      localStorage.removeItem('note_applied_coupon');
+      const input = document.getElementById('coupon-code-input');
+      const msg = document.getElementById('coupon-msg');
+      const tag = document.getElementById('coupon-applied-tag');
+      const clearBtn = document.getElementById('coupon-clear-btn');
+
+      if (input) input.value = '';
+      if (tag) tag.classList.add('hidden');
+      if (clearBtn) clearBtn.classList.add('hidden');
+      if (msg) {
+        msg.textContent = 'تمت إزالة كود الخصم.';
+        msg.className = 'text-[11px] font-bold text-stone-500 block';
+        setTimeout(() => { if (msg && msg.textContent === 'تمت إزالة كود الخصم.') msg.classList.add('hidden'); }, 2500);
+      }
+
+      if (window.zid && window.zid.cart && typeof window.zid.cart.removeCoupons === 'function') {
+        window.zid.cart.removeCoupons().catch(() => null);
+      }
+    }
+
+    function restoreSavedCartCoupon() {
+      const saved = localStorage.getItem('note_applied_coupon');
+      if (!saved) return;
+      const input = document.getElementById('coupon-code-input');
+      const tag = document.getElementById('coupon-applied-tag');
+      const clearBtn = document.getElementById('coupon-clear-btn');
+      const msg = document.getElementById('coupon-msg');
+
+      if (input && !input.value) input.value = saved;
+      if (tag) tag.classList.remove('hidden');
+      if (clearBtn) clearBtn.classList.remove('hidden');
+      if (msg && msg.classList.contains('hidden')) {
+        msg.textContent = `كود الخصم (${saved}) مفعّل لطلبك.`;
+        msg.className = 'text-[11px] font-bold text-emerald-600 block';
+      }
+    }
+
+    function applyCoupon() {
+      applyCartCoupon();
     }
 
     function updateFinancials(subtotal) {

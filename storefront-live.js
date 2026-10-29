@@ -762,6 +762,14 @@
         item.native_line_id=line.id;
         CartManager.saveCart(cart);
       }
+      const appliedCoupon = localStorage.getItem('note_applied_coupon');
+      if (appliedCoupon && api?.applyCoupon) {
+        try {
+          await api.applyCoupon({ coupon_code: appliedCoupon });
+        } catch (e) {
+          console.warn('NOTE coupon sync warning:', e);
+        }
+      }
       location.href='/checkout';
     } catch(error) {
       CartManager.showToast(escapeHTML(error.message));
