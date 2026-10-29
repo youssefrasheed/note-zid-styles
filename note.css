@@ -532,7 +532,10 @@ body:not(.note-ready) footer:not(#note-store-footer) {
   visibility: hidden !important;
 }
 
-/* Slide-out Cart Drawer Architecture */
+/* Slide-out Cart Drawer Architecture (Laverne Parity) */
+#cart-drawer-overlay {
+  z-index: 9998 !important;
+}
 #cart-drawer:not(.hidden):not([hidden]) {
   display: flex !important;
   flex-direction: column !important;
@@ -540,34 +543,41 @@ body:not(.note-ready) footer:not(#note-store-footer) {
   height: 100dvh !important;
   max-height: 100dvh !important;
   overflow: hidden !important;
+  z-index: 9999 !important;
 }
-#cart-drawer-items {
+#cart-drawer-scroll-area {
   flex: 1 1 auto !important;
   overflow-y: auto !important;
-  min-height: 160px !important;
-  max-height: calc(100dvh - 280px) !important;
-  padding: 12px 16px !important;
   overscroll-behavior: contain !important;
   -webkit-overflow-scrolling: touch !important;
+  min-height: 0 !important;
+}
+#cart-drawer-items {
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 0 !important;
 }
 .note-cart-item {
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  padding: 12px 14px !important;
-  margin-bottom: 10px !important;
+  display: block !important;
   background: #ffffff !important;
   border: 1px solid #e7e5e4 !important;
   border-radius: 16px !important;
+  padding: 14px 16px !important;
+  margin-bottom: 12px !important;
   box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
   text-align: right !important;
 }
+#cart-drawer-coupon-box {
+  flex-shrink: 0 !important;
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
+}
 #cart-drawer-recommendations {
-  padding: 6px 14px !important;
+  padding: 8px 0 !important;
   margin: 0 !important;
-  background: #fafaf9 !important;
-  border-top: 1px solid #f0eee9 !important;
-  border-bottom: 1px solid #f0eee9 !important;
+  background: transparent !important;
+  border: none !important;
   flex-shrink: 0 !important;
 }
 #cart-drawer-footer {
@@ -575,6 +585,24 @@ body:not(.note-ready) footer:not(#note-store-footer) {
   border-top: 1px solid #f0eee9 !important;
   background: #ffffff !important;
   flex-shrink: 0 !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* WhatsApp button suppression when cart drawer is active so it never overlaps checkout button */
+body.cart-drawer-open #whatsapp-floating-btn,
+body.cart-drawer-open .whatsapp-btn,
+body.cart-drawer-open [class*="whatsapp"],
+body.cart-drawer-open [id*="whatsapp"],
+body:has(#cart-drawer:not(.hidden)) #whatsapp-floating-btn,
+body:has(#cart-drawer:not(.hidden)) .whatsapp-btn,
+body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
+#cart-drawer:not(.hidden) ~ #whatsapp-floating-btn,
+#cart-drawer:not(.hidden) ~ [class*="whatsapp"] {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
 }
 
 /* Laverne-Grade Luxury Cart Page Items */

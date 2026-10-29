@@ -1268,6 +1268,7 @@ const CartManager = {
     const drawer = document.getElementById('cart-drawer');
     const overlay = document.getElementById('cart-drawer-overlay');
     if (drawer && overlay) {
+      document.body.classList.add('cart-drawer-open');
       drawer.classList.remove('hidden');
       overlay.classList.remove('hidden');
       setTimeout(() => {
@@ -1283,6 +1284,7 @@ const CartManager = {
     const drawer = document.getElementById('cart-drawer');
     const overlay = document.getElementById('cart-drawer-overlay');
     if (drawer && overlay) {
+      document.body.classList.remove('cart-drawer-open');
       drawer.classList.remove('translate-x-0');
       drawer.classList.add('-translate-x-full');
       overlay.classList.remove('opacity-100');
@@ -1301,6 +1303,9 @@ const CartManager = {
     const shippingText = document.getElementById('cart-free-shipping-text');
     const emptyState = document.getElementById('cart-drawer-empty');
     const footerEl = document.getElementById('cart-drawer-footer');
+    const scrollArea = document.getElementById('cart-drawer-scroll-area');
+    const couponBox = document.getElementById('cart-drawer-coupon-box');
+    const recsContainer = document.getElementById('cart-drawer-recommendations');
     
     if (!itemsContainer) return;
     
@@ -1310,17 +1315,20 @@ const CartManager = {
     
     if (cart.length === 0) {
       itemsContainer.innerHTML = '';
+      if (scrollArea) scrollArea.classList.add('hidden');
       if (emptyState) emptyState.classList.remove('hidden');
       if (footerEl) footerEl.classList.add('hidden');
-      const recsContainer = document.getElementById('cart-drawer-recommendations');
       if (recsContainer) recsContainer.classList.add('hidden');
+      if (couponBox) couponBox.classList.add('hidden');
       if (shippingProgress) shippingProgress.style.width = '0%';
       if (shippingText) shippingText.textContent = 'أضف منتجات بقيمة 300 ر.س لتحصل على شحن مجاني';
       return;
     }
     
+    if (scrollArea) scrollArea.classList.remove('hidden');
     if (emptyState) emptyState.classList.add('hidden');
     if (footerEl) footerEl.classList.remove('hidden');
+    if (couponBox) couponBox.classList.remove('hidden');
     
     if (shippingProgress && shippingText) {
       const percentage = Math.min(100, Math.round((total / freeShippingThreshold) * 100));
@@ -1339,34 +1347,70 @@ const CartManager = {
     if (totalEl) {
       totalEl.textContent = total + ' ر.س';
     }
+
+    // Sync coupon input in drawer with localStorage
+    const savedCoupon = localStorage.getItem('note_applied_coupon');
+    const drawerCouponInput = document.getElementById('drawer-coupon-input');
+    const drawerCouponTag = document.getElementById('drawer-coupon-applied-tag');
+    const drawerCouponMsg = document.getElementById('drawer-coupon-msg');
+    if (drawerCouponInput && savedCoupon) {
+      if (!drawerCouponInput.value) drawerCouponInput.value = savedCoupon;
+      if (drawerCouponTag) drawerCouponTag.classList.remove('hidden');
+      if (drawerCouponMsg && drawerCouponMsg.classList.contains('hidden')) {
+        drawerCouponMsg.textContent = `كود الخصم (${savedCoupon}) مفعّل لطلبك.`;
+        drawerCouponMsg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5';
+      }
+    }
     
-    itemsContainer.innerHTML = cart.map(item => `
-      <div class="note-cart-item group relative flex items-center gap-3 p-3 mb-2.5 rounded-2xl bg-white border border-stone-200/80 transition-all text-right shadow-2xs">
-        <a href="/product.html?id=${item.id}" class="w-16 h-16 sm:w-18 sm:h-18 rounded-xl bg-stone-50/70 p-1 flex-shrink-0 flex items-center justify-center border border-stone-200/70 block overflow-hidden">
-          <img src="${item.img}" alt="${item.title}" class="w-full h-full object-contain transition-transform group-hover:scale-105">
-        </a>
-        <div class="flex-grow min-w-0 pr-1">
-          <a href="/product.html?id=${item.id}" class="block hover:text-stone-700 transition">
-            <h4 class="text-xs sm:text-sm font-bold text-black line-clamp-1 leading-snug">${item.title}</h4>
-          </a>
-          <span class="text-[11px] text-stone-400 block mt-0.5">${item.size || '100 مل'}</span>
-          <div class="flex items-center justify-between mt-2">
-            <div class="flex items-center bg-stone-50/70 border border-stone-200 rounded-full h-7 px-2 gap-2 text-xs font-bold shadow-2xs">
-              <button onclick="CartManager.updateQuantity('${item.id}', -1)" class="w-4 text-center text-stone-500 hover:text-black transition" aria-label="تقليل الكمية">-</button>
-              <span class="min-w-[16px] text-center font-extrabold text-black">${item.quantity}</span>
-              <button onclick="CartManager.updateQuantity('${item.id}', 1)" class="w-4 text-center text-stone-500 hover:text-black transition" aria-label="زيادة الكمية">+</button>
+    // Render Laverne-style 2-tier item cards
+    itemsContainer.innerHTML = cart.map(item => {
+      const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
+      const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
+      const itemLineTotal = item.price * item.quantity;
+      
+      return `
+        <div class="note-cart-item rounded-2xl border border-stone-200/90 bg-white p-3.5 sm:p-4 mb-3 transition-all shadow-2xs text-right">
+          <!-- Top Row: Thumbnail + Info (Title & Red Sale Price) + Coral Red ✕ Delete Button -->
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+              <a href="/product.html?id=${item.id}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-white p-1 border border-stone-200/70 shrink-0 flex items-center justify-center overflow-hidden hover:opacity-90 transition">
+                <img src="${item.img}" alt="${item.title}" class="w-full h-full object-contain">
+              </a>
+              <div class="min-w-0 flex-1">
+                <a href="/product.html?id=${item.id}" class="block hover:text-stone-700 transition">
+                  <h4 class="text-xs sm:text-sm font-bold text-black line-clamp-1 leading-snug">${item.title}</h4>
+                </a>
+                <div class="flex items-baseline gap-2 mt-1">
+                  ${oldPriceVal ? `<span class="line-through text-stone-400 text-xs">${oldPriceVal} ر.س</span>` : ''}
+                  <span class="text-red-500 font-extrabold text-xs sm:text-sm">${item.price} ر.س</span>
+                </div>
+              </div>
             </div>
-            <span class="text-xs sm:text-sm font-black text-black">${item.price * item.quantity} ر.س</span>
+            <button onclick="CartManager.removeItem('${item.id}')" class="w-6 h-6 rounded-full bg-[#f87171] hover:bg-[#ef4444] text-white flex items-center justify-center text-xs font-bold transition shadow-2xs shrink-0 cursor-pointer" aria-label="حذف المنتج من السلة" title="حذف">
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+            </button>
+          </div>
+
+          <!-- Subtle Divider -->
+          <div class="my-3 border-t border-stone-100"></div>
+
+          <!-- Bottom Row: Stepper (- 1 +) on one side, Line Total on the other side -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center border border-stone-200 rounded-lg h-8 sm:h-9 px-2 gap-3 bg-white text-stone-700 font-bold shadow-2xs">
+              <button onclick="CartManager.updateQuantity('${item.id}', -1)" class="w-5 h-full text-center text-stone-500 hover:text-black transition cursor-pointer text-sm font-bold" aria-label="تقليل الكمية">−</button>
+              <span class="min-w-[16px] text-center font-extrabold text-black text-xs sm:text-sm">${item.quantity}</span>
+              <button onclick="CartManager.updateQuantity('${item.id}', 1)" class="w-5 h-full text-center text-stone-500 hover:text-black transition cursor-pointer text-sm font-bold" aria-label="زيادة الكمية">+</button>
+            </div>
+            <div class="text-xs sm:text-sm font-bold text-stone-800">
+              <span class="text-stone-500 text-[11px] ml-1">المجموع:</span>
+              <span class="font-extrabold text-black">${itemLineTotal} ر.س</span>
+            </div>
           </div>
         </div>
-        <button onclick="CartManager.removeItem('${item.id}')" class="text-stone-400 hover:text-rose-600 p-2 transition flex items-center justify-center rounded-lg hover:bg-rose-50" aria-label="حذف المنتج من السلة" title="حذف">
-          <i class="sicon-trash text-sm"></i>
-        </button>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
     // Render Drawer Recommendations
-    const recsContainer = document.getElementById('cart-drawer-recommendations');
     const recsList = document.getElementById('cart-drawer-recs-list');
     if (recsContainer && recsList) {
       const inCartIds = new Set(cart.map(i => i.id));
@@ -1388,26 +1432,26 @@ const CartManager = {
         .filter(id => !inCartIds.has(id))
         .map(id => noteProductsCatalog.find(p => p.id === id))
         .filter(Boolean)
-        .slice(0, 1);
+        .slice(0, 2);
 
       if (recs.length > 0) {
         recsContainer.classList.remove('hidden');
         recsList.innerHTML = recs.map(p => `
-          <div class="flex items-center justify-between gap-2.5 p-2 bg-white rounded-xl border border-stone-200/70 shadow-xs">
-            <div class="flex items-center gap-2 min-w-0">
-              <div class="w-9 h-9 rounded-lg bg-stone-50 p-0.5 border border-stone-100 shrink-0 flex items-center justify-center">
+          <div class="flex items-center justify-between gap-2.5 p-2.5 bg-stone-50 rounded-xl border border-stone-200/70 shadow-2xs">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-10 h-10 rounded-lg bg-white p-0.5 border border-stone-200/60 shrink-0 flex items-center justify-center">
                 <img src="${p.img}" alt="${p.title}" class="w-full h-full object-contain">
               </div>
               <div class="min-w-0">
-                <h5 class="text-[11px] font-bold text-black truncate">${p.title}</h5>
+                <h5 class="text-xs font-bold text-black truncate">${p.title}</h5>
                 <div class="flex items-center gap-1.5 mt-0.5">
-                  <span class="text-[11px] font-extrabold text-black">${p.price} ر.س</span>
-                  ${p.old_price ? `<span class="text-[9px] text-stone-400 line-through">${p.old_price} ر.س</span>` : ''}
+                  <span class="text-xs font-extrabold text-black">${p.price} ر.س</span>
+                  ${p.old_price ? `<span class="text-[10px] text-stone-400 line-through">${p.old_price} ر.س</span>` : ''}
                 </div>
               </div>
             </div>
-            <button onclick="CartManager.addItem('${p.id}', 1)" class="px-2.5 py-1 rounded-lg bg-black hover:bg-stone-800 text-white text-[10px] font-bold shrink-0 transition flex items-center gap-1 active:scale-95 shadow-xs" title="إضافة سريعة">
-              <i class="sicon-plus text-[9px]"></i>
+            <button onclick="CartManager.addItem('${p.id}', 1)" class="px-3 py-1.5 rounded-lg bg-black hover:bg-stone-800 text-white text-xs font-bold shrink-0 transition flex items-center gap-1 active:scale-95 shadow-xs" title="إضافة سريعة">
+              <i class="sicon-plus text-[10px]"></i>
               <span>أضف</span>
             </button>
           </div>
@@ -1415,6 +1459,71 @@ const CartManager = {
       } else {
         recsContainer.classList.add('hidden');
       }
+    }
+  }
+};
+
+// Drawer Coupon Application Handler
+window.applyDrawerCoupon = async function() {
+  const input = document.getElementById('drawer-coupon-input');
+  const msg = document.getElementById('drawer-coupon-msg');
+  const tag = document.getElementById('drawer-coupon-applied-tag');
+  const btn = document.getElementById('drawer-coupon-btn');
+
+  if (!input || !msg) return;
+
+  const code = input.value.trim().toUpperCase();
+  if (!code) {
+    msg.textContent = 'يرجى إدخال كود الخصم أولاً.';
+    msg.className = 'text-[11px] font-bold text-rose-600 block mt-1.5';
+    msg.classList.remove('hidden');
+    input.focus();
+    return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="inline-block animate-spin">⟳</span>';
+  }
+
+  try {
+    let applied = false;
+    let zidError = null;
+
+    if (window.zid && window.zid.cart && typeof window.zid.cart.applyCoupon === 'function') {
+      try {
+        const res = await window.zid.cart.applyCoupon({ coupon_code: code });
+        if (res && (res.status === 'success' || res.data || res.message)) {
+          applied = true;
+        }
+      } catch (err) {
+        zidError = err?.message || 'كود الخصم غير صالح أو منتهي الصلاحية';
+      }
+    } else {
+      applied = true;
+    }
+
+    if (zidError) {
+      msg.textContent = zidError;
+      msg.className = 'text-[11px] font-bold text-rose-600 block mt-1.5';
+      msg.classList.remove('hidden');
+      if (tag) tag.classList.add('hidden');
+      localStorage.removeItem('note_applied_coupon');
+    } else if (applied) {
+      localStorage.setItem('note_applied_coupon', code);
+      msg.textContent = `تم تفعيل كود الخصم (${code}) بنجاح! سيتم احتسابه عند الدفع.`;
+      msg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5';
+      msg.classList.remove('hidden');
+      if (tag) tag.classList.remove('hidden');
+    }
+  } catch (e) {
+    msg.textContent = 'حدث خطأ أثناء تطبيق الكود. يرجى المحاولة مجدداً.';
+    msg.className = 'text-[11px] font-bold text-rose-600 block mt-1.5';
+    msg.classList.remove('hidden');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'تطبيق';
     }
   }
 };

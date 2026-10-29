@@ -1539,40 +1539,65 @@
   </script>
 
   <!-- ================= UNIVERSAL SLIDE-OUT CART DRAWER ================= -->
-  <div id="cart-drawer-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300" onclick="CartManager.closeDrawer()"></div>
-  <div id="cart-drawer" class="fixed top-0 left-0 bottom-0 w-full sm:w-[420px] bg-white z-50 transform -translate-x-full transition-transform duration-300 flex flex-col justify-between shadow-2xl text-right hidden">
-    <div class="p-5 border-b border-stone-100 flex items-center justify-between">
+  <div id="cart-drawer-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] hidden opacity-0 transition-opacity duration-300" onclick="CartManager.closeDrawer()"></div>
+  <div id="cart-drawer" class="fixed top-0 left-0 bottom-0 w-full sm:w-[420px] bg-white z-[9999] transform -translate-x-full transition-transform duration-300 flex flex-col justify-between shadow-2xl text-right hidden">
+    <!-- Header -->
+    <div class="p-5 border-b border-stone-100 flex items-center justify-between shrink-0">
       <div class="flex items-center gap-2">
         <i class="sicon-shopping-bag text-lg text-black"></i>
         <h3 class="text-sm font-bold text-black">سلة المشتريات</h3>
         <span class="cart-badge-count text-xs font-bold text-stone-400">(0)</span>
       </div>
-      <button onclick="CartManager.closeDrawer()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-black flex items-center justify-center transition">
+      <button onclick="CartManager.closeDrawer()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-black flex items-center justify-center transition" aria-label="إغلاق السلة">
         <i class="sicon-cancel text-sm"></i>
       </button>
     </div>
 
-    <div class="px-5 py-3 bg-stone-50 border-b border-stone-100">
+    <!-- Free Shipping Progress -->
+    <div class="px-5 py-3 bg-stone-50 border-b border-stone-100 shrink-0">
       <p id="cart-free-shipping-text" class="text-xs text-stone-600 mb-1.5"></p>
       <div class="w-full bg-stone-200 h-1.5 rounded-full overflow-hidden">
         <div id="cart-free-shipping-progress" class="bg-black h-full transition-all duration-500" style="width: 0%"></div>
       </div>
     </div>
 
-    <div id="cart-drawer-items" class="p-5 flex-grow overflow-y-auto divide-y divide-stone-100"></div>
+    <!-- Scrollable Body (Items + Coupon + Recommendations All Scroll Together) -->
+    <div id="cart-drawer-scroll-area" class="flex-grow overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-3">
+      <!-- Items Container -->
+      <div id="cart-drawer-items" class="space-y-3"></div>
 
-    <!-- Recommendations Section inside Drawer (Compact) -->
-    <div id="cart-drawer-recommendations" class="p-2.5 px-4 bg-stone-50/80 border-t border-stone-100 hidden">
-      <div class="flex items-center justify-between mb-1.5">
-        <span class="text-[11px] font-bold text-black flex items-center gap-1">
-          <i class="sicon-sparkles text-amber-500 text-xs"></i>
-          <span>ترشيح نوت لك</span>
-        </span>
-        <span class="text-[9px] text-stone-400">إضافة سريعة بنقرة واحدة</span>
+      <!-- Coupon Code Box (Under items inside scroll area like Laverne) -->
+      <div id="cart-drawer-coupon-box" class="pt-1 pb-1">
+        <div class="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/80">
+          <div class="flex items-center justify-between mb-2">
+            <label for="drawer-coupon-input" class="text-xs font-bold text-stone-800 flex items-center gap-1.5 cursor-pointer">
+              <i class="sicon-discount-coupon text-stone-500 text-xs"></i>
+              <span>كود الخصم</span>
+            </label>
+            <span id="drawer-coupon-applied-tag" class="hidden text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">مفعّل ✓</span>
+          </div>
+          <div class="flex gap-2">
+            <input type="text" id="drawer-coupon-input" placeholder="أدخل كود الخصم" class="flex-1 min-w-0 px-3 py-2 rounded-xl border border-stone-200 bg-white text-xs font-medium text-stone-900 placeholder-stone-400 focus:outline-none focus:border-black transition">
+            <button type="button" id="drawer-coupon-btn" onclick="applyDrawerCoupon()" class="px-4 py-2 rounded-xl bg-black hover:bg-stone-800 text-white text-xs font-bold transition shrink-0">تطبيق</button>
+          </div>
+          <p id="drawer-coupon-msg" class="text-[11px] mt-1.5 hidden font-medium"></p>
+        </div>
       </div>
-      <div id="cart-drawer-recs-list" class="space-y-1.5"></div>
+
+      <!-- Recommendations Section inside Drawer (Under coupon inside scroll area like Laverne) -->
+      <div id="cart-drawer-recommendations" class="pt-2 hidden">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-black flex items-center gap-1">
+            <i class="sicon-sparkles text-amber-500 text-xs"></i>
+            <span>ترشيح نوت لك</span>
+          </span>
+          <span class="text-[10px] text-stone-400">إضافة سريعة بنقرة واحدة</span>
+        </div>
+        <div id="cart-drawer-recs-list" class="space-y-2"></div>
+      </div>
     </div>
 
+    <!-- Empty State -->
     <div id="cart-drawer-empty" class="hidden flex flex-col items-center justify-center p-8 text-center my-auto">
       <div class="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 mb-4">
         <i class="sicon-shopping-bag text-2xl"></i>
@@ -1584,7 +1609,8 @@
       </a>
     </div>
 
-    <div id="cart-drawer-footer" class="p-4 sm:p-5 border-t border-stone-100 bg-white space-y-2.5">
+    <!-- Footer Checkout Area -->
+    <div id="cart-drawer-footer" class="p-4 sm:p-5 border-t border-stone-100 bg-white space-y-2.5 shrink-0">
       <span id="cart-drawer-subtotal" class="hidden">0 ر.س</span>
       <div class="flex items-center justify-between text-base font-extrabold text-black pt-1">
         <span>الإجمالي:</span>
@@ -1627,7 +1653,7 @@
     </div>
   </div>
 
-  <script src="/products-data.js?v=20261020_2320"></script>
+  <script src="/products-data.js?v=20261029_1020"></script>
 
 </body>
 </html>
