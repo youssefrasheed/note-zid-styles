@@ -105,9 +105,9 @@
       const old = sale !== null && sale < price ? price : null;
       const sold = Number(z.sold_products_count) || 0;
       const fallbackImg = KNOWN_PRODUCT_FALLBACKS[z.id] || KNOWN_PRODUCT_FALLBACKS[slug] || prior.img || '';
-      const fallbackImgBox = KNOWN_PRODUCT_FALLBACKS[z.id] || KNOWN_PRODUCT_FALLBACKS[slug] || prior.img_box || fallbackImg || null;
+      const fallbackImgBox = null;
       const img = liveImage(z.images?.[0], z.id) || fallbackImg || '';
-      const img_box = liveImage(z.images?.[1], z.id) || fallbackImgBox || null;
+      const img_box = null;
       const entry = {...prior, id:z.id, zid_id:z.id, slug, title:z.name || '', title_en:z.name_en || '', price: sale ?? price, old_price:old,
         discount:old ? Number(((old-sale)/old*100).toFixed(1))+'%' : null,
         img: img, img_box: img_box,
