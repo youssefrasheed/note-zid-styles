@@ -621,12 +621,12 @@ body:not(.note-ready) footer:not(#note-store-footer) {{
   display: flex !important;
   align-items: center !important;
   gap: 12px !important;
-  padding: 10px 12px !important;
-  margin-bottom: 8px !important;
+  padding: 12px 14px !important;
+  margin-bottom: 10px !important;
   background: #ffffff !important;
-  border: 1px solid #f0eee9 !important;
-  border-radius: 14px !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+  border: 1px solid #e7e5e4 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
   text-align: right !important;
 }}
 #cart-drawer-recommendations {{
@@ -638,10 +638,55 @@ body:not(.note-ready) footer:not(#note-store-footer) {{
   flex-shrink: 0 !important;
 }}
 #cart-drawer-footer {{
-  padding: 12px 16px 14px !important;
+  padding: 14px 16px 16px !important;
   border-top: 1px solid #f0eee9 !important;
   background: #ffffff !important;
   flex-shrink: 0 !important;
+}}
+
+/* Laverne-Grade Luxury Cart Page Items */
+.note-cart-page-item {{
+  display: block !important;
+  background: #ffffff !important;
+  border: 1px solid #e7e5e4 !important;
+  border-radius: 16px !important;
+  padding: 14px 16px !important;
+  margin-bottom: 12px !important;
+  text-align: right !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
+}}
+@media (min-width: 640px) {{
+  .note-cart-page-item {{
+    padding: 18px 22px !important;
+  }}
+}}
+.note-cart-page-item .cart-thumb-box {{
+  width: 76px !important;
+  height: 76px !important;
+  border-radius: 12px !important;
+  background: #fafaf9 !important;
+  border: 1px solid #e7e5e4 !important;
+  padding: 4px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}}
+@media (min-width: 640px) {{
+  .note-cart-page-item .cart-thumb-box {{
+    width: 84px !important;
+    height: 84px !important;
+  }}
+}}
+.note-cart-page-item h4 {{
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
+  color: #111111 !important;
+}}
+.note-cart-page-item .text-\\[11px\\] {{
+  font-size: 11.5px !important;
+  color: #78716c !important;
 }}
 """
 
@@ -1279,22 +1324,22 @@ app_js_code = f"""/**
         const zidSlug = zidSlugMap[item.id] || item.id;
         const imgUrl = (item.img.startsWith('http') ? '' : ASSET_HOST) + item.img;
         return `
-          <div class="note-cart-item group relative flex items-center gap-3 p-3 mb-2.5 rounded-2xl bg-stone-50/70 hover:bg-stone-50 border border-stone-200/80 transition-all text-right">
-            <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}'); CartManager.closeDrawer();" class="w-16 h-16 sm:w-18 sm:h-18 rounded-xl bg-white p-1.5 flex-shrink-0 flex items-center justify-center border border-stone-200/80 shadow-2xs block overflow-hidden">
+          <div class="note-cart-item group relative flex items-center gap-3 p-3 mb-2.5 rounded-2xl bg-white border border-stone-200/80 transition-all text-right shadow-2xs">
+            <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}'); CartManager.closeDrawer();" class="w-16 h-16 sm:w-18 sm:h-18 rounded-xl bg-stone-50/70 p-1 flex-shrink-0 flex items-center justify-center border border-stone-200/70 block overflow-hidden">
               <img src="${{imgUrl}}" alt="${{item.title}}" class="w-full h-full object-contain transition-transform group-hover:scale-105">
             </a>
             <div class="flex-grow min-w-0 pr-1">
               <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}'); CartManager.closeDrawer();" class="block hover:text-stone-700 transition">
-                <h4 class="text-xs sm:text-sm font-extrabold text-stone-900 line-clamp-1 leading-snug">${{item.title}}</h4>
+                <h4 class="text-xs sm:text-sm font-bold text-black line-clamp-1 leading-snug">${{item.title}}</h4>
               </a>
-              <span class="text-[11px] text-stone-500 font-medium block mt-0.5">${{item.size || '100 مل'}}</span>
+              <span class="text-[11px] text-stone-400 block mt-0.5">${{item.size || '100 مل'}}</span>
               <div class="flex items-center justify-between mt-2">
-                <div class="flex items-center bg-white border border-stone-300 rounded-full h-7 px-1.5 gap-2 text-xs font-bold shadow-2xs">
-                  <button onclick="CartManager.updateQuantity('${{item.id}}', -1)" class="w-5 h-5 rounded-full flex items-center justify-center text-stone-600 hover:text-black hover:bg-stone-100 transition" aria-label="تقليل الكمية">-</button>
-                  <span class="min-w-[16px] text-center font-extrabold text-stone-900">${{item.quantity}}</span>
-                  <button onclick="CartManager.updateQuantity('${{item.id}}', 1)" class="w-5 h-5 rounded-full flex items-center justify-center text-stone-600 hover:text-black hover:bg-stone-100 transition" aria-label="زيادة الكمية">+</button>
+                <div class="flex items-center bg-stone-50/70 border border-stone-200 rounded-full h-7 px-2 gap-2 text-xs font-bold shadow-2xs">
+                  <button onclick="CartManager.updateQuantity('${{item.id}}', -1)" class="w-4 text-center text-stone-500 hover:text-black transition" aria-label="تقليل الكمية">-</button>
+                  <span class="min-w-[16px] text-center font-extrabold text-black">${{item.quantity}}</span>
+                  <button onclick="CartManager.updateQuantity('${{item.id}}', 1)" class="w-4 text-center text-stone-500 hover:text-black transition" aria-label="زيادة الكمية">+</button>
                 </div>
-                <span class="text-xs sm:text-sm font-black text-stone-900">${{formatPrice(item.price * item.quantity)}}</span>
+                <span class="text-xs sm:text-sm font-black text-black">${{formatPrice(item.price * item.quantity)}}</span>
               </div>
             </div>
             <button onclick="CartManager.removeItem('${{item.id}}')" class="text-stone-400 hover:text-rose-600 p-2 transition flex items-center justify-center rounded-lg hover:bg-rose-50" aria-label="حذف المنتج من السلة" title="حذف">
@@ -2436,36 +2481,54 @@ app_js_code = f"""/**
       const zidSlug = zidSlugMap[item.id] || item.id;
       const imgUrl = (item.img.startsWith('http') ? '' : ASSET_HOST) + item.img;
       return `
-        <div class="note-cart-page-item py-4 sm:py-6 flex items-center justify-between gap-4 text-right">
-          <div class="flex items-center gap-3 sm:gap-4 flex-grow">
-            <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-stone-50 p-2 flex-shrink-0 flex items-center justify-center border border-stone-200/80 block">
-              <img src="${{imgUrl}}" alt="${{item.title}}" class="w-full h-full object-contain">
-            </a>
-            <div class="space-y-1">
-              <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" class="hover:underline">
-                <h4 class="text-xs sm:text-sm font-bold text-black">${{item.title}}</h4>
+        <div class="note-cart-page-item p-4 sm:p-5 mb-3 rounded-2xl bg-white border border-stone-200/90 text-right shadow-2xs transition-all">
+          <div class="flex items-center justify-between gap-3 sm:gap-4">
+            <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-grow">
+              <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" class="cart-thumb-box w-20 h-20 sm:w-22 sm:h-22 rounded-xl bg-stone-50/80 p-1.5 flex-shrink-0 flex items-center justify-center border border-stone-200/70 block overflow-hidden">
+                <img src="${{imgUrl}}" alt="${{item.title}}" class="w-full h-full object-contain">
               </a>
-              <span class="text-[11px] text-stone-400 block">${{item.size || '100 مل'}}</span>
-              <span class="text-xs font-bold text-black sm:hidden block">${{formatPrice(item.price)}}</span>
+              <div class="space-y-1 min-w-0">
+                <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" class="hover:text-stone-700 transition block">
+                  <h4 class="text-xs sm:text-sm font-bold text-black line-clamp-1">${{item.title}}</h4>
+                </a>
+                <span class="text-[11px] text-stone-400 block">${{item.size || '100 مل'}}</span>
+                <span class="text-xs font-bold text-black sm:hidden block">${{formatPrice(item.price)}}</span>
+              </div>
+            </div>
+
+            <!-- Desktop Stepper & Line Total -->
+            <div class="hidden sm:flex items-center gap-6">
+              <!-- Stepper -->
+              <div class="flex items-center border border-stone-200 rounded-lg h-8 px-2 gap-2 text-xs font-bold bg-white">
+                <button onclick="CartManager.updateQuantity('${{item.id}}', -1); renderCartPage();" class="text-stone-500 hover:text-black w-5 text-center font-bold" aria-label="تقليل الكمية">-</button>
+                <span class="min-w-[20px] text-center font-extrabold text-black">${{item.quantity}}</span>
+                <button onclick="CartManager.updateQuantity('${{item.id}}', 1); renderCartPage();" class="text-stone-500 hover:text-black w-5 text-center font-bold" aria-label="زيادة الكمية">+</button>
+              </div>
+              <!-- Line Total -->
+              <div class="text-left min-w-[90px]">
+                <span class="text-[11px] text-stone-400 block font-medium">المجموع:</span>
+                <span class="text-sm font-black text-black">${{formatPrice(item.price * item.quantity)}}</span>
+              </div>
+            </div>
+
+            <!-- Delete Button -->
+            <button onclick="CartManager.removeItem('${{item.id}}'); renderCartPage();" class="w-8 h-8 rounded-full hover:bg-rose-50 text-stone-400 hover:text-rose-600 transition flex items-center justify-center shrink-0" title="حذف">
+              <i class="sicon-trash text-sm"></i>
+            </button>
+          </div>
+
+          <!-- Mobile Bottom Row (Stepper + Line Total) -->
+          <div class="sm:hidden pt-3 mt-3 border-t border-stone-100 flex items-center justify-between">
+            <div class="flex items-center border border-stone-200 rounded-lg h-7 px-2 gap-2 text-xs font-bold bg-white">
+              <button onclick="CartManager.updateQuantity('${{item.id}}', -1); renderCartPage();" class="text-stone-500 hover:text-black w-5 text-center font-bold" aria-label="تقليل الكمية">-</button>
+              <span class="min-w-[18px] text-center font-extrabold text-black">${{item.quantity}}</span>
+              <button onclick="CartManager.updateQuantity('${{item.id}}', 1); renderCartPage();" class="text-stone-500 hover:text-black w-5 text-center font-bold" aria-label="زيادة الكمية">+</button>
+            </div>
+            <div class="text-left">
+              <span class="text-[10px] text-stone-400 ml-1 font-medium">المجموع:</span>
+              <span class="text-xs font-black text-black">${{formatPrice(item.price * item.quantity)}}</span>
             </div>
           </div>
-
-          <!-- Quantity Stepper -->
-          <div class="flex items-center border border-stone-200 rounded-full h-8 px-2 sm:px-3 gap-2 sm:gap-3 text-xs font-bold bg-white">
-            <button onclick="CartManager.updateQuantity('${{item.id}}', -1); renderCartPage();" class="text-stone-500 hover:text-black w-4 text-center">-</button>
-            <span class="min-w-[16px] text-center">${{item.quantity}}</span>
-            <button onclick="CartManager.updateQuantity('${{item.id}}', 1); renderCartPage();" class="text-stone-500 hover:text-black w-4 text-center">+</button>
-          </div>
-
-          <!-- Total for line -->
-          <div class="hidden sm:block text-left min-w-[80px]">
-            <span class="text-sm font-extrabold text-black">${{formatPrice(item.price * item.quantity)}}</span>
-          </div>
-
-          <!-- Delete -->
-          <button onclick="CartManager.removeItem('${{item.id}}'); renderCartPage();" class="text-stone-400 hover:text-rose-600 transition p-1" title="حذف">
-            <i class="sicon-trash text-base"></i>
-          </button>
         </div>
       `;
     }}).join('');

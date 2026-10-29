@@ -89,7 +89,7 @@
         
         <!-- RIGHT: Items Table / List (8 cols) -->
         <div class="lg:col-span-8">
-          <div id="cart-page-items" class="divide-y divide-stone-100 border-t border-b border-stone-100">
+          <div id="cart-page-items" class="space-y-3">
             <!-- Items rendered via JS -->
           </div>
 
@@ -180,12 +180,9 @@
 
             <!-- Price Breakdown -->
             <div class="space-y-2.5 text-xs text-stone-600 pt-2 border-t border-stone-200/80">
-              <div class="flex items-center justify-between">
-                <span>المجموع الفرعي:</span>
-                <span id="page-subtotal" class="font-bold text-black">0 ر.س</span>
-              </div>
+              <span id="page-subtotal" class="hidden">0 ر.س</span>
               <div id="discount-row" class="hidden flex items-center justify-between text-emerald-600 font-bold">
-                <span>خصم الكوبون (10%):</span>
+                <span>خصم الكوبون:</span>
                 <span id="page-discount">- 0 ر.س</span>
               </div>
               <div class="flex items-center justify-between">
@@ -198,11 +195,14 @@
               </div>
             </div>
 
-            <!-- Total -->
+            <!-- Single Authoritative Total (Laverne Style) -->
             <div class="pt-3 border-t border-stone-200/80 flex items-center justify-between">
               <div>
-                <span class="text-xs text-stone-500 font-medium block">الإجمالي النهائي:</span>
-                <span id="page-grand-total" class="text-2xl font-extrabold text-black">0 ر.س</span>
+                <span class="text-xs text-stone-500 font-medium block" data-label="إجمالي المنتجات قبل الشحن والخصومات:">الإجمالي:</span>
+                <span id="page-grand-total" class="text-2xl font-black text-black">0 ر.س</span>
+              </div>
+              <div class="text-left text-[11px] text-stone-400">
+                <span>شامل الضريبة (<bdi class="note-vat-rate" dir="ltr">15%</bdi>)</span>
               </div>
             </div>
 
@@ -388,35 +388,55 @@
         }
       }
 
-      // Render Items
+      // Render Items (Laverne-style clean luxury card)
       itemsContainer.innerHTML = cart.map(item => `
-        <div class="py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-right">
-          <div class="flex items-center gap-4 w-full sm:w-auto">
-            <a href="/product.html?id=${item.id}" class="w-20 h-20 rounded-xl bg-stone-50 p-2 shrink-0 border border-stone-100 flex items-center justify-center">
-              <img src="${item.img}" alt="${item.title}" class="w-full h-full object-contain">
-            </a>
-            <div>
-              <a href="/product.html?id=${item.id}" class="text-sm font-bold text-black hover:underline block">${item.title}</a>
-              <span class="text-xs text-stone-400 block mt-0.5">${item.size || '100 مل'} • Extrait de Parfum</span>
-              <span class="text-xs font-bold text-stone-700 block mt-1">${item.price} ر.س</span>
+        <div class="note-cart-page-item p-4 sm:p-5 rounded-2xl bg-white border border-stone-200/90 text-right shadow-2xs transition-all">
+          <div class="flex items-center justify-between gap-3 sm:gap-4">
+            <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-grow">
+              <a href="/product.html?id=${item.id}" class="cart-thumb-box w-20 h-20 sm:w-22 sm:h-22 rounded-xl bg-stone-50/80 p-1.5 flex-shrink-0 flex items-center justify-center border border-stone-200/70 block overflow-hidden">
+                <img src="${item.img}" alt="${item.title}" class="w-full h-full object-contain">
+              </a>
+              <div class="space-y-1 min-w-0">
+                <a href="/product.html?id=${item.id}" class="hover:text-stone-700 transition block">
+                  <h4 class="text-xs sm:text-sm font-bold text-black line-clamp-1">${item.title}</h4>
+                </a>
+                <span class="text-[11px] text-stone-400 block">${item.size || '100 مل'}</span>
+                <span class="text-xs font-bold text-black sm:hidden block">${item.price} ر.س</span>
+              </div>
             </div>
+
+            <!-- Desktop Stepper & Line Total -->
+            <div class="hidden sm:flex items-center gap-6">
+              <!-- Stepper -->
+              <div class="flex items-center border border-stone-200 rounded-lg h-8 px-2 gap-2 text-xs font-bold bg-white">
+                <button onclick="updateCartItemQty('${item.id}', -1)" class="text-stone-500 hover:text-black w-5 text-center font-bold" aria-label="تقليل الكمية">-</button>
+                <span class="min-w-[20px] text-center font-extrabold text-black">${item.quantity}</span>
+                <button onclick="updateCartItemQty('${item.id}', 1)" class="text-stone-500 hover:text-black w-5 text-center font-bold" aria-label="زيادة الكمية">+</button>
+              </div>
+              <!-- Line Total -->
+              <div class="text-left min-w-[90px]">
+                <span class="text-[11px] text-stone-400 block font-medium">المجموع:</span>
+                <span class="text-sm font-black text-black">${item.price * item.quantity} ر.س</span>
+              </div>
+            </div>
+
+            <!-- Delete Button -->
+            <button onclick="removeCartItem('${item.id}')" class="w-8 h-8 rounded-full hover:bg-rose-50 text-stone-400 hover:text-rose-600 transition flex items-center justify-center shrink-0" title="حذف">
+              <i class="sicon-trash text-sm"></i>
+            </button>
           </div>
 
-          <!-- Quantity Stepper -->
-          <div class="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
-            <div class="flex items-center border border-stone-200 rounded-full h-9 px-3 gap-3 text-xs font-bold bg-stone-50">
-              <button onclick="updateCartItemQty('${item.id}', -1)" class="text-stone-500 hover:text-black w-4 text-center text-sm">-</button>
-              <span class="min-w-[16px] text-center">${item.quantity}</span>
-              <button onclick="updateCartItemQty('${item.id}', 1)" class="text-stone-500 hover:text-black w-4 text-center text-sm">+</button>
+          <!-- Mobile Bottom Row (Stepper + Line Total) -->
+          <div class="sm:hidden pt-3 mt-3 border-t border-stone-100 flex items-center justify-between">
+            <div class="flex items-center border border-stone-200 rounded-lg h-7 px-2 gap-2 text-xs font-bold bg-white">
+              <button onclick="updateCartItemQty('${item.id}', -1)" class="text-stone-500 hover:text-black w-5 text-center font-bold" aria-label="تقليل الكمية">-</button>
+              <span class="min-w-[18px] text-center font-extrabold text-black">${item.quantity}</span>
+              <button onclick="updateCartItemQty('${item.id}', 1)" class="text-stone-500 hover:text-black w-5 text-center font-bold" aria-label="زيادة الكمية">+</button>
             </div>
-
-            <!-- Line Total -->
-            <span class="text-sm font-extrabold text-black min-w-[70px] text-left">${item.price * item.quantity} ر.س</span>
-
-            <!-- Remove Button -->
-            <button onclick="removeCartItem('${item.id}')" class="text-stone-400 hover:text-rose-600 transition p-1.5" title="حذف">
-              <i class="sicon-trash text-base"></i>
-            </button>
+            <div class="text-left">
+              <span class="text-[10px] text-stone-400 ml-1 font-medium">المجموع:</span>
+              <span class="text-xs font-black text-black">${item.price * item.quantity} ر.س</span>
+            </div>
           </div>
         </div>
       `).join('');

@@ -1341,25 +1341,25 @@ const CartManager = {
     }
     
     itemsContainer.innerHTML = cart.map(item => `
-      <div class="flex items-center gap-3 py-3 border-b border-stone-100 last:border-b-0 text-right">
-        <a href="/product.html?id=${item.id}" class="w-16 h-16 rounded-xl bg-stone-50 p-1 flex-shrink-0 flex items-center justify-center border border-stone-100 block">
-          <img src="${item.img}" alt="${item.title}" class="w-full h-full object-contain">
+      <div class="note-cart-item group relative flex items-center gap-3 p-3 mb-2.5 rounded-2xl bg-white border border-stone-200/80 transition-all text-right shadow-2xs">
+        <a href="/product.html?id=${item.id}" class="w-16 h-16 sm:w-18 sm:h-18 rounded-xl bg-stone-50/70 p-1 flex-shrink-0 flex items-center justify-center border border-stone-200/70 block overflow-hidden">
+          <img src="${item.img}" alt="${item.title}" class="w-full h-full object-contain transition-transform group-hover:scale-105">
         </a>
-        <div class="flex-grow">
-          <a href="/product.html?id=${item.id}" class="hover:underline">
-            <h4 class="text-xs font-bold text-black line-clamp-1">${item.title}</h4>
+        <div class="flex-grow min-w-0 pr-1">
+          <a href="/product.html?id=${item.id}" class="block hover:text-stone-700 transition">
+            <h4 class="text-xs sm:text-sm font-bold text-black line-clamp-1 leading-snug">${item.title}</h4>
           </a>
-          <span class="text-[10px] text-stone-400 block">${item.size || '100 مل'}</span>
+          <span class="text-[11px] text-stone-400 block mt-0.5">${item.size || '100 مل'}</span>
           <div class="flex items-center justify-between mt-2">
-            <div class="flex items-center border border-stone-200 rounded-full h-7 px-2 gap-2 text-xs font-bold">
-              <button onclick="CartManager.updateQuantity('${item.id}', -1)" class="text-stone-500 hover:text-black w-4 text-center">-</button>
-              <span class="min-w-[14px] text-center">${item.quantity}</span>
-              <button onclick="CartManager.updateQuantity('${item.id}', 1)" class="text-stone-500 hover:text-black w-4 text-center">+</button>
+            <div class="flex items-center bg-stone-50/70 border border-stone-200 rounded-full h-7 px-2 gap-2 text-xs font-bold shadow-2xs">
+              <button onclick="CartManager.updateQuantity('${item.id}', -1)" class="w-4 text-center text-stone-500 hover:text-black transition" aria-label="تقليل الكمية">-</button>
+              <span class="min-w-[16px] text-center font-extrabold text-black">${item.quantity}</span>
+              <button onclick="CartManager.updateQuantity('${item.id}', 1)" class="w-4 text-center text-stone-500 hover:text-black transition" aria-label="زيادة الكمية">+</button>
             </div>
-            <span class="text-xs font-extrabold text-black">${item.price * item.quantity} ر.س</span>
+            <span class="text-xs sm:text-sm font-black text-black">${item.price * item.quantity} ر.س</span>
           </div>
         </div>
-        <button onclick="CartManager.removeItem('${item.id}')" class="text-stone-400 hover:text-rose-500 p-1 transition" title="حذف">
+        <button onclick="CartManager.removeItem('${item.id}')" class="text-stone-400 hover:text-rose-600 p-2 transition flex items-center justify-center rounded-lg hover:bg-rose-50" aria-label="حذف المنتج من السلة" title="حذف">
           <i class="sicon-trash text-sm"></i>
         </button>
       </div>
