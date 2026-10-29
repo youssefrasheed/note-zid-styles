@@ -570,30 +570,312 @@ body:not(.note-ready) footer:not(#note-store-footer) {
   overflow: visible !important;
   padding: 0 !important;
 }
+/* Laverne-Parity Cart Item Card (Drawer & Page) */
 .note-cart-item {
   display: block !important;
   background: #ffffff !important;
   border: 1px solid #e7e5e4 !important;
-  border-radius: 20px !important;
-  padding: 16px !important;
-  margin-bottom: 14px !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
+  border-radius: 18px !important;
+  padding: 14px 16px !important;
+  margin-bottom: 12px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
   text-align: right !important;
-}
-.note-cart-item .cart-drawer-thumb,
-.note-cart-item > div:first-child > div:first-child > a {
-  width: 96px !important;
-  height: 96px !important;
-  border-radius: 16px !important;
+  direction: rtl !important;
+  box-sizing: border-box !important;
+  position: relative !important;
 }
 @media (min-width: 640px) {
   .note-cart-item {
     padding: 18px 20px !important;
+    margin-bottom: 14px !important;
+    border-radius: 20px !important;
   }
+}
+
+.note-cart-item-top {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.note-cart-item-start {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+.note-cart-item .cart-drawer-thumb,
+.note-cart-item-thumb {
+  width: 82px !important;
+  height: 82px !important;
+  min-width: 82px !important;
+  min-height: 82px !important;
+  max-width: 82px !important;
+  max-height: 82px !important;
+  border-radius: 14px !important;
+  background: #ffffff !important;
+  border: 1px solid #f0eee9 !important;
+  padding: 4px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+@media (min-width: 640px) {
   .note-cart-item .cart-drawer-thumb,
-  .note-cart-item > div:first-child > div:first-child > a {
-    width: 110px !important;
-    height: 110px !important;
+  .note-cart-item-thumb {
+    width: 96px !important;
+    height: 96px !important;
+    min-width: 96px !important;
+    min-height: 96px !important;
+    max-width: 96px !important;
+    max-height: 96px !important;
+    border-radius: 16px !important;
+  }
+}
+
+.note-cart-item-thumb img,
+.note-cart-item .cart-drawer-thumb img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+}
+
+.note-cart-item-info {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  text-align: right !important;
+}
+
+.note-cart-item-title-link {
+  text-decoration: none !important;
+  color: inherit !important;
+  display: block !important;
+}
+
+.note-cart-item h4,
+.note-cart-item-title {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #1c1917 !important;
+  line-height: 1.35 !important;
+  margin: 0 !important;
+  text-decoration: none !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+@media (min-width: 640px) {
+  .note-cart-item h4,
+  .note-cart-item-title {
+    font-size: 17px !important;
+  }
+}
+
+.note-cart-item-prices {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: baseline !important;
+  gap: 8px !important;
+  margin-top: 2px !important;
+}
+
+.note-cart-item-old-price {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #a8a29e !important;
+  text-decoration: line-through !important;
+}
+
+.note-cart-item-sale-price {
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  color: #ef4444 !important;
+}
+@media (min-width: 640px) {
+  .note-cart-item-old-price { font-size: 14px !important; }
+  .note-cart-item-sale-price { font-size: 17px !important; }
+}
+
+.note-cart-item-del-btn {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  max-width: 28px !important;
+  max-height: 28px !important;
+  border-radius: 9999px !important;
+  background-color: #f87171 !important;
+  background: #f87171 !important;
+  border: none !important;
+  outline: none !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 1px 3px rgba(248, 113, 113, 0.35) !important;
+  transition: background-color 0.15s ease, transform 0.15s ease !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+.note-cart-item-del-btn:hover {
+  background-color: #ef4444 !important;
+  background: #ef4444 !important;
+}
+.note-cart-item-del-btn:active {
+  transform: scale(0.92) !important;
+}
+.note-cart-item-del-btn svg {
+  width: 11px !important;
+  height: 11px !important;
+  stroke: #ffffff !important;
+  stroke-width: 2.5 !important;
+  display: block !important;
+  margin: auto !important;
+}
+
+.note-cart-item-divider {
+  width: 100% !important;
+  height: 1px !important;
+  min-height: 1px !important;
+  max-height: 1px !important;
+  background-color: #f0eee9 !important;
+  border: none !important;
+  margin: 12px 0 !important;
+  padding: 0 !important;
+  display: block !important;
+}
+
+.note-cart-item-bottom {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.note-cart-item-stepper {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  height: 38px !important;
+  width: 126px !important;
+  min-width: 126px !important;
+  border: 1px solid #e7e5e4 !important;
+  border-radius: 11px !important;
+  background: #ffffff !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+@media (min-width: 640px) {
+  .note-cart-item-stepper {
+    height: 40px !important;
+    width: 136px !important;
+  }
+}
+
+.note-cart-item-stepper-btn {
+  width: 38px !important;
+  height: 100% !important;
+  min-width: 38px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  border: none !important;
+  color: #57534e !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  transition: background-color 0.15s ease, color 0.15s ease !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+@media (min-width: 640px) {
+  .note-cart-item-stepper-btn {
+    width: 42px !important;
+    min-width: 42px !important;
+    font-size: 18px !important;
+  }
+}
+.note-cart-item-stepper-btn:hover {
+  background: #f5f5f4 !important;
+  color: #000000 !important;
+}
+.note-cart-item-stepper-btn:active {
+  background: #e7e5e4 !important;
+}
+
+.note-cart-item-stepper-val {
+  flex: 1 1 auto !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-left: 1px solid #e7e5e4 !important;
+  border-right: 1px solid #e7e5e4 !important;
+  background: #fafaf9 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #1c1917 !important;
+  user-select: none !important;
+  box-sizing: border-box !important;
+}
+@media (min-width: 640px) {
+  .note-cart-item-stepper-val {
+    font-size: 15px !important;
+  }
+}
+
+.note-cart-item-total {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: baseline !important;
+  gap: 5px !important;
+  text-align: left !important;
+}
+
+.note-cart-item-total-label {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #78716c !important;
+}
+@media (min-width: 640px) {
+  .note-cart-item-total-label {
+    font-size: 14px !important;
+  }
+}
+
+.note-cart-item-total-val {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #1c1917 !important;
+}
+@media (min-width: 640px) {
+  .note-cart-item-total-val {
+    font-size: 18px !important;
   }
 }
 #cart-drawer-coupon-box {
@@ -2636,41 +2918,41 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         const itemLineTotal = item.price * item.quantity;
         
         return `
-          <div class="note-cart-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right">
+          <div class="note-cart-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
             <!-- Top Row: Thumbnail + Info (Title & Red Sale Price) + Coral Red ✕ Delete Button -->
-            <div class="flex items-start justify-between gap-3.5">
-              <div class="flex items-center gap-3.5 sm:gap-4 min-w-0 flex-1">
-                <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}'); CartManager.closeDrawer();" class="cart-drawer-thumb w-[96px] h-[96px] sm:w-[110px] sm:h-[110px] rounded-2xl bg-white p-2 border border-stone-200/90 shrink-0 flex items-center justify-center overflow-hidden hover:opacity-90 transition">
-                  <img src="${imgUrl}" alt="${escapeHTML(item.title)}" class="w-full h-full object-contain">
+            <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
+              <div class="note-cart-item-start" style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0!important;flex:1 1 auto!important;">
+                <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}'); CartManager.closeDrawer();" class="note-cart-item-thumb cart-drawer-thumb" style="width:82px!important;height:82px!important;min-width:82px!important;min-height:82px!important;max-width:82px!important;max-height:82px!important;border-radius:14px!important;background:#ffffff!important;border:1px solid #f0eee9!important;padding:4px!important;flex-shrink:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;box-sizing:border-box!important;">
+                  <img src="${imgUrl}" alt="${escapeHTML(item.title)}" style="width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;">
                 </a>
-                <div class="min-w-0 flex-1 space-y-1.5 pr-1">
-                  <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}'); CartManager.closeDrawer();" class="block hover:text-stone-700 transition">
-                    <h4 class="text-base sm:text-lg font-bold text-black line-clamp-2 leading-snug">${escapeHTML(item.title)}</h4>
+                <div class="note-cart-item-info" style="display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;min-width:0!important;flex:1 1 auto!important;text-align:right!important;">
+                  <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}'); CartManager.closeDrawer();" class="note-cart-item-title-link" style="text-decoration:none!important;color:inherit!important;display:block!important;">
+                    <h4 class="note-cart-item-title" style="font-size:15px!important;font-weight:700!important;color:#1c1917!important;line-height:1.35!important;margin:0!important;">${escapeHTML(item.title)}</h4>
                   </a>
-                  <div class="flex items-baseline gap-2 pt-0.5">
-                    ${oldPriceVal ? `<span class="line-through text-stone-400 text-xs sm:text-sm font-medium">${formatPrice(oldPriceVal)}</span>` : ''}
-                    <span class="text-red-500 font-extrabold text-base sm:text-lg">${formatPrice(item.price)}</span>
+                  <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
+                    ${oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${formatPrice(oldPriceVal)}</span>` : ''}
+                    <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${formatPrice(item.price)}</span>
                   </div>
                 </div>
               </div>
-              <button onclick="CartManager.removeItem('${item.id}')" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#f87171] hover:bg-[#ef4444] text-white flex items-center justify-center transition shadow-2xs shrink-0 cursor-pointer" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px">
-                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+              <button type="button" onclick="CartManager.removeItem('${item.id}')" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
               </button>
             </div>
 
-            <!-- Subtle Divider -->
-            <div class="my-3.5 border-t border-stone-100"></div>
+            <!-- Crisp Horizontal Divider -->
+            <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:12px 0!important;padding:0!important;display:block!important;"></div>
 
-            <!-- Bottom Row: Segmented Stepper on one side, Line Total on the other side -->
-            <div class="flex items-center justify-between">
-              <div class="inline-flex items-center border border-stone-200 rounded-xl h-10 sm:h-11 w-[130px] sm:w-[145px] overflow-hidden bg-white shadow-2xs">
-                <button onclick="CartManager.updateQuantity('${item.id}', -1)" class="w-10 sm:w-11 h-full flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-50 transition text-lg font-bold cursor-pointer" aria-label="تقليل الكمية">−</button>
-                <span class="flex-1 h-full flex items-center justify-center border-x border-stone-200/80 font-bold text-sm sm:text-base text-black bg-stone-50/20">${item.quantity}</span>
-                <button onclick="CartManager.updateQuantity('${item.id}', 1)" class="w-10 sm:w-11 h-full flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-50 transition text-lg font-bold cursor-pointer" aria-label="زيادة الكمية">+</button>
+            <!-- Bottom Row: Segmented Stepper on Start, Line Total on End -->
+            <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;">
+              <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:38px!important;width:126px!important;min-width:126px!important;border:1px solid #e7e5e4!important;border-radius:11px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;">
+                <button type="button" onclick="CartManager.updateQuantity('${item.id}', 1)" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">+</button>
+                <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:14px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;box-sizing:border-box!important;">${item.quantity}</span>
+                <button type="button" onclick="CartManager.updateQuantity('${item.id}', -1)" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
               </div>
-              <div class="text-sm sm:text-base font-bold text-stone-900">
-                <span class="text-stone-500 text-xs sm:text-sm ml-1.5 font-normal">المجموع:</span>
-                <span class="font-extrabold text-black text-base sm:text-lg">${formatPrice(itemLineTotal)}</span>
+              <div class="note-cart-item-total" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;text-align:left!important;">
+                <span class="note-cart-item-total-label" style="font-size:13px!important;font-weight:500!important;color:#78716c!important;">المجموع:</span>
+                <span class="note-cart-item-total-val" style="font-size:16px!important;font-weight:800!important;color:#1c1917!important;">${formatPrice(itemLineTotal)}</span>
               </div>
             </div>
           </div>
@@ -3876,53 +4158,45 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     itemsContainer.innerHTML = cart.map(item => {
       const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
       const imgUrl = (item.img.startsWith('http') ? '' : ASSET_HOST) + item.img;
+      const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
+      const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
+      const itemLineTotal = item.price * item.quantity;
       return `
-        <div class="note-cart-page-item p-4 sm:p-5 mb-3 rounded-2xl bg-white border border-stone-200/90 text-right shadow-2xs transition-all">
-          <div class="flex items-center justify-between gap-3 sm:gap-4">
-            <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-grow">
-              <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="cart-thumb-box w-20 h-20 sm:w-22 sm:h-22 rounded-xl bg-stone-50/80 p-1.5 flex-shrink-0 flex items-center justify-center border border-stone-200/70 block overflow-hidden">
-                <img src="${imgUrl}" alt="${escapeHTML(item.title)}" class="w-full h-full object-contain">
+        <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
+          <!-- Top Row: Thumbnail + Info (Title & Red Sale Price) + Coral Red ✕ Delete Button -->
+          <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
+            <div class="note-cart-item-start" style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0!important;flex:1 1 auto!important;">
+              <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="note-cart-item-thumb cart-thumb-box" style="width:82px!important;height:82px!important;min-width:82px!important;min-height:82px!important;max-width:82px!important;max-height:82px!important;border-radius:14px!important;background:#ffffff!important;border:1px solid #f0eee9!important;padding:4px!important;flex-shrink:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;box-sizing:border-box!important;">
+                <img src="${imgUrl}" alt="${escapeHTML(item.title)}" style="width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;">
               </a>
-              <div class="space-y-1 min-w-0">
-                <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="hover:text-stone-700 transition block">
-                  <h4 class="text-xs sm:text-sm font-bold text-black line-clamp-1">${escapeHTML(item.title)}</h4>
+              <div class="note-cart-item-info" style="display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;min-width:0!important;flex:1 1 auto!important;text-align:right!important;">
+                <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="note-cart-item-title-link" style="text-decoration:none!important;color:inherit!important;display:block!important;">
+                  <h4 class="note-cart-item-title" style="font-size:15px!important;font-weight:700!important;color:#1c1917!important;line-height:1.35!important;margin:0!important;">${escapeHTML(item.title)}</h4>
                 </a>
-                <span class="text-[11px] text-stone-400 block">${item.size || '100 مل'}</span>
-                <span class="text-xs font-bold text-black sm:hidden block">${formatPrice(item.price)}</span>
+                <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
+                  ${oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${formatPrice(oldPriceVal)}</span>` : ''}
+                  <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${formatPrice(item.price)}</span>
+                </div>
               </div>
             </div>
-
-            <!-- Desktop Stepper & Line Total -->
-            <div class="hidden sm:flex items-center gap-6">
-              <!-- Stepper -->
-              <div class="flex items-center border border-stone-200 rounded-lg h-8 px-2 gap-2 text-xs font-bold bg-white">
-                <button onclick="CartManager.updateQuantity('${item.id}', -1); renderCartPage();" class="text-stone-500 hover:text-black w-5 text-center font-bold" aria-label="تقليل الكمية">-</button>
-                <span class="min-w-[20px] text-center font-extrabold text-black">${item.quantity}</span>
-                <button onclick="CartManager.updateQuantity('${item.id}', 1); renderCartPage();" class="text-stone-500 hover:text-black w-5 text-center font-bold" aria-label="زيادة الكمية">+</button>
-              </div>
-              <!-- Line Total -->
-              <div class="text-left min-w-[90px]">
-                <span class="text-[11px] text-stone-400 block font-medium">المجموع:</span>
-                <span class="text-sm font-black text-black">${formatPrice(item.price * item.quantity)}</span>
-              </div>
-            </div>
-
-            <!-- Delete Button -->
-            <button onclick="CartManager.removeItem('${item.id}'); renderCartPage();" class="w-8 h-8 rounded-full hover:bg-rose-50 text-stone-400 hover:text-rose-600 transition flex items-center justify-center shrink-0" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></svg><span>حذف</span>
+            <button type="button" onclick="CartManager.removeItem('${item.id}'); renderCartPage();" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
             </button>
           </div>
 
-          <!-- Mobile Bottom Row (Stepper + Line Total) -->
-          <div class="sm:hidden pt-3 mt-3 border-t border-stone-100 flex items-center justify-between">
-            <div class="flex items-center border border-stone-200 rounded-lg h-7 px-2 gap-2 text-xs font-bold bg-white">
-              <button onclick="CartManager.updateQuantity('${item.id}', -1); renderCartPage();" class="text-stone-500 hover:text-black w-5 text-center font-bold" aria-label="تقليل الكمية">-</button>
-              <span class="min-w-[18px] text-center font-extrabold text-black">${item.quantity}</span>
-              <button onclick="CartManager.updateQuantity('${item.id}', 1); renderCartPage();" class="text-stone-500 hover:text-black w-5 text-center font-bold" aria-label="زيادة الكمية">+</button>
+          <!-- Crisp Horizontal Divider -->
+          <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:12px 0!important;padding:0!important;display:block!important;"></div>
+
+          <!-- Bottom Row: Segmented Stepper on Start, Line Total on End -->
+          <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;">
+            <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:38px!important;width:126px!important;min-width:126px!important;border:1px solid #e7e5e4!important;border-radius:11px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;">
+              <button type="button" onclick="CartManager.updateQuantity('${item.id}', 1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">+</button>
+              <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:14px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;box-sizing:border-box!important;">${item.quantity}</span>
+              <button type="button" onclick="CartManager.updateQuantity('${item.id}', -1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
             </div>
-            <div class="text-left">
-              <span class="text-[10px] text-stone-400 ml-1 font-medium">المجموع:</span>
-              <span class="text-xs font-black text-black">${formatPrice(item.price * item.quantity)}</span>
+            <div class="note-cart-item-total" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;text-align:left!important;">
+              <span class="note-cart-item-total-label" style="font-size:13px!important;font-weight:500!important;color:#78716c!important;">المجموع:</span>
+              <span class="note-cart-item-total-val" style="font-size:16px!important;font-weight:800!important;color:#1c1917!important;">${formatPrice(itemLineTotal)}</span>
             </div>
           </div>
         </div>
@@ -4565,7 +4839,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   }
 }
 `;document.head.append(badgeStyle);
-  const integrationStyles=document.createElement("style");integrationStyles.id="note-live-styles";integrationStyles.textContent="/* NOTE 4.4: Laverne-Parity Cart Drawer, 2-Tier Item Cards, Scrollable Coupon & Recommendations */\n#cart-drawer-overlay {\n  z-index: 9998 !important;\n}\n\n#cart-drawer:not(.hidden):not([hidden]) {\n  display: flex !important;\n  flex-direction: column !important;\n  height: 100vh !important;\n  height: 100dvh !important;\n  max-height: 100dvh !important;\n  overflow: hidden !important;\n  z-index: 9999 !important;\n}\n\n#cart-drawer-scroll-area {\n  flex: 1 1 auto !important;\n  overflow-y: auto !important;\n  overscroll-behavior: contain !important;\n  -webkit-overflow-scrolling: touch !important;\n  min-height: 0 !important;\n}\n\n#cart-drawer-items {\n  min-height: 0 !important;\n  max-height: none !important;\n  overflow: visible !important;\n  padding: 0 !important;\n}\n\n.note-cart-item {\n  display: block !important;\n  background: #ffffff !important;\n  border: 1px solid #e7e5e4 !important;\n  border-radius: 20px !important;\n  padding: 16px !important;\n  margin-bottom: 14px !important;\n  box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;\n  text-align: right !important;\n}\n.note-cart-item .cart-drawer-thumb,\n.note-cart-item > div:first-child > div:first-child > a {\n  width: 96px !important;\n  height: 96px !important;\n  border-radius: 16px !important;\n}\n@media (min-width: 640px) {\n  .note-cart-item {\n    padding: 18px 20px !important;\n  }\n  .note-cart-item .cart-drawer-thumb,\n  .note-cart-item > div:first-child > div:first-child > a {\n    width: 110px !important;\n    height: 110px !important;\n  }\n}\n\n#cart-drawer-coupon-box {\n  flex-shrink: 0 !important;\n  margin-top: 4px !important;\n  margin-bottom: 4px !important;\n}\n\n#cart-drawer-recommendations {\n  padding: 8px 0 !important;\n  margin: 0 !important;\n  background: transparent !important;\n  border: none !important;\n  flex-shrink: 0 !important;\n}\n\nbody.cart-drawer-open #whatsapp-floating-btn,\nbody.cart-drawer-open .whatsapp-btn,\nbody.cart-drawer-open [class*=whatsapp],\nbody.cart-drawer-open [id*=whatsapp],\nbody:has(#cart-drawer:not(.hidden)) #whatsapp-floating-btn,\nbody:has(#cart-drawer:not(.hidden)) .whatsapp-btn,\nbody:has(#cart-drawer:not(.hidden)) [class*=whatsapp],\n#cart-drawer:not(.hidden) ~ #whatsapp-floating-btn,\n#cart-drawer:not(.hidden) ~ [class*=whatsapp] {\n  display: none !important;\n  opacity: 0 !important;\n  pointer-events: none !important;\n  visibility: hidden !important;\n}\n\n#cart-drawer-recommendations h3,\n#cart-drawer-recommendations h2,\n#cart-drawer-recommendations .note-recs-title {\n  font-size: 10px !important;\n  font-weight: 700 !important;\n  color: #57534e !important;\n  margin-bottom: 4px !important;\n}\n\n.note-compact-recs {\n  display: flex !important;\n  gap: 8px !important;\n  overflow-x: auto !important;\n  scrollbar-width: none !important;\n  scroll-snap-type: none !important;\n  padding: 2px 0 4px !important;\n  width: 100% !important;\n  max-width: 100% !important;\n  overscroll-behavior-x: contain !important;\n  -webkit-overflow-scrolling: touch !important;\n}\n.note-compact-recs::-webkit-scrollbar {\n  display: none !important;\n}\n\n.note-mini-card {\n  flex: 0 0 auto !important;\n  width: auto !important;\n  max-width: 175px !important;\n  min-width: 135px !important;\n  height: 38px !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: space-between !important;\n  gap: 6px !important;\n  padding: 3px 6px 3px 4px !important;\n  background: #ffffff !important;\n  border: 1px solid #e7e5e4 !important;\n  border-radius: 9999px !important;\n  box-sizing: border-box !important;\n  box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;\n  color: #111 !important;\n  text-align: right !important;\n}\n\n.note-mini-card a {\n  display: inline-flex !important;\n  align-items: center !important;\n  gap: 6px !important;\n  text-decoration: none !important;\n  color: inherit !important;\n  min-width: 0 !important;\n  flex: 1 1 auto !important;\n}\n\n.note-mini-card img {\n  width: 28px !important;\n  height: 28px !important;\n  object-fit: contain !important;\n  border-radius: 9999px !important;\n  background: #fafaf9 !important;\n  flex-shrink: 0 !important;\n}\n\n.note-mini-card .note-mini-info {\n  display: flex !important;\n  flex-direction: column !important;\n  min-width: 0 !important;\n  line-height: 1.15 !important;\n}\n\n.note-mini-card .note-mini-title {\n  font-size: 9.5px !important;\n  font-weight: 700 !important;\n  color: #111 !important;\n  white-space: nowrap !important;\n  overflow: hidden !important;\n  text-overflow: ellipsis !important;\n  max-width: 65px !important;\n  display: block !important;\n}\n\n.note-mini-card .note-mini-price {\n  font-size: 9.5px !important;\n  font-weight: 800 !important;\n  color: #a58b52 !important;\n  white-space: nowrap !important;\n  display: block !important;\n}\n\n.note-mini-card button {\n  flex-shrink: 0 !important;\n  width: auto !important;\n  min-width: 32px !important;\n  height: 24px !important;\n  padding: 0 7px !important;\n  font-size: 9.5px !important;\n  font-weight: 700 !important;\n  border-radius: 9999px !important;\n  background: #111111 !important;\n  color: #ffffff !important;\n  margin: 0 !important;\n  border: none !important;\n  cursor: pointer !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  transition: background 0.15s, transform 0.15s !important;\n}\n\n.note-mini-card button:hover {\n  background: #333333 !important;\n}\n\n.note-mini-card button:active {\n  transform: scale(0.92) !important;\n}\n\n#cart-drawer-footer {\n  padding: 12px 16px 14px !important;\n  border-top: 1px solid #f0eee9 !important;\n  background: #ffffff !important;\n  flex-shrink: 0 !important;\n}\n\n#cart-page-recommendations-section {\n  margin-top: 20px !important;\n  padding: 14px !important;\n  border-radius: 16px !important;\n}\n#cart-page-recommendations-section h3,\n#cart-page-recommendations-section h2 {\n  font-size: 13px !important;\n  margin-bottom: 8px !important;\n}\n\n.note-bundle-options {\n  margin: 18px 0;\n  padding: 16px;\n  border: 1px solid #d6d3d1;\n  border-radius: 14px;\n  clear: both;\n  width: 100%;\n  font-size: 13px;\n}\n.note-bundle-options h3 {\n  font-weight: 700;\n  margin-bottom: 12px;\n}\n.note-bundle-options fieldset {\n  margin: 12px 0;\n  border: 0;\n  padding: 0;\n}\n.note-bundle-options legend {\n  font-weight: 700;\n  margin-bottom: 6px;\n}\n.note-bundle-options label {\n  display: block;\n  font-size: 12px;\n  margin: 6px 0;\n}\n.note-bundle-options select {\n  display: block;\n  width: 100%;\n  min-height: 44px;\n  background: white;\n  color: #111;\n  border: 1px solid #a8a29e;\n  border-radius: 8px;\n  padding: 9px;\n  margin-top: 4px;\n}\n.note-bundle-options select:focus-visible,\n.note-mini-card button:focus-visible {\n  outline: 2px solid #a58b52;\n  outline-offset: 3px;\n}\n\n.note-empty-products {\n  padding: 16px;\n  font-size: 13px;\n  color: #78716c;\n}\n\nbutton:disabled {\n  opacity: .5;\n  cursor: not-allowed;\n}\n\n@media(prefers-reduced-motion:reduce){\n  .note-compact-recs{scroll-behavior:auto!important}\n}\n\nbutton[aria-label=\"\u062d\u0630\u0641 \u0627\u0644\u0645\u0646\u062a\u062c \u0645\u0646 \u0627\u0644\u0633\u0644\u0629\"] {\n  color: #78716c !important;\n  transition: color 0.15s ease !important;\n}\nbutton[aria-label=\"\u062d\u0630\u0641 \u0627\u0644\u0645\u0646\u062a\u062c \u0645\u0646 \u0627\u0644\u0633\u0644\u0629\"]:hover {\n  color: #be123c !important;\n}\n\n/* Continuous Luxury Brand Loader - Active from frame 0 until .note-ready is added */\nbody:not(.note-ready)::before {\n  content: \"\" !important;\n  position: fixed !important;\n  inset: 0 !important;\n  width: 100vw !important;\n  height: 100vh !important;\n  height: 100dvh !important;\n  background-color: #ffffff !important;\n  background-image: url('https://youssefrasheed.github.io/note-zid-styles/logo_dark_crisp.png') !important;\n  background-repeat: no-repeat !important;\n  background-position: center calc(50% - 25px) !important;\n  background-size: 130px auto !important;\n  z-index: 99999999 !important;\n  pointer-events: all !important;\n  opacity: 1 !important;\n  visibility: visible !important;\n  animation: none !important;\n  transition: opacity 0.4s ease-out, visibility 0.4s ease-out !important;\n}\n\nbody:not(.note-ready)::after {\n  content: \"\" !important;\n  position: fixed !important;\n  top: calc(50% + 40px) !important;\n  left: 50% !important;\n  margin-left: -13px !important;\n  width: 26px !important;\n  height: 26px !important;\n  border: 2.5px solid #eceae5 !important;\n  border-top-color: #121212 !important;\n  border-radius: 50% !important;\n  z-index: 999999999 !important;\n  animation: noteSpinRing 0.75s linear infinite !important;\n  pointer-events: none !important;\n  opacity: 1 !important;\n  visibility: visible !important;\n  transition: opacity 0.4s ease-out, visibility 0.4s ease-out !important;\n}\n\nbody.note-ready::before,\nbody.note-ready::after {\n  opacity: 0 !important;\n  visibility: hidden !important;\n  pointer-events: none !important;\n}\n\n@keyframes noteLoaderPulse {\n  0%, 100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n  50% {\n    transform: scale(0.96);\n    opacity: 0.75;\n  }\n}\n\n@keyframes noteSpinRing {\n  to { transform: rotate(360deg); }\n}\n\nbody[class*=\"checkout\"]::before,\nbody[class*=\"checkout\"]::after,\nbody[class*=\"auth\"]::before,\nbody[class*=\"auth\"]::after,\nbody[class*=\"account\"]::before,\nbody[class*=\"account\"]::after {\n  display: none !important;\n  opacity: 0 !important;\n  visibility: hidden !important;\n}\n\n#loader-container {\n  display: none !important;\n}\n\nbody:not(.note-ready) section[section-id],\nbody:not(.note-ready) .tp-home,\nbody:not(.note-ready) .tp-bar-header,\nbody:not(.note-ready) header.header-nav,\nbody:not(.note-ready) footer:not(#note-store-footer) {\n  display: none !important;\n  visibility: hidden !important;\n}\n\n#cart-drawer-recommendations .flex > span:last-child {\n  display: none !important;\n}\n\n/* Active Nav Links Underline (100% Reference Parity) */\n#nav-links a.border-b-2,\nheader nav a.border-b-2,\n#nav-links a.active-link,\nheader nav a.active-link {\n  border-bottom: 2px solid currentColor !important;\n  padding-bottom: 2px !important;\n  opacity: 1 !important;\n}\n\n#nav-links a:not(.active-link),\nheader nav a:not(.active-link) {\n  border-bottom: 2px solid transparent !important;\n  padding-bottom: 2px !important;\n}\n\n/* Bottom Navigation Bar Cart Badge Perfect Centering */\n.cart-badge,\n.header-sm .cart-badge,\n.cart-sm .cart-badge,\n.cart-btn .cart-badge {\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  text-align: center !important;\n  line-height: 1 !important;\n  direction: ltr !important;\n  min-width: 18px !important;\n  height: 18px !important;\n  padding: 0 2px !important;\n  margin: 0 !important;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif !important;\n  font-feature-settings: \"tnum\" !important;\n  font-variant-numeric: tabular-nums !important;\n  font-size: 11px !important;\n  font-weight: 800 !important;\n  border-radius: 9999px !important;\n  box-sizing: border-box !important;\n  position: absolute !important;\n  top: -5px !important;\n  left: -2px !important;\n  background-color: #f44336 !important;\n  color: #ffffff !important;\n}\n\n/* Out of Stock (\"\u063a\u064a\u0631 \u0645\u062a\u0627\u062d\") Luxury Sticker & State */\n.note-out-of-stock-sticker,\n.out-of-stock,\n.tp-product-image .out-of-stock {\n  position: absolute !important;\n  top: 50% !important;\n  left: 50% !important;\n  transform: translate(-50%, -50%) rotate(-18deg) !important;\n  z-index: 25 !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  width: max-content !important;\n  height: max-content !important;\n  background: rgba(225, 29, 72, 0.82) !important;\n  backdrop-filter: blur(4px) !important;\n  -webkit-backdrop-filter: blur(4px) !important;\n  color: #ffffff !important;\n  font-family: inherit !important;\n  font-size: 11px !important;\n  font-weight: 800 !important;\n  letter-spacing: 0.5px !important;\n  padding: 4px 14px !important;\n  border-radius: 9999px !important;\n  border: 1.5px solid rgba(255, 255, 255, 0.85) !important;\n  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.25) !important;\n  pointer-events: none !important;\n  white-space: nowrap !important;\n}\n\n@media (min-width: 640px) {\n  .note-out-of-stock-sticker,\n  .out-of-stock,\n  .tp-product-image .out-of-stock {\n    font-size: 12px !important;\n    padding: 5px 16px !important;\n  }\n}\n\n.note-out-of-stock-sticker.pdp-sticker {\n  font-size: 14px !important;\n  padding: 6px 22px !important;\n  border-width: 2px !important;\n  box-shadow: 0 6px 20px rgba(225, 29, 72, 0.4) !important;\n}\n\n@media (min-width: 640px) {\n  .note-out-of-stock-sticker.pdp-sticker {\n    font-size: 16px !important;\n    padding: 8px 26px !important;\n  }\n}\n\n#pdp-main-image-container {\n  background-color: #ffffff !important;\n  background: #ffffff !important;\n  border: none !important;\n  box-shadow: none !important;\n}\n\n.is-out-of-stock img,\n.product-item-out-of-stock img,\n#pdp-main-image-container.is-out-of-stock #pdp-main-image {\n  filter: grayscale(0.55) opacity(0.85) !important;\n  transition: filter 0.3s ease !important;\n}\n\n/* Recommended Products Modern Desktop & Mobile Scroll */\n.note-compact-recs {\n  display: flex !important;\n  gap: 8px !important;\n  overflow-x: auto !important;\n  scrollbar-width: thin !important;\n  scrollbar-color: #d6d3d1 transparent !important;\n  scroll-snap-type: none !important;\n  padding: 4px 2px 6px !important;\n  width: 100% !important;\n  max-width: 100% !important;\n  overscroll-behavior-x: contain !important;\n  -webkit-overflow-scrolling: touch !important;\n  cursor: grab !important;\n  user-select: none !important;\n}\n.note-compact-recs:active {\n  cursor: grabbing !important;\n}\n.note-compact-recs::-webkit-scrollbar {\n  display: block !important;\n  height: 4px !important;\n}\n.note-compact-recs::-webkit-scrollbar-track {\n  background: #f5f5f4 !important;\n  border-radius: 9999px !important;\n}\n.note-compact-recs::-webkit-scrollbar-thumb {\n  background: #d6d3d1 !important;\n  border-radius: 9999px !important;\n}\n.note-compact-recs::-webkit-scrollbar-thumb:hover {\n  background: #78716c !important;\n}\n\n.note-recs-nav {\n  display: inline-flex !important;\n  align-items: center !important;\n  gap: 4px !important;\n}\n.note-recs-btn {\n  width: 22px !important;\n  height: 22px !important;\n  border-radius: 9999px !important;\n  border: 1px solid #e7e5e4 !important;\n  background: #ffffff !important;\n  color: #1c1917 !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  cursor: pointer !important;\n  transition: all 0.15s ease !important;\n  padding: 0 !important;\n  flex-shrink: 0 !important;\n  box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;\n}\n.note-recs-btn:hover {\n  background: #000000 !important;\n  color: #ffffff !important;\n  border-color: #000000 !important;\n}\n.note-recs-btn:active {\n  transform: scale(0.92) !important;\n}\n\n/* More legible cart products and recommendations, including narrow screens. */\n.note-mini-card {min-width:210px!important;max-width:240px!important;height:60px!important;padding:6px 8px!important;gap:8px!important;}\n.note-mini-card img {width:42px!important;height:42px!important;}\n.note-mini-card .note-mini-title {font-size:12px!important;max-width:118px!important;white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.35!important;}\n.note-mini-card .note-mini-price {font-size:12px!important;}\n.note-mini-card button {font-size:11px!important;min-width:38px!important;height:34px!important;}\n#cart-drawer-recommendations h3,#cart-drawer-recommendations h2 {font-size:12px!important;}\n.note-cart-item .cart-drawer-thumb {width:96px!important;height:96px!important;}\n.note-cart-item h4 {font-size:16px!important;line-height:1.4!important;-webkit-line-clamp:2!important;font-weight:700!important;}\n.note-cart-item .text-\\[11px\\] {font-size:12px!important;}\n.note-cart-page-item h4 {font-size:14px!important;line-height:1.45!important;}\n.note-cart-page-item > div:first-child {min-width:0;}\n.note-cart-page-item > div:first-child > a {width:80px!important;height:80px!important;}\n.note-cart-page-item > div:first-child > div {min-width:0;}\n.note-cart-page-item .text-\\[11px\\] {font-size:12px!important;}\n.note-cart-page-item .font-bold.text-black {font-size:14px!important;}\n.note-cart-page-item {display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:16px!important;padding:14px 16px!important;margin-bottom:12px!important;text-align:right!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;}\n@media(min-width:640px) {\n .note-cart-page-item {padding:18px 22px!important;}\n}\n.note-cart-page-item .cart-thumb-box {width:76px!important;height:76px!important;border-radius:12px!important;background:#fafaf9!important;border:1px solid #e7e5e4!important;padding:4px!important;flex-shrink:0!important;display:flex!important;align-items:center!important;justify-content:center!important;}\n@media(min-width:640px) {\n .note-cart-page-item .cart-thumb-box {width:84px!important;height:84px!important;}\n}\n";document.head.append(integrationStyles);
+  const integrationStyles=document.createElement("style");integrationStyles.id="note-live-styles";integrationStyles.textContent="/* NOTE 4.4: Laverne-Parity Cart Drawer, 2-Tier Item Cards, Scrollable Coupon & Recommendations */\n#cart-drawer-overlay {\n  z-index: 9998 !important;\n}\n\n#cart-drawer:not(.hidden):not([hidden]) {\n  display: flex !important;\n  flex-direction: column !important;\n  height: 100vh !important;\n  height: 100dvh !important;\n  max-height: 100dvh !important;\n  overflow: hidden !important;\n  z-index: 9999 !important;\n}\n\n#cart-drawer-scroll-area {\n  flex: 1 1 auto !important;\n  overflow-y: auto !important;\n  overscroll-behavior: contain !important;\n  -webkit-overflow-scrolling: touch !important;\n  min-height: 0 !important;\n}\n\n#cart-drawer-items {\n  min-height: 0 !important;\n  max-height: none !important;\n  overflow: visible !important;\n  padding: 0 !important;\n}\n\n/* Laverne-Parity Cart Item Card (Drawer & Page) */\n.note-cart-item {\n  display: block !important;\n  background: #ffffff !important;\n  border: 1px solid #e7e5e4 !important;\n  border-radius: 18px !important;\n  padding: 14px 16px !important;\n  margin-bottom: 12px !important;\n  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;\n  text-align: right !important;\n  direction: rtl !important;\n  box-sizing: border-box !important;\n  position: relative !important;\n}\n@media (min-width: 640px) {\n  .note-cart-item {\n    padding: 18px 20px !important;\n    margin-bottom: 14px !important;\n    border-radius: 20px !important;\n  }\n}\n\n.note-cart-item-top {\n  display: flex !important;\n  flex-direction: row !important;\n  align-items: flex-start !important;\n  justify-content: space-between !important;\n  gap: 12px !important;\n  width: 100% !important;\n  box-sizing: border-box !important;\n}\n\n.note-cart-item-start {\n  display: flex !important;\n  flex-direction: row !important;\n  align-items: center !important;\n  gap: 12px !important;\n  min-width: 0 !important;\n  flex: 1 1 auto !important;\n}\n\n.note-cart-item .cart-drawer-thumb,\n.note-cart-item-thumb {\n  width: 82px !important;\n  height: 82px !important;\n  min-width: 82px !important;\n  min-height: 82px !important;\n  max-width: 82px !important;\n  max-height: 82px !important;\n  border-radius: 14px !important;\n  background: #ffffff !important;\n  border: 1px solid #f0eee9 !important;\n  padding: 4px !important;\n  flex-shrink: 0 !important;\n  display: flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  overflow: hidden !important;\n  box-sizing: border-box !important;\n}\n@media (min-width: 640px) {\n  .note-cart-item .cart-drawer-thumb,\n  .note-cart-item-thumb {\n    width: 96px !important;\n    height: 96px !important;\n    min-width: 96px !important;\n    min-height: 96px !important;\n    max-width: 96px !important;\n    max-height: 96px !important;\n    border-radius: 16px !important;\n  }\n}\n\n.note-cart-item-thumb img,\n.note-cart-item .cart-drawer-thumb img {\n  width: 100% !important;\n  height: 100% !important;\n  max-width: 100% !important;\n  max-height: 100% !important;\n  object-fit: contain !important;\n}\n\n.note-cart-item-info {\n  display: flex !important;\n  flex-direction: column !important;\n  justify-content: center !important;\n  gap: 4px !important;\n  min-width: 0 !important;\n  flex: 1 1 auto !important;\n  text-align: right !important;\n}\n\n.note-cart-item-title-link {\n  text-decoration: none !important;\n  color: inherit !important;\n  display: block !important;\n}\n\n.note-cart-item h4,\n.note-cart-item-title {\n  font-size: 15px !important;\n  font-weight: 700 !important;\n  color: #1c1917 !important;\n  line-height: 1.35 !important;\n  margin: 0 !important;\n  text-decoration: none !important;\n  display: -webkit-box !important;\n  -webkit-line-clamp: 2 !important;\n  -webkit-box-orient: vertical !important;\n  overflow: hidden !important;\n}\n@media (min-width: 640px) {\n  .note-cart-item h4,\n  .note-cart-item-title {\n    font-size: 17px !important;\n  }\n}\n\n.note-cart-item-prices {\n  display: flex !important;\n  flex-direction: row !important;\n  align-items: baseline !important;\n  gap: 8px !important;\n  margin-top: 2px !important;\n}\n\n.note-cart-item-old-price {\n  font-size: 13px !important;\n  font-weight: 500 !important;\n  color: #a8a29e !important;\n  text-decoration: line-through !important;\n}\n\n.note-cart-item-sale-price {\n  font-size: 15px !important;\n  font-weight: 800 !important;\n  color: #ef4444 !important;\n}\n@media (min-width: 640px) {\n  .note-cart-item-old-price { font-size: 14px !important; }\n  .note-cart-item-sale-price { font-size: 17px !important; }\n}\n\n.note-cart-item-del-btn,\nbutton.note-cart-item-del-btn,\nbutton.note-cart-item-del-btn {\n  width: 28px !important;\n  height: 28px !important;\n  min-width: 28px !important;\n  min-height: 28px !important;\n  max-width: 28px !important;\n  max-height: 28px !important;\n  border-radius: 9999px !important;\n  background-color: #f87171 !important;\n  background: #f87171 !important;\n  border: none !important;\n  outline: none !important;\n  color: #ffffff !important;\n  display: flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  padding: 0 !important;\n  cursor: pointer !important;\n  flex-shrink: 0 !important;\n  box-shadow: 0 1px 3px rgba(248, 113, 113, 0.35) !important;\n  transition: background-color 0.15s ease, transform 0.15s ease !important;\n  appearance: none !important;\n  -webkit-appearance: none !important;\n}\n.note-cart-item-del-btn:hover,\nbutton.note-cart-item-del-btn:hover,\nbutton.note-cart-item-del-btn:hover {\n  background-color: #ef4444 !important;\n  background: #ef4444 !important;\n  color: #ffffff !important;\n}\n.note-cart-item-del-btn:active,\nbutton.note-cart-item-del-btn:active {\n  transform: scale(0.92) !important;\n}\n.note-cart-item-del-btn svg {\n  width: 11px !important;\n  height: 11px !important;\n  stroke: #ffffff !important;\n  stroke-width: 2.5 !important;\n  display: block !important;\n  margin: auto !important;\n}\n\n.note-cart-item-divider {\n  width: 100% !important;\n  height: 1px !important;\n  min-height: 1px !important;\n  max-height: 1px !important;\n  background-color: #f0eee9 !important;\n  border: none !important;\n  margin: 12px 0 !important;\n  padding: 0 !important;\n  display: block !important;\n}\n\n.note-cart-item-bottom {\n  display: flex !important;\n  flex-direction: row !important;\n  align-items: center !important;\n  justify-content: space-between !important;\n  width: 100% !important;\n  box-sizing: border-box !important;\n}\n\n.note-cart-item-stepper {\n  display: inline-flex !important;\n  flex-direction: row !important;\n  align-items: center !important;\n  height: 38px !important;\n  width: 126px !important;\n  min-width: 126px !important;\n  border: 1px solid #e7e5e4 !important;\n  border-radius: 11px !important;\n  background: #ffffff !important;\n  overflow: hidden !important;\n  box-sizing: border-box !important;\n  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;\n}\n@media (min-width: 640px) {\n  .note-cart-item-stepper {\n    height: 40px !important;\n    width: 136px !important;\n  }\n}\n\n.note-cart-item-stepper-btn {\n  width: 38px !important;\n  height: 100% !important;\n  min-width: 38px !important;\n  display: flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  background: transparent !important;\n  border: none !important;\n  color: #57534e !important;\n  font-size: 17px !important;\n  font-weight: 700 !important;\n  cursor: pointer !important;\n  padding: 0 !important;\n  transition: background-color 0.15s ease, color 0.15s ease !important;\n  appearance: none !important;\n  -webkit-appearance: none !important;\n}\n@media (min-width: 640px) {\n  .note-cart-item-stepper-btn {\n    width: 42px !important;\n    min-width: 42px !important;\n    font-size: 18px !important;\n  }\n}\n.note-cart-item-stepper-btn:hover {\n  background: #f5f5f4 !important;\n  color: #000000 !important;\n}\n.note-cart-item-stepper-btn:active {\n  background: #e7e5e4 !important;\n}\n\n.note-cart-item-stepper-val {\n  flex: 1 1 auto !important;\n  height: 100% !important;\n  display: flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  border-left: 1px solid #e7e5e4 !important;\n  border-right: 1px solid #e7e5e4 !important;\n  background: #fafaf9 !important;\n  font-size: 14px !important;\n  font-weight: 700 !important;\n  color: #1c1917 !important;\n  user-select: none !important;\n  box-sizing: border-box !important;\n}\n@media (min-width: 640px) {\n  .note-cart-item-stepper-val {\n    font-size: 15px !important;\n  }\n}\n\n.note-cart-item-total {\n  display: flex !important;\n  flex-direction: row !important;\n  align-items: baseline !important;\n  gap: 5px !important;\n  text-align: left !important;\n}\n\n.note-cart-item-total-label {\n  font-size: 13px !important;\n  font-weight: 500 !important;\n  color: #78716c !important;\n}\n@media (min-width: 640px) {\n  .note-cart-item-total-label {\n    font-size: 14px !important;\n  }\n}\n\n.note-cart-item-total-val {\n  font-size: 16px !important;\n  font-weight: 800 !important;\n  color: #1c1917 !important;\n}\n@media (min-width: 640px) {\n  .note-cart-item-total-val {\n    font-size: 18px !important;\n  }\n}\n\n#cart-drawer-coupon-box {\n  flex-shrink: 0 !important;\n  margin-top: 4px !important;\n  margin-bottom: 4px !important;\n}\n\n#cart-drawer-recommendations {\n  padding: 8px 0 !important;\n  margin: 0 !important;\n  background: transparent !important;\n  border: none !important;\n  flex-shrink: 0 !important;\n}\n\nbody.cart-drawer-open #whatsapp-floating-btn,\nbody.cart-drawer-open .whatsapp-btn,\nbody.cart-drawer-open [class*=whatsapp],\nbody.cart-drawer-open [id*=whatsapp],\nbody:has(#cart-drawer:not(.hidden)) #whatsapp-floating-btn,\nbody:has(#cart-drawer:not(.hidden)) .whatsapp-btn,\nbody:has(#cart-drawer:not(.hidden)) [class*=whatsapp],\n#cart-drawer:not(.hidden) ~ #whatsapp-floating-btn,\n#cart-drawer:not(.hidden) ~ [class*=whatsapp] {\n  display: none !important;\n  opacity: 0 !important;\n  pointer-events: none !important;\n  visibility: hidden !important;\n}\n\n#cart-drawer-recommendations h3,\n#cart-drawer-recommendations h2,\n#cart-drawer-recommendations .note-recs-title {\n  font-size: 10px !important;\n  font-weight: 700 !important;\n  color: #57534e !important;\n  margin-bottom: 4px !important;\n}\n\n.note-compact-recs {\n  display: flex !important;\n  gap: 8px !important;\n  overflow-x: auto !important;\n  scrollbar-width: none !important;\n  scroll-snap-type: none !important;\n  padding: 2px 0 4px !important;\n  width: 100% !important;\n  max-width: 100% !important;\n  overscroll-behavior-x: contain !important;\n  -webkit-overflow-scrolling: touch !important;\n}\n.note-compact-recs::-webkit-scrollbar {\n  display: none !important;\n}\n\n.note-mini-card {\n  flex: 0 0 auto !important;\n  width: auto !important;\n  max-width: 175px !important;\n  min-width: 135px !important;\n  height: 38px !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: space-between !important;\n  gap: 6px !important;\n  padding: 3px 6px 3px 4px !important;\n  background: #ffffff !important;\n  border: 1px solid #e7e5e4 !important;\n  border-radius: 9999px !important;\n  box-sizing: border-box !important;\n  box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;\n  color: #111 !important;\n  text-align: right !important;\n}\n\n.note-mini-card a {\n  display: inline-flex !important;\n  align-items: center !important;\n  gap: 6px !important;\n  text-decoration: none !important;\n  color: inherit !important;\n  min-width: 0 !important;\n  flex: 1 1 auto !important;\n}\n\n.note-mini-card img {\n  width: 28px !important;\n  height: 28px !important;\n  object-fit: contain !important;\n  border-radius: 9999px !important;\n  background: #fafaf9 !important;\n  flex-shrink: 0 !important;\n}\n\n.note-mini-card .note-mini-info {\n  display: flex !important;\n  flex-direction: column !important;\n  min-width: 0 !important;\n  line-height: 1.15 !important;\n}\n\n.note-mini-card .note-mini-title {\n  font-size: 9.5px !important;\n  font-weight: 700 !important;\n  color: #111 !important;\n  white-space: nowrap !important;\n  overflow: hidden !important;\n  text-overflow: ellipsis !important;\n  max-width: 65px !important;\n  display: block !important;\n}\n\n.note-mini-card .note-mini-price {\n  font-size: 9.5px !important;\n  font-weight: 800 !important;\n  color: #a58b52 !important;\n  white-space: nowrap !important;\n  display: block !important;\n}\n\n.note-mini-card button {\n  flex-shrink: 0 !important;\n  width: auto !important;\n  min-width: 32px !important;\n  height: 24px !important;\n  padding: 0 7px !important;\n  font-size: 9.5px !important;\n  font-weight: 700 !important;\n  border-radius: 9999px !important;\n  background: #111111 !important;\n  color: #ffffff !important;\n  margin: 0 !important;\n  border: none !important;\n  cursor: pointer !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  transition: background 0.15s, transform 0.15s !important;\n}\n\n.note-mini-card button:hover {\n  background: #333333 !important;\n}\n\n.note-mini-card button:active {\n  transform: scale(0.92) !important;\n}\n\n#cart-drawer-footer {\n  padding: 12px 16px 14px !important;\n  border-top: 1px solid #f0eee9 !important;\n  background: #ffffff !important;\n  flex-shrink: 0 !important;\n}\n\n#cart-page-recommendations-section {\n  margin-top: 20px !important;\n  padding: 14px !important;\n  border-radius: 16px !important;\n}\n#cart-page-recommendations-section h3,\n#cart-page-recommendations-section h2 {\n  font-size: 13px !important;\n  margin-bottom: 8px !important;\n}\n\n.note-bundle-options {\n  margin: 18px 0;\n  padding: 16px;\n  border: 1px solid #d6d3d1;\n  border-radius: 14px;\n  clear: both;\n  width: 100%;\n  font-size: 13px;\n}\n.note-bundle-options h3 {\n  font-weight: 700;\n  margin-bottom: 12px;\n}\n.note-bundle-options fieldset {\n  margin: 12px 0;\n  border: 0;\n  padding: 0;\n}\n.note-bundle-options legend {\n  font-weight: 700;\n  margin-bottom: 6px;\n}\n.note-bundle-options label {\n  display: block;\n  font-size: 12px;\n  margin: 6px 0;\n}\n.note-bundle-options select {\n  display: block;\n  width: 100%;\n  min-height: 44px;\n  background: white;\n  color: #111;\n  border: 1px solid #a8a29e;\n  border-radius: 8px;\n  padding: 9px;\n  margin-top: 4px;\n}\n.note-bundle-options select:focus-visible,\n.note-mini-card button:focus-visible {\n  outline: 2px solid #a58b52;\n  outline-offset: 3px;\n}\n\n.note-empty-products {\n  padding: 16px;\n  font-size: 13px;\n  color: #78716c;\n}\n\nbutton:disabled {\n  opacity: .5;\n  cursor: not-allowed;\n}\n\n@media(prefers-reduced-motion:reduce){\n  .note-compact-recs{scroll-behavior:auto!important}\n}\n\nbutton[aria-label=\"\u062d\u0630\u0641 \u0627\u0644\u0645\u0646\u062a\u062c \u0645\u0646 \u0627\u0644\u0633\u0644\u0629\"] {\n  color: #78716c !important;\n  transition: color 0.15s ease !important;\n}\nbutton[aria-label=\"\u062d\u0630\u0641 \u0627\u0644\u0645\u0646\u062a\u062c \u0645\u0646 \u0627\u0644\u0633\u0644\u0629\"]:hover {\n  color: #be123c !important;\n}\n\n/* Continuous Luxury Brand Loader - Active from frame 0 until .note-ready is added */\nbody:not(.note-ready)::before {\n  content: \"\" !important;\n  position: fixed !important;\n  inset: 0 !important;\n  width: 100vw !important;\n  height: 100vh !important;\n  height: 100dvh !important;\n  background-color: #ffffff !important;\n  background-image: url('https://youssefrasheed.github.io/note-zid-styles/logo_dark_crisp.png') !important;\n  background-repeat: no-repeat !important;\n  background-position: center calc(50% - 25px) !important;\n  background-size: 130px auto !important;\n  z-index: 99999999 !important;\n  pointer-events: all !important;\n  opacity: 1 !important;\n  visibility: visible !important;\n  animation: none !important;\n  transition: opacity 0.4s ease-out, visibility 0.4s ease-out !important;\n}\n\nbody:not(.note-ready)::after {\n  content: \"\" !important;\n  position: fixed !important;\n  top: calc(50% + 40px) !important;\n  left: 50% !important;\n  margin-left: -13px !important;\n  width: 26px !important;\n  height: 26px !important;\n  border: 2.5px solid #eceae5 !important;\n  border-top-color: #121212 !important;\n  border-radius: 50% !important;\n  z-index: 999999999 !important;\n  animation: noteSpinRing 0.75s linear infinite !important;\n  pointer-events: none !important;\n  opacity: 1 !important;\n  visibility: visible !important;\n  transition: opacity 0.4s ease-out, visibility 0.4s ease-out !important;\n}\n\nbody.note-ready::before,\nbody.note-ready::after {\n  opacity: 0 !important;\n  visibility: hidden !important;\n  pointer-events: none !important;\n}\n\n@keyframes noteLoaderPulse {\n  0%, 100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n  50% {\n    transform: scale(0.96);\n    opacity: 0.75;\n  }\n}\n\n@keyframes noteSpinRing {\n  to { transform: rotate(360deg); }\n}\n\nbody[class*=\"checkout\"]::before,\nbody[class*=\"checkout\"]::after,\nbody[class*=\"auth\"]::before,\nbody[class*=\"auth\"]::after,\nbody[class*=\"account\"]::before,\nbody[class*=\"account\"]::after {\n  display: none !important;\n  opacity: 0 !important;\n  visibility: hidden !important;\n}\n\n#loader-container {\n  display: none !important;\n}\n\nbody:not(.note-ready) section[section-id],\nbody:not(.note-ready) .tp-home,\nbody:not(.note-ready) .tp-bar-header,\nbody:not(.note-ready) header.header-nav,\nbody:not(.note-ready) footer:not(#note-store-footer) {\n  display: none !important;\n  visibility: hidden !important;\n}\n\n#cart-drawer-recommendations .flex > span:last-child {\n  display: none !important;\n}\n\n/* Active Nav Links Underline (100% Reference Parity) */\n#nav-links a.border-b-2,\nheader nav a.border-b-2,\n#nav-links a.active-link,\nheader nav a.active-link {\n  border-bottom: 2px solid currentColor !important;\n  padding-bottom: 2px !important;\n  opacity: 1 !important;\n}\n\n#nav-links a:not(.active-link),\nheader nav a:not(.active-link) {\n  border-bottom: 2px solid transparent !important;\n  padding-bottom: 2px !important;\n}\n\n/* Bottom Navigation Bar Cart Badge Perfect Centering */\n.cart-badge,\n.header-sm .cart-badge,\n.cart-sm .cart-badge,\n.cart-btn .cart-badge {\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  text-align: center !important;\n  line-height: 1 !important;\n  direction: ltr !important;\n  min-width: 18px !important;\n  height: 18px !important;\n  padding: 0 2px !important;\n  margin: 0 !important;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif !important;\n  font-feature-settings: \"tnum\" !important;\n  font-variant-numeric: tabular-nums !important;\n  font-size: 11px !important;\n  font-weight: 800 !important;\n  border-radius: 9999px !important;\n  box-sizing: border-box !important;\n  position: absolute !important;\n  top: -5px !important;\n  left: -2px !important;\n  background-color: #f44336 !important;\n  color: #ffffff !important;\n}\n\n/* Out of Stock (\"\u063a\u064a\u0631 \u0645\u062a\u0627\u062d\") Luxury Sticker & State */\n.note-out-of-stock-sticker,\n.out-of-stock,\n.tp-product-image .out-of-stock {\n  position: absolute !important;\n  top: 50% !important;\n  left: 50% !important;\n  transform: translate(-50%, -50%) rotate(-18deg) !important;\n  z-index: 25 !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  width: max-content !important;\n  height: max-content !important;\n  background: rgba(225, 29, 72, 0.82) !important;\n  backdrop-filter: blur(4px) !important;\n  -webkit-backdrop-filter: blur(4px) !important;\n  color: #ffffff !important;\n  font-family: inherit !important;\n  font-size: 11px !important;\n  font-weight: 800 !important;\n  letter-spacing: 0.5px !important;\n  padding: 4px 14px !important;\n  border-radius: 9999px !important;\n  border: 1.5px solid rgba(255, 255, 255, 0.85) !important;\n  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.25) !important;\n  pointer-events: none !important;\n  white-space: nowrap !important;\n}\n\n@media (min-width: 640px) {\n  .note-out-of-stock-sticker,\n  .out-of-stock,\n  .tp-product-image .out-of-stock {\n    font-size: 12px !important;\n    padding: 5px 16px !important;\n  }\n}\n\n.note-out-of-stock-sticker.pdp-sticker {\n  font-size: 14px !important;\n  padding: 6px 22px !important;\n  border-width: 2px !important;\n  box-shadow: 0 6px 20px rgba(225, 29, 72, 0.4) !important;\n}\n\n@media (min-width: 640px) {\n  .note-out-of-stock-sticker.pdp-sticker {\n    font-size: 16px !important;\n    padding: 8px 26px !important;\n  }\n}\n\n#pdp-main-image-container {\n  background-color: #ffffff !important;\n  background: #ffffff !important;\n  border: none !important;\n  box-shadow: none !important;\n}\n\n.is-out-of-stock img,\n.product-item-out-of-stock img,\n#pdp-main-image-container.is-out-of-stock #pdp-main-image {\n  filter: grayscale(0.55) opacity(0.85) !important;\n  transition: filter 0.3s ease !important;\n}\n\n/* Recommended Products Modern Desktop & Mobile Scroll */\n.note-compact-recs {\n  display: flex !important;\n  gap: 8px !important;\n  overflow-x: auto !important;\n  scrollbar-width: thin !important;\n  scrollbar-color: #d6d3d1 transparent !important;\n  scroll-snap-type: none !important;\n  padding: 4px 2px 6px !important;\n  width: 100% !important;\n  max-width: 100% !important;\n  overscroll-behavior-x: contain !important;\n  -webkit-overflow-scrolling: touch !important;\n  cursor: grab !important;\n  user-select: none !important;\n}\n.note-compact-recs:active {\n  cursor: grabbing !important;\n}\n.note-compact-recs::-webkit-scrollbar {\n  display: block !important;\n  height: 4px !important;\n}\n.note-compact-recs::-webkit-scrollbar-track {\n  background: #f5f5f4 !important;\n  border-radius: 9999px !important;\n}\n.note-compact-recs::-webkit-scrollbar-thumb {\n  background: #d6d3d1 !important;\n  border-radius: 9999px !important;\n}\n.note-compact-recs::-webkit-scrollbar-thumb:hover {\n  background: #78716c !important;\n}\n\n.note-recs-nav {\n  display: inline-flex !important;\n  align-items: center !important;\n  gap: 4px !important;\n}\n.note-recs-btn {\n  width: 22px !important;\n  height: 22px !important;\n  border-radius: 9999px !important;\n  border: 1px solid #e7e5e4 !important;\n  background: #ffffff !important;\n  color: #1c1917 !important;\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  cursor: pointer !important;\n  transition: all 0.15s ease !important;\n  padding: 0 !important;\n  flex-shrink: 0 !important;\n  box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;\n}\n.note-recs-btn:hover {\n  background: #000000 !important;\n  color: #ffffff !important;\n  border-color: #000000 !important;\n}\n.note-recs-btn:active {\n  transform: scale(0.92) !important;\n}\n\n/* More legible cart products and recommendations, including narrow screens. */\n.note-mini-card {min-width:210px!important;max-width:240px!important;height:60px!important;padding:6px 8px!important;gap:8px!important;}\n.note-mini-card img {width:42px!important;height:42px!important;}\n.note-mini-card .note-mini-title {font-size:12px!important;max-width:118px!important;white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.35!important;}\n.note-mini-card .note-mini-price {font-size:12px!important;}\n.note-mini-card button {font-size:11px!important;min-width:38px!important;height:34px!important;}\n#cart-drawer-recommendations h3,#cart-drawer-recommendations h2 {font-size:12px!important;}\n.note-cart-item .cart-drawer-thumb {width:96px!important;height:96px!important;}\n.note-cart-item h4 {font-size:16px!important;line-height:1.4!important;-webkit-line-clamp:2!important;font-weight:700!important;}\n.note-cart-item .text-\\[11px\\] {font-size:12px!important;}\n.note-cart-page-item h4 {font-size:14px!important;line-height:1.45!important;}\n.note-cart-page-item > div:first-child {min-width:0;}\n.note-cart-page-item > div:first-child > a {width:80px!important;height:80px!important;}\n.note-cart-page-item > div:first-child > div {min-width:0;}\n.note-cart-page-item .text-\\[11px\\] {font-size:12px!important;}\n.note-cart-page-item .font-bold.text-black {font-size:14px!important;}\n.note-cart-page-item {display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:16px!important;padding:14px 16px!important;margin-bottom:12px!important;text-align:right!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;}\n@media(min-width:640px) {\n .note-cart-page-item {padding:18px 22px!important;}\n}\n.note-cart-page-item .cart-thumb-box {width:76px!important;height:76px!important;border-radius:12px!important;background:#fafaf9!important;border:1px solid #e7e5e4!important;padding:4px!important;flex-shrink:0!important;display:flex!important;align-items:center!important;justify-content:center!important;}\n@media(min-width:640px) {\n .note-cart-page-item .cart-thumb-box {width:84px!important;height:84px!important;}\n}\n";document.head.append(integrationStyles);
 
   // Live storefront integration. Kept separately so rebuilding templates preserves fixes.
   var formatPrice = typeof formatPrice !== 'undefined' ? formatPrice : (typeof window.formatPrice === 'function' ? window.formatPrice : function(val) {

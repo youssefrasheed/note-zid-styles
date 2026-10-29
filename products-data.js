@@ -1369,41 +1369,41 @@ const CartManager = {
       const itemLineTotal = item.price * item.quantity;
       
       return `
-        <div class="note-cart-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right">
+        <div class="note-cart-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
           <!-- Top Row: Thumbnail + Info (Title & Red Sale Price) + Coral Red ✕ Delete Button -->
-          <div class="flex items-start justify-between gap-3.5">
-            <div class="flex items-center gap-3.5 sm:gap-4 min-w-0 flex-1">
-              <a href="/product.html?id=${item.id}" class="cart-drawer-thumb w-[96px] h-[96px] sm:w-[110px] sm:h-[110px] rounded-2xl bg-white p-2 border border-stone-200/90 shrink-0 flex items-center justify-center overflow-hidden hover:opacity-90 transition">
-                <img src="${item.img}" alt="${item.title}" class="w-full h-full object-contain">
+          <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
+            <div class="note-cart-item-start" style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0!important;flex:1 1 auto!important;">
+              <a href="/product.html?id=${item.id}" class="note-cart-item-thumb cart-drawer-thumb" style="width:82px!important;height:82px!important;min-width:82px!important;min-height:82px!important;max-width:82px!important;max-height:82px!important;border-radius:14px!important;background:#ffffff!important;border:1px solid #f0eee9!important;padding:4px!important;flex-shrink:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;box-sizing:border-box!important;">
+                <img src="${item.img}" alt="${item.title}" style="width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;">
               </a>
-              <div class="min-w-0 flex-1 space-y-1.5 pr-1">
-                <a href="/product.html?id=${item.id}" class="block hover:text-stone-700 transition">
-                  <h4 class="text-base sm:text-lg font-bold text-black line-clamp-2 leading-snug">${item.title}</h4>
+              <div class="note-cart-item-info" style="display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;min-width:0!important;flex:1 1 auto!important;text-align:right!important;">
+                <a href="/product.html?id=${item.id}" class="note-cart-item-title-link" style="text-decoration:none!important;color:inherit!important;display:block!important;">
+                  <h4 class="note-cart-item-title" style="font-size:15px!important;font-weight:700!important;color:#1c1917!important;line-height:1.35!important;margin:0!important;">${item.title}</h4>
                 </a>
-                <div class="flex items-baseline gap-2 pt-0.5">
-                  ${oldPriceVal ? `<span class="line-through text-stone-400 text-xs sm:text-sm font-medium">${oldPriceVal} ر.س</span>` : ''}
-                  <span class="text-red-500 font-extrabold text-base sm:text-lg">${item.price} ر.س</span>
+                <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
+                  ${oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${oldPriceVal} ر.س</span>` : ''}
+                  <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${item.price} ر.س</span>
                 </div>
               </div>
             </div>
-            <button onclick="CartManager.removeItem('${item.id}')" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#f87171] hover:bg-[#ef4444] text-white flex items-center justify-center transition shadow-2xs shrink-0 cursor-pointer" aria-label="حذف المنتج من السلة" title="حذف">
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+            <button type="button" onclick="CartManager.removeItem('${item.id}')" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" title="حذف" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
             </button>
           </div>
 
-          <!-- Subtle Divider -->
-          <div class="my-3.5 border-t border-stone-100"></div>
+          <!-- Crisp Horizontal Divider -->
+          <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:12px 0!important;padding:0!important;display:block!important;"></div>
 
-          <!-- Bottom Row: Segmented Stepper on one side, Line Total on the other side -->
-          <div class="flex items-center justify-between">
-            <div class="inline-flex items-center border border-stone-200 rounded-xl h-10 sm:h-11 w-[130px] sm:w-[145px] overflow-hidden bg-white shadow-2xs">
-              <button onclick="CartManager.updateQuantity('${item.id}', -1)" class="w-10 sm:w-11 h-full flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-50 transition text-lg font-bold cursor-pointer" aria-label="تقليل الكمية">−</button>
-              <span class="flex-1 h-full flex items-center justify-center border-x border-stone-200/80 font-bold text-sm sm:text-base text-black bg-stone-50/20">${item.quantity}</span>
-              <button onclick="CartManager.updateQuantity('${item.id}', 1)" class="w-10 sm:w-11 h-full flex items-center justify-center text-stone-500 hover:text-black hover:bg-stone-50 transition text-lg font-bold cursor-pointer" aria-label="زيادة الكمية">+</button>
+          <!-- Bottom Row: Segmented Stepper on Start, Line Total on End -->
+          <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;">
+            <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:38px!important;width:126px!important;min-width:126px!important;border:1px solid #e7e5e4!important;border-radius:11px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;">
+              <button type="button" onclick="CartManager.updateQuantity('${item.id}', 1)" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">+</button>
+              <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:14px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;box-sizing:border-box!important;">${item.quantity}</span>
+              <button type="button" onclick="CartManager.updateQuantity('${item.id}', -1)" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
             </div>
-            <div class="text-sm sm:text-base font-bold text-stone-900">
-              <span class="text-stone-500 text-xs sm:text-sm ml-1.5 font-normal">المجموع:</span>
-              <span class="font-extrabold text-black text-base sm:text-lg">${itemLineTotal} ر.س</span>
+            <div class="note-cart-item-total" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;text-align:left!important;">
+              <span class="note-cart-item-total-label" style="font-size:13px!important;font-weight:500!important;color:#78716c!important;">المجموع:</span>
+              <span class="note-cart-item-total-val" style="font-size:16px!important;font-weight:800!important;color:#1c1917!important;">${itemLineTotal} ر.س</span>
             </div>
           </div>
         </div>
