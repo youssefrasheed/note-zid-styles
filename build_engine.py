@@ -426,6 +426,14 @@ header nav a:not(.active-link) {{
   }}
 }}
 
+#pdp-main-image-container {{
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  border: none !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+}}
+
 .is-out-of-stock img,
 .product-item-out-of-stock img,
 #pdp-main-image-container.is-out-of-stock #pdp-main-image {{
@@ -2191,7 +2199,7 @@ app_js_code = f"""/**
       const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
       const isOutOfStock = p.in_stock === false || p.stock === 0;
       return `
-        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
+        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border-0 shadow-none transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 overflow-hidden">
               ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap">${{escapeHTML(p.tag)}}</span>` : ''))}}
@@ -2408,7 +2416,7 @@ app_js_code = f"""/**
       const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
       const isOutOfStock = p.in_stock === false || p.stock === 0;
       return `
-        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border border-stone-100 rounded-2xl hover:border-black/20 hover:shadow-lg transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
+        <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border-0 shadow-none transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
             <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
               ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.discount ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap">${{escapeHTML(p.tag)}}</span>` : ''))}}
@@ -2623,7 +2631,7 @@ app_js_code = f"""/**
       return `
         <div class="p-3 rounded-2xl bg-stone-50 border border-stone-200/70 flex flex-col justify-between text-center group hover:border-black transition">
           <div>
-            <div class="relative aspect-square mb-2 p-2 flex items-center justify-center bg-white rounded-xl border border-stone-100 overflow-hidden cursor-pointer" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
+            <div class="relative aspect-square mb-2 p-2 flex items-center justify-center bg-white rounded-xl border-0 shadow-none overflow-hidden cursor-pointer" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
               <img src="${{imgUrl}}" alt="${{p.title}}" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
             </div>
             <h5 class="text-xs font-bold text-black line-clamp-1 mb-1 cursor-pointer hover:underline" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">${{p.title}}</h5>

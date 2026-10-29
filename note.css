@@ -351,6 +351,14 @@ header nav a:not(.active-link) {
   }
 }
 
+#pdp-main-image-container {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  border: none !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+}
+
 .is-out-of-stock img,
 .product-item-out-of-stock img,
 #pdp-main-image-container.is-out-of-stock #pdp-main-image {
