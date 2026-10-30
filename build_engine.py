@@ -1800,6 +1800,14 @@ app_js_code = f"""/**
       return;
     }}
 
+    const cartItems = (typeof CartManager !== 'undefined' && CartManager.getCart) ? CartManager.getCart() : [];
+    if (!cartItems || cartItems.length === 0) {{
+      msg.textContent = 'يرجى إضافة منتجات إلى السلة أولاً لتطبيق كود الخصم.';
+      msg.className = 'text-[11px] font-bold text-rose-600 block mt-1.5';
+      msg.classList.remove('hidden');
+      return;
+    }}
+
     if (btn) {{
       btn.disabled = true;
       btn.innerHTML = '<span class="inline-block animate-spin">⟳</span>';
@@ -1816,8 +1824,10 @@ app_js_code = f"""/**
             try {{ await CartManager._nativeQueue; }} catch (_) {{}}
           }}
           const res = await window.zid.cart.applyCoupon({{ coupon_code: code }});
-          if (res && (res.status === 'success' || res.data || res.message || res.coupon)) {{
+          if (res && (res.status === 'success' || res.data || res.coupon)) {{
             applied = true;
+          }} else if (res && res.status === 'error') {{
+            zidError = res.message?.description || (typeof res.message === 'string' ? res.message : '') || 'كود الخصم غير صحيح أو غير متاح لهذا الطلب.';
           }}
         }} catch (err) {{
           try {{
@@ -1835,7 +1845,7 @@ app_js_code = f"""/**
             if (data) {{
               const codeName = data?.message?.code || data?.code || '';
               const desc = data?.message?.description || (typeof data?.message === 'string' ? data.message : '') || data?.detail || '';
-              if (codeName === 'ERROR_POPUP_BACK' || (typeof desc === 'string' && (desc.includes('طُبّق') || desc.includes('مسبق')))) {{
+              if (typeof desc === 'string' && (desc.includes('طُبّق') || desc.includes('مسبق') || desc.includes('مطبق'))) {{
                 applied = true;
                 alreadyApplied = true;
               }} else if (codeName === 'ERROR_CART_PRODUCTS_NOT_FOUND' || (typeof desc === 'string' && desc.includes('لم يُضف'))) {{
@@ -1851,7 +1861,7 @@ app_js_code = f"""/**
           }}
         }}
       }} else {{
-        applied = true;
+        zidError = 'تعذر الاتصال بخادم المتجر للتحقق من الكوبون.';
       }}
 
       if (zidError) {{
@@ -3129,6 +3139,13 @@ app_js_code = f"""/**
       return;
     }}
 
+    const cartItems = (typeof CartManager !== 'undefined' && CartManager.getCart) ? CartManager.getCart() : [];
+    if (!cartItems || cartItems.length === 0) {{
+      msg.textContent = 'يرجى إضافة منتجات إلى السلة أولاً لتطبيق كود الخصم.';
+      msg.className = 'text-[11px] font-bold text-rose-600 block';
+      return;
+    }}
+
     if (applyBtn) applyBtn.disabled = true;
     if (btnText) btnText.innerHTML = '<svg class="animate-spin h-3.5 w-3.5 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
 
@@ -3143,8 +3160,10 @@ app_js_code = f"""/**
             try {{ await CartManager._nativeQueue; }} catch (_) {{}}
           }}
           const res = await window.zid.cart.applyCoupon({{ coupon_code: code }});
-          if (res && (res.status === 'success' || res.data || res.message || res.coupon)) {{
+          if (res && (res.status === 'success' || res.data || res.coupon)) {{
             applied = true;
+          }} else if (res && res.status === 'error') {{
+            zidError = res.message?.description || (typeof res.message === 'string' ? res.message : '') || 'كود الخصم غير صحيح أو غير متاح لهذا الطلب.';
           }}
         }} catch (err) {{
           try {{
@@ -3162,7 +3181,7 @@ app_js_code = f"""/**
             if (data) {{
               const codeName = data?.message?.code || data?.code || '';
               const desc = data?.message?.description || (typeof data?.message === 'string' ? data.message : '') || data?.detail || '';
-              if (codeName === 'ERROR_POPUP_BACK' || (typeof desc === 'string' && (desc.includes('طُبّق') || desc.includes('مسبق')))) {{
+              if (typeof desc === 'string' && (desc.includes('طُبّق') || desc.includes('مسبق') || desc.includes('مطبق'))) {{
                 applied = true;
                 alreadyApplied = true;
               }} else if (codeName === 'ERROR_CART_PRODUCTS_NOT_FOUND' || (typeof desc === 'string' && desc.includes('لم يُضف'))) {{
@@ -3178,7 +3197,7 @@ app_js_code = f"""/**
           }}
         }}
       }} else {{
-        applied = true;
+        zidError = 'تعذر الاتصال بخادم المتجر للتحقق من الكوبون.';
       }}
 
       if (zidError) {{

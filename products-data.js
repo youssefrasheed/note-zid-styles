@@ -1481,6 +1481,14 @@ window.applyDrawerCoupon = async function() {
     return;
   }
 
+  const cartItems = (typeof CartManager !== 'undefined' && CartManager.getCart) ? CartManager.getCart() : [];
+  if (!cartItems || cartItems.length === 0) {
+    msg.textContent = 'يرجى إضافة منتجات إلى السلة أولاً لتطبيق كود الخصم.';
+    msg.className = 'text-[11px] font-bold text-rose-600 block mt-1.5';
+    msg.classList.remove('hidden');
+    return;
+  }
+
   if (btn) {
     btn.disabled = true;
     btn.innerHTML = '<span class="inline-block animate-spin">⟳</span>';
@@ -1497,8 +1505,10 @@ window.applyDrawerCoupon = async function() {
           try { await CartManager._nativeQueue; } catch (_) {}
         }
         const res = await window.zid.cart.applyCoupon({ coupon_code: code });
-        if (res && (res.status === 'success' || res.data || res.message || res.coupon)) {
+        if (res && (res.status === 'success' || res.data || res.coupon)) {
           applied = true;
+        } else if (res && res.status === 'error') {
+          zidError = res.message?.description || (typeof res.message === 'string' ? res.message : '') || 'كود الخصم غير صحيح أو غير متاح لهذا الطلب.';
         }
       } catch (err) {
         try {
@@ -1516,7 +1526,7 @@ window.applyDrawerCoupon = async function() {
           if (data) {
             const codeName = data?.message?.code || data?.code || '';
             const desc = data?.message?.description || (typeof data?.message === 'string' ? data.message : '') || data?.detail || '';
-            if (codeName === 'ERROR_POPUP_BACK' || (typeof desc === 'string' && (desc.includes('طُبّق') || desc.includes('مسبق')))) {
+            if (typeof desc === 'string' && (desc.includes('طُبّق') || desc.includes('مسبق') || desc.includes('مطبق'))) {
               applied = true;
               alreadyApplied = true;
             } else if (codeName === 'ERROR_CART_PRODUCTS_NOT_FOUND' || (typeof desc === 'string' && desc.includes('لم يُضف'))) {
@@ -1532,7 +1542,7 @@ window.applyDrawerCoupon = async function() {
         }
       }
     } else {
-      applied = true;
+      zidError = 'تعذر الاتصال بخادم المتجر للتحقق من الكوبون.';
     }
 
     if (zidError) {
