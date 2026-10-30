@@ -1807,16 +1807,48 @@ app_js_code = f"""/**
 
     try {{
       let applied = false;
+      let alreadyApplied = false;
       let zidError = null;
 
       if (window.zid && window.zid.cart && typeof window.zid.cart.applyCoupon === 'function') {{
         try {{
+          if (typeof CartManager !== 'undefined' && CartManager._nativeQueue) {{
+            try {{ await CartManager._nativeQueue; }} catch (_) {{}}
+          }}
           const res = await window.zid.cart.applyCoupon({{ coupon_code: code }});
-          if (res && (res.status === 'success' || res.data || res.message)) {{
+          if (res && (res.status === 'success' || res.data || res.message || res.coupon)) {{
             applied = true;
           }}
         }} catch (err) {{
-          zidError = err?.message || 'كود الخصم غير صالح أو منتهي الصلاحية';
+          try {{
+            let data = null;
+            if (err?.response && typeof err.response.clone === 'function') {{
+              try {{ data = await err.response.clone().json(); }} catch (_) {{}}
+            }}
+            if (!data && err?.response && typeof err.response.json === 'function') {{
+              try {{ data = await err.response.json(); }} catch (_) {{}}
+            }}
+            if (!data && err?.response?.data) {{
+              data = err.response.data;
+            }}
+
+            if (data) {{
+              const codeName = data?.message?.code || data?.code || '';
+              const desc = data?.message?.description || (typeof data?.message === 'string' ? data.message : '') || data?.detail || '';
+              if (codeName === 'ERROR_POPUP_BACK' || (typeof desc === 'string' && (desc.includes('طُبّق') || desc.includes('مسبق')))) {{
+                applied = true;
+                alreadyApplied = true;
+              }} else if (codeName === 'ERROR_CART_PRODUCTS_NOT_FOUND' || (typeof desc === 'string' && desc.includes('لم يُضف'))) {{
+                applied = true;
+              }} else if (typeof desc === 'string' && desc.trim()) {{
+                zidError = desc.trim();
+              }}
+            }}
+          }} catch (_) {{}}
+
+          if (!applied && !zidError) {{
+            zidError = 'كود الخصم غير صحيح أو غير متاح لهذا الطلب.';
+          }}
         }}
       }} else {{
         applied = true;
@@ -1830,7 +1862,9 @@ app_js_code = f"""/**
         localStorage.removeItem('note_applied_coupon');
       }} else if (applied) {{
         localStorage.setItem('note_applied_coupon', code);
-        msg.textContent = `تم تفعيل كود الخصم (${{code}}) بنجاح! سيتم احتسابه عند الدفع.`;
+        msg.textContent = alreadyApplied
+          ? `كود الخصم (${{code}}) مفعّل بالفعل لطلبك! 🎉`
+          : `تم تفعيل كود الخصم (${{code}}) بنجاح! سيتم احتسابه عند الدفع.`;
         msg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5';
         msg.classList.remove('hidden');
         if (tag) tag.classList.remove('hidden');
@@ -3100,16 +3134,48 @@ app_js_code = f"""/**
 
     try {{
       let applied = false;
+      let alreadyApplied = false;
       let zidError = null;
 
       if (window.zid && window.zid.cart && typeof window.zid.cart.applyCoupon === 'function') {{
         try {{
+          if (typeof CartManager !== 'undefined' && CartManager._nativeQueue) {{
+            try {{ await CartManager._nativeQueue; }} catch (_) {{}}
+          }}
           const res = await window.zid.cart.applyCoupon({{ coupon_code: code }});
-          if (res && (res.status === 'success' || res.data || res.message)) {{
+          if (res && (res.status === 'success' || res.data || res.message || res.coupon)) {{
             applied = true;
           }}
         }} catch (err) {{
-          zidError = err?.message || 'كود الخصم غير صالح أو منتهي الصلاحية';
+          try {{
+            let data = null;
+            if (err?.response && typeof err.response.clone === 'function') {{
+              try {{ data = await err.response.clone().json(); }} catch (_) {{}}
+            }}
+            if (!data && err?.response && typeof err.response.json === 'function') {{
+              try {{ data = await err.response.json(); }} catch (_) {{}}
+            }}
+            if (!data && err?.response?.data) {{
+              data = err.response.data;
+            }}
+
+            if (data) {{
+              const codeName = data?.message?.code || data?.code || '';
+              const desc = data?.message?.description || (typeof data?.message === 'string' ? data.message : '') || data?.detail || '';
+              if (codeName === 'ERROR_POPUP_BACK' || (typeof desc === 'string' && (desc.includes('طُبّق') || desc.includes('مسبق')))) {{
+                applied = true;
+                alreadyApplied = true;
+              }} else if (codeName === 'ERROR_CART_PRODUCTS_NOT_FOUND' || (typeof desc === 'string' && desc.includes('لم يُضف'))) {{
+                applied = true;
+              }} else if (typeof desc === 'string' && desc.trim()) {{
+                zidError = desc.trim();
+              }}
+            }}
+          }} catch (_) {{}}
+
+          if (!applied && !zidError) {{
+            zidError = 'كود الخصم غير صحيح أو غير متاح لهذا الطلب.';
+          }}
         }}
       }} else {{
         applied = true;
@@ -3123,7 +3189,9 @@ app_js_code = f"""/**
         localStorage.removeItem('note_applied_coupon');
       }} else if (applied) {{
         localStorage.setItem('note_applied_coupon', code);
-        msg.textContent = `تم تفعيل كود الخصم (${{code}}) بنجاح! سيتم تطبيقه لطلبك عند الدفع.`;
+        msg.textContent = alreadyApplied
+          ? `كود الخصم (${{code}}) مفعّل بالفعل لطلبك! 🎉`
+          : `تم تفعيل كود الخصم (${{code}}) بنجاح! سيتم تطبيقه لطلبك عند الدفع.`;
         msg.className = 'text-[11px] font-bold text-emerald-600 block';
         if (tag) tag.classList.remove('hidden');
         if (clearBtn) clearBtn.classList.remove('hidden');
