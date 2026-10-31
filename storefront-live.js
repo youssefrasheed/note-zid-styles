@@ -184,14 +184,31 @@
     for(const c of input||[])if(c?.is_published===false)hiddenCategoryIds.add(String(c.id));else if(c?.id)hiddenCategoryIds.delete(String(c.id));
     walk(input);
     zidCategories=[...new Map(flattened.map(c=>[c.id, {...c, name: (c.name || '').replace(/الباكدجات/g, 'الباكجات').replace(/باكدجات/g, 'باكجات').trim()}])).values()];
-    for(const c of zidCategories) {const key=categoryKey(c.id);catUrlMap[key]='/categories/'+c.id+'/'+encodeURIComponent(c.slug||c.name);if(!['new','bestsellers'].includes(key))categoryMeta[key]={title:c.name,desc:c.description||''};}
+    const allCat = zidCategories.find(c => /جميع المنتجات|كل المنتجات/i.test(c.name));
+    if (allCat) {
+      catUrlMap.all = '/categories/' + allCat.id + '/' + encodeURIComponent(allCat.slug || allCat.name);
+      categoryMeta.all = { title: allCat.name, desc: allCat.description || (categoryMeta.all && categoryMeta.all.desc) || '' };
+    }
+    for(const c of zidCategories) {
+      if (allCat && c.id === allCat.id) continue;
+      const key=categoryKey(c.id);
+      catUrlMap[key]='/categories/'+c.id+'/'+encodeURIComponent(c.slug||c.name);
+      if(!['new','bestsellers'].includes(key))categoryMeta[key]={title:c.name,desc:c.description||''};
+    }
     for(const [key,id] of Object.entries(categoryKeys)) {const c=zidCategories.find(c=>c.id===id);if(c)catUrlMap[key]=catUrlMap[categoryKey(id)];}
   }
   function categoryProducts(key,products=noteProductsCatalog) {
     let list = [];
     let targetCatId = null;
     if (key === 'all') {
-      list = products.slice();
+      const allCat = zidCategories.find(c => /جميع المنتجات|كل المنتجات/i.test(c.name));
+      if (allCat) {
+        targetCatId = String(allCat.id);
+        const assigned = products.filter(p => (p.category_ids || []).includes(String(allCat.id)));
+        list = assigned.length ? assigned : products.slice();
+      } else {
+        list = products.slice();
+      }
     } else if (key === 'new' && (hiddenCategoryIds.has('1327929') || (categoryListAuthoritative && !zidCategories.some(c=>c.id==='1327929')))) {
       return [];
     } else {
@@ -228,7 +245,10 @@
     syncHomeCategoryOrder();
     const bar=document.getElementById('category-pills-bar');
     if(bar) {
-      const entries=[{key:'all',name:'جميع المنتجات'},...zidCategories.filter(c=>c.id!=='1759471').map(c=>({key:categoryKey(c.id),name:c.name}))];
+      const allCat = zidCategories.find(c => /جميع المنتجات|كل المنتجات/i.test(c.name));
+      const filteredZid = zidCategories.filter(c => c.id !== '1759471' && (!allCat || c.id !== allCat.id));
+      const allName = allCat ? allCat.name : 'جميع المنتجات';
+      const entries = [{ key: 'all', name: allName }, ...filteredZid.map(c => ({ key: categoryKey(c.id), name: c.name }))];
       const html=entries.filter(e=>{const id=e.key==='bestsellers'?'1697258':e.key==='new'?'1327929':e.key.replace('zid-','');return e.key==='all'||(!hiddenCategoryIds.has(id)&&(!categoryListAuthoritative||zidCategories.some(c=>c.id===id)));}).map(({key,name})=>'<button id="pill-'+key+'" data-note-category="'+key+'" onclick="selectCategory(\''+key+'\')" class="cat-pill px-4 py-2 rounded-full border whitespace-nowrap '+(key===activeCategory?'cat-pill-active bg-black text-white border-black':'border-stone-200 text-stone-700')+'">'+escapeHTML(name)+' ('+categoryProducts(key).length+')</button>').join('');
       if(bar.innerHTML!==html)bar.innerHTML=html;
     }
