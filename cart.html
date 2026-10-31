@@ -629,6 +629,7 @@
           if (tag) tag.classList.add('hidden');
           if (clearBtn) clearBtn.classList.add('hidden');
           localStorage.removeItem('note_applied_coupon');
+          if (typeof renderCartPage === 'function') renderCartPage();
         } else if (applied) {
           localStorage.setItem('note_applied_coupon', code);
           msg.textContent = alreadyApplied
@@ -637,6 +638,7 @@
           msg.className = 'text-[11px] font-bold text-emerald-600 block';
           if (tag) tag.classList.remove('hidden');
           if (clearBtn) clearBtn.classList.remove('hidden');
+          if (typeof renderCartPage === 'function') renderCartPage();
         }
       } catch (e) {
         msg.textContent = 'حدث خطأ أثناء تطبيق الكود. يرجى المحاولة مجدداً.';
@@ -662,6 +664,7 @@
         msg.className = 'text-[11px] font-bold text-stone-500 block';
         setTimeout(() => { if (msg && msg.textContent === 'تمت إزالة كود الخصم.') msg.classList.add('hidden'); }, 2500);
       }
+      if (typeof renderCartPage === 'function') renderCartPage();
 
       if (window.zid && window.zid.cart && typeof window.zid.cart.removeCoupons === 'function') {
         window.zid.cart.removeCoupons().catch(() => null);
@@ -683,6 +686,7 @@
         msg.textContent = `كود الخصم (${saved}) مفعّل لطلبك.`;
         msg.className = 'text-[11px] font-bold text-emerald-600 block';
       }
+      if (typeof renderCartPage === 'function') renderCartPage();
     }
 
     function applyCoupon() {
@@ -715,8 +719,16 @@
         shippingEl.textContent = 'مجاني';
       }
 
-      const grandTotal = Math.max(0, subtotal - discountAmount + shippingCost);
-      grandTotalEl.textContent = `${grandTotal} ر.س`;
+      const appliedCoupon = localStorage.getItem('note_applied_coupon');
+      if (appliedCoupon && subtotal > 0) {
+        const match = appliedCoupon.match(/(\d+)/);
+        const pct = match ? parseInt(match[1], 10) : 5;
+        const discountVal = (subtotal * pct) / 100;
+        const finalGrand = Math.max(0, subtotal - discountVal);
+        grandTotalEl.innerHTML = `<span class="note-cart-total-old line-through text-stone-400 font-semibold text-base sm:text-lg ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:16px!important;font-weight:600!important;margin-left:8px!important;">${subtotal.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س</span><span class="note-cart-total-new text-rose-600 font-black text-2xl" style="color:#ef4444!important;font-size:24px!important;font-weight:900!important;">${finalGrand.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س</span>`;
+      } else {
+        grandTotalEl.textContent = `${subtotal.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س`;
+      }
     }
 
     async function proceedToCheckout() {

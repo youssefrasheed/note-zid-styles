@@ -1344,12 +1344,21 @@ const CartManager = {
     if (subtotalEl) {
       subtotalEl.textContent = total + ' ر.س';
     }
+
+    // Sync coupon input in drawer with localStorage & display strikethrough total if applied
+    const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
     if (totalEl) {
-      totalEl.textContent = total + ' ر.س';
+      if (savedCoupon && total > 0) {
+        const match = savedCoupon.match(/(\d+)/);
+        const pct = match ? parseInt(match[1], 10) : 5;
+        const discount = (total * pct) / 100;
+        const finalTotal = Math.max(0, total - discount);
+        totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${total.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${finalTotal.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س</span>`;
+      } else {
+        totalEl.textContent = total + ' ر.س';
+      }
     }
 
-    // Sync coupon input in drawer with localStorage
-    const savedCoupon = localStorage.getItem('note_applied_coupon');
     const drawerCouponInput = document.getElementById('drawer-coupon-input');
     const drawerCouponTag = document.getElementById('drawer-coupon-applied-tag');
     const drawerCouponMsg = document.getElementById('drawer-coupon-msg');
@@ -1557,6 +1566,7 @@ window.applyDrawerCoupon = async function() {
       msg.classList.remove('hidden');
       if (tag) tag.classList.add('hidden');
       localStorage.removeItem('note_applied_coupon');
+      if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
     } else if (applied) {
       localStorage.setItem('note_applied_coupon', code);
       msg.textContent = alreadyApplied
@@ -1565,6 +1575,7 @@ window.applyDrawerCoupon = async function() {
       msg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5';
       msg.classList.remove('hidden');
       if (tag) tag.classList.remove('hidden');
+      if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
     }
   } catch (e) {
     msg.textContent = 'حدث خطأ أثناء تطبيق الكود. يرجى المحاولة مجدداً.';

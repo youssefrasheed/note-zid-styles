@@ -1660,10 +1660,21 @@ app_js_code = f"""/**
       }}
       
       if (subtotalEl) subtotalEl.textContent = formatPrice(total);
-      if (totalEl) totalEl.textContent = formatPrice(total);
+
+      // Sync coupon input in drawer with localStorage & display strikethrough total if applied
+      const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
+      if (totalEl) {{
+        if (savedCoupon && total > 0) {{
+          const match = savedCoupon.match(/(\\d+)/);
+          const pct = match ? parseInt(match[1], 10) : 5;
+          const discount = (total * pct) / 100;
+          const finalTotal = Math.max(0, total - discount);
+          totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${{formatPrice(total)}}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${{formatPrice(finalTotal)}}</span>`;
+        }} else {{
+          totalEl.textContent = formatPrice(total);
+        }}
+      }}
       
-      // Sync coupon input in drawer with localStorage
-      const savedCoupon = localStorage.getItem('note_applied_coupon');
       const drawerCouponInput = document.getElementById('drawer-coupon-input');
       const drawerCouponTag = document.getElementById('drawer-coupon-applied-tag');
       const drawerCouponMsg = document.getElementById('drawer-coupon-msg');
@@ -1876,6 +1887,7 @@ app_js_code = f"""/**
         msg.classList.remove('hidden');
         if (tag) tag.classList.add('hidden');
         localStorage.removeItem('note_applied_coupon');
+        if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
       }} else if (applied) {{
         localStorage.setItem('note_applied_coupon', code);
         msg.textContent = alreadyApplied
@@ -1884,6 +1896,7 @@ app_js_code = f"""/**
         msg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5';
         msg.classList.remove('hidden');
         if (tag) tag.classList.remove('hidden');
+        if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
       }}
     }} catch (e) {{
       msg.textContent = 'حدث خطأ أثناء تطبيق الكود. يرجى المحاولة مجدداً.';
@@ -3218,6 +3231,7 @@ app_js_code = f"""/**
         if (tag) tag.classList.add('hidden');
         if (clearBtn) clearBtn.classList.add('hidden');
         localStorage.removeItem('note_applied_coupon');
+        if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
       }} else if (applied) {{
         localStorage.setItem('note_applied_coupon', code);
         msg.textContent = alreadyApplied
@@ -3226,6 +3240,7 @@ app_js_code = f"""/**
         msg.className = 'text-[11px] font-bold text-emerald-600 block';
         if (tag) tag.classList.remove('hidden');
         if (clearBtn) clearBtn.classList.remove('hidden');
+        if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
       }}
     }} catch (e) {{
       msg.textContent = 'حدث خطأ أثناء تطبيق الكود. يرجى المحاولة مجدداً.';
@@ -3251,6 +3266,7 @@ app_js_code = f"""/**
       msg.className = 'text-[11px] font-bold text-stone-500 block';
       setTimeout(() => {{ if (msg && msg.textContent === 'تمت إزالة كود الخصم.') msg.classList.add('hidden'); }}, 2500);
     }}
+    if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
 
     if (window.zid && window.zid.cart && typeof window.zid.cart.removeCoupons === 'function') {{
       window.zid.cart.removeCoupons().catch(() => null);
@@ -3272,6 +3288,7 @@ app_js_code = f"""/**
       msg.textContent = `كود الخصم (${{saved}}) مفعّل لطلبك.`;
       msg.className = 'text-[11px] font-bold text-emerald-600 block';
     }}
+    if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
   }}
 
   function updateCartFinancials(subtotal) {{
@@ -3283,6 +3300,18 @@ app_js_code = f"""/**
     document.getElementById('discount-row')?.classList.add('hidden');
     const shipping=document.getElementById('page-shipping');
     if(shipping) shipping.textContent='يُحسب عند الدفع';
+
+    const appliedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
+    if (appliedCoupon && amount > 0) {{
+      const match = appliedCoupon.match(/(\\d+)/);
+      const pct = match ? parseInt(match[1], 10) : 5;
+      const discount = (amount * pct) / 100;
+      const finalAmount = Math.max(0, amount - discount);
+      const grandEl = document.getElementById('page-grand-total');
+      if (grandEl) {{
+        grandEl.innerHTML = `<span class="note-cart-total-old line-through text-stone-400 font-semibold text-sm sm:text-base ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:15px!important;font-weight:600!important;margin-left:8px!important;">${{amount.toLocaleString('en-US',{{maximumFractionDigits:2}})}} ر.س</span><span class="note-cart-total-new text-rose-600 font-black text-xl sm:text-2xl" style="color:#ef4444!important;font-size:22px!important;font-weight:900!important;">${{finalAmount.toLocaleString('en-US',{{maximumFractionDigits:2}})}} ر.س</span>`;
+      }}
+    }}
 
     const summary = document.getElementById('cart-page-summary-wrapper');
     if (summary) {{
