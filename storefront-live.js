@@ -78,6 +78,7 @@
   if (!window.formatPrice) window.formatPrice = formatPrice;
 
   const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const cleanSpelling = str => String(str ?? '').replace(/الباكدجات/g, 'الباكجات').replace(/باكدجات/g, 'باكجات').replace(/الباكدج/g, 'الباكج').replace(/باكدج/g, 'باكج');
   const KNOWN_PRODUCT_FALLBACKS = {
     '83561f07-7f51-43a4-a632-2030d6b71bc1': '/products/06_Linen_Spray_Trio_Dark.webp',
     'مجموعة-معطرات-الجو-و-المفارش': '/products/06_Linen_Spray_Trio_Dark.webp',
@@ -128,10 +129,10 @@
       const fallbackImgBox = null;
       const img = liveImage(z.images?.[0], z.id) || fallbackImg || '';
       const img_box = null;
-      const entry = {...prior, id:z.id, zid_id:z.id, slug, title:z.name || '', title_en:z.name_en || '', price: sale ?? price, old_price:old,
+      const entry = {...prior, id:z.id, zid_id:z.id, slug, title:cleanSpelling(z.name || ''), title_en:z.name_en || '', price: sale ?? price, old_price:old,
         discount:old ? Number(((old-sale)/old*100).toFixed(1))+'%' : null,
         img: img, img_box: img_box,
-        cat:category, cat_ar:categories.find(c => String(c.id) === catUrlMap[category]?.split('/')[2])?.name || categories[0]?.name || prior.cat_ar || '',
+        cat:category, cat_ar:cleanSpelling(categories.find(c => String(c.id) === catUrlMap[category]?.split('/')[2])?.name || categories[0]?.name || prior.cat_ar || ''),
         category_ids:categories.map(c => String(c.id)),
         display_order: (z.display_order !== null && z.display_order !== undefined && Number.isFinite(Number(z.display_order))) ? Number(z.display_order) : 999999,
         category_orders: Object.fromEntries(categories.map(c => [String(c.id), (c.display_order !== null && c.display_order !== undefined && Number.isFinite(Number(c.display_order))) ? Number(c.display_order) : null])),
@@ -139,7 +140,7 @@
         rating:Number(z.rating?.average) || 0, reviews_count:Number(z.rating?.total_count) || 0,
         in_stock:z.in_stock !== false && (z.is_infinite === true || Number(z.quantity) > 0), stock:z.is_infinite ? Infinity : Number(z.quantity),
         product_class:z.product_class, has_options:z.has_options, has_fields:z.has_fields,
-        description:String(z.description || z.short_description || '').replace(/<[^>]*>/g,'') || prior.description || '', size:prior.size || '100 مل', concentration:prior.concentration || '', notes:prior.notes || '', slogan:'',
+        description:cleanSpelling(String(z.description || z.short_description || '').replace(/<[^>]*>/g,'')) || prior.description || '', size:prior.size || '100 مل', concentration:prior.concentration || '', notes:prior.notes || '', slogan:'',
         created_at:z.created_at || '', updated_at:z.updated_at || ''};
       zidSlugMap[entry.id] = slug;
       return entry;
@@ -183,7 +184,7 @@
     function walk(items,parent) {for(const c of items||[]) {if(!c?.id || c.is_published===false)continue;flattened.push({...c,id:String(c.id),parent_id:c.parent_id||parent});walk(c.sub_categories,c.id);}}
     for(const c of input||[])if(c?.is_published===false)hiddenCategoryIds.add(String(c.id));else if(c?.id)hiddenCategoryIds.delete(String(c.id));
     walk(input);
-    zidCategories=[...new Map(flattened.map(c=>[c.id, {...c, name: (c.name || '').replace(/الباكدجات/g, 'الباكجات').replace(/باكدجات/g, 'باكجات').trim()}])).values()];
+    zidCategories=[...new Map(flattened.map(c=>[c.id, {...c, name: cleanSpelling(c.name).trim(), description: cleanSpelling(c.description || '')}])).values()];
     const allCat = zidCategories.find(c => /جميع المنتجات|كل المنتجات/i.test(c.name));
     if (allCat) {
       catUrlMap.all = '/categories/' + allCat.id + '/' + encodeURIComponent(allCat.slug || allCat.name);

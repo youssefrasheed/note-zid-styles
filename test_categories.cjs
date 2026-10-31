@@ -1,6 +1,6 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 let source=fs.readFileSync(__dirname+'/test_live.cjs','utf8');source=source.slice(0,source.indexOf('const product='));source=source.replace("const source=", "const integration=").replace("runInContext(source+", "runInContext(integration+");
-source+=`\nvm.runInContext('this.categoryAPI={registerCategories,categoryProducts,recommendationProducts,syncHomeCategoryOrder};',ctx);
+source+=`\nvm.runInContext('this.categoryAPI={registerCategories,categoryProducts,recommendationProducts,syncHomeCategoryOrder,get zidCategories(){return zidCategories;}};',ctx);
 const products=[{id:'a',name:'A',price:100,quantity:1,categories:[{id:1,name:'Shared name'}]},{id:'b',name:'B',price:100,quantity:1,categories:[{id:2,name:'Shared name'}]}];
 const categories=[{id:1,name:'Shared name'},{id:2,name:'Shared name'}];
 ctx.categoryAPI.registerCategories(categories);ctx.testAPI.sync.applyToCatalog(products);
@@ -49,5 +49,13 @@ ctx.renderProductCard=p=>p.id+',';
 ctx.categoryAPI.registerCategories([{id:1327929}]);
 ctx.testAPI.sync.applyToCatalog([{...fresh,id:'manual',categories:[{id:1327929,display_order:0}]},{...fresh,id:'outside',created_at:'9999',categories:[]}]);
 ctx.initSliders();assert.equal(tracks['slider-new'].innerHTML,'manual,');
+
+// Verify cleanSpelling transforms all forms of باكدج/باكدجات to باكج/باكجات
+ctx.categoryAPI.registerCategories([{id:1752110,name:'عروض الباكدجات الحصرية',description:'أقوى عروض الباكدج'}]);
+assert.equal(ctx.categoryAPI.zidCategories.find(c=>c.id==='1752110').name,'عروض الباكجات الحصرية');
+assert.equal(ctx.categoryAPI.zidCategories.find(c=>c.id==='1752110').description,'أقوى عروض الباكج');
+ctx.testAPI.sync.applyToCatalog([{...fresh,id:'pkg-test',name:'باكدج المسك الفاخر',categories:[{id:1752110}]}]);
+assert.equal(ctx.noteProductsCatalog.find(p=>p.id==='pkg-test').title,'باكج المسك الفاخر');
+
 console.log('PASS: exact live category membership/counts, new product/category, reassignment, latest-first, discount percentage and no-sale badge');`;
 vm.runInThisContext('(function(require,__dirname){'+source+'})')(require,__dirname);
