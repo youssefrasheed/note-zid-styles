@@ -98,8 +98,8 @@ def normalize_urls(markup):
         (r'href="/category\.html\?cat=packages"', 'href="/categories/1752110/packages"'),
         (r'href="/category\.html\?cat=linen"', 'href="/categories/1310037/معطرات-جو-وجسم"'),
         (r'href="/category\.html\?cat=tollah"', 'href="/categories/1421002/tollah"'),
-        (r'href="/category\.html\?cat=bodycare"', 'href="/categories/1750048/body-care-products"'),
-        (r'href="/category\.html\?cat=body-care"', 'href="/categories/1750048/body-care-products"'),
+        (r'href="/category\.html\?cat=bodycare"', 'href="/categories/1759046/body-care-products"'),
+        (r'href="/category\.html\?cat=body-care"', 'href="/categories/1759046/body-care-products"'),
         (r'href="/cart\.html"', 'href="/cart"'),
     ]
     for pattern, repl in replacements:

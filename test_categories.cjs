@@ -57,5 +57,21 @@ assert.equal(ctx.categoryAPI.zidCategories.find(c=>c.id==='1752110').description
 ctx.testAPI.sync.applyToCatalog([{...fresh,id:'pkg-test',name:'باكدج المسك الفاخر',categories:[{id:1752110}]}]);
 assert.equal(ctx.noteProductsCatalog.find(p=>p.id==='pkg-test').title,'باكج المسك الفاخر');
 
+// Verify mobile drawer dynamically renders all categories from Zid
+const mockMobileNav = { innerHTML: '' };
+ctx.document.querySelector = sel => sel.includes('mobile-menu-drawer') ? mockMobileNav : null;
+ctx.categoryAPI.registerCategories([
+  { id: 1771582, name: 'جميع المنتجات' },
+  { id: 1748533, name: 'العطور' },
+  { id: 1759046, name: 'منتجات العناية' },
+  { id: 9999999, name: 'تصنيف إضافي جديد' }
+]);
+ctx.refreshCategoryUI();
+assert(mockMobileNav.innerHTML.includes('الرئيسية'));
+assert(mockMobileNav.innerHTML.includes('جميع المنتجات'));
+assert(mockMobileNav.innerHTML.includes('العطور'));
+assert(mockMobileNav.innerHTML.includes('منتجات العناية'));
+assert(mockMobileNav.innerHTML.includes('تصنيف إضافي جديد'));
+
 console.log('PASS: exact live category membership/counts, new product/category, reassignment, latest-first, discount percentage and no-sale badge');`;
 vm.runInThisContext('(function(require,__dirname){'+source+'})')(require,__dirname);

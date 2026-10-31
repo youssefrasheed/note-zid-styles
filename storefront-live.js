@@ -235,15 +235,39 @@
   function syncHomeCategoryOrder() {
     const grid=document.querySelector?.('#curated-sets .grid');
     if(!grid || !zidCategories.length)return;
-    const aliases={'1500261':'1759040','1310036':'1759043','1688838':'1759042','1750048':'1759046','1310037':'1759044'};
+    const aliases={'1500261':'1759040','1310036':'1759043','1688838':'1759042','1750048':'1759046','1759046':'1759046','1310037':'1759044'};
     const ranks=new Map(zidCategories.map((c,index)=>[c.id,index]));
     const cards=Array.from(grid.children);
     const rank=card=>{const id=card.getAttribute('href')?.match(/\/categories\/(\d+)\//)?.[1];return ranks.get(aliases[id]||id)??Number.MAX_SAFE_INTEGER;};
     const sorted=cards.slice().sort((a,b)=>rank(a)-rank(b));
     if(sorted.some((card,index)=>card!==cards[index]))sorted.forEach(card=>grid.appendChild(card));
   }
+  function syncMobileMenu() {
+    if (typeof document === 'undefined' || typeof document.querySelector !== 'function') return;
+    const nav = document.querySelector('#mobile-menu-drawer nav, #mobile-menu-drawer .flex.flex-col.gap-4');
+    if (!nav || !zidCategories.length) return;
+    const allCat = zidCategories.find(c => /جميع المنتجات|كل المنتجات/i.test(c.name));
+    const categoriesToShow = zidCategories.filter(c => c.id !== '1759471' && !hiddenCategoryIds.has(String(c.id)) && (!allCat || c.id !== allCat.id));
+    
+    let html = '<a href="/" onclick="closeMobileMenu()" class="block py-1 hover:text-stone-500 transition">الرئيسية</a>\n';
+    if (allCat) {
+      const allUrl = catUrlMap.all || ('/categories/' + allCat.id + '/' + encodeURIComponent(allCat.slug || allCat.name));
+      html += '<a href="' + allUrl + '" onclick="closeMobileMenu()" class="block py-1 hover:text-stone-500 transition">' + escapeHTML(cleanSpelling(allCat.name)) + '</a>\n';
+    } else {
+      html += '<a href="/category.html?cat=all" onclick="closeMobileMenu()" class="block py-1 hover:text-stone-500 transition">جميع المنتجات</a>\n';
+    }
+    
+    for (const c of categoriesToShow) {
+      const key = categoryKey(c.id);
+      const url = catUrlMap[key] || ('/categories/' + c.id + '/' + encodeURIComponent(c.slug || c.name));
+      html += '<a href="' + url + '" onclick="closeMobileMenu()" class="block py-1 hover:text-stone-500 transition">' + escapeHTML(cleanSpelling(c.name)) + '</a>\n';
+    }
+    
+    if (nav.innerHTML !== html) nav.innerHTML = html;
+  }
   function refreshCategoryUI() {
     syncHomeCategoryOrder();
+    syncMobileMenu();
     const bar=document.getElementById('category-pills-bar');
     if(bar) {
       const allCat = zidCategories.find(c => /جميع المنتجات|كل المنتجات/i.test(c.name));
@@ -260,7 +284,7 @@
     // Curated navigation points to actual populated dashboard categories. Exact category URLs remain distinct.
     for(const a of document.querySelectorAll('#note-luxury-storefront a[href*="/categories/"], #mobile-menu-drawer a[href*="/categories/"]')) {
       const match=a.getAttribute('href')?.match(/\/categories\/(\d+)\//);if(!match)continue;
-      const replacements={'1500261':'niche','1310036':'travel','1688838':'all-over','1750048':'body-care','1310037':'linen'};
+      const replacements={'1500261':'niche','1310036':'travel','1688838':'all-over','1750048':'body-care','1759046':'body-care','1310037':'linen'};
       const alias=replacements[match[1]];if(alias&&catUrlMap[alias])a.setAttribute('href',catUrlMap[alias]);
       const target=a.getAttribute('href')?.match(/\/categories\/(\d+)\//)?.[1];
       const liveCategory=zidCategories.find(c=>c.id===target);
@@ -275,6 +299,20 @@
       a.hidden=target==='1759471'||hiddenCategoryIds.has(target)||(categoryListAuthoritative&&!zidCategories.some(c=>c.id===target));
     }
   }
+
+  const _origOpenMobile = window.openMobileMenu;
+  window.openMobileMenu = function() {
+    syncMobileMenu();
+    if (typeof _origOpenMobile === 'function') return _origOpenMobile.apply(this, arguments);
+    const m = document.getElementById('mobile-menu-drawer');
+    if (!m) return;
+    m.classList.remove('hidden');
+    setTimeout(() => {
+      m.classList.remove('opacity-0');
+      const drawerContent = m.querySelector('div');
+      if (drawerContent) drawerContent.classList.remove('translate-x-full');
+    }, 10);
+  };
 
   ZidSyncManager.loadCachedData();
   // Category visibility/order have a lightweight refresh independent of product cache.
