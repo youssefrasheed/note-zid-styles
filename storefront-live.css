@@ -604,3 +604,46 @@ header nav a:not(.active-link) {
  .note-cart-page-item > div:nth-child(2) button {min-width:28px;min-height:34px;}
  .note-cart-page-item > button {justify-self:end;}
 }
+
+
+/* Distinctive Luxury Carmine/Ruby Discount Badge */
+.note-discount-badge,
+.note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock):has(bdi),
+#pdp-discount-badge {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Tajawal", Arial, sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  padding: 3.5px 9px !important;
+  min-height: 22px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  direction: rtl !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  background: linear-gradient(135deg, #e11d48 0%, #9f1239 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-radius: 9999px !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 7px rgba(190, 18, 60, 0.32) !important;
+}
+.note-discount-badge bdi,
+.note-discount-badge span,
+.note-product-badge:has(bdi) bdi,
+.note-product-badge:has(bdi) span,
+#pdp-discount-badge bdi,
+#pdp-discount-badge span {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+@media (max-width: 639px) {
+  .note-discount-badge,
+  .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock):has(bdi),
+  #pdp-discount-badge {
+    font-size: 10px !important;
+    padding: 2.5px 7.5px !important;
+    min-height: 20px !important;
+  }
+}

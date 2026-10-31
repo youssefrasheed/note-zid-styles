@@ -21,8 +21,7 @@
   const navHoverStyle=document.createElement('style');navHoverStyle.textContent='#nav-links a:hover,#nav-links a:focus-visible{border-bottom:2px solid currentColor!important;}';document.head.append(navHoverStyle);
   const badgeStyle=document.createElement('style');badgeStyle.textContent=`
 .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock),
-#pdp-tag-badge,
-#pdp-discount-badge {
+#pdp-tag-badge {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Tajawal", Arial, sans-serif !important;
   font-size: 11px !important;
   font-weight: 700 !important;
@@ -44,6 +43,37 @@
   color: #111111 !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
+.note-discount-badge,
+.note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock):has(bdi),
+#pdp-discount-badge {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Tajawal", Arial, sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  padding: 3.5px 9px !important;
+  min-height: 22px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  direction: rtl !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  background: linear-gradient(135deg, #e11d48 0%, #9f1239 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-radius: 9999px !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 7px rgba(190, 18, 60, 0.32) !important;
+}
+.note-discount-badge bdi,
+.note-discount-badge span,
+.note-product-badge:has(bdi) bdi,
+.note-product-badge:has(bdi) span,
+#pdp-discount-badge bdi,
+#pdp-discount-badge span {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
 .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock) bdi,
 #pdp-tag-badge bdi,
 #pdp-discount-badge bdi,
@@ -59,10 +89,16 @@
 }
 @media(max-width:639px){
   .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock),
-  #pdp-tag-badge,
-  #pdp-discount-badge {
+  #pdp-tag-badge {
     font-size: 10px !important;
     padding: 2.5px 7px !important;
+    min-height: 20px !important;
+  }
+  .note-discount-badge,
+  .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock):has(bdi),
+  #pdp-discount-badge {
+    font-size: 10px !important;
+    padding: 2.5px 7.5px !important;
     min-height: 20px !important;
   }
 }
