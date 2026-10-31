@@ -3409,7 +3409,7 @@ app_js_code = f"""/**
       if (decoded.includes('new')) return 'new';
       if (decoded.includes('30ml') || decoded.includes('travel')) return 'travel';
       if (decoded.includes('all-over') || decoded.includes('جسم')) return 'all-over';
-      if (decoded.includes('package') || decoded.includes('مجموعات')) return 'packages';
+      if (decoded.includes('package') || decoded.includes('مجموعات') || decoded.includes('باكجات') || decoded.includes('باكدجات')) return 'packages';
       if (decoded.includes('linen') || decoded.includes('معطرات')) return 'linen';
       if (decoded.includes('tollah') || decoded.includes('تول')) return 'tollah';
       if (decoded.includes('body') || decoded.includes('عناية')) return 'body-care';
@@ -3541,7 +3541,7 @@ app_js_code = f"""/**
     if (text.includes('العطور') || href.includes('1748533') || href.includes('perfumes')) return 'perfumes';
     if (text.includes('30') || href.includes('1310036') || href.includes('1759043') || href.includes('travel')) return 'travel';
     if (text.includes('جسم') || href.includes('1688838') || href.includes('1759042') || href.includes('all-over')) return 'all-over';
-    if (text.includes('باقات') || text.includes('مجموعات') || href.includes('1752110') || href.includes('1759047') || href.includes('packages')) return 'packages';
+    if (text.includes('باقات') || text.includes('مجموعات') || text.includes('باكجات') || text.includes('باكدجات') || href.includes('1752110') || href.includes('1759047') || href.includes('packages')) return 'packages';
     if (text.includes('مفارش') || href.includes('1310037') || href.includes('1759044') || href.includes('linen')) return 'linen';
     if (text.includes('تول') || href.includes('1421002') || href.includes('tollah')) return 'tollah';
     if (text.includes('عناية') || href.includes('1750048') || href.includes('1759046') || href.includes('body')) return 'body-care';

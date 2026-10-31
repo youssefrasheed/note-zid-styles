@@ -183,7 +183,7 @@
     function walk(items,parent) {for(const c of items||[]) {if(!c?.id || c.is_published===false)continue;flattened.push({...c,id:String(c.id),parent_id:c.parent_id||parent});walk(c.sub_categories,c.id);}}
     for(const c of input||[])if(c?.is_published===false)hiddenCategoryIds.add(String(c.id));else if(c?.id)hiddenCategoryIds.delete(String(c.id));
     walk(input);
-    zidCategories=[...new Map(flattened.map(c=>[c.id, {...c, name: (c.name || '').replace(/\s*و?\s*الباكدجات/g, '').replace(/\s*باكدجات/g, '').trim()}])).values()];
+    zidCategories=[...new Map(flattened.map(c=>[c.id, {...c, name: (c.name || '').replace(/الباكدجات/g, 'الباكجات').replace(/باكدجات/g, 'باكجات').trim()}])).values()];
     for(const c of zidCategories) {const key=categoryKey(c.id);catUrlMap[key]='/categories/'+c.id+'/'+encodeURIComponent(c.slug||c.name);if(!['new','bestsellers'].includes(key))categoryMeta[key]={title:c.name,desc:c.description||''};}
     for(const [key,id] of Object.entries(categoryKeys)) {const c=zidCategories.find(c=>c.id===id);if(c)catUrlMap[key]=catUrlMap[categoryKey(id)];}
   }
@@ -860,7 +860,7 @@
       if (text.includes('العطور') || href.includes('1748533') || href.includes('perfumes')) return 'perfumes';
       if (text.includes('30') || href.includes('1310036') || href.includes('1759043') || href.includes('travel')) return 'travel';
       if (text.includes('جسم') || href.includes('1688838') || href.includes('1759042') || href.includes('all-over')) return 'all-over';
-      if (text.includes('باقات') || text.includes('مجموعات') || href.includes('1752110') || href.includes('1759047') || href.includes('packages')) return 'packages';
+      if (text.includes('باقات') || text.includes('مجموعات') || text.includes('باكجات') || text.includes('باكدجات') || href.includes('1752110') || href.includes('1759047') || href.includes('packages')) return 'packages';
       if (text.includes('مفارش') || href.includes('1310037') || href.includes('1759044') || href.includes('linen')) return 'linen';
       if (text.includes('تول') || href.includes('1421002') || href.includes('tollah')) return 'tollah';
       if (text.includes('عناية') || href.includes('1750048') || href.includes('1759046') || href.includes('body')) return 'body-care';
