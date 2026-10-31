@@ -3064,15 +3064,21 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
           }
         } catch (err) {
           try {
-            let data = null;
-            if (err?.response && typeof err.response.clone === 'function') {
+            let data = err?.responseData || err?.data || err?.response?.data || null;
+            if (!data && err?.response && typeof err.response.clone === 'function') {
               try { data = await err.response.clone().json(); } catch (_) {}
             }
             if (!data && err?.response && typeof err.response.json === 'function') {
               try { data = await err.response.json(); } catch (_) {}
             }
-            if (!data && err?.response?.data) {
-              data = err.response.data;
+            if (!data && typeof fetch === 'function') {
+              try {
+                const rawRes = await fetch('/api/v1/cart/coupons?coupon_code=' + encodeURIComponent(code), {
+                  method: 'POST',
+                  headers: { 'Accept': 'application/json' }
+                });
+                data = await rawRes.json();
+              } catch (_) {}
             }
 
             if (data) {
@@ -4400,15 +4406,21 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
           }
         } catch (err) {
           try {
-            let data = null;
-            if (err?.response && typeof err.response.clone === 'function') {
+            let data = err?.responseData || err?.data || err?.response?.data || null;
+            if (!data && err?.response && typeof err.response.clone === 'function') {
               try { data = await err.response.clone().json(); } catch (_) {}
             }
             if (!data && err?.response && typeof err.response.json === 'function') {
               try { data = await err.response.json(); } catch (_) {}
             }
-            if (!data && err?.response?.data) {
-              data = err.response.data;
+            if (!data && typeof fetch === 'function') {
+              try {
+                const rawRes = await fetch('/api/v1/cart/coupons?coupon_code=' + encodeURIComponent(code), {
+                  method: 'POST',
+                  headers: { 'Accept': 'application/json' }
+                });
+                data = await rawRes.json();
+              } catch (_) {}
             }
 
             if (data) {
