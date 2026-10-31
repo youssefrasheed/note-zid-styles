@@ -1,3 +1,23 @@
+  try {
+    if (typeof document !== 'undefined') {
+      document.documentElement?.setAttribute?.('translate', 'no');
+      document.documentElement?.classList?.add?.('notranslate');
+      document.body?.setAttribute?.('translate', 'no');
+      document.body?.classList?.add?.('notranslate');
+      if (typeof document.querySelector === 'function' && !document.querySelector('meta[name="google"][content*="notranslate"]')) {
+        const metaGoogle = document.createElement('meta');
+        metaGoogle.name = 'google';
+        metaGoogle.content = 'notranslate';
+        if (document.head?.appendChild) document.head.appendChild(metaGoogle);
+      }
+      if (typeof document.querySelector === 'function' && !document.querySelector('meta[name="googlebot"][content*="notranslate"]')) {
+        const metaBot = document.createElement('meta');
+        metaBot.name = 'googlebot';
+        metaBot.content = 'notranslate';
+        if (document.head?.appendChild) document.head.appendChild(metaBot);
+      }
+    }
+  } catch (e) {}
   const navHoverStyle=document.createElement('style');navHoverStyle.textContent='#nav-links a:hover,#nav-links a:focus-visible{border-bottom:2px solid currentColor!important;}';document.head.append(navHoverStyle);
   const badgeStyle=document.createElement('style');badgeStyle.textContent=`
 .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock),

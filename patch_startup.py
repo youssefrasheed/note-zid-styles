@@ -18,6 +18,31 @@ def fix_startup(app):
     bootstrap='''  // Precompiled styles are installed before any storefront DOM is mounted.
   if (document.documentElement.dataset.noteEngineStarted) return;
   document.documentElement.dataset.noteEngineStarted='4.5.8';
+  try {
+    document.documentElement.setAttribute('translate', 'no');
+    document.documentElement.classList.add('notranslate');
+    if (document.body) {
+      document.body.setAttribute('translate', 'no');
+      document.body.classList.add('notranslate');
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body?.setAttribute('translate', 'no');
+        document.body?.classList.add('notranslate');
+      }, { once: true });
+    }
+    if (typeof document.querySelector === 'function' && !document.querySelector('meta[name="google"][content*="notranslate"]')) {
+      const metaNotranslate = document.createElement('meta');
+      metaNotranslate.name = 'google';
+      metaNotranslate.content = 'notranslate';
+      document.head.appendChild(metaNotranslate);
+    }
+    if (typeof document.querySelector === 'function' && !document.querySelector('meta[name="googlebot"][content*="notranslate"]')) {
+      const metaBot = document.createElement('meta');
+      metaBot.name = 'googlebot';
+      metaBot.content = 'notranslate';
+      document.head.appendChild(metaBot);
+    }
+  } catch (e) {}
   const utilityStyles=document.createElement('style');
   utilityStyles.id='note-utilities-css';
   utilityStyles.textContent=CSS_VALUE;

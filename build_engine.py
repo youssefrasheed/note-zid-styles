@@ -3621,7 +3621,8 @@ app_js_code = f"""/**
       mainEl.innerHTML = '';
       shell = document.createElement('div');
       shell.id = 'note-luxury-storefront';
-      shell.className = 'w-full bg-white text-black antialiased selection:bg-black selection:text-white min-h-screen flex flex-col justify-between';
+      shell.className = 'w-full bg-white text-black antialiased selection:bg-black selection:text-white min-h-screen flex flex-col justify-between notranslate';
+      shell.setAttribute('translate', 'no');
       
       shell.innerHTML = `
         ${{T.header}}
