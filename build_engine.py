@@ -1986,11 +1986,20 @@ app_js_code = f"""/**
       let alreadyApplied = false;
       let zidError = null;
 
+      if (!window.zid || !window.zid.cart) {{
+        try {{
+          const mod = await import('https://static.zid.store/sdk/v3.30.4/theme-service/vitrin-theme-service.es.js');
+          window.zid = mod.default || mod;
+        }} catch (_) {{}}
+      }}
+
       if (window.zid && window.zid.cart && typeof window.zid.cart.applyCoupon === 'function') {{
         try {{
           if (typeof CartManager !== 'undefined' && CartManager._nativeQueue) {{
             try {{ await CartManager._nativeQueue; }} catch (_) {{}}
           }}
+          // Clear any previous coupon from Zid session so the new coupon can be applied cleanly
+          try {{ await window.zid.cart.removeCoupons(); }} catch (_) {{}}
           const res = await window.zid.cart.applyCoupon({{ coupon_code: code }});
           if (res && (res.status === 'success' || res.data || res.coupon)) {{
             applied = true;
@@ -3330,11 +3339,20 @@ app_js_code = f"""/**
       let alreadyApplied = false;
       let zidError = null;
 
+      if (!window.zid || !window.zid.cart) {{
+        try {{
+          const mod = await import('https://static.zid.store/sdk/v3.30.4/theme-service/vitrin-theme-service.es.js');
+          window.zid = mod.default || mod;
+        }} catch (_) {{}}
+      }}
+
       if (window.zid && window.zid.cart && typeof window.zid.cart.applyCoupon === 'function') {{
         try {{
           if (typeof CartManager !== 'undefined' && CartManager._nativeQueue) {{
             try {{ await CartManager._nativeQueue; }} catch (_) {{}}
           }}
+          // Clear any previous coupon from Zid session so the new coupon can be applied cleanly
+          try {{ await window.zid.cart.removeCoupons(); }} catch (_) {{}}
           const res = await window.zid.cart.applyCoupon({{ coupon_code: code }});
           if (res && (res.status === 'success' || res.data || res.coupon)) {{
             applied = true;

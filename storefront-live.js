@@ -981,6 +981,7 @@
       const appliedCoupon = localStorage.getItem('note_applied_coupon');
       if (appliedCoupon && api?.applyCoupon) {
         try {
+          if (api.removeCoupons) await api.removeCoupons().catch(() => null);
           await api.applyCoupon({ coupon_code: appliedCoupon });
         } catch (e) {
           console.warn('NOTE coupon sync warning:', e);
