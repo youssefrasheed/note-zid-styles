@@ -1893,6 +1893,75 @@ app_js_code = f"""/**
     getCount: function() {{
       return this.getCart().reduce((count, item) => count + item.quantity, 0);
     }},
+    getLiveCartState: function() {{
+      return (typeof window !== 'undefined' && window._noteLiveCartState) ? window._noteLiveCartState : null;
+    }},
+    getLiveBundleOffers: function() {{
+      const s = this.getLiveCartState();
+      if (!s) return [];
+      const c = s.cart || s;
+      if (c && c.has_bundle_offer && Array.isArray(c.bundle_offers) && c.bundle_offers.length > 0) {{
+        return c.bundle_offers;
+      }}
+      return [];
+    }},
+    getLiveBundleDiscount: function() {{
+      const bundles = this.getLiveBundleOffers();
+      return bundles.reduce((sum, b) => sum + (Number(b.discount_total) || 0), 0);
+    }},
+    syncLiveCart: async function() {{
+      if (typeof window === 'undefined' || typeof fetch !== 'function') return null;
+      if (this._syncingLiveCart) return this._syncingLiveCart;
+      this._syncingLiveCart = (async () => {{
+        try {{
+          const res = await fetch('/api/v1/cart', {{
+            cache: 'no-store',
+            headers: {{ 'Accept': 'application/json' }}
+          }});
+          if (res.ok) {{
+            const data = await res.json();
+            window._noteLiveCartState = data;
+            if (typeof updateCartFinancials === 'function' && document.getElementById('cart-page-items')) {{
+              updateCartFinancials(this.getTotal());
+            }}
+            const totalEl = document.getElementById('cart-drawer-total');
+            if (totalEl) {{
+              const total = this.getTotal();
+              const bundleOffers = this.getLiveBundleOffers();
+              const bundleDiscount = this.getLiveBundleDiscount();
+              const drawerBundleRow = document.getElementById('drawer-bundle-discount-row');
+              const drawerBundleTitle = document.getElementById('drawer-bundle-discount-title');
+              const drawerBundleVal = document.getElementById('drawer-bundle-discount-val');
+              if (drawerBundleRow) {{
+                if (bundleDiscount > 0) {{
+                  drawerBundleRow.classList.remove('hidden');
+                  if (drawerBundleTitle) drawerBundleTitle.textContent = `خصم الحزمة (${{bundleOffers.map(b => b.name).join(' + ')}}):`;
+                  if (drawerBundleVal) drawerBundleVal.textContent = `-${{bundleDiscount.toLocaleString('en-US', {{maximumFractionDigits: 2}})}} ر.س`;
+                }} else {{
+                  drawerBundleRow.classList.add('hidden');
+                }}
+              }}
+              const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
+              const baseAfterBundle = Math.max(0, total - bundleDiscount);
+              if ((savedCoupon || bundleDiscount > 0) && total > 0) {{
+                const match = savedCoupon ? savedCoupon.match(/(\\d+)/) : null;
+                const pct = match ? parseInt(match[1], 10) : (savedCoupon ? 5 : 0);
+                const discount = (baseAfterBundle * pct) / 100;
+                const finalTotal = Math.max(0, baseAfterBundle - discount);
+                totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${{formatPrice(total)}}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${{formatPrice(finalTotal)}}</span>`;
+              }} else {{
+                totalEl.textContent = formatPrice(total);
+              }}
+            }}
+          }}
+        }} catch (e) {{
+          console.warn('NOTE live cart sync notice:', e);
+        }} finally {{
+          this._syncingLiveCart = null;
+        }}
+      }})();
+      return this._syncingLiveCart;
+    }},
     updateBadge: function() {{
       const count = this.getCount();
       const badges = document.querySelectorAll('.cart-badge, .cart-badge-count, #cart-counter-badge, [class*="cart-badge"], .cart-sm .cart-badge');
@@ -1998,19 +2067,37 @@ app_js_code = f"""/**
       
       if (subtotalEl) subtotalEl.textContent = formatPrice(total);
 
+      // Sync bundle offers in drawer from live Zid state
+      const bundleOffers = (typeof this.getLiveBundleOffers === 'function') ? this.getLiveBundleOffers() : [];
+      const bundleDiscount = (typeof this.getLiveBundleDiscount === 'function') ? this.getLiveBundleDiscount() : 0;
+      const drawerBundleRow = document.getElementById('drawer-bundle-discount-row');
+      const drawerBundleTitle = document.getElementById('drawer-bundle-discount-title');
+      const drawerBundleVal = document.getElementById('drawer-bundle-discount-val');
+      if (drawerBundleRow) {{
+        if (bundleDiscount > 0) {{
+          drawerBundleRow.classList.remove('hidden');
+          if (drawerBundleTitle) drawerBundleTitle.textContent = `خصم الحزمة (${{bundleOffers.map(b => b.name).join(' + ')}}):`;
+          if (drawerBundleVal) drawerBundleVal.textContent = `-${{bundleDiscount.toLocaleString('en-US', {{maximumFractionDigits: 2}})}} ر.س`;
+        }} else {{
+          drawerBundleRow.classList.add('hidden');
+        }}
+      }}
+
       // Sync coupon input in drawer with localStorage & display strikethrough total if applied
       const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
       if (totalEl) {{
-        if (savedCoupon && total > 0) {{
-          const match = savedCoupon.match(/(\\d+)/);
-          const pct = match ? parseInt(match[1], 10) : 5;
-          const discount = (total * pct) / 100;
-          const finalTotal = Math.max(0, total - discount);
+        const baseAfterBundle = Math.max(0, total - bundleDiscount);
+        if ((savedCoupon || bundleDiscount > 0) && total > 0) {{
+          const match = savedCoupon ? savedCoupon.match(/(\\d+)/) : null;
+          const pct = match ? parseInt(match[1], 10) : (savedCoupon ? 5 : 0);
+          const discount = (baseAfterBundle * pct) / 100;
+          const finalTotal = Math.max(0, baseAfterBundle - discount);
           totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${{formatPrice(total)}}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${{formatPrice(finalTotal)}}</span>`;
         }} else {{
           totalEl.textContent = formatPrice(total);
         }}
       }}
+      if (typeof this.syncLiveCart === 'function') this.syncLiveCart();
       
       const drawerCouponInput = document.getElementById('drawer-coupon-input');
       const drawerCouponTag = document.getElementById('drawer-coupon-applied-tag');
@@ -3462,6 +3549,7 @@ app_js_code = f"""/**
     updateCheckoutUpsell(cart);
     renderCartPageRecommendations(cart);
     restoreSavedCartCoupon();
+    if (typeof CartManager !== 'undefined' && CartManager.syncLiveCart) CartManager.syncLiveCart();
   }}
 
   function updateCheckoutUpsell(cart) {{
@@ -3739,12 +3827,28 @@ app_js_code = f"""/**
     const shipping=document.getElementById('page-shipping');
     if(shipping) shipping.textContent='يُحسب عند الدفع';
 
+    const bundleDiscount = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
+    const bundleOffers = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleOffers) ? CartManager.getLiveBundleOffers() : [];
+    const bundleRow = document.getElementById('bundle-discount-row');
+    const bundleTitle = document.getElementById('page-bundle-discount-title');
+    const bundleVal = document.getElementById('page-bundle-discount');
+    if (bundleRow) {{
+      if (bundleDiscount > 0) {{
+        bundleRow.classList.remove('hidden');
+        if (bundleTitle) bundleTitle.textContent = `خصم الحزمة (${{bundleOffers.map(b => b.name).join(' + ')}}):`;
+        if (bundleVal) bundleVal.textContent = `-${{bundleDiscount.toLocaleString('en-US', {{maximumFractionDigits: 2}})}} ر.س`;
+      }} else {{
+        bundleRow.classList.add('hidden');
+      }}
+    }}
+
     const appliedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
-    if (appliedCoupon && amount > 0) {{
-      const match = appliedCoupon.match(/(\\d+)/);
-      const pct = match ? parseInt(match[1], 10) : 5;
-      const discount = (amount * pct) / 100;
-      const finalAmount = Math.max(0, amount - discount);
+    const baseAfterBundle = Math.max(0, amount - bundleDiscount);
+    if ((appliedCoupon || bundleDiscount > 0) && amount > 0) {{
+      const match = appliedCoupon ? appliedCoupon.match(/(\\d+)/) : null;
+      const pct = match ? parseInt(match[1], 10) : (appliedCoupon ? 5 : 0);
+      const discount = (baseAfterBundle * pct) / 100;
+      const finalAmount = Math.max(0, baseAfterBundle - discount);
       const grandEl = document.getElementById('page-grand-total');
       if (grandEl) {{
         grandEl.innerHTML = `<span class="note-cart-total-old line-through text-stone-400 font-semibold text-sm sm:text-base ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:15px!important;font-weight:600!important;margin-left:8px!important;">${{amount.toLocaleString('en-US',{{maximumFractionDigits:2}})}} ر.س</span><span class="note-cart-total-new text-rose-600 font-black text-xl sm:text-2xl" style="color:#ef4444!important;font-size:22px!important;font-weight:900!important;">${{finalAmount.toLocaleString('en-US',{{maximumFractionDigits:2}})}} ر.س</span>`;

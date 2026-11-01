@@ -843,6 +843,14 @@
               CartManager.saveCart(currentCart);
             }
           }
+          if (res?.data?.cart || res?.cart) {
+            window._noteLiveCartState = res.data?.cart || res.cart;
+            if (typeof updateCartFinancials === 'function' && document.getElementById('cart-page-items')) {
+              updateCartFinancials(CartManager.getTotal());
+            }
+          } else if (typeof CartManager.syncLiveCart === 'function') {
+            CartManager.syncLiveCart();
+          }
         } catch(e) {
           console.warn('NOTE: background Zid cart sync note:', e?.message || e);
         }
@@ -1072,8 +1080,12 @@
     await this._nativeQueue;
     const item=this.getCart().find(i=>i.id===key);
     try {
-      if(item?.native_line_id) assertCartResponse(await window.zid.cart.removeProduct({product_id:item.native_line_id}));
+      if(item?.native_line_id) {
+        const res = assertCartResponse(await window.zid.cart.removeProduct({product_id:item.native_line_id}));
+        if (res?.data?.cart || res?.cart) window._noteLiveCartState = res.data?.cart || res.cart;
+      }
       originalRemove.call(this,key);
+      if (typeof CartManager.syncLiveCart === 'function') CartManager.syncLiveCart();
     } catch(e) {this.showToast('تعذر حذف المنتج من زد. حاول مجددًا.');}
   };
   CartManager.updateQuantity=async function(key,delta) {
@@ -1083,8 +1095,12 @@
     const p=noteProductsCatalog.find(p=>p.id===item.product_id);
     if(delta>0 && (!p?.in_stock || item.quantity+delta>p.stock)) {this.showToast('الكمية المطلوبة غير متاحة');return;}
     try {
-      if(item.native_line_id) assertCartResponse(await window.zid.cart.updateProduct({product_id:item.native_line_id,quantity:item.quantity+delta}));
+      if(item.native_line_id) {
+        const res = assertCartResponse(await window.zid.cart.updateProduct({product_id:item.native_line_id,quantity:item.quantity+delta}));
+        if (res?.data?.cart || res?.cart) window._noteLiveCartState = res.data?.cart || res.cart;
+      }
       originalUpdateQuantity.call(this,key,delta);
+      if (typeof CartManager.syncLiveCart === 'function') CartManager.syncLiveCart();
     } catch(e) {this.showToast('تعذر تعديل الكمية في زد. حاول مجددًا.');}
   };
 
