@@ -1901,7 +1901,7 @@ app_js_code = f"""/**
       if (!s) return [];
       const c = s.cart || s;
       if (c && c.has_bundle_offer && Array.isArray(c.bundle_offers) && c.bundle_offers.length > 0) {{
-        return c.bundle_offers;
+        return c.bundle_offers.filter(b => (Number(b.discount_total) || 0) > 0 || (Number(b.usage_count) || 0) > 0);
       }}
       return [];
     }},
@@ -1935,7 +1935,10 @@ app_js_code = f"""/**
               if (drawerBundleRow) {{
                 if (bundleDiscount > 0) {{
                   drawerBundleRow.classList.remove('hidden');
-                  if (drawerBundleTitle) drawerBundleTitle.textContent = `خصم الحزمة (${{bundleOffers.map(b => b.name).join(' + ')}}):`;
+                  if (drawerBundleTitle) {{
+                    const offerNames = bundleOffers.map(b => b.name).filter(Boolean).join(' + ');
+                    drawerBundleTitle.textContent = offerNames ? `خصم الحزمة - ${{offerNames}}:` : 'خصم الحزمة:';
+                  }}
                   if (drawerBundleVal) drawerBundleVal.textContent = `-${{bundleDiscount.toLocaleString('en-US', {{maximumFractionDigits: 2}})}} ر.س`;
                 }} else {{
                   drawerBundleRow.classList.add('hidden');
@@ -2076,7 +2079,10 @@ app_js_code = f"""/**
       if (drawerBundleRow) {{
         if (bundleDiscount > 0) {{
           drawerBundleRow.classList.remove('hidden');
-          if (drawerBundleTitle) drawerBundleTitle.textContent = `خصم الحزمة (${{bundleOffers.map(b => b.name).join(' + ')}}):`;
+          if (drawerBundleTitle) {{
+            const offerNames = bundleOffers.map(b => b.name).filter(Boolean).join(' + ');
+            drawerBundleTitle.textContent = offerNames ? `خصم الحزمة - ${{offerNames}}:` : 'خصم الحزمة:';
+          }}
           if (drawerBundleVal) drawerBundleVal.textContent = `-${{bundleDiscount.toLocaleString('en-US', {{maximumFractionDigits: 2}})}} ر.س`;
         }} else {{
           drawerBundleRow.classList.add('hidden');
@@ -3835,7 +3841,10 @@ app_js_code = f"""/**
     if (bundleRow) {{
       if (bundleDiscount > 0) {{
         bundleRow.classList.remove('hidden');
-        if (bundleTitle) bundleTitle.textContent = `خصم الحزمة (${{bundleOffers.map(b => b.name).join(' + ')}}):`;
+        if (bundleTitle) {{
+          const offerNames = bundleOffers.map(b => b.name).filter(Boolean).join(' + ');
+          bundleTitle.textContent = offerNames ? `خصم الحزمة - ${{offerNames}}:` : 'خصم الحزمة:';
+        }}
         if (bundleVal) bundleVal.textContent = `-${{bundleDiscount.toLocaleString('en-US', {{maximumFractionDigits: 2}})}} ر.س`;
       }} else {{
         bundleRow.classList.add('hidden');
