@@ -326,11 +326,11 @@ header nav a:not(.active-link) {
   direction: rtl !important;
   white-space: nowrap !important;
   box-sizing: border-box !important;
-  background: linear-gradient(135deg, #e11d48 0%, #9f1239 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  background: #111111 !important;
+  border: 1px solid rgba(212, 175, 55, 0.45) !important;
   border-radius: 9999px !important;
-  color: #ffffff !important;
-  box-shadow: 0 2px 7px rgba(190, 18, 60, 0.32) !important;
+  color: #d4af37 !important;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.22) !important;
 }
 
 .note-discount-badge bdi,
@@ -339,7 +339,7 @@ header nav a:not(.active-link) {
 .note-product-badge:has(bdi) span,
 #pdp-discount-badge bdi,
 #pdp-discount-badge span {
-  color: #ffffff !important;
+  color: #d4af37 !important;
   font-weight: 800 !important;
 }
 
@@ -5163,11 +5163,11 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   direction: rtl !important;
   white-space: nowrap !important;
   box-sizing: border-box !important;
-  background: linear-gradient(135deg, #e11d48 0%, #9f1239 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  background: #111111 !important;
+  border: 1px solid rgba(212, 175, 55, 0.45) !important;
   border-radius: 9999px !important;
-  color: #ffffff !important;
-  box-shadow: 0 2px 7px rgba(190, 18, 60, 0.32) !important;
+  color: #d4af37 !important;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.22) !important;
 }
 .note-discount-badge bdi,
 .note-discount-badge span,
@@ -5175,7 +5175,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 .note-product-badge:has(bdi) span,
 #pdp-discount-badge bdi,
 #pdp-discount-badge span {
-  color: #ffffff !important;
+  color: #d4af37 !important;
   font-weight: 800 !important;
 }
 .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock) bdi,
