@@ -1113,6 +1113,112 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   object-fit: cover;
   object-position: center;
 }
+
+/* ==========================================================================
+   NOTE LUXURY COUPON APPLICATION ANIMATIONS & CELEBRATION
+   ========================================================================== */
+@keyframes noteCouponAppliedPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+  }
+  35% {
+    transform: scale(1.025);
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0.18), 0 6px 20px rgba(16, 185, 129, 0.15);
+  }
+  70% {
+    transform: scale(0.995);
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.08);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.note-coupon-applied-anim {
+  animation: noteCouponAppliedPulse 0.75s cubic-bezier(0.175, 0.885, 0.32, 1.275) both !important;
+}
+
+@keyframes noteCouponTagPop {
+  0% {
+    transform: scale(0) rotate(-15deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.22) rotate(4deg);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(0.95) rotate(-2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.note-coupon-tag-anim {
+  animation: noteCouponTagPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both !important;
+}
+
+@keyframes noteConfettiBurst {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(0.4) rotate(var(--rot));
+    opacity: 0;
+  }
+}
+
+.note-confetti-piece {
+  position: absolute;
+  pointer-events: none;
+  z-index: 50;
+  animation: noteConfettiBurst 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes notePriceDrop {
+  0% {
+    transform: scale(1);
+    color: #10b981 !important;
+  }
+  45% {
+    transform: scale(1.18);
+    color: #059669 !important;
+    text-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.note-price-drop-anim {
+  display: inline-block !important;
+  animation: notePriceDrop 0.8s ease-out both !important;
+}
+
+@keyframes noteMsgSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.note-msg-anim {
+  animation: noteMsgSlideDown 0.35s ease-out both !important;
+}
 `;
     document.head.appendChild(s);
   }
@@ -3242,6 +3348,79 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     }
   };
 
+  // Celebratory Coupon Animation & Micro-Confetti Burst
+  function triggerCouponCelebration(container, tag, btn, totalEl) {
+    try {
+      // 1. Confetti Burst
+      if (container && typeof window !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        container.style.position = 'relative';
+        const confettiWrapper = document.createElement('div');
+        confettiWrapper.className = 'note-coupon-confetti-wrapper';
+        confettiWrapper.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:40;overflow:visible;';
+
+        const colors = ['#10b981', '#34d399', '#f59e0b', '#fbbf24', '#dfc485', '#111111'];
+        const rect = container.getBoundingClientRect();
+        const startX = rect.width ? (rect.width / 2) : 150;
+        const startY = 18;
+
+        for (let i = 0; i < 22; i++) {
+          const piece = document.createElement('i');
+          piece.className = 'note-confetti-piece';
+          const angle = (Math.PI * 2 * i) / 22 + (Math.random() * 0.4 - 0.2);
+          const distance = 35 + Math.random() * 65;
+          const dx = Math.cos(angle) * distance;
+          const dy = -Math.abs(Math.sin(angle) * distance) - (15 + Math.random() * 45);
+          const rot = (Math.random() * 720 - 360) + 'deg';
+          const size = (4 + Math.random() * 4) + 'px';
+          const color = colors[i % colors.length];
+
+          piece.style.cssText = 'position:absolute;left:' + startX + 'px;top:' + startY + 'px;width:' + size + ';height:' + size + ';background-color:' + color + ';border-radius:' + (i % 3 === 0 ? '50%' : '2px') + ';pointer-events:none;--dx:' + dx.toFixed(1) + 'px;--dy:' + dy.toFixed(1) + 'px;--rot:' + rot + ';';
+          confettiWrapper.appendChild(piece);
+        }
+        container.appendChild(confettiWrapper);
+        setTimeout(() => confettiWrapper.remove(), 1500);
+      }
+
+      // 2. Pulse container
+      if (container) {
+        container.classList.remove('note-coupon-applied-anim');
+        void container.offsetWidth;
+        container.classList.add('note-coupon-applied-anim');
+        setTimeout(() => container.classList.remove('note-coupon-applied-anim'), 1200);
+      }
+
+      // 3. Tag bounce
+      if (tag) {
+        tag.classList.remove('note-coupon-tag-anim');
+        void tag.offsetWidth;
+        tag.classList.add('note-coupon-tag-anim');
+      }
+
+      // 4. Button temporary success feedback
+      if (btn) {
+        const origText = btn.textContent;
+        const origBg = btn.style.backgroundColor;
+        btn.style.backgroundColor = '#10b981';
+        btn.style.borderColor = '#10b981';
+        btn.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-white"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
+        setTimeout(() => {
+          btn.textContent = origText || 'تطبيق';
+          btn.style.backgroundColor = origBg || '';
+          btn.style.borderColor = '';
+        }, 1800);
+      }
+
+      // 5. Total Price highlight
+      const newPriceEl = document.querySelector('.note-drawer-total-new, .note-cart-total-new') || totalEl;
+      if (newPriceEl) {
+        newPriceEl.classList.remove('note-price-drop-anim');
+        void newPriceEl.offsetWidth;
+        newPriceEl.classList.add('note-price-drop-anim');
+        setTimeout(() => newPriceEl.classList.remove('note-price-drop-anim'), 1200);
+      }
+    } catch (_) {}
+  }
+
   // Drawer Coupon Application Handler
   window.applyDrawerCoupon = async function() {
     const input = document.getElementById('drawer-coupon-input');
@@ -3351,10 +3530,14 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         msg.textContent = alreadyApplied
           ? `كود الخصم (${code}) مفعّل بالفعل لطلبك! 🎉`
           : `تم تفعيل كود الخصم (${code}) بنجاح! سيتم احتسابه عند الدفع.`;
-        msg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5';
+        msg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5 note-msg-anim';
         msg.classList.remove('hidden');
         if (tag) tag.classList.remove('hidden');
         if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
+
+        const container = input.closest('.rounded-2xl') || input.parentElement?.parentElement || document.getElementById('cart-drawer-coupon-box');
+        const totalEl = document.getElementById('cart-drawer-total');
+        triggerCouponCelebration(container, tag, btn, totalEl);
       }
     } catch (e) {
       msg.textContent = 'حدث خطأ أثناء تطبيق الكود. يرجى المحاولة مجدداً.';
@@ -4704,10 +4887,14 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         msg.textContent = alreadyApplied
           ? `كود الخصم (${code}) مفعّل بالفعل لطلبك! 🎉`
           : `تم تفعيل كود الخصم (${code}) بنجاح! سيتم تطبيقه لطلبك عند الدفع.`;
-        msg.className = 'text-[11px] font-bold text-emerald-600 block';
+        msg.className = 'text-[11px] font-bold text-emerald-600 block note-msg-anim';
         if (tag) tag.classList.remove('hidden');
         if (clearBtn) clearBtn.classList.remove('hidden');
         if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
+
+        const container = document.getElementById('note-cart-coupon-section') || input.closest('.rounded-2xl');
+        const totalEl = document.getElementById('page-grand-total');
+        triggerCouponCelebration(container, tag, applyBtn, totalEl);
       }
     } catch (e) {
       msg.textContent = 'حدث خطأ أثناء تطبيق الكود. يرجى المحاولة مجدداً.';
