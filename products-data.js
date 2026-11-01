@@ -1514,10 +1514,10 @@ window.applyDrawerCoupon = async function() {
           try { await CartManager._nativeQueue; } catch (_) {}
         }
         const res = await window.zid.cart.applyCoupon({ coupon_code: code });
-        if (res && (res.status === 'success' || res.data || res.coupon)) {
-          applied = true;
-        } else if (res && res.status === 'error') {
+        if (res && res.status === 'error') {
           zidError = res.message?.description || (typeof res.message === 'string' ? res.message : '') || 'كود الخصم غير صحيح أو غير متاح لهذا الطلب.';
+        } else {
+          applied = true;
         }
       } catch (err) {
         try {

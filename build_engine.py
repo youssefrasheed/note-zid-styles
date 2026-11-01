@@ -2254,10 +2254,10 @@ app_js_code = f"""/**
           // Clear any previous coupon from Zid session so the new coupon can be applied cleanly
           try {{ await window.zid.cart.removeCoupons(); }} catch (_) {{}}
           const res = await window.zid.cart.applyCoupon({{ coupon_code: code }});
-          if (res && (res.status === 'success' || res.data || res.coupon)) {{
-            applied = true;
-          }} else if (res && res.status === 'error') {{
+          if (res && res.status === 'error') {{
             zidError = res.message?.description || (typeof res.message === 'string' ? res.message : '') || 'كود الخصم غير صحيح أو غير متاح لهذا الطلب.';
+          }} else {{
+            applied = true;
           }}
         }} catch (err) {{
           try {{
@@ -2309,13 +2309,14 @@ app_js_code = f"""/**
         if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
       }} else if (applied) {{
         localStorage.setItem('note_applied_coupon', code);
+        if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
+
+        if (tag) tag.classList.remove('hidden');
         msg.textContent = alreadyApplied
           ? `كود الخصم (${{code}}) مفعّل بالفعل لطلبك! 🎉`
           : `تم تفعيل كود الخصم (${{code}}) بنجاح! سيتم احتسابه عند الدفع.`;
         msg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5 note-msg-anim';
         msg.classList.remove('hidden');
-        if (tag) tag.classList.remove('hidden');
-        if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
 
         const container = input.closest('.rounded-2xl') || input.parentElement?.parentElement || document.getElementById('cart-drawer-coupon-box');
         const totalEl = document.getElementById('cart-drawer-total');
@@ -3611,10 +3612,10 @@ app_js_code = f"""/**
           // Clear any previous coupon from Zid session so the new coupon can be applied cleanly
           try {{ await window.zid.cart.removeCoupons(); }} catch (_) {{}}
           const res = await window.zid.cart.applyCoupon({{ coupon_code: code }});
-          if (res && (res.status === 'success' || res.data || res.coupon)) {{
-            applied = true;
-          }} else if (res && res.status === 'error') {{
+          if (res && res.status === 'error') {{
             zidError = res.message?.description || (typeof res.message === 'string' ? res.message : '') || 'كود الخصم غير صحيح أو غير متاح لهذا الطلب.';
+          }} else {{
+            applied = true;
           }}
         }} catch (err) {{
           try {{
