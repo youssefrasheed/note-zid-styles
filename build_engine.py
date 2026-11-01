@@ -1117,6 +1117,40 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   vertical-align: middle !important;
   animation: noteCheckPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
 }}
+
+/* ==========================================================================
+   Offers Promotional Carousel (Responsive Aspect Ratio: 9:16 Mobile, 2:1 Desktop)
+   ========================================================================== */
+#offers-carousel {{
+  aspect-ratio: 9 / 16 !important;
+  width: 100%;
+}}
+
+@media (min-width: 768px) {{
+  #offers-carousel {{
+    aspect-ratio: 2 / 1 !important;
+  }}
+}}
+
+#offers-carousel .offer-slide {{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}}
+
+#offers-carousel picture {{
+  display: block;
+  width: 100%;
+  height: 100%;
+}}
+
+#offers-carousel picture img {{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}}
 """
 
 suppression_css = fix_startup_css(suppression_css)

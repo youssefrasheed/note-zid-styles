@@ -392,40 +392,64 @@
         <p class="text-xs sm:text-sm text-stone-500 font-normal">تشكيلات حصرية متكاملة تجمع أفخم عطور نوت بأسعار استثنائية</p>
       </div>
 
-      <!-- Carousel Container with 2:1 Aspect Ratio (Auto-alternates every 3 seconds) -->
-      <div id="offers-carousel" class="relative w-full aspect-[2/1] overflow-hidden rounded-2xl md:rounded-3xl shadow-sm hover:shadow-md transition duration-500 bg-stone-100 group select-none">
+      <!-- Carousel Container with Responsive Aspect Ratio (9:16 Mobile, 2:1 Desktop, Auto-alternates every 3 seconds) -->
+      <div id="offers-carousel" class="relative w-full aspect-[9/16] md:aspect-[2/1] overflow-hidden rounded-2xl md:rounded-3xl shadow-sm hover:shadow-md transition duration-500 bg-stone-100 group select-none">
         
         <!-- Slides -->
         <a href="/category.html?cat=packages" class="offer-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out opacity-100 z-10 block" data-index="0" aria-label="رويال توباكو">
-          <img src="/assets/banners/offers/01_Royal_Tobacco.webp" alt="رويال توباكو" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          <picture class="w-full h-full block">
+            <source media="(max-width: 767px)" srcset="/assets/banners/offers/Mobile/01_Royal_Tobacco_Mobile.webp">
+            <img src="/assets/banners/offers/01_Royal_Tobacco.webp" alt="رويال توباكو" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          </picture>
         </a>
 
         <a href="/category.html?cat=packages" class="offer-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out opacity-0 pointer-events-none z-0 block" data-index="1" aria-label="باودروز">
-          <img src="/assets/banners/offers/02_Powderose.webp" alt="باودروز" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          <picture class="w-full h-full block">
+            <source media="(max-width: 767px)" srcset="/assets/banners/offers/Mobile/02_Powderose_Mobile.webp">
+            <img src="/assets/banners/offers/02_Powderose.webp" alt="باودروز" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          </picture>
         </a>
 
         <a href="/category.html?cat=packages" class="offer-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out opacity-0 pointer-events-none z-0 block" data-index="2" aria-label="سمر إسكيب">
-          <img src="/assets/banners/offers/03_Summer_Escape.webp" alt="سمر إسكيب" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          <picture class="w-full h-full block">
+            <source media="(max-width: 767px)" srcset="/assets/banners/offers/Mobile/03_Summer_Escape_Mobile.webp">
+            <img src="/assets/banners/offers/03_Summer_Escape.webp" alt="سمر إسكيب" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          </picture>
         </a>
 
         <a href="/category.html?cat=packages" class="offer-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out opacity-0 pointer-events-none z-0 block" data-index="3" aria-label="هير سفنتشر">
-          <img src="/assets/banners/offers/04_Her_Signature.webp" alt="هير سفنتشر" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          <picture class="w-full h-full block">
+            <source media="(max-width: 767px)" srcset="/assets/banners/offers/Mobile/04_Her_Signature_Mobile.webp">
+            <img src="/assets/banners/offers/04_Her_Signature.webp" alt="هير سفنتشر" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          </picture>
         </a>
 
         <a href="/category.html?cat=packages" class="offer-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out opacity-0 pointer-events-none z-0 block" data-index="4" aria-label="مِنز سفنتشر">
-          <img src="/assets/banners/offers/05_Mens_Signature.webp" alt="مِنز سفنتشر" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          <picture class="w-full h-full block">
+            <source media="(max-width: 767px)" srcset="/assets/banners/offers/Mobile/05_Mens_Signature_Mobile.webp">
+            <img src="/assets/banners/offers/05_Mens_Signature.webp" alt="مِنز سفنتشر" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          </picture>
         </a>
 
         <a href="/category.html?cat=packages" class="offer-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out opacity-0 pointer-events-none z-0 block" data-index="5" aria-label="نايت سفنتشر">
-          <img src="/assets/banners/offers/06_Night_Signature.webp" alt="نايت سفنتشر" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          <picture class="w-full h-full block">
+            <source media="(max-width: 767px)" srcset="/assets/banners/offers/Mobile/06_Night_Signature_Mobile.webp">
+            <img src="/assets/banners/offers/06_Night_Signature.webp" alt="نايت سفنتشر" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          </picture>
         </a>
 
         <a href="/category.html?cat=packages" class="offer-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out opacity-0 pointer-events-none z-0 block" data-index="6" aria-label="مجموعة التولات الخاصة">
-          <img src="/assets/banners/offers/07_Tollah_Collection.webp" alt="مجموعة التولات الخاصة" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          <picture class="w-full h-full block">
+            <source media="(max-width: 767px)" srcset="/assets/banners/offers/Mobile/07_Tollah_Collection_Mobile.webp">
+            <img src="/assets/banners/offers/07_Tollah_Collection.webp" alt="مجموعة التولات الخاصة" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          </picture>
         </a>
 
         <a href="/category.html?cat=packages" class="offer-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out opacity-0 pointer-events-none z-0 block" data-index="7" aria-label="مجموعة معطرات الجسم">
-          <img src="/assets/banners/offers/08_All_Over_Spray_Collection.webp" alt="مجموعة معطرات الجسم" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          <picture class="w-full h-full block">
+            <source media="(max-width: 767px)" srcset="/assets/banners/offers/Mobile/08_All_Over_Spray_Collection_Mobile.webp">
+            <img src="/assets/banners/offers/08_All_Over_Spray_Collection.webp" alt="مجموعة معطرات الجسم" class="w-full h-full object-cover" loading="lazy" decoding="async">
+          </picture>
         </a>
 
         <!-- Navigation Arrows (Subtle on hover) -->
