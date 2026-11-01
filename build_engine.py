@@ -2180,13 +2180,12 @@ app_js_code = f"""/**
 
       // 4. Button temporary success feedback
       if (btn) {{
-        const origText = btn.textContent;
         const origBg = btn.style.backgroundColor;
         btn.style.backgroundColor = '#10b981';
         btn.style.borderColor = '#10b981';
         btn.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-white"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
         setTimeout(() => {{
-          btn.textContent = origText || 'تطبيق';
+          btn.textContent = 'تطبيق';
           btn.style.backgroundColor = origBg || '';
           btn.style.borderColor = '';
         }}, 1800);
@@ -2329,7 +2328,9 @@ app_js_code = f"""/**
     }} finally {{
       if (btn) {{
         btn.disabled = false;
-        btn.textContent = 'تطبيق';
+        if (!applied) {{
+          btn.textContent = 'تطبيق';
+        }}
       }}
     }}
   }};
