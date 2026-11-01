@@ -1129,15 +1129,15 @@ app_js_code = f"""/**
   const catUrlMap = {{
     'all': '/categories',
     'perfumes': '/categories/1748533/perfumes',
-    'niche': '/categories/1500261/عطور-النيش',
+    'niche': '/categories/1759040/عطور-النيش-1',
     'bestsellers': '/categories/1697258/الأكثر-مبيعا',
     'new': '/categories/1327929/newest-products',
-    'travel': '/categories/1310036/30ml-perfumes',
-    'all-over': '/categories/1688838/all-over-spray',
+    'travel': '/categories/1759043/عطور-30-مل',
+    'all-over': '/categories/1759042/معطر-للجسم-بالكامل',
     'packages': '/categories/1752110/packages',
-    'linen': '/categories/1310037/معطرات-جو-وجسم',
+    'linen': '/categories/1759044/معطرات-جو-وجسم-1',
     'tollah': '/categories/1421002/tollah',
-    'body-care': '/categories/1750048/body-care-products'
+    'body-care': '/categories/1759046/منتجات-العناية'
   }};
 
   // 1. Inject Salla Icons CSS if not loaded
@@ -3671,6 +3671,7 @@ app_js_code = f"""/**
       `;
 
       mainEl.appendChild(shell);
+      if (typeof syncMobileMenu === 'function') syncMobileMenu();
 
       // Clean up duplicate native Rozia injections
       const cleanupInterval = setInterval(() => {{

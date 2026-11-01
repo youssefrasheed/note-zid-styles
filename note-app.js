@@ -40,15 +40,15 @@
   const catUrlMap = {
     'all': '/categories',
     'perfumes': '/categories/1748533/perfumes',
-    'niche': '/categories/1500261/عطور-النيش',
+    'niche': '/categories/1759040/عطور-النيش-1',
     'bestsellers': '/categories/1697258/الأكثر-مبيعا',
     'new': '/categories/1327929/newest-products',
-    'travel': '/categories/1310036/30ml-perfumes',
-    'all-over': '/categories/1688838/all-over-spray',
+    'travel': '/categories/1759043/عطور-30-مل',
+    'all-over': '/categories/1759042/معطر-للجسم-بالكامل',
     'packages': '/categories/1752110/packages',
-    'linen': '/categories/1310037/معطرات-جو-وجسم',
+    'linen': '/categories/1759044/معطرات-جو-وجسم-1',
     'tollah': '/categories/1421002/tollah',
-    'body-care': '/categories/1750048/body-care-products'
+    'body-care': '/categories/1759046/منتجات-العناية'
   };
 
   // 1. Inject Salla Icons CSS if not loaded
@@ -4919,6 +4919,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       if(initialDrawer){initialDrawer.hidden=true;initialDrawer.setAttribute('aria-hidden','true');}
       if(initialOverlay)initialOverlay.hidden=true;
       mainEl.appendChild(shell);
+      if (typeof syncMobileMenu === 'function') syncMobileMenu();
 
       // Clean up duplicate native Rozia injections
       const cleanupInterval = setInterval(() => {
@@ -5098,7 +5099,15 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   if (!window.formatPrice) window.formatPrice = formatPrice;
 
   const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const cleanSpelling = str => String(str ?? '').replace(/الباكدجات/g, 'الباكجات').replace(/باكدجات/g, 'باكجات').replace(/الباكدج/g, 'الباكج').replace(/باكدج/g, 'باكج').replace(/البكجات/g, 'الباكجات').replace(/بكجات/g, 'باكجات');
+  const cleanSpelling = str => String(str ?? '')
+    .replace(/الباكدجات/g, 'الباكجات')
+    .replace(/باكدجات/g, 'باكجات')
+    .replace(/الباكدج/g, 'الباكج')
+    .replace(/باكدج/g, 'باكج')
+    .replace(/العروض\s*و\s*البكجات/g, 'العروض والباكجات')
+    .replace(/العروض\s*و\s*الباكجات/g, 'العروض والباكجات')
+    .replace(/البكجات/g, 'الباكجات')
+    .replace(/بكجات/g, 'باكجات');
   const KNOWN_PRODUCT_FALLBACKS = {
     '83561f07-7f51-43a4-a632-2030d6b71bc1': '/products/06_Linen_Spray_Trio_Dark.webp',
     'مجموعة-معطرات-الجو-و-المفارش': '/products/06_Linen_Spray_Trio_Dark.webp',
@@ -5272,9 +5281,13 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     if(sorted.some((card,index)=>card!==cards[index]))sorted.forEach(card=>grid.appendChild(card));
   }
   function syncMobileMenu() {
-    if (typeof document === 'undefined' || typeof document.querySelector !== 'function') return;
-    const nav = document.querySelector('#mobile-menu-drawer nav, #mobile-menu-drawer .flex.flex-col.gap-4');
-    if (!nav || !zidCategories.length) return;
+    if (typeof document === 'undefined') return;
+    const navs = typeof document.querySelectorAll === 'function' ? Array.from(document.querySelectorAll('#mobile-menu-drawer nav, #mobile-menu-drawer .flex.flex-col.gap-4')) : [];
+    if (!navs.length && typeof document.querySelector === 'function') {
+      const single = document.querySelector('#mobile-menu-drawer nav, #mobile-menu-drawer .flex.flex-col.gap-4');
+      if (single) navs.push(single);
+    }
+    if (!navs.length || !zidCategories.length) return;
     const allCat = zidCategories.find(c => /جميع المنتجات|كل المنتجات/i.test(c.name));
     const categoriesToShow = zidCategories.filter(c => c.id !== '1759471' && !hiddenCategoryIds.has(String(c.id)) && (!allCat || c.id !== allCat.id));
     
@@ -5292,7 +5305,9 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       html += '<a href="' + url + '" onclick="closeMobileMenu()" class="block py-1 hover:text-stone-500 transition">' + escapeHTML(cleanSpelling(c.name)) + '</a>\n';
     }
     
-    if (nav.innerHTML !== html) nav.innerHTML = html;
+    navs.forEach(nav => {
+      if (nav.innerHTML !== html) nav.innerHTML = html;
+    });
   }
   function refreshCategoryUI() {
     syncHomeCategoryOrder();
@@ -5311,19 +5326,15 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     if(title){title.textContent=meta.title;document.title=meta.title+' | نوت للعطور';}if(desc)desc.textContent=meta.desc;
     const count=document.getElementById('cat-products-count');if(count){count.classList.remove('hidden','sm:inline-block');count.style.display='inline-block';}
     // Curated navigation points to actual populated dashboard categories. Exact category URLs remain distinct.
-    for(const a of document.querySelectorAll('#note-luxury-storefront a[href*="/categories/"], #mobile-menu-drawer a[href*="/categories/"]')) {
+    for(const a of document.querySelectorAll('#curated-sets a[href*="/categories/"]')) {
       const match=a.getAttribute('href')?.match(/\/categories\/(\d+)\//);if(!match)continue;
-      const replacements={'1500261':'niche','1310036':'travel','1688838':'all-over','1750048':'body-care','1759046':'body-care','1310037':'linen'};
+      const replacements={'1500261':'niche','1310036':'travel','1688838':'all-over','1750048':'body-care','1310037':'linen'};
       const alias=replacements[match[1]];if(alias&&catUrlMap[alias])a.setAttribute('href',catUrlMap[alias]);
       const target=a.getAttribute('href')?.match(/\/categories\/(\d+)\//)?.[1];
       const liveCategory=zidCategories.find(c=>c.id===target);
-      if(liveCategory && a.closest?.('#mobile-menu-drawer')) {
-        a.textContent=liveCategory.name;
-        a.setAttribute('aria-label',liveCategory.name);
-      }
-      if(liveCategory && a.closest?.('#curated-sets')) {
-        const heading=a.querySelector('h3');if(heading)heading.textContent=liveCategory.name;
-        a.setAttribute('aria-label',liveCategory.name);
+      if(liveCategory) {
+        const heading=a.querySelector('h3');if(heading)heading.textContent=cleanSpelling(liveCategory.name);
+        a.setAttribute('aria-label',cleanSpelling(liveCategory.name));
       }
       a.hidden=target==='1759471'||hiddenCategoryIds.has(target)||(categoryListAuthoritative&&!zidCategories.some(c=>c.id===target));
     }
@@ -5538,13 +5549,15 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         if(!Array.isArray(groups) || !groups.length) throw Error();
         activeBundleGroups=groups;
         box.innerHTML='<h3>اختار مكونات الباقة</h3>';
+        const allBundleSelects=[];
+        const enforceCrossGroup=groups.some(g=>!g.allow_duplicate_items);
+
         groups.forEach(group => {
           const fieldset=document.createElement('fieldset'),legend=document.createElement('legend');
-          legend.textContent=group.name+' — اختر '+group.required_selection_count; fieldset.append(legend);
-          const selects=[];
+          legend.textContent=group.name+(Number(group.required_selection_count)>1 ? ' — اختر '+group.required_selection_count : ''); fieldset.append(legend);
           for(let slot=0;slot<group.required_selection_count;slot++) {
             const label=document.createElement('label'),select=document.createElement('select');
-            label.textContent=group.required_selection_count>1 ? 'الاختيار '+(slot+1) : group.name;
+            label.textContent=Number(group.required_selection_count)>1 ? 'الاختيار '+(slot+1) : group.name;
             select.required=true; select.dataset.group=group.selection_group_id; select.setAttribute('aria-label',label.textContent);
             select.add(new Option('اختر المنتج',''));
             group.items.forEach(item => {
@@ -5557,27 +5570,30 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
             if(group.items.length===1 && Number(group.required_selection_count)===1 && !select.options[1]?.disabled) select.value=group.items[0].item_id;
             const priorChoice=savedChoices.filter(c=>c.group===group.selection_group_id)[slot]?.value;
             if(priorChoice && [...select.options].some(o=>o.value===priorChoice && !o.disabled)) select.value=priorChoice;
-            selects.push(select);
+            allBundleSelects.push(select);
             fieldset.append(label,select);
-          }
-          if(!group.allow_duplicate_items && selects.length>1) {
-            const syncOptions=()=>{
-              const chosen=new Set(selects.map(s=>s.value).filter(Boolean));
-              selects.forEach(s=>{
-                [...s.options].forEach(o=>{
-                  if(!o.value) return;
-                  const item=group.items.find(i=>i.item_id===o.value);
-                  const outOfStock=!(item?.is_infinite || item?.quantity>0);
-                  o.disabled=outOfStock || (chosen.has(o.value) && s.value!==o.value);
-                  o.textContent=item?.name ? item.name + (outOfStock ? ' — غير متاح' : chosen.has(o.value) && s.value!==o.value ? ' — تم اختياره' : '') : o.textContent;
-                });
-              });
-            };
-            selects.forEach(s=>s.addEventListener('change',syncOptions));
-            syncOptions();
           }
           box.append(fieldset);
         });
+
+        const syncBundleDuplicates=()=>{
+          if(!enforceCrossGroup) return;
+          const chosen=new Set(allBundleSelects.map(s=>s.value).filter(Boolean));
+          allBundleSelects.forEach(s=>{
+            [...s.options].forEach(o=>{
+              if(!o.value) return;
+              let item=null;
+              for(const g of groups) { item=g.items?.find(i=>i.item_id===o.value); if(item) break; }
+              const outOfStock=!(item?.is_infinite || item?.quantity>0);
+              const alreadyChosen=chosen.has(o.value) && s.value!==o.value;
+              o.disabled=outOfStock || alreadyChosen;
+              const baseName=item?.name || o.value;
+              o.textContent=baseName + (outOfStock ? ' — غير متاح' : alreadyChosen ? ' — تم اختياره' : '');
+            });
+          });
+        };
+        allBundleSelects.forEach(s=>s.addEventListener('change',syncBundleDuplicates));
+        syncBundleDuplicates();
       }).catch(()=>{if(box.isConnected) box.textContent='تعذر تحميل اختيارات الباقة. أعد المحاولة بعد قليل.';});
     }
   };
@@ -5585,11 +5601,16 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     if(product.product_class!=='dynamic_bundle') return [];
     if(!activeBundleGroups.length) throw Error('انتظر تحميل اختيارات الباقة');
     const selections=[];
+    const allChosenValues=[];
+    const enforceCrossGroup=activeBundleGroups.some(g=>!g.allow_duplicate_items);
+
     activeBundleGroups.forEach(group => {
       const fields=[...document.querySelectorAll('#note-bundle-options select')].filter(s => s.dataset.group===group.selection_group_id);
       const values=fields.map(s=>s.value);
       if(values.length!==Number(group.required_selection_count) || values.some(v=>!v)) throw Error('اختار كل مكونات الباقة أولًا');
       if(!group.allow_duplicate_items && new Set(values).size!==values.length) throw Error('اختر منتجات مختلفة لهذه المجموعة');
+      values.forEach(v => allChosenValues.push(v));
+
       values.forEach(value => {
         const item=group.items.find(i=>i.item_id===value);
         if(!item || !(item.is_infinite || item.quantity>0)) throw Error('أحد الاختيارات غير متاح');
@@ -5598,6 +5619,11 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         else selections.push({id:value,quantity:1,selection_group_id:group.selection_group_id,name:item.name});
       });
     });
+
+    if(enforceCrossGroup && new Set(allChosenValues).size!==allChosenValues.length) {
+      throw Error('يرجى اختيار معطرات مختلفة للباقة دون تكرار');
+    }
+
     return selections;
   }
   const rawGetCart=CartManager.getCart;
