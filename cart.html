@@ -172,7 +172,7 @@
                   id="coupon-apply-btn" 
                   type="button" 
                   onclick="applyCartCoupon()" 
-                  class="h-10 px-5 rounded-xl bg-black hover:bg-stone-800 active:scale-95 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shrink-0 shadow-xs cursor-pointer"
+                  class="h-10 px-5 rounded-xl text-stone-900 text-xs font-bold transition flex items-center justify-center gap-1.5 shrink-0 shadow-xs cursor-pointer"
                 >
                   <span id="coupon-btn-text">تطبيق</span>
                 </button>
@@ -566,7 +566,7 @@
       }
 
       if (applyBtn) applyBtn.disabled = true;
-      if (btnText) btnText.innerHTML = '<svg class="animate-spin h-3.5 w-3.5 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
+      if (btnText) btnText.innerHTML = '<svg class="animate-spin h-3.5 w-3.5 text-black inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
 
       try {
         let applied = false;

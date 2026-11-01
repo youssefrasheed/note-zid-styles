@@ -844,3 +844,43 @@ header nav a:not(.active-link) {
 .note-msg-anim {
   animation: noteMsgSlideDown 0.35s ease-out both !important;
 }
+
+/* Luxury Soft Champagne Gold "تطبيق" (Apply Coupon) Button */
+#drawer-coupon-btn,
+#coupon-apply-btn {
+  background: linear-gradient(135deg, #f5e9c9 0%, #dfc485 100%) !important;
+  color: #111111 !important;
+  border: 1px solid rgba(195, 160, 85, 0.45) !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 8px rgba(223, 196, 133, 0.25) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+}
+
+#drawer-coupon-btn:hover,
+#coupon-apply-btn:hover {
+  background: linear-gradient(135deg, #faefd4 0%, #e6cd90 100%) !important;
+  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+#drawer-coupon-btn:active,
+#coupon-apply-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(223, 196, 133, 0.2) !important;
+}
+
+#drawer-coupon-btn:disabled,
+#coupon-apply-btn:disabled {
+  opacity: 0.65 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+#drawer-coupon-btn span,
+#coupon-apply-btn span,
+#drawer-coupon-btn bdi,
+#coupon-apply-btn bdi {
+  color: #111111 !important;
+  font-weight: 800 !important;
+}
