@@ -1060,6 +1060,63 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   font-size: 11.5px !important;
   color: #78716c !important;
 }}
+
+/* ==========================================================================
+   NOTE LUXURY ADD-TO-CART BUTTON MICRO-INTERACTION & ANIMATION
+   ========================================================================== */
+@keyframes noteBtnPop {{
+  0% {{ transform: scale(1); }}
+  25% {{ transform: scale(0.92); }}
+  60% {{ transform: scale(1.05); }}
+  100% {{ transform: scale(1); }}
+}}
+
+@keyframes noteCheckPop {{
+  0% {{ transform: scale(0) rotate(-30deg); opacity: 0; }}
+  60% {{ transform: scale(1.25) rotate(6deg); opacity: 1; }}
+  100% {{ transform: scale(1) rotate(0deg); opacity: 1; }}
+}}
+
+@keyframes notePulseGlow {{
+  0% {{
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7), 0 2px 10px rgba(0, 0, 0, 0.2);
+  }}
+  60% {{
+    box-shadow: 0 0 0 12px rgba(16, 185, 129, 0), 0 4px 16px rgba(16, 185, 129, 0.25);
+  }}
+  100% {{
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0), 0 2px 6px rgba(0, 0, 0, 0.1);
+  }}
+}}
+
+@keyframes noteHeaderCartShake {{
+  0% {{ transform: scale(1) rotate(0deg); }}
+  20% {{ transform: scale(1.2) rotate(-10deg); }}
+  40% {{ transform: scale(1.2) rotate(10deg); }}
+  60% {{ transform: scale(1.1) rotate(-5deg); }}
+  80% {{ transform: scale(1.05) rotate(5deg); }}
+  100% {{ transform: scale(1) rotate(0deg); }}
+}}
+
+.note-cart-shake {{
+  animation: noteHeaderCartShake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both !important;
+}}
+
+.note-btn-added {{
+  animation: noteBtnPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275), notePulseGlow 0.8s ease-out !important;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
+  pointer-events: none !important;
+  transform-origin: center center !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}}
+
+.note-btn-added .note-check-icon {{
+  display: inline-flex !important;
+  vertical-align: middle !important;
+  animation: noteCheckPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+}}
 """
 
 suppression_css = fix_startup_css(suppression_css)
@@ -1536,12 +1593,74 @@ app_js_code = f"""/**
         window.renderCartPage();
       }}
     }},
-    addItem: function(productId, quantity = 1) {{
+    findTriggerButton: function(id, explicitBtn) {{
+      if (explicitBtn && explicitBtn.nodeType === 1) return explicitBtn;
+      if (typeof window !== 'undefined' && window.event) {{
+        const target = window.event.target;
+        const btn = target?.closest ? target.closest('button, [role="button"]') : null;
+        if (btn) return btn;
+      }}
+      if (typeof document !== 'undefined') {{
+        if (document.activeElement && document.activeElement.tagName === 'BUTTON') {{
+          return document.activeElement;
+        }}
+        if (typeof currentProduct !== 'undefined' && currentProduct && currentProduct.id === id) {{
+          const pdpBtn = typeof document.getElementById === 'function' ? document.getElementById('pdp-add-cart-btn') : null;
+          if (pdpBtn) return pdpBtn;
+        }}
+        const quickViewBtn = typeof document.getElementById === 'function' ? document.getElementById('modal-buy-btn') : null;
+        if (quickViewBtn && quickViewBtn.offsetParent !== null) return quickViewBtn;
+        if (typeof document.querySelector === 'function') {{
+          const recBtn = document.querySelector('.note-mini-card button[data-product="' + id + '"]');
+          if (recBtn) return recBtn;
+          const cardBtn = document.querySelector('button[onclick*="' + id + '"]');
+          if (cardBtn) return cardBtn;
+        }}
+      }}
+      return null;
+    }},
+    animateButton: function(btn) {{
+      if (!btn || btn.nodeType !== 1) return;
+      if (btn.classList && typeof btn.classList.contains === 'function' && btn.classList.contains('note-btn-added')) return;
+      const originalHTML = btn.innerHTML;
+      const originalWidth = btn.offsetWidth;
+      const isPdp = btn.id === 'pdp-add-cart-btn';
+      if (originalWidth > 0 && btn.style) {{
+        btn.style.width = originalWidth + 'px';
+      }}
+      if (btn.classList && typeof btn.classList.add === 'function') {{
+        btn.classList.add('note-btn-added');
+      }}
+      const checkIcon = '<svg class="note-check-icon" width="' + (isPdp ? '18' : '15') + '" height="' + (isPdp ? '18' : '15') + '" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      const labelText = isPdp ? 'تمت الإضافة للسلة بنجاح ✓' : 'تمت الإضافة ✓';
+      btn.innerHTML = checkIcon + '<span style="display:inline-block;vertical-align:middle;font-weight:700;">' + labelText + '</span>';
+      const headerCartIcons = typeof document !== 'undefined' && typeof document.querySelectorAll === 'function' ? document.querySelectorAll('#site-header .sicon-shopping-bag, .cart-box, #cart-counter-badge, .cart-btn') : [];
+      headerCartIcons.forEach(icon => {{
+        if (icon.classList) {{
+          icon.classList.remove('note-cart-shake');
+          void icon.offsetWidth;
+          icon.classList.add('note-cart-shake');
+          setTimeout(() => icon.classList.remove('note-cart-shake'), 650);
+        }}
+      }});
+      setTimeout(() => {{
+        if (btn.classList && typeof btn.classList.remove === 'function') {{
+          btn.classList.remove('note-btn-added');
+        }}
+        btn.innerHTML = originalHTML;
+        if (btn.style) btn.style.width = '';
+      }}, 1100);
+    }},
+    addItem: function(productId, quantity = 1, selections = null, triggerBtn = null) {{
       const product = productsData.find(p => p.id === productId) || noteProductsCatalog.find(p => p.id === productId);
       if (!product) return;
       if (product.in_stock === false || product.stock === 0) {{
         this.showToast('عذراً، هذا المنتج غير متاح حالياً');
         return;
+      }}
+      const targetBtn = this.findTriggerButton ? this.findTriggerButton(productId, triggerBtn) : triggerBtn;
+      if (targetBtn && this.animateButton) {{
+        this.animateButton(targetBtn);
       }}
       let cart = this.getCart();
       const existing = cart.find(item => item.id === productId);
@@ -1981,7 +2100,7 @@ app_js_code = f"""/**
           <span>غير متاح</span>
         </button>
         ` : `
-        <button onclick="event.stopPropagation(); CartManager.addItem('${{p.id}}')" class="w-full mt-3 py-2 sm:py-2.5 px-4 rounded-full bg-black text-white hover:bg-stone-800 active:scale-95 transition flex items-center justify-center gap-2 font-bold text-xs shadow-sm" title="إضافة للسلة">
+        <button onclick="event.stopPropagation(); CartManager.addItem('${{p.id}}', 1, null, this)" class="w-full mt-3 py-2 sm:py-2.5 px-4 rounded-full bg-black text-white hover:bg-stone-800 active:scale-95 transition flex items-center justify-center gap-2 font-bold text-xs shadow-sm" title="إضافة للسلة">
           <span>إضافة للسلة</span>
           <i class="sicon-shopping-bag text-sm"></i>
         </button>
@@ -2164,8 +2283,8 @@ app_js_code = f"""/**
         buyBtn.className = 'w-full py-3.5 px-6 rounded-full bg-black hover:bg-stone-800 text-white font-bold text-sm shadow-sm transition active:scale-98 flex items-center justify-center gap-2';
         buyBtn.innerHTML = '<span>إضافة للسلة</span><i class="sicon-shopping-bag"></i>';
         buyBtn.onclick = () => {{
-          CartManager.addItem(p.id);
-          closeQuickView();
+          CartManager.addItem(p.id, 1, null, buyBtn);
+          setTimeout(() => closeQuickView(), 400);
         }};
       }}
     }}

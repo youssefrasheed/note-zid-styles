@@ -22,4 +22,27 @@ const prodC={...product,id:'p-c',name:'Product C',display_order:1,categories:[{i
 ctx.testAPI.sync.applyToCatalog([prodA,prodB,prodC]);
 assert.deepEqual(ctx.testAPI.categoryProducts('perfumes').map(p=>p.id),['p-b','p-a','p-c']);
 assert.deepEqual(ctx.testAPI.categoryProducts('all').map(p=>p.id),['p-c','p-b','p-a']);
+
+// Verify button micro-interaction and animation on cart add
+const testButton = {
+  nodeType: 1,
+  id: 'btn-test',
+  offsetWidth: 120,
+  innerHTML: '<span>إضافة للسلة</span>',
+  style: {},
+  classList: {
+    _classes: new Set(),
+    contains(c) { return this._classes.has(c); },
+    add(c) { this._classes.add(c); },
+    remove(c) { this._classes.delete(c); }
+  }
+};
+assert.equal(typeof ctx.CartManager.animateButton, 'function');
+assert.equal(typeof ctx.CartManager.findTriggerButton, 'function');
+assert.equal(ctx.CartManager.findTriggerButton('p-a', testButton), testButton);
+ctx.CartManager.addItem('p-a', 1, null, testButton);
+assert.equal(testButton.classList.contains('note-btn-added'), true);
+assert(testButton.innerHTML.includes('تمت الإضافة'));
+assert.equal(testButton.style.width, '120px');
+
 (async()=>{responsePages=[{results:[product],next:'next',pages_count:2},{results:[product,{...product,id:'uuid-2'}],next:null,pages_count:2},[]];await ctx.testAPI.sync.fetchLiveCatalog();assert.equal(ctx.noteProductsCatalog.length,2);assert(calls.some(url=>url.includes('page=2')));console.log('PASS: authoritative catalog, rename/image/price refresh, zero prices, real sales, bundle line isolation, removal, pagination and cart rejection');})().catch(e=>{console.error(e);process.exitCode=1});
