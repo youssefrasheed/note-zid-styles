@@ -59,11 +59,11 @@
   direction: rtl !important;
   white-space: nowrap !important;
   box-sizing: border-box !important;
-  background: #111111 !important;
-  border: 1px solid rgba(212, 175, 55, 0.45) !important;
+  background: linear-gradient(135deg, #f5e9c9 0%, #dfc485 100%) !important;
+  border: 1px solid rgba(195, 160, 85, 0.45) !important;
   border-radius: 9999px !important;
-  color: #d4af37 !important;
-  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.22) !important;
+  color: #111111 !important;
+  box-shadow: 0 2px 6px rgba(180, 145, 75, 0.2) !important;
 }
 .note-discount-badge bdi,
 .note-discount-badge span,
@@ -71,7 +71,7 @@
 .note-product-badge:has(bdi) span,
 #pdp-discount-badge bdi,
 #pdp-discount-badge span {
-  color: #d4af37 !important;
+  color: #111111 !important;
   font-weight: 800 !important;
 }
 .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock) bdi,
