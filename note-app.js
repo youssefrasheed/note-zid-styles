@@ -2641,8 +2641,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     "discount": "17%",
     "rating": 4.95,
     "reviews_count": 28,
-    "img": "/products/06_Linen_Spray_Trio_Dark.webp",
-    "img_box": null,
+    "img": "/products/09_Linen_Room_Spray_Brand_Box.webp",
+    "img_box": "/products/09_Linen_Room_Spray_Brand_Box.webp",
     "notes": "رويال توباكو + باودر روز + عود روز وود",
     "slogan": "ثلاثية الفخامة للمنزل والمفارش؛ انتعاش يدوم ونقاء يملأ الأرجاء بأرقى نفحات نوت",
     "description": "تتضمن المجموعة الثلاثية الفاخرة لمعطرات الجو والمفارش: معطر مفارش رويال توباكو، معطر مفارش باودر روز، ومعطر مفارش عود روز وود. عبوات بحجم كبير تمنح منزلك ومفارشك عبقاً وثباتاً ساحراً.",
@@ -5578,9 +5578,9 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     .replace(/البكجات/g, 'الباكجات')
     .replace(/بكجات/g, 'باكجات');
   const KNOWN_PRODUCT_FALLBACKS = {
-    '83561f07-7f51-43a4-a632-2030d6b71bc1': '/products/06_Linen_Spray_Trio_Dark.webp',
-    'مجموعة-معطرات-الجو-و-المفارش': '/products/06_Linen_Spray_Trio_Dark.webp',
-    'pkg-linen-collection': '/products/06_Linen_Spray_Trio_Dark.webp'
+    '83561f07-7f51-43a4-a632-2030d6b71bc1': '/products/09_Linen_Room_Spray_Brand_Box.webp',
+    'مجموعة-معطرات-الجو-و-المفارش': '/products/09_Linen_Room_Spray_Brand_Box.webp',
+    'pkg-linen-collection': '/products/09_Linen_Room_Spray_Brand_Box.webp'
   };
   const liveImage = (image, key) => {
     const raw = image?.image?.large || image?.image?.full_size || image?.image?.thumbnail || '';
@@ -6562,7 +6562,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     if (e.target && e.target.tagName === 'IMG') {
       const src = e.target.getAttribute('src') || '';
       if (src.includes('a26e413c') || src.endsWith('.') || src.includes('47dc7967') || src.includes('83561f07')) {
-        e.target.src = 'https://youssefrasheed.github.io/note-zid-styles/products/06_Linen_Spray_Trio_Dark.webp';
+        e.target.src = 'https://youssefrasheed.github.io/note-zid-styles/products/09_Linen_Room_Spray_Brand_Box.webp';
       }
     }
   }, true);

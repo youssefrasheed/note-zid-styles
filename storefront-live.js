@@ -193,9 +193,9 @@
     .replace(/البكجات/g, 'الباكجات')
     .replace(/بكجات/g, 'باكجات');
   const KNOWN_PRODUCT_FALLBACKS = {
-    '83561f07-7f51-43a4-a632-2030d6b71bc1': '/products/06_Linen_Spray_Trio_Dark.webp',
-    'مجموعة-معطرات-الجو-و-المفارش': '/products/06_Linen_Spray_Trio_Dark.webp',
-    'pkg-linen-collection': '/products/06_Linen_Spray_Trio_Dark.webp'
+    '83561f07-7f51-43a4-a632-2030d6b71bc1': '/products/09_Linen_Room_Spray_Brand_Box.webp',
+    'مجموعة-معطرات-الجو-و-المفارش': '/products/09_Linen_Room_Spray_Brand_Box.webp',
+    'pkg-linen-collection': '/products/09_Linen_Room_Spray_Brand_Box.webp'
   };
   const liveImage = (image, key) => {
     const raw = image?.image?.large || image?.image?.full_size || image?.image?.thumbnail || '';
@@ -1177,7 +1177,7 @@
     if (e.target && e.target.tagName === 'IMG') {
       const src = e.target.getAttribute('src') || '';
       if (src.includes('a26e413c') || src.endsWith('.') || src.includes('47dc7967') || src.includes('83561f07')) {
-        e.target.src = 'https://youssefrasheed.github.io/note-zid-styles/products/06_Linen_Spray_Trio_Dark.webp';
+        e.target.src = 'https://youssefrasheed.github.io/note-zid-styles/products/09_Linen_Room_Spray_Brand_Box.webp';
       }
     }
   }, true);
