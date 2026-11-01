@@ -1666,7 +1666,7 @@ app_js_code = f"""/**
         btn.classList.add('note-btn-added');
       }}
       const checkIcon = '<svg class="note-check-icon" width="' + (isPdp ? '18' : '15') + '" height="' + (isPdp ? '18' : '15') + '" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-      const labelText = isPdp ? 'تمت الإضافة للسلة بنجاح ✓' : 'تمت الإضافة ✓';
+      const labelText = isPdp ? 'تمت الإضافة للسلة بنجاح' : 'تمت الإضافة';
       btn.innerHTML = checkIcon + '<span style="display:inline-block;vertical-align:middle;font-weight:700;">' + labelText + '</span>';
       const headerCartIcons = typeof document !== 'undefined' && typeof document.querySelectorAll === 'function' ? document.querySelectorAll('#site-header .sicon-shopping-bag, .cart-box, #cart-counter-badge, .cart-btn') : [];
       headerCartIcons.forEach(icon => {{
