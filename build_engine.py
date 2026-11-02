@@ -1756,6 +1756,30 @@ app_js_code = f"""/**
     refund: {t_refund}
   }};
 
+  window.getNoteCouponPercent = function(code) {{
+    if (!code) return 0;
+    const clean = String(code).trim().toUpperCase();
+    const KNOWN = {{
+      'HN': 7,
+      'NOTE5': 5,
+      'OLA': 8,
+      'AN': 8,
+      'NADA': 8,
+      'HANI': 10,
+      'JUACO10': 15,
+      'HNHN123': 20,
+      'AND1': 30,
+      'BADO122': 30
+    }};
+    if (KNOWN[clean] !== undefined) return KNOWN[clean];
+    const m = clean.match(/(\\d+)/);
+    if (m) {{
+      const val = parseInt(m[1], 10);
+      if (val > 0 && val <= 90) return val;
+    }}
+    return 5;
+  }};
+
   // 7. Cart Manager (Global localStorage Architecture)
   const CartManager = {{
     getCart: function() {{
@@ -1898,16 +1922,75 @@ app_js_code = f"""/**
     }},
     getLiveBundleOffers: function() {{
       const s = this.getLiveCartState();
-      if (!s) return [];
-      const c = s.cart || s;
-      if (c && c.has_bundle_offer && Array.isArray(c.bundle_offers) && c.bundle_offers.length > 0) {{
-        return c.bundle_offers.filter(b => (Number(b.discount_total) || 0) > 0 || (Number(b.usage_count) || 0) > 0);
+      if (s) {{
+        const c = s.cart || s;
+        if (c && c.has_bundle_offer && Array.isArray(c.bundle_offers) && c.bundle_offers.length > 0) {{
+          const valid = c.bundle_offers.filter(b => (Number(b.discount_total) || 0) > 0 || (Number(b.usage_count) || 0) > 0);
+          if (valid.length > 0) return valid;
+        }}
+      }}
+      // Fallback local bundle detection if live state is not yet loaded
+      const cart = this.getCart();
+      let fullSizeCount = 0;
+      for (let ci = 0; ci < cart.length; ci++) {{
+        const item = cart[ci];
+        const title = (item.title || item.name || '').toLowerCase();
+        const size = (item.size || '').toLowerCase();
+        const isNotSmall = !size.includes('30') && !title.includes('30 مل') && !title.includes('30مل') && !title.includes('تولة') && !title.includes('توله');
+        if (isNotSmall && item.price > 1) {{
+          fullSizeCount += (Number(item.quantity) || 1);
+        }}
+      }}
+      if (fullSizeCount >= 3) {{
+        return [{{
+          id: 'a31fcdea-5aac-447f-a220-0ef1d60bb0a6',
+          name: 'عطرك بـ 1 ريال (2+1)',
+          usage_count: Math.floor(fullSizeCount / 3),
+          discount_total: 0
+        }}];
       }}
       return [];
     }},
     getLiveBundleDiscount: function() {{
       const bundles = this.getLiveBundleOffers();
-      return bundles.reduce((sum, b) => sum + (Number(b.discount_total) || 0), 0);
+      if (!bundles || bundles.length === 0) return 0;
+      const cart = this.getCart();
+      let totalDiscount = 0;
+      for (let bi = 0; bi < bundles.length; bi++) {{
+        const b = bundles[bi];
+        const name = ((b.name || '') + ' ' + (b.description || '')).toLowerCase();
+        const isOneRiyalBundle = name.includes('1 ريال') || name.includes('بريال') || name.includes('1ريال');
+        const usageCount = Number(b.usage_count) || (b.discount_total > 0 ? 1 : 0);
+        if (isOneRiyalBundle && cart && cart.length > 0 && usageCount > 0) {{
+          const isOffer2 = name.includes('2+1') || name.includes('1+2') || (!name.includes('تولة') && !name.includes('توله'));
+          if (isOffer2) {{
+            const eligible = [];
+            for (let ci = 0; ci < cart.length; ci++) {{
+              const item = cart[ci];
+              const title = (item.title || item.name || '').toLowerCase();
+              const size = (item.size || '').toLowerCase();
+              const isNotSmall = !size.includes('30') && !title.includes('30 مل') && !title.includes('30مل') && !title.includes('تولة') && !title.includes('توله');
+              if (isNotSmall && item.price > 1) {{
+                const qty = Number(item.quantity) || 1;
+                for (let q = 0; q < qty; q++) {{
+                  eligible.push(Number(item.price) || 0);
+                }}
+              }}
+            }}
+            eligible.sort((a, b) => a - b);
+            let bDisc = 0;
+            for (let i = 0; i < usageCount && i < eligible.length; i++) {{
+              bDisc += Math.max(0, eligible[i] - 1);
+            }}
+            totalDiscount += (bDisc > 0 ? bDisc : (Number(b.discount_total) || 0));
+          }} else {{
+            totalDiscount += (Number(b.discount_total) || 0);
+          }}
+        }} else {{
+          totalDiscount += (Number(b.discount_total) || 0);
+        }}
+      }}
+      return totalDiscount;
     }},
     syncLiveCart: async function() {{
       if (typeof window === 'undefined' || typeof fetch !== 'function') return null;
@@ -1947,8 +2030,7 @@ app_js_code = f"""/**
               const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
               const baseAfterBundle = Math.max(0, total - bundleDiscount);
               if ((savedCoupon || bundleDiscount > 0) && total > 0) {{
-                const match = savedCoupon ? savedCoupon.match(/(\\d+)/) : null;
-                const pct = match ? parseInt(match[1], 10) : (savedCoupon ? 5 : 0);
+                const pct = (savedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : (savedCoupon ? 5 : 0);
                 const discount = (baseAfterBundle * pct) / 100;
                 const finalTotal = Math.max(0, baseAfterBundle - discount);
                 totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${{formatPrice(total)}}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${{formatPrice(finalTotal)}}</span>`;
@@ -2094,8 +2176,7 @@ app_js_code = f"""/**
       if (totalEl) {{
         const baseAfterBundle = Math.max(0, total - bundleDiscount);
         if ((savedCoupon || bundleDiscount > 0) && total > 0) {{
-          const match = savedCoupon ? savedCoupon.match(/(\\d+)/) : null;
-          const pct = match ? parseInt(match[1], 10) : (savedCoupon ? 5 : 0);
+          const pct = (savedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : (savedCoupon ? 5 : 0);
           const discount = (baseAfterBundle * pct) / 100;
           const finalTotal = Math.max(0, baseAfterBundle - discount);
           totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${{formatPrice(total)}}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${{formatPrice(finalTotal)}}</span>`;
@@ -3854,8 +3935,7 @@ app_js_code = f"""/**
     const appliedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
     const baseAfterBundle = Math.max(0, amount - bundleDiscount);
     if ((appliedCoupon || bundleDiscount > 0) && amount > 0) {{
-      const match = appliedCoupon ? appliedCoupon.match(/(\\d+)/) : null;
-      const pct = match ? parseInt(match[1], 10) : (appliedCoupon ? 5 : 0);
+      const pct = (appliedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : (appliedCoupon ? 5 : 0);
       const discount = (baseAfterBundle * pct) / 100;
       const finalAmount = Math.max(0, baseAfterBundle - discount);
       const grandEl = document.getElementById('page-grand-total');

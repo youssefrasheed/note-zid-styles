@@ -3014,6 +3014,30 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     refund: "<main id=\"page-main-wrapper\"  class=\"pt-28 sm:pt-36 pb-20 flex-grow text-right\">\n    <div class=\"max-w-4xl mx-auto px-4 sm:px-6 lg:px-8\">\n      \n      <!-- Breadcrumb -->\n      <nav class=\"flex items-center gap-2 text-xs text-stone-400 mb-8 font-medium\">\n        <a href=\"/\" class=\"hover:text-black\">الرئيسية</a>\n        <span>/</span>\n        <span class=\"text-black font-bold\">السياسات والضمان</span>\n      </nav>\n\n      <!-- Page Title -->\n      <div class=\"mb-10 pb-6 border-b border-stone-100\">\n        <div class=\"flex items-center gap-3 mb-2\">\n          <span class=\"p-2 rounded-xl bg-stone-100 text-black\">\n            <i class=\"sicon-shield-check text-xl\"></i>\n          </span>\n          <h1 class=\"text-2xl sm:text-3xl font-extrabold text-black\">سياسات الاستبدال والاسترجاع والضمان الذهبي</h1>\n        </div>\n        <p class=\"text-xs text-stone-500\">آخر تحديث: 2026 | وثيقة معتمدة ومطابقة لوزارة التجارة بالمملكة العربية السعودية</p>\n      </div>\n\n      <!-- Golden Guarantee Highlight Box -->\n      <div class=\"p-6 rounded-2xl bg-stone-50 border border-stone-200 mb-10 space-y-3\">\n        <div class=\"flex items-center gap-2 text-black font-bold text-sm\">\n          <i class=\"sicon-award-ribbon text-lg\"></i>\n          <h3>الضمان الذهبي الملكي لدار نوت (NOTE Perfumes)</h3>\n        </div>\n        <p class=\"text-xs text-stone-700 leading-relaxed font-normal\">\n          من أجل ضمان أعلى مستويات الرضا لعملائنا الكرام في NOTE perfumes، فإننا نرفق <strong>عينة تجربة مجانية</strong> مع كل زجاجة عطر. يرجى تجربة العينة المرفقة أولاً قبل فك التغليف السلوفاني الأساسي. يحق لك الاسترجاع خلال <strong>3 أيام</strong> من تاريخ استلام الشحنة بكل سهولة ويسر.\n        </p>\n      </div>\n\n      <!-- Content Sections -->\n      <div class=\"space-y-8 text-xs sm:text-sm text-stone-700 leading-relaxed\">\n        \n        <!-- Section 1 -->\n        <section class=\"space-y-3\">\n          <h2 class=\"text-base sm:text-lg font-bold text-black flex items-center gap-2\">\n            <span>1. شروط وقواعد الاسترجاع</span>\n          </h2>\n          <p>جميع منتجاتنا قابلة للاسترجاع خلال 3 أيام من تاريخ التسليم، وفق الشروط الرسمية الآتية:</p>\n          <ul class=\"list-disc list-inside space-y-2 pr-2 text-stone-600\">\n            <li>يجب أن تكون حالة المنتج والغلاف الخارجي (البكج) بحالتها الأصلية كما هي عليه عند الاستلام دون أي فتح للتغليف الحراري السلوفاني للعطر.</li>\n            <li>يجب إعادة جميع ملحقات المنتج كاملة: الكيس + البكج الخارجي + كرتون العطر + الهدايا الترويجية المرفقة إن وجدت.</li>\n            <li>يتم شحن واسترجاع المنتجات حصراً عبر شريك الشحن المعتمد (شركة أرامكس Aramex). يعتذر المتجر عن استلام أي شحنة مرسلة عبر شركات ناقلة أخرى.</li>\n            <li>يجب أن يكون الحساب البنكي المسترد إليه هو نفس الحساب الذي تم الشراء منه وقت تنفيذ الطلب.</li>\n            <li>تستغرق عملية إيداع واسترداد المبلغ من 14 يوماً إلى 30 يوم عمل كحد أقصى.</li>\n          </ul>\n        </section>\n\n        <!-- Section 2 -->\n        <section class=\"space-y-3 pt-6 border-t border-stone-100\">\n          <h2 class=\"text-base sm:text-lg font-bold text-black flex items-center gap-2\">\n            <span>2. خطوات وإجراءات تنفيذ طلب الاسترجاع</span>\n          </h2>\n          <ol class=\"list-decimal list-inside space-y-2 pr-2 text-stone-600\">\n            <li>إرفاق رقم الطلبية وتاريخ الشراء عبر التواصل مع خدمة العملاء.</li>\n            <li>تصوير فيديو واضح لا يقل عن 10 ثوانٍ يوضح سلامة المنتج وغلافه السلوفاني وكافة ملحقاته.</li>\n            <li>بعد تدقيق الفيديو والموافقة، سيتم إصدار بوليصة شحن أرامكس إلكترونية وإرسالها لكم لطباعتها.</li>\n            <li>التوجه إلى أقرب فرع لشركة أرامكس وتسليم الطلب مع البوليصة المطبوعة والتأكد من تغليفها بشكل محكم.</li>\n          </ol>\n        </section>\n\n        <!-- Section 3 -->\n        <section class=\"space-y-3 pt-6 border-t border-stone-100\">\n          <h2 class=\"text-base sm:text-lg font-bold text-black flex items-center gap-2\">\n            <span>3. فحص الشحنة واسترداد المبالغ</span>\n          </h2>\n          <p>\n            بعد استلام المنتج المرتجع في مستودعاتنا، يستغرق فحصه والتحقق من سلامته ومطابقته لشروط الاسترجاع مدة تصل إلى 20 يوم عمل. وبعد الموافقة النهائية على الاسترجاع، يتم رفع طلب استرداد المبلغ المالي وفق وسيلة الدفع الأصلية.\n          </p>\n          <div class=\"p-4 rounded-xl bg-amber-50/60 border border-amber-200/60 text-xs text-amber-900 space-y-1\">\n            <p class=\"font-bold\">ملاحظات هامة حول الرسوم:</p>\n            <p>يتحمل العميل كامل تكاليف الشحن المتعلقة بعملية استرجاع المنتج، كما يتم خصم 5% من قيمة المنتج المسترجع، وذلك مقابل تكاليف الفحص المخبري وإعادة التغليف والتجهيز وإعادة الطرح للبيع، على أن يكون المنتج بحالته الأصلية تماماً.</p>\n            <p>في حال كان الطلب مدفوعاً عن طريق تابي (Tabby) أو تمارا (Tamara)، يتم إرجاع المبالغ تلقائياً عبر مزود خدمة الدفع وفقاً لإجراءاتهم المعتمدة بعد قبول الاسترجاع.</p>\n          </div>\n        </section>\n\n        <!-- Section 4 -->\n        <section class=\"space-y-3 pt-6 border-t border-stone-100\">\n          <h2 class=\"text-base sm:text-lg font-bold text-black flex items-center gap-2\">\n            <span>4. سياسة الاستبدال</span>\n          </h2>\n          <p class=\"text-stone-600\">\n            يعتذر متجر دار نوت للعطور (NOTE perfumes) عن استقبال طلبات الاستبدال المباشر لأي منتج من منتجاته، نظراً لاندراج كافة المنتجات تحت تصنيف مستحضرات التجميل والعطور الحساسة وفق اشتراطات الهيئة العامة للغذاء والدواء. وفي حال رغبتكم في عطر بديل، يمكنكم استرجاع الطلب وفق الشروط أعلاه وطلب العطر المرغوب في طلب جديد.\n          </p>\n        </section>\n\n        <!-- Contact CTA -->\n        <div class=\"p-6 rounded-2xl bg-stone-50 border border-stone-200 mt-10 text-center space-y-3\">\n          <h3 class=\"font-bold text-black text-sm\">هل تحتاج لمساعدة في استرجاع طلبك؟</h3>\n          <p class=\"text-xs text-stone-500\">فريق خدمة عملاء NOTE جاهز لخدمتكم يومياً من الساعة 9 صباحاً حتى 11 مساءً</p>\n          <a href=\"https://wa.me/966565955420\" target=\"_blank\" class=\"inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-sm\">\n            <i class=\"sicon-whatsapp text-sm\"></i>\n            <span>تواصل معنا عبر واتساب: 0565955420</span>\n          </a>\n        </div>\n\n      </div>\n\n    </div>\n  </main>"
   };
 
+  window.getNoteCouponPercent = function(code) {
+    if (!code) return 0;
+    const clean = String(code).trim().toUpperCase();
+    const KNOWN = {
+      'HN': 7,
+      'NOTE5': 5,
+      'OLA': 8,
+      'AN': 8,
+      'NADA': 8,
+      'HANI': 10,
+      'JUACO10': 15,
+      'HNHN123': 20,
+      'AND1': 30,
+      'BADO122': 30
+    };
+    if (KNOWN[clean] !== undefined) return KNOWN[clean];
+    const m = clean.match(/(\d+)/);
+    if (m) {
+      const val = parseInt(m[1], 10);
+      if (val > 0 && val <= 90) return val;
+    }
+    return 5;
+  };
+
   // 7. Cart Manager (Global localStorage Architecture)
   const CartManager = {
     getCart: function() {
@@ -3156,16 +3180,75 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     },
     getLiveBundleOffers: function() {
       const s = this.getLiveCartState();
-      if (!s) return [];
-      const c = s.cart || s;
-      if (c && c.has_bundle_offer && Array.isArray(c.bundle_offers) && c.bundle_offers.length > 0) {
-        return c.bundle_offers.filter(b => (Number(b.discount_total) || 0) > 0 || (Number(b.usage_count) || 0) > 0);
+      if (s) {
+        const c = s.cart || s;
+        if (c && c.has_bundle_offer && Array.isArray(c.bundle_offers) && c.bundle_offers.length > 0) {
+          const valid = c.bundle_offers.filter(b => (Number(b.discount_total) || 0) > 0 || (Number(b.usage_count) || 0) > 0);
+          if (valid.length > 0) return valid;
+        }
+      }
+      // Fallback local bundle detection if live state is not yet loaded
+      const cart = this.getCart();
+      let fullSizeCount = 0;
+      for (let ci = 0; ci < cart.length; ci++) {
+        const item = cart[ci];
+        const title = (item.title || item.name || '').toLowerCase();
+        const size = (item.size || '').toLowerCase();
+        const isNotSmall = !size.includes('30') && !title.includes('30 مل') && !title.includes('30مل') && !title.includes('تولة') && !title.includes('توله');
+        if (isNotSmall && item.price > 1) {
+          fullSizeCount += (Number(item.quantity) || 1);
+        }
+      }
+      if (fullSizeCount >= 3) {
+        return [{
+          id: 'a31fcdea-5aac-447f-a220-0ef1d60bb0a6',
+          name: 'عطرك بـ 1 ريال (2+1)',
+          usage_count: Math.floor(fullSizeCount / 3),
+          discount_total: 0
+        }];
       }
       return [];
     },
     getLiveBundleDiscount: function() {
       const bundles = this.getLiveBundleOffers();
-      return bundles.reduce((sum, b) => sum + (Number(b.discount_total) || 0), 0);
+      if (!bundles || bundles.length === 0) return 0;
+      const cart = this.getCart();
+      let totalDiscount = 0;
+      for (let bi = 0; bi < bundles.length; bi++) {
+        const b = bundles[bi];
+        const name = ((b.name || '') + ' ' + (b.description || '')).toLowerCase();
+        const isOneRiyalBundle = name.includes('1 ريال') || name.includes('بريال') || name.includes('1ريال');
+        const usageCount = Number(b.usage_count) || (b.discount_total > 0 ? 1 : 0);
+        if (isOneRiyalBundle && cart && cart.length > 0 && usageCount > 0) {
+          const isOffer2 = name.includes('2+1') || name.includes('1+2') || (!name.includes('تولة') && !name.includes('توله'));
+          if (isOffer2) {
+            const eligible = [];
+            for (let ci = 0; ci < cart.length; ci++) {
+              const item = cart[ci];
+              const title = (item.title || item.name || '').toLowerCase();
+              const size = (item.size || '').toLowerCase();
+              const isNotSmall = !size.includes('30') && !title.includes('30 مل') && !title.includes('30مل') && !title.includes('تولة') && !title.includes('توله');
+              if (isNotSmall && item.price > 1) {
+                const qty = Number(item.quantity) || 1;
+                for (let q = 0; q < qty; q++) {
+                  eligible.push(Number(item.price) || 0);
+                }
+              }
+            }
+            eligible.sort((a, b) => a - b);
+            let bDisc = 0;
+            for (let i = 0; i < usageCount && i < eligible.length; i++) {
+              bDisc += Math.max(0, eligible[i] - 1);
+            }
+            totalDiscount += (bDisc > 0 ? bDisc : (Number(b.discount_total) || 0));
+          } else {
+            totalDiscount += (Number(b.discount_total) || 0);
+          }
+        } else {
+          totalDiscount += (Number(b.discount_total) || 0);
+        }
+      }
+      return totalDiscount;
     },
     syncLiveCart: async function() {
       if (typeof window === 'undefined' || typeof fetch !== 'function') return null;
@@ -3205,8 +3288,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
               const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
               const baseAfterBundle = Math.max(0, total - bundleDiscount);
               if ((savedCoupon || bundleDiscount > 0) && total > 0) {
-                const match = savedCoupon ? savedCoupon.match(/(\d+)/) : null;
-                const pct = match ? parseInt(match[1], 10) : (savedCoupon ? 5 : 0);
+                const pct = (savedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : (savedCoupon ? 5 : 0);
                 const discount = (baseAfterBundle * pct) / 100;
                 const finalTotal = Math.max(0, baseAfterBundle - discount);
                 totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(finalTotal)}</span>`;
@@ -3352,8 +3434,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       if (totalEl) {
         const baseAfterBundle = Math.max(0, total - bundleDiscount);
         if ((savedCoupon || bundleDiscount > 0) && total > 0) {
-          const match = savedCoupon ? savedCoupon.match(/(\d+)/) : null;
-          const pct = match ? parseInt(match[1], 10) : (savedCoupon ? 5 : 0);
+          const pct = (savedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : (savedCoupon ? 5 : 0);
           const discount = (baseAfterBundle * pct) / 100;
           const finalTotal = Math.max(0, baseAfterBundle - discount);
           totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(finalTotal)}</span>`;
@@ -5112,8 +5193,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     const appliedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
     const baseAfterBundle = Math.max(0, amount - bundleDiscount);
     if ((appliedCoupon || bundleDiscount > 0) && amount > 0) {
-      const match = appliedCoupon ? appliedCoupon.match(/(\d+)/) : null;
-      const pct = match ? parseInt(match[1], 10) : (appliedCoupon ? 5 : 0);
+      const pct = (appliedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : (appliedCoupon ? 5 : 0);
       const discount = (baseAfterBundle * pct) / 100;
       const finalAmount = Math.max(0, baseAfterBundle - discount);
       const grandEl = document.getElementById('page-grand-total');
