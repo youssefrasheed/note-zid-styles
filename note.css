@@ -60,6 +60,201 @@
       scrollbar-width: none;
     }
 
+    /* Hero Offer Announcement Gold Pill - Radiant & High Contrast */
+    .hero-offer-badge {
+      display: inline-block !important;
+      padding: 5px 14px !important;
+      border-radius: 9999px !important;
+      background: rgba(212, 175, 55, 0.22) !important;
+      border: 1px solid rgba(245, 215, 110, 0.75) !important;
+      color: #ffd777 !important;
+      font-size: 11px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.5px !important;
+      margin-bottom: 8px !important;
+      backdrop-filter: blur(8px) !important;
+      -webkit-backdrop-filter: blur(8px) !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45) !important;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7) !important;
+    }
+
+    /* White Friday Offer Luxury Dialog Modal (Identical Shape & Size to Welcome Popup) */
+    @keyframes noteWhiteFridayArrive {
+      from { opacity: 0; transform: translateY(15px) scale(.94); }
+      to { opacity: 1; transform: none; }
+    }
+    #white-friday-popup {
+      position: fixed;
+      inset: 0;
+      margin: auto;
+      width: min(420px, calc(100vw - 40px));
+      max-height: calc(100dvh - 32px);
+      overflow: auto;
+      font-family: NoteWelcome, Dahab, Tahoma, sans-serif;
+      color: #302b25;
+      padding: 30px 24px 22px;
+      text-align: center;
+      background: #fffdf8;
+      border: 1px solid #fff7e7;
+      border-radius: 26px;
+      box-shadow: 0 24px 90px rgba(0, 0, 0, 0.25);
+      animation: noteWhiteFridayArrive .45s ease-out;
+      direction: rtl;
+      z-index: 100000;
+      box-sizing: border-box;
+    }
+    #white-friday-popup * { box-sizing: border-box; }
+    #white-friday-popup::backdrop {
+      background: rgba(23, 23, 16, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+    #white-friday-popup .close {
+      position: absolute;
+      left: 14px;
+      top: 12px;
+      border: 0;
+      background: transparent;
+      color: #8c8579;
+      font-size: 25px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    #white-friday-popup .close:hover { color: #302b25; }
+    #white-friday-popup .brand {
+      font-family: Georgia, serif;
+      letter-spacing: 7px;
+      font-size: 13px;
+      color: #8c7e64;
+      direction: ltr;
+    }
+    #white-friday-popup .gift {
+      margin: 16px auto 12px;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #f6eddb;
+      color: #9c7841;
+    }
+    #white-friday-popup .gift svg {
+      width: 34px;
+      height: 34px;
+    }
+    #white-friday-popup h1 {
+      font-size: 24px;
+      margin: 0 0 6px;
+      font-weight: 700;
+      color: #302b25;
+    }
+    #white-friday-popup .desc {
+      font-size: 13.5px;
+      color: #82786b;
+      line-height: 1.6;
+      margin: 0 0 16px;
+    }
+    #white-friday-popup .offer-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px dashed #d9c49c;
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin: 10px 0;
+      background: #faf5eb;
+      width: 100%;
+      cursor: pointer;
+      text-align: right;
+      transition: all 0.2s ease;
+      color: #7a613e;
+    }
+    #white-friday-popup .offer-box:hover {
+      background: #f7eedd;
+      border-color: #c4a974;
+      transform: translateY(-1px);
+    }
+    #white-friday-popup .offer-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      text-align: right;
+    }
+    #white-friday-popup .offer-pill {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      background: #fdf6e9;
+      border: 1px solid #ebd9b8;
+      border-radius: 9999px;
+      padding: 2px 8px;
+      color: #835f28;
+      font-size: 10px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    #white-friday-popup .offer-pill.tolah {
+      background: #f5f0e6;
+      border-color: #dfd5c2;
+      color: #6d614e;
+    }
+    #white-friday-popup .offer-head {
+      font-size: 15px;
+      font-weight: 700;
+      color: #3f3528;
+    }
+    #white-friday-popup .offer-sub {
+      font-size: 11.5px;
+      color: #7d7264;
+      line-height: 1.4;
+    }
+    #white-friday-popup .offer-price {
+      font-size: 13px;
+      font-weight: 700;
+      color: #835f28;
+      background: #fff;
+      border: 1px solid #ebd9b8;
+      border-radius: 8px;
+      padding: 4px 8px;
+      white-space: nowrap;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    #white-friday-popup .primary {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: #302d25;
+      border: 0;
+      color: white;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 14px;
+      transition: opacity 0.2s;
+    }
+    #white-friday-popup .primary:hover { opacity: 0.9; }
+    #white-friday-popup .later {
+      border: 0;
+      background: none;
+      color: #918879;
+      font-family: inherit;
+      font-size: 12px;
+      margin-top: 14px;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+    }
+    #white-friday-popup .later:hover { color: #5a5347; }
+
 
 /* ==========================================================================
    NOTE PERFUMES - 100% LAVERNE MASTER EDITION FOR ZID
@@ -1239,3 +1434,199 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   color: #111111 !important;
   font-weight: 800 !important;
 }
+
+/* Hero Offer Announcement Gold Pill - Radiant & High Contrast */
+.hero-offer-badge {
+  display: inline-block !important;
+  padding: 5px 14px !important;
+  border-radius: 9999px !important;
+  background: rgba(212, 175, 55, 0.22) !important;
+  border: 1px solid rgba(245, 215, 110, 0.75) !important;
+  color: #ffd777 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 8px !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45) !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* White Friday Offer Luxury Dialog Modal (Identical Shape & Size to Welcome Popup) */
+@keyframes noteWhiteFridayArrive {
+  from { opacity: 0; transform: translateY(15px) scale(.94); }
+  to { opacity: 1; transform: none; }
+}
+#white-friday-popup {
+  position: fixed !important;
+  inset: 0 !important;
+  margin: auto !important;
+  width: min(420px, calc(100vw - 40px)) !important;
+  max-height: calc(100dvh - 32px) !important;
+  overflow: auto !important;
+  font-family: NoteWelcome, Dahab, Tahoma, sans-serif !important;
+  color: #302b25 !important;
+  padding: 30px 24px 22px !important;
+  text-align: center !important;
+  background: #fffdf8 !important;
+  border: 1px solid #fff7e7 !important;
+  border-radius: 26px !important;
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.25) !important;
+  animation: noteWhiteFridayArrive .45s ease-out !important;
+  direction: rtl !important;
+  z-index: 100000 !important;
+  box-sizing: border-box !important;
+}
+#white-friday-popup * { box-sizing: border-box !important; }
+#white-friday-popup::backdrop {
+  background: rgba(23, 23, 16, 0.55) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+#white-friday-popup .close {
+  position: absolute !important;
+  left: 14px !important;
+  top: 12px !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #8c8579 !important;
+  font-size: 25px !important;
+  width: 36px !important;
+  height: 36px !important;
+  cursor: pointer !important;
+  outline: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+#white-friday-popup .close:hover { color: #302b25 !important; }
+#white-friday-popup .brand {
+  font-family: Georgia, serif !important;
+  letter-spacing: 7px !important;
+  font-size: 13px !important;
+  color: #8c7e64 !important;
+  direction: ltr !important;
+}
+#white-friday-popup .gift {
+  margin: 16px auto 12px !important;
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  background: #f6eddb !important;
+  color: #9c7841 !important;
+}
+#white-friday-popup .gift svg {
+  width: 34px !important;
+  height: 34px !important;
+}
+#white-friday-popup h1 {
+  font-size: 24px !important;
+  margin: 0 0 6px !important;
+  font-weight: 700 !important;
+  color: #302b25 !important;
+}
+#white-friday-popup .desc {
+  font-size: 13.5px !important;
+  color: #82786b !important;
+  line-height: 1.6 !important;
+  margin: 0 0 16px !important;
+}
+#white-friday-popup .offer-box {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  border: 1px dashed #d9c49c !important;
+  border-radius: 14px !important;
+  padding: 12px 14px !important;
+  margin: 10px 0 !important;
+  background: #faf5eb !important;
+  width: 100% !important;
+  cursor: pointer !important;
+  text-align: right !important;
+  transition: all 0.2s ease !important;
+  color: #7a613e !important;
+}
+#white-friday-popup .offer-box:hover {
+  background: #f7eedd !important;
+  border-color: #c4a974 !important;
+  transform: translateY(-1px) !important;
+}
+#white-friday-popup .offer-info {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  text-align: right !important;
+}
+#white-friday-popup .offer-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  width: fit-content !important;
+  background: #fdf6e9 !important;
+  border: 1px solid #ebd9b8 !important;
+  border-radius: 9999px !important;
+  padding: 2px 8px !important;
+  color: #835f28 !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  margin-bottom: 2px !important;
+}
+#white-friday-popup .offer-pill.tolah {
+  background: #f5f0e6 !important;
+  border-color: #dfd5c2 !important;
+  color: #6d614e !important;
+}
+#white-friday-popup .offer-head {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #3f3528 !important;
+}
+#white-friday-popup .offer-sub {
+  font-size: 11.5px !important;
+  color: #7d7264 !important;
+  line-height: 1.4 !important;
+}
+#white-friday-popup .offer-price {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #835f28 !important;
+  background: #fff !important;
+  border: 1px solid #ebd9b8 !important;
+  border-radius: 8px !important;
+  padding: 4px 8px !important;
+  white-space: nowrap !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+#white-friday-popup .primary {
+  display: block !important;
+  width: 100% !important;
+  padding: 14px !important;
+  background: #302d25 !important;
+  border: 0 !important;
+  color: white !important;
+  border-radius: 12px !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  margin-top: 14px !important;
+  transition: opacity 0.2s !important;
+}
+#white-friday-popup .primary:hover { opacity: 0.9 !important; }
+#white-friday-popup .later {
+  border: 0 !important;
+  background: none !important;
+  color: #918879 !important;
+  font-family: inherit !important;
+  font-size: 12px !important;
+  margin-top: 14px !important;
+  cursor: pointer !important;
+  display: block !important;
+  width: 100% !important;
+}
+#white-friday-popup .later:hover { color: #5a5347 !important; }
+

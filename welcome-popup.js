@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const config = { enabled: false, code: 'NOTE5', delay: 2500 };
+  const config = { enabled: true, code: 'NOTE5', delay: 2000 };
   const key = 'note-welcome-surprise-v2';
   function start() {
     if (!config.enabled || location.pathname !== '/' || document.getElementById('note-welcome')) return;
@@ -20,7 +20,15 @@
       dialog.querySelector('.coupon strong').textContent = config.code;
       document.body.appendChild(dialog);
       const previousFocus = document.activeElement;
-      dialog.addEventListener('close', function () { dialog.remove(); if (previousFocus && previousFocus.isConnected) previousFocus.focus(); });
+      dialog.addEventListener('close', function () {
+        dialog.remove();
+        if (previousFocus && previousFocus.isConnected) previousFocus.focus();
+        setTimeout(function () {
+          if (typeof window.openOfferPopup === 'function') {
+            window.openOfferPopup();
+          }
+        }, 350);
+      });
       dialog.querySelector('#note-welcome-close').onclick = () => dialog.close();
       dialog.querySelector('.later').onclick = () => dialog.close();
       dialog.addEventListener('click', function (event) { if (event.target === dialog) { const r = dialog.getBoundingClientRect(); if(event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) dialog.close(); } });

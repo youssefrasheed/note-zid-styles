@@ -96,13 +96,208 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+
+    /* Hero Offer Announcement Gold Pill - Radiant & High Contrast */
+    .hero-offer-badge {
+      display: inline-block !important;
+      padding: 5px 14px !important;
+      border-radius: 9999px !important;
+      background: rgba(212, 175, 55, 0.22) !important;
+      border: 1px solid rgba(245, 215, 110, 0.75) !important;
+      color: #ffd777 !important;
+      font-size: 11px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.5px !important;
+      margin-bottom: 8px !important;
+      backdrop-filter: blur(8px) !important;
+      -webkit-backdrop-filter: blur(8px) !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45) !important;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7) !important;
+    }
+
+    /* White Friday Offer Luxury Dialog Modal (Identical Shape & Size to Welcome Popup) */
+    @keyframes noteWhiteFridayArrive {
+      from { opacity: 0; transform: translateY(15px) scale(.94); }
+      to { opacity: 1; transform: none; }
+    }
+    #white-friday-popup {
+      position: fixed;
+      inset: 0;
+      margin: auto;
+      width: min(420px, calc(100vw - 40px));
+      max-height: calc(100dvh - 32px);
+      overflow: auto;
+      font-family: NoteWelcome, Dahab, Tahoma, sans-serif;
+      color: #302b25;
+      padding: 30px 24px 22px;
+      text-align: center;
+      background: #fffdf8;
+      border: 1px solid #fff7e7;
+      border-radius: 26px;
+      box-shadow: 0 24px 90px rgba(0, 0, 0, 0.25);
+      animation: noteWhiteFridayArrive .45s ease-out;
+      direction: rtl;
+      z-index: 100000;
+      box-sizing: border-box;
+    }
+    #white-friday-popup * { box-sizing: border-box; }
+    #white-friday-popup::backdrop {
+      background: rgba(23, 23, 16, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+    #white-friday-popup .close {
+      position: absolute;
+      left: 14px;
+      top: 12px;
+      border: 0;
+      background: transparent;
+      color: #8c8579;
+      font-size: 25px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    #white-friday-popup .close:hover { color: #302b25; }
+    #white-friday-popup .brand {
+      font-family: Georgia, serif;
+      letter-spacing: 7px;
+      font-size: 13px;
+      color: #8c7e64;
+      direction: ltr;
+    }
+    #white-friday-popup .gift {
+      margin: 16px auto 12px;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #f6eddb;
+      color: #9c7841;
+    }
+    #white-friday-popup .gift svg {
+      width: 34px;
+      height: 34px;
+    }
+    #white-friday-popup h1 {
+      font-size: 24px;
+      margin: 0 0 6px;
+      font-weight: 700;
+      color: #302b25;
+    }
+    #white-friday-popup .desc {
+      font-size: 13.5px;
+      color: #82786b;
+      line-height: 1.6;
+      margin: 0 0 16px;
+    }
+    #white-friday-popup .offer-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px dashed #d9c49c;
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin: 10px 0;
+      background: #faf5eb;
+      width: 100%;
+      cursor: pointer;
+      text-align: right;
+      transition: all 0.2s ease;
+      color: #7a613e;
+    }
+    #white-friday-popup .offer-box:hover {
+      background: #f7eedd;
+      border-color: #c4a974;
+      transform: translateY(-1px);
+    }
+    #white-friday-popup .offer-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      text-align: right;
+    }
+    #white-friday-popup .offer-pill {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      background: #fdf6e9;
+      border: 1px solid #ebd9b8;
+      border-radius: 9999px;
+      padding: 2px 8px;
+      color: #835f28;
+      font-size: 10px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    #white-friday-popup .offer-pill.tolah {
+      background: #f5f0e6;
+      border-color: #dfd5c2;
+      color: #6d614e;
+    }
+    #white-friday-popup .offer-head {
+      font-size: 15px;
+      font-weight: 700;
+      color: #3f3528;
+    }
+    #white-friday-popup .offer-sub {
+      font-size: 11.5px;
+      color: #7d7264;
+      line-height: 1.4;
+    }
+    #white-friday-popup .offer-price {
+      font-size: 13px;
+      font-weight: 700;
+      color: #835f28;
+      background: #fff;
+      border: 1px solid #ebd9b8;
+      border-radius: 8px;
+      padding: 4px 8px;
+      white-space: nowrap;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    #white-friday-popup .primary {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: #302d25;
+      border: 0;
+      color: white;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 14px;
+      transition: opacity 0.2s;
+    }
+    #white-friday-popup .primary:hover { opacity: 0.9; }
+    #white-friday-popup .later {
+      border: 0;
+      background: none;
+      color: #918879;
+      font-family: inherit;
+      font-size: 12px;
+      margin-top: 14px;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+    }
+    #white-friday-popup .later:hover { color: #5a5347; }
   </style>
 </head>
 <body class="bg-white text-black antialiased selection:bg-black selection:text-white notranslate" translate="no">
 
   <!-- ================= 1. HEADER / NAVIGATION (100% LAVERNE ARCHITECTURE) ================= -->
-  <!-- Starts 100% transparent with white text, transforms into frosted blur (backdrop-blur-xl bg-white/70 text-black) on scroll -->
-  <header id="site-header" class="fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 bg-transparent text-white border-b border-white/10">
+  <!-- Dynamically adapts to hero slide theme (black on light slides, white on dark slides, frosted white on scroll) -->
+  <header id="site-header" class="fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 bg-transparent text-black border-b border-black/10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-24 flex items-center justify-between transition-all duration-300">
       
       <!-- Right: Mobile Menu + Logo -->
@@ -111,7 +306,7 @@
           <i class="sicon-menu text-xl"></i>
         </button>
         <a href="/" class="block group py-1">
-          <img id="store-logo" src="/logo_white_crisp.png" alt="NOTE Perfumes" class="h-8 sm:h-9 lg:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+          <img id="store-logo" src="/logo_dark_crisp.png" alt="NOTE Perfumes" class="h-8 sm:h-9 lg:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
         </a>
       </div>
 
@@ -161,14 +356,14 @@
     <div id="hero-slides-wrapper" class="absolute inset-0 w-full h-full">
 
       <!-- Slide 1: Offer 2 (عطرك بـ 1 ريال - 2+1) - Priority 1 -->
-      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-100 z-10" data-index="0">
+      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-100 z-10" data-index="0" data-theme="light">
         <picture class="w-full h-full block">
           <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Offer2_Perfume_1SAR_Mobile.webp">
           <img src="/assets/banners/Desktop/NOTE_Offer2_Perfume_1SAR_Desktop.webp" alt="عطرك بـ 1 ريال - عروض الجمعة البيضاء" fetchpriority="high" loading="eager" class="w-full h-full object-cover object-center">
         </picture>
         <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 via-35% to-transparent"></div>
         <div class="absolute inset-0 flex flex-col justify-end items-center pb-10 sm:pb-14 lg:pb-16 px-4 sm:px-6 max-w-5xl mx-auto pointer-events-auto text-center">
-          <span class="inline-block px-3.5 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-300 text-[10px] sm:text-xs font-black tracking-wider mb-2 backdrop-blur-md">عروض الجمعة البيضاء | 2+1</span>
+          <span class="hero-offer-badge" style="color: #ffd777 !important; background: rgba(212, 175, 55, 0.22) !important; border: 1px solid rgba(245, 215, 110, 0.75) !important; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7) !important;">عروض الجمعة البيضاء | 2+1</span>
           <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-tight drop-shadow-2xl">
             عطرك بـ 1 ريال
           </h1>
@@ -185,14 +380,14 @@
       </div>
 
       <!-- Slide 2: Offer 1 (تولة بـ 1 ريال - 1+تولة) - Priority 2 -->
-      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="1">
+      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="1" data-theme="light">
         <picture class="w-full h-full block">
           <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Offer1_Tolah_1SAR_Mobile.webp">
           <img src="/assets/banners/Desktop/NOTE_Offer1_Tolah_1SAR_Desktop.webp" alt="تولة بـ 1 ريال - عروض الجمعة البيضاء" loading="lazy" class="w-full h-full object-cover object-center">
         </picture>
         <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 via-35% to-transparent"></div>
         <div class="absolute inset-0 flex flex-col justify-end items-center pb-10 sm:pb-14 lg:pb-16 px-4 sm:px-6 max-w-5xl mx-auto pointer-events-auto text-center">
-          <span class="inline-block px-3.5 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-300 text-[10px] sm:text-xs font-black tracking-wider mb-2 backdrop-blur-md">عروض الجمعة البيضاء | 1+تولة</span>
+          <span class="hero-offer-badge" style="color: #ffd777 !important; background: rgba(212, 175, 55, 0.22) !important; border: 1px solid rgba(245, 215, 110, 0.75) !important; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7) !important;">عروض الجمعة البيضاء | 1+تولة</span>
           <h2 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-tight drop-shadow-2xl">
             تولة بـ 1 ريال
           </h2>
@@ -209,7 +404,7 @@
       </div>
 
       <!-- Slide 3: Musk Centered Minimal -->
-      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="2">
+      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="2" data-theme="dark">
         <picture class="w-full h-full block">
           <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Musk_Centered_Minimal_Hero_Mobile.webp">
           <img src="/assets/banners/Desktop/NOTE_Musk_Centered_Minimal_Hero_Desktop.webp" alt="مِسك نوت - أثر يُعرف قبل أن يُرى" loading="lazy" class="w-full h-full object-cover object-center">
@@ -232,7 +427,7 @@
       </div>
 
       <!-- Slide 4: Royal Tobacco & Oud Rosewood -->
-      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="3">
+      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="3" data-theme="dark">
         <picture class="w-full h-full block">
           <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Royal_Tobacco_Oud_Rosewood_Hero_Option_01_Mobile.webp">
           <img src="/assets/banners/Desktop/NOTE_Royal_Tobacco_Oud_Rosewood_Hero_Option_01_Desktop.webp" alt="رويال توباكو وعود روزوود" class="w-full h-full object-cover object-center">
@@ -255,7 +450,7 @@
       </div>
 
       <!-- Slide 5: Aura Musk & Royal Powder -->
-      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="4">
+      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="4" data-theme="dark">
         <picture class="w-full h-full block">
           <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Hero_Aura_Musk_Royal_Powder_Mobile.webp">
           <img src="/assets/banners/Desktop/NOTE_Hero_Aura_Musk_Royal_Powder_Desktop.webp" alt="أورا مسك ورويال باودر" class="w-full h-full object-cover object-center">
@@ -278,7 +473,7 @@
       </div>
 
       <!-- Slide 6: Ivory Stone Luxury -->
-      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="5">
+      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="5" data-theme="dark">
         <picture class="w-full h-full block">
           <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Hero_02_Ivory_Stone_Mobile.webp">
           <img src="/assets/banners/Desktop/NOTE_Hero_02_Ivory_Stone_Desktop.webp" alt="مجموعة المسك الملكية" class="w-full h-full object-cover object-center">
@@ -301,7 +496,7 @@
       </div>
 
       <!-- Slide 7: Amber Silk -->
-      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="6">
+      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="6" data-theme="dark">
         <picture class="w-full h-full block">
           <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Hero_01_Amber_Silk_Mobile.webp">
           <img src="/assets/banners/Desktop/NOTE_Hero_01_Amber_Silk_Desktop.webp" alt="حرير العنبر نوت" class="w-full h-full object-cover object-center">
@@ -853,79 +1048,41 @@
     <span id="cart-toast-text"></span>
   </div>
 
-  <!-- ================= WHITE FRIDAY OFFER POPUP MODAL ================= -->
-  <div id="white-friday-popup" class="fixed inset-0 z-[120] bg-black/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4" onclick="if(event.target === this) closeOfferPopup()">
-    <div class="relative bg-stone-900 border border-stone-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl text-white transform transition-transform duration-300 scale-95" id="white-friday-card">
-      
-      <!-- Close Button -->
-      <button onclick="closeOfferPopup()" class="absolute top-4 left-4 z-20 w-9 h-9 rounded-full bg-black/60 hover:bg-black text-white/80 hover:text-white flex items-center justify-center transition border border-white/10 backdrop-blur-sm cursor-pointer shadow-lg" aria-label="إغلاق">
-        <i class="sicon-cancel text-xs"></i>
-      </button>
-
-      <!-- Visual Banner / Header Image -->
-      <div class="relative w-full h-44 sm:h-52 overflow-hidden bg-black">
-        <img src="/assets/banners/NOTE_Offer2_Social.webp" alt="عروض الجمعة البيضاء نوت" class="w-full h-full object-cover object-center scale-105">
-        <div class="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/30 to-transparent"></div>
-        <div class="absolute top-4 right-4">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-black text-[10px] font-black tracking-wider shadow-lg">
-            <i class="sicon-star text-xs"></i>
-            <span>حملة الجمعة البيضاء</span>
-          </span>
-        </div>
-      </div>
-
-      <!-- Modal Body -->
-      <div class="p-5 sm:p-6 pt-2 text-center space-y-4">
-        <div>
-          <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight">
-            عروض الجمعة البيضاء الحصرية
-          </h3>
-          <p class="text-xs text-stone-300 mt-1">
-            اختر عطرك المفضل واستمتع بأقوى عروض الموسم من دار نوت
-          </p>
-        </div>
-
-        <!-- The 2 Offers Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-right">
-          <!-- Offer 1 Card -->
-          <div class="bg-stone-800/90 border border-amber-400/40 rounded-2xl p-3.5 relative overflow-hidden group hover:border-amber-400 transition">
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-[9px] font-extrabold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded-full">عرض 2 + 1</span>
-              <span class="text-sm font-black text-amber-400">1 ر.س</span>
-            </div>
-            <h4 class="text-sm font-black text-white mb-0.5">عطرك بـ 1 ريال</h4>
-            <p class="text-[10px] text-stone-300 leading-relaxed font-normal">
-              عند شرائك أي عطرين 100 مل... احصل على العطر الثالث بريال واحد فقط.
-            </p>
-          </div>
-
-          <!-- Offer 2 Card -->
-          <div class="bg-stone-800/90 border border-amber-400/40 rounded-2xl p-3.5 relative overflow-hidden group hover:border-amber-400 transition">
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-[9px] font-extrabold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded-full">عرض 1 + تولة</span>
-              <span class="text-sm font-black text-amber-400">1 ر.س</span>
-            </div>
-            <h4 class="text-sm font-black text-white mb-0.5">تولة بـ 1 ريال</h4>
-            <p class="text-[10px] text-stone-300 leading-relaxed font-normal">
-              عند شرائك أي عطر 100 مل... احصل على تولة مِسك فاخرة بريال واحد فقط.
-            </p>
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="pt-2 space-y-2">
-          <button onclick="acceptOfferPopup()" class="w-full py-3.5 rounded-full bg-white hover:bg-stone-100 text-black font-extrabold text-xs sm:text-sm transition shadow-xl active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
-            <span>تسوّق العروض الآن</span>
-            <i class="sicon-keyboard_arrow_left text-xs"></i>
-          </button>
-          <button onclick="closeOfferPopup()" class="text-[11px] text-stone-400 hover:text-white transition font-normal cursor-pointer py-1 block w-full text-center">
-            متابعة التصفح
-          </button>
-        </div>
-
-      </div>
+  <!-- ================= WHITE FRIDAY OFFER POPUP DIALOG (IDENTICAL SHAPE & SIZE TO WELCOME POPUP) ================= -->
+  <dialog id="white-friday-popup" dir="rtl" aria-labelledby="white-friday-title">
+    <button class="close" id="white-friday-close" onclick="closeOfferPopup()" aria-label="إغلاق">×</button>
+    <div class="brand">NOTE</div>
+    <div class="gift">
+      <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 5l3.5 7.5L32 14l-6 6 1.5 8.5L20 24.5 12.5 28.5 14 20l-6-6 8.5-1.5L20 5z"/>
+      </svg>
     </div>
-  </div>
+    <h1 id="white-friday-title">عروض الجمعة البيضاء</h1>
+    <p class="desc">أقوى عروض الموسم الحصرية من دار نوت للعطور</p>
+
+    <!-- Offer 1: 2+1 -->
+    <div class="offer-box" onclick="acceptOfferPopup()">
+      <div class="offer-info">
+        <div class="offer-pill"><span>عرض 2 + 1</span></div>
+        <strong class="offer-head">عطرك بـ 1 ريال</strong>
+        <span class="offer-sub">اشترِ أي عطرين 100 مل... واحصل على الثالث بـ 1 ريال</span>
+      </div>
+      <div class="offer-price">1 ر.س</div>
+    </div>
+
+    <!-- Offer 2: 1+Tolah -->
+    <div class="offer-box" onclick="acceptOfferPopup()">
+      <div class="offer-info">
+        <div class="offer-pill tolah"><span>عرض 1 + تولة</span></div>
+        <strong class="offer-head">تولة بـ 1 ريال</strong>
+        <span class="offer-sub">اشترِ أي عطر 100 مل... واحصل على تولة مِسك بـ 1 ريال</span>
+      </div>
+      <div class="offer-price">1 ر.س</div>
+    </div>
+
+    <button class="primary" id="white-friday-btn" onclick="acceptOfferPopup()">تسوّق عروض الجمعة البيضاء الآن</button>
+    <button class="later" onclick="closeOfferPopup()">تصفّح المتجر أولاً</button>
+  </dialog>
 
   <!-- Search Modal (Luxury Instant Autocomplete & Results) -->
   <div id="search-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 flex items-start justify-center pt-16 sm:pt-24 px-4" onclick="if(event.target === this) closeSearchModal()">
@@ -1339,30 +1496,57 @@
       }
     }
 
-    // Header Scroll Glassmorphism (100% Laverne Logic)
+    // Header Dynamic Adaptation & Scroll Glassmorphism
+    let currentHeroTheme = 'light';
+    let lastHeaderState = null;
+
     function handleHeaderScroll() {
       const header = document.getElementById('site-header');
       const storeLogo = document.getElementById('store-logo');
       const hero = document.getElementById('section-hero-video');
       if (!header) return;
 
-      const scrollY = window.scrollY || 0;
+      const scrollY = window.pageYOffset || window.scrollY || (document.documentElement && document.documentElement.scrollTop) || (document.body && document.body.scrollTop) || 0;
       const heroHeight = hero ? hero.offsetHeight : 800;
 
-      if (scrollY > 20) {
-        if (scrollY >= (heroHeight - 90)) {
-          // Over pure white content: Frosted glass with dark typography
-          header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 text-black shadow-sm border-b border-stone-200/50 backdrop-blur-xl bg-white/70';
-          if (storeLogo) storeLogo.src = '/logo_dark_crisp.png';
-        } else {
-          // Over hero video: Frosted glass with white typography
-          header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 text-white shadow-sm border-b border-white/10 backdrop-blur-xl bg-black/25';
-          if (storeLogo) storeLogo.src = '/logo_white_crisp.png';
+      if (!hero || scrollY >= (heroHeight - 90)) {
+        // Scrolled past hero: solid frosted white glass, black text, dark logo
+        if (lastHeaderState !== 'scrolled-solid') {
+          lastHeaderState = 'scrolled-solid';
+          header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 text-black shadow-sm border-b border-stone-200/50 backdrop-blur-xl bg-white/85';
+          if (storeLogo && !storeLogo.src.endsWith('/logo_dark_crisp.png')) {
+            storeLogo.src = '/logo_dark_crisp.png';
+          }
         }
       } else {
-        // At top: 100% Completely Transparent
-        header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 bg-transparent text-white border-b border-white/10';
-        if (storeLogo) storeLogo.src = '/logo_white_crisp.png';
+        // Over hero banner: dynamic theme matching active slide
+        if (currentHeroTheme === 'light') {
+          const state = scrollY > 20 ? 'hero-light-scrolled' : 'hero-light-top';
+          if (lastHeaderState !== state) {
+            lastHeaderState = state;
+            if (scrollY > 20) {
+              header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 text-black border-b border-black/10 backdrop-blur-md bg-white/40 shadow-xs';
+            } else {
+              header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 text-black border-b border-black/10 bg-transparent';
+            }
+            if (storeLogo && !storeLogo.src.endsWith('/logo_dark_crisp.png')) {
+              storeLogo.src = '/logo_dark_crisp.png';
+            }
+          }
+        } else {
+          const state = scrollY > 20 ? 'hero-dark-scrolled' : 'hero-dark-top';
+          if (lastHeaderState !== state) {
+            lastHeaderState = state;
+            if (scrollY > 20) {
+              header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 text-white border-b border-white/10 backdrop-blur-md bg-black/25 shadow-xs';
+            } else {
+              header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 text-white border-b border-white/10 bg-transparent';
+            }
+            if (storeLogo && !storeLogo.src.endsWith('/logo_white_crisp.png')) {
+              storeLogo.src = '/logo_white_crisp.png';
+            }
+          }
+        }
       }
     }
     window.addEventListener('scroll', handleHeaderScroll, { passive: true });
@@ -1397,32 +1581,27 @@
       modal.classList.add('hidden');
     }
 
-    // White Friday Offer Announcement Popup
+    // White Friday Offer Announcement Popup Dialog
     function openOfferPopup() {
       const p = document.getElementById('white-friday-popup');
-      const c = document.getElementById('white-friday-card');
       if (!p) return;
-      p.classList.remove('hidden');
-      void p.offsetWidth;
-      p.classList.remove('opacity-0');
-      if (c) {
-        c.classList.remove('scale-95');
-        c.classList.add('scale-100');
+      if (typeof p.showModal === 'function') {
+        if (!p.open) p.showModal();
+      } else {
+        p.classList.remove('hidden');
+        p.style.display = 'block';
       }
     }
 
     function closeOfferPopup() {
       const p = document.getElementById('white-friday-popup');
-      const c = document.getElementById('white-friday-card');
       if (!p) return;
-      if (c) {
-        c.classList.remove('scale-100');
-        c.classList.add('scale-95');
-      }
-      p.classList.add('opacity-0');
-      setTimeout(() => {
+      if (typeof p.close === 'function') {
+        if (p.open) p.close();
+      } else {
         p.classList.add('hidden');
-      }, 300);
+        p.style.display = 'none';
+      }
       try {
         sessionStorage.setItem('note_white_friday_popup_dismissed', '1');
       } catch (_) {}
@@ -1436,16 +1615,17 @@
       }
     }
 
-    // Auto-trigger White Friday Offer Popup after 1.5 seconds
+    // Auto-trigger White Friday Offer Popup only if discount popup is not queued/active
     setTimeout(() => {
       try {
         if (!sessionStorage.getItem('note_white_friday_popup_dismissed')) {
+          const welcomeDialog = document.getElementById('note-welcome');
+          const welcomeDismissed = sessionStorage.getItem('note-welcome-surprise-v2');
+          if (!welcomeDismissed || welcomeDialog) return;
           openOfferPopup();
         }
-      } catch (_) {
-        openOfferPopup();
-      }
-    }, 1500);
+      } catch (_) {}
+    }, 2500);
 
     function addToCart(title) {
       cartCount++;
@@ -1576,6 +1756,13 @@
         }
       });
 
+      const activeSlide = slides[currentHeroIndex];
+      if (activeSlide) {
+        currentHeroTheme = activeSlide.getAttribute('data-theme') || (currentHeroIndex <= 1 ? 'light' : 'dark');
+        lastHeaderState = null;
+        handleHeaderScroll();
+      }
+
       restartHeroTimer();
     }
 
@@ -1586,6 +1773,14 @@
     function prevHeroSlide() {
       goToHeroSlide(currentHeroIndex - 1);
     }
+
+    window.goToHeroSlide = goToHeroSlide;
+    window.nextHeroSlide = nextHeroSlide;
+    window.prevHeroSlide = prevHeroSlide;
+    window.handleHeaderScroll = handleHeaderScroll;
+    window.openOfferPopup = openOfferPopup;
+    window.closeOfferPopup = closeOfferPopup;
+    window.acceptOfferPopup = acceptOfferPopup;
 
     function startHeroTimer() {
       if (!heroTimer) {
@@ -1713,15 +1908,19 @@
       carousel.addEventListener('mouseenter', stopOfferTimer);
       carousel.addEventListener('mouseleave', startOfferTimer);
 
-      let startX = 0;
+      let startX = 0, startY = 0;
       carousel.addEventListener('touchstart', (e) => {
         startX = e.changedTouches[0].clientX;
+        startY = e.changedTouches[0].clientY;
         stopOfferTimer();
       }, { passive: true });
 
       carousel.addEventListener('touchend', (e) => {
-        const diffX = e.changedTouches[0].clientX - startX;
-        if (Math.abs(diffX) > 40) {
+        const endX = e.changedTouches[0].clientX;
+        const endY = e.changedTouches[0].clientY;
+        const diffX = endX - startX;
+        const diffY = endY - startY;
+        if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
           if (diffX > 0) prevOfferSlide();
           else nextOfferSlide();
         }

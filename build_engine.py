@@ -1314,6 +1314,202 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   color: #111111 !important;
   font-weight: 800 !important;
 }}
+
+/* Hero Offer Announcement Gold Pill - Radiant & High Contrast */
+.hero-offer-badge {{
+  display: inline-block !important;
+  padding: 5px 14px !important;
+  border-radius: 9999px !important;
+  background: rgba(212, 175, 55, 0.22) !important;
+  border: 1px solid rgba(245, 215, 110, 0.75) !important;
+  color: #ffd777 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 8px !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.45) !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7) !important;
+}}
+
+/* White Friday Offer Luxury Dialog Modal (Identical Shape & Size to Welcome Popup) */
+@keyframes noteWhiteFridayArrive {{
+  from {{ opacity: 0; transform: translateY(15px) scale(.94); }}
+  to {{ opacity: 1; transform: none; }}
+}}
+#white-friday-popup {{
+  position: fixed !important;
+  inset: 0 !important;
+  margin: auto !important;
+  width: min(420px, calc(100vw - 40px)) !important;
+  max-height: calc(100dvh - 32px) !important;
+  overflow: auto !important;
+  font-family: NoteWelcome, Dahab, Tahoma, sans-serif !important;
+  color: #302b25 !important;
+  padding: 30px 24px 22px !important;
+  text-align: center !important;
+  background: #fffdf8 !important;
+  border: 1px solid #fff7e7 !important;
+  border-radius: 26px !important;
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.25) !important;
+  animation: noteWhiteFridayArrive .45s ease-out !important;
+  direction: rtl !important;
+  z-index: 100000 !important;
+  box-sizing: border-box !important;
+}}
+#white-friday-popup * {{ box-sizing: border-box !important; }}
+#white-friday-popup::backdrop {{
+  background: rgba(23, 23, 16, 0.55) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}}
+#white-friday-popup .close {{
+  position: absolute !important;
+  left: 14px !important;
+  top: 12px !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #8c8579 !important;
+  font-size: 25px !important;
+  width: 36px !important;
+  height: 36px !important;
+  cursor: pointer !important;
+  outline: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}}
+#white-friday-popup .close:hover {{ color: #302b25 !important; }}
+#white-friday-popup .brand {{
+  font-family: Georgia, serif !important;
+  letter-spacing: 7px !important;
+  font-size: 13px !important;
+  color: #8c7e64 !important;
+  direction: ltr !important;
+}}
+#white-friday-popup .gift {{
+  margin: 16px auto 12px !important;
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  background: #f6eddb !important;
+  color: #9c7841 !important;
+}}
+#white-friday-popup .gift svg {{
+  width: 34px !important;
+  height: 34px !important;
+}}
+#white-friday-popup h1 {{
+  font-size: 24px !important;
+  margin: 0 0 6px !important;
+  font-weight: 700 !important;
+  color: #302b25 !important;
+}}
+#white-friday-popup .desc {{
+  font-size: 13.5px !important;
+  color: #82786b !important;
+  line-height: 1.6 !important;
+  margin: 0 0 16px !important;
+}}
+#white-friday-popup .offer-box {{
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  border: 1px dashed #d9c49c !important;
+  border-radius: 14px !important;
+  padding: 12px 14px !important;
+  margin: 10px 0 !important;
+  background: #faf5eb !important;
+  width: 100% !important;
+  cursor: pointer !important;
+  text-align: right !important;
+  transition: all 0.2s ease !important;
+  color: #7a613e !important;
+}}
+#white-friday-popup .offer-box:hover {{
+  background: #f7eedd !important;
+  border-color: #c4a974 !important;
+  transform: translateY(-1px) !important;
+}}
+#white-friday-popup .offer-info {{
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  text-align: right !important;
+}}
+#white-friday-popup .offer-pill {{
+  display: inline-flex !important;
+  align-items: center !important;
+  width: fit-content !important;
+  background: #fdf6e9 !important;
+  border: 1px solid #ebd9b8 !important;
+  border-radius: 9999px !important;
+  padding: 2px 8px !important;
+  color: #835f28 !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  margin-bottom: 2px !important;
+}}
+#white-friday-popup .offer-pill.tolah {{
+  background: #f5f0e6 !important;
+  border-color: #dfd5c2 !important;
+  color: #6d614e !important;
+}}
+#white-friday-popup .offer-head {{
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #3f3528 !important;
+}}
+#white-friday-popup .offer-sub {{
+  font-size: 11.5px !important;
+  color: #7d7264 !important;
+  line-height: 1.4 !important;
+}}
+#white-friday-popup .offer-price {{
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #835f28 !important;
+  background: #fff !important;
+  border: 1px solid #ebd9b8 !important;
+  border-radius: 8px !important;
+  padding: 4px 8px !important;
+  white-space: nowrap !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}}
+#white-friday-popup .primary {{
+  display: block !important;
+  width: 100% !important;
+  padding: 14px !important;
+  background: #302d25 !important;
+  border: 0 !important;
+  color: white !important;
+  border-radius: 12px !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  margin-top: 14px !important;
+  transition: opacity 0.2s !important;
+}}
+#white-friday-popup .primary:hover {{ opacity: 0.9 !important; }}
+#white-friday-popup .later {{
+  border: 0 !important;
+  background: none !important;
+  color: #918879 !important;
+  font-family: inherit !important;
+  font-size: 12px !important;
+  margin-top: 14px !important;
+  cursor: pointer !important;
+  display: block !important;
+  width: 100% !important;
+}}
+#white-friday-popup .later:hover {{ color: #5a5347 !important; }}
+
 """
 
 suppression_css = fix_startup_css(suppression_css)
@@ -2727,35 +2923,57 @@ app_js_code = f"""/**
     }}, true);
   }}
 
-  // 10. Header Scroll Glassmorphism
+  // 10. Header Dynamic Theme Adaptation & Glassmorphism
+  let currentHeroTheme = 'light';
+  let lastHeaderState = null;
+
   function handleHeaderScroll() {{
     const header = document.getElementById('site-header');
     const storeLogo = document.getElementById('store-logo');
     const hero = document.getElementById('section-hero-video');
     if (!header) return;
 
-    const scrollY = window.scrollY || 0;
-    
-    // If not on homepage (no hero), keep solid frosted white
-    if (!hero) {{
-      header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 text-black shadow-sm border-b border-stone-200/50 backdrop-blur-xl bg-white/85';
-      if (storeLogo) storeLogo.src = ASSET_HOST + '/logo_dark_crisp.png';
-      return;
-    }}
+    const scrollY = window.pageYOffset || window.scrollY || (document.documentElement && document.documentElement.scrollTop) || (document.body && document.body.scrollTop) || 0;
+    const heroHeight = hero ? hero.offsetHeight : 800;
 
-    const heroHeight = hero.offsetHeight || 800;
-
-    if (scrollY > 20) {{
-      if (scrollY >= (heroHeight - 90)) {{
-        header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 text-black shadow-sm border-b border-stone-200/50 backdrop-blur-xl bg-white/70';
-        if (storeLogo) storeLogo.src = ASSET_HOST + '/logo_dark_crisp.png';
-      }} else {{
-        header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 text-white shadow-sm border-b border-white/10 backdrop-blur-xl bg-black/25';
-        if (storeLogo) storeLogo.src = ASSET_HOST + '/logo_white_crisp.png';
+    if (!hero || scrollY >= (heroHeight - 90)) {{
+      // Scrolled past hero: solid frosted white glass, black text, dark logo
+      if (lastHeaderState !== 'scrolled-solid') {{
+        lastHeaderState = 'scrolled-solid';
+        header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 text-black shadow-sm border-b border-stone-200/50 backdrop-blur-xl bg-white/85';
+        if (storeLogo && !storeLogo.src.endsWith('/logo_dark_crisp.png')) {{
+          storeLogo.src = ASSET_HOST + '/logo_dark_crisp.png';
+        }}
       }}
     }} else {{
-      header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 bg-transparent text-white border-b border-white/10';
-      if (storeLogo) storeLogo.src = ASSET_HOST + '/logo_white_crisp.png';
+      // Over hero banner: dynamic theme matching active slide
+      if (currentHeroTheme === 'light') {{
+        const state = scrollY > 20 ? 'hero-light-scrolled' : 'hero-light-top';
+        if (lastHeaderState !== state) {{
+          lastHeaderState = state;
+          if (scrollY > 20) {{
+            header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 text-black border-b border-black/10 backdrop-blur-md bg-white/40 shadow-xs';
+          }} else {{
+            header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 text-black border-b border-black/10 bg-transparent';
+          }}
+          if (storeLogo && !storeLogo.src.endsWith('/logo_dark_crisp.png')) {{
+            storeLogo.src = ASSET_HOST + '/logo_dark_crisp.png';
+          }}
+        }}
+      }} else {{
+        const state = scrollY > 20 ? 'hero-dark-scrolled' : 'hero-dark-top';
+        if (lastHeaderState !== state) {{
+          lastHeaderState = state;
+          if (scrollY > 20) {{
+            header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 text-white border-b border-white/10 backdrop-blur-md bg-black/25 shadow-xs';
+          }} else {{
+            header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 text-white border-b border-white/10 bg-transparent';
+          }}
+          if (storeLogo && !storeLogo.src.endsWith('/logo_white_crisp.png')) {{
+            storeLogo.src = ASSET_HOST + '/logo_white_crisp.png';
+          }}
+        }}
+      }}
     }}
   }}
 
@@ -2815,32 +3033,27 @@ app_js_code = f"""/**
     }}
   }}
 
-  // White Friday Offer Announcement Popup
+  // White Friday Offer Announcement Popup Dialog
   function openOfferPopup() {{
     const p = document.getElementById('white-friday-popup');
-    const c = document.getElementById('white-friday-card');
     if (!p) return;
-    p.classList.remove('hidden');
-    void p.offsetWidth;
-    p.classList.remove('opacity-0');
-    if (c) {{
-      c.classList.remove('scale-95');
-      c.classList.add('scale-100');
+    if (typeof p.showModal === 'function') {{
+      if (!p.open) p.showModal();
+    }} else {{
+      p.classList.remove('hidden');
+      p.style.display = 'block';
     }}
   }}
 
   function closeOfferPopup() {{
     const p = document.getElementById('white-friday-popup');
-    const c = document.getElementById('white-friday-card');
     if (!p) return;
-    if (c) {{
-      c.classList.remove('scale-100');
-      c.classList.add('scale-95');
-    }}
-    p.classList.add('opacity-0');
-    setTimeout(() => {{
+    if (typeof p.close === 'function') {{
+      if (p.open) p.close();
+    }} else {{
       p.classList.add('hidden');
-    }}, 300);
+      p.style.display = 'none';
+    }}
     try {{
       sessionStorage.setItem('note_white_friday_popup_dismissed', '1');
     }} catch (_) {{}}
@@ -3044,6 +3257,13 @@ app_js_code = f"""/**
       }}
     }});
 
+    const activeSlide = slides[currentHeroIndex];
+    if (activeSlide) {{
+      currentHeroTheme = activeSlide.getAttribute('data-theme') || (currentHeroIndex <= 1 ? 'light' : 'dark');
+      lastHeaderState = null;
+      handleHeaderScroll();
+    }}
+
     restartHeroTimer();
   }}
 
@@ -3165,15 +3385,19 @@ app_js_code = f"""/**
     carousel.addEventListener('mouseenter', stopOfferTimer);
     carousel.addEventListener('mouseleave', startOfferTimer);
 
-    let startX = 0;
+    let startX = 0, startY = 0;
     carousel.addEventListener('touchstart', (e) => {{
       startX = e.changedTouches[0].clientX;
+      startY = e.changedTouches[0].clientY;
       stopOfferTimer();
     }}, {{ passive: true }});
 
     carousel.addEventListener('touchend', (e) => {{
-      const diffX = e.changedTouches[0].clientX - startX;
-      if (Math.abs(diffX) > 40) {{
+      const endX = e.changedTouches[0].clientX;
+      const endY = e.changedTouches[0].clientY;
+      const diffX = endX - startX;
+      const diffY = endY - startY;
+      if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {{
         if (diffX > 0) prevOfferSlide();
         else nextOfferSlide();
       }}
@@ -4479,18 +4703,21 @@ app_js_code = f"""/**
   window.closeOfferPopup = closeOfferPopup;
   window.acceptOfferPopup = acceptOfferPopup;
 
-  // Auto-trigger White Friday Offer Popup after 2 seconds
+  // Auto-trigger White Friday Offer Popup only if discount popup is not queued/active
   setTimeout(() => {{
     try {{
       if (!sessionStorage.getItem('note_white_friday_popup_dismissed')) {{
         if (!window.location.pathname.includes('/checkout') && !window.location.pathname.includes('/cart')) {{
+          const welcomeDialog = document.getElementById('note-welcome');
+          const welcomeDismissed = sessionStorage.getItem('note-welcome-surprise-v2');
+          if (!welcomeDismissed || welcomeDialog) return;
           openOfferPopup();
         }}
       }}
     }} catch (_) {{
       openOfferPopup();
     }}
-  }}, 2000);
+  }}, 2500);
 
   // PDP Handlers
   window.changePDPQuantity = changePDPQuantity;
