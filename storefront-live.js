@@ -1094,16 +1094,23 @@
         }
       }
 
-      const appliedCoupon = localStorage.getItem('note_applied_coupon');
-      if (appliedCoupon && api?.applyCoupon) {
-        try {
-          if (api.removeCoupons) await api.removeCoupons().catch(() => null);
-          await api.applyCoupon({ coupon_code: appliedCoupon });
-        } catch (e) {
-          console.warn('NOTE coupon sync warning:', e);
+      const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
+      if (liveBundleDisc > 0) {
+        if (api?.removeCoupons) {
+          try { await api.removeCoupons().catch(() => null); } catch (_) {}
         }
-      } else if (!appliedCoupon && api?.removeCoupons) {
-        try { await api.removeCoupons().catch(() => null); } catch (_) {}
+      } else {
+        const appliedCoupon = localStorage.getItem('note_applied_coupon');
+        if (appliedCoupon && api?.applyCoupon) {
+          try {
+            if (api.removeCoupons) await api.removeCoupons().catch(() => null);
+            await api.applyCoupon({ coupon_code: appliedCoupon });
+          } catch (e) {
+            console.warn('NOTE coupon sync warning:', e);
+          }
+        } else if (!appliedCoupon && api?.removeCoupons) {
+          try { await api.removeCoupons().catch(() => null); } catch (_) {}
+        }
       }
 
       let checkoutUrl = '/checkout';

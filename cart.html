@@ -732,8 +732,13 @@
 
       const appliedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
       const baseAfterBundle = Math.max(0, amount - bundleDiscount);
-      if ((appliedCoupon || bundleDiscount > 0) && amount > 0) {
-        const pct = (appliedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : (appliedCoupon ? 5 : 0);
+      if (bundleDiscount > 0) {
+        const grandTotalEl = document.getElementById('page-grand-total');
+        if (grandTotalEl) {
+          grandTotalEl.innerHTML = `<span class="note-cart-total-old line-through text-stone-400 font-semibold text-base sm:text-lg ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:16px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(amount)}</span><span class="note-cart-total-new text-rose-600 font-black text-2xl" style="color:#ef4444!important;font-size:24px!important;font-weight:900!important;">${formatPrice(baseAfterBundle)}</span>`;
+        }
+      } else if (appliedCoupon && amount > 0) {
+        const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : 5;
         const discount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
         const finalAmount = Math.max(0, Math.round((baseAfterBundle - discount) * 100) / 100);
         const grandTotalEl = document.getElementById('page-grand-total');
@@ -821,16 +826,23 @@
           }
         }
 
-        const appliedCoupon = localStorage.getItem('note_applied_coupon');
-        if (appliedCoupon && api && typeof api.applyCoupon === 'function') {
-          try {
-            if (api.removeCoupons) await api.removeCoupons().catch(() => null);
-            await api.applyCoupon({ coupon_code: appliedCoupon });
-          } catch (e) {
-            console.warn('NOTE coupon sync warning:', e);
+        const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
+        if (liveBundleDisc > 0) {
+          if (api && typeof api.removeCoupons === 'function') {
+            try { await api.removeCoupons().catch(() => null); } catch (_) {}
           }
-        } else if (!appliedCoupon && api && typeof api.removeCoupons === 'function') {
-          try { await api.removeCoupons().catch(() => null); } catch (_) {}
+        } else {
+          const appliedCoupon = localStorage.getItem('note_applied_coupon');
+          if (appliedCoupon && api && typeof api.applyCoupon === 'function') {
+            try {
+              if (api.removeCoupons) await api.removeCoupons().catch(() => null);
+              await api.applyCoupon({ coupon_code: appliedCoupon });
+            } catch (e) {
+              console.warn('NOTE coupon sync warning:', e);
+            }
+          } else if (!appliedCoupon && api && typeof api.removeCoupons === 'function') {
+            try { await api.removeCoupons().catch(() => null); } catch (_) {}
+          }
         }
 
         let checkoutUrl = '/checkout';

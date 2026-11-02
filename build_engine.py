@@ -1762,9 +1762,24 @@ app_js_code = f"""/**
     'linen-collection': '83561f07-7f51-43a4-a632-2030d6b71bc1',
     'مرطب-و-شور-جل': '0fc4a4f6-5c93-41a4-b727-d950bfcb6e30',
     'shower-gel': '0fc4a4f6-5c93-41a4-b727-d950bfcb6e30',
-    'hyaluronic-moisturizer': '0fc4a4f6-5c93-41a4-b727-d950bfcb6e30',
+    'hyaluronic-moisturizer': 'a0ee1fce-8576-4f1c-b90a-7c1c6fb37ea3',
+    'لوشن-مرطب-الجسم-بالهيالورونيك': 'a0ee1fce-8576-4f1c-b90a-7c1c6fb37ea3',
     '3-معطر-للجسم-بالكامل': '4e22b431-43a0-4cd8-9e45-f6a671f2620c',
-    'pkg-all-over-collection': '4e22b431-43a0-4cd8-9e45-f6a671f2620c'
+    'pkg-all-over-collection': '4e22b431-43a0-4cd8-9e45-f6a671f2620c',
+    'pkg-summer-escape': '4dd1ba69-3aa9-47ca-ac3a-3c1a3401d91f',
+    'باقة-سمر-إسكيب': '4dd1ba69-3aa9-47ca-ac3a-3c1a3401d91f',
+    'pkg-her-signature': '2495afd3-c781-4b99-8546-e26ce3b8dfb3',
+    'باقة-هير-سفنتشر': '2495afd3-c781-4b99-8546-e26ce3b8dfb3',
+    'pkg-mens-signature': '0d94199e-e69d-4f8e-92b9-b1248a657fec',
+    'باقة-منز-سفنتشر': '0d94199e-e69d-4f8e-92b9-b1248a657fec',
+    'pkg-night-signature': 'cbb0eb0c-cb7b-4e5c-a2b2-f554912fc2b7',
+    'باقة-نايت-سفنتشر': 'cbb0eb0c-cb7b-4e5c-a2b2-f554912fc2b7',
+    'pkg-powderose': '86360ff5-5e4e-49fd-873a-aa46f1747b4d',
+    'باقة-باودروز': '86360ff5-5e4e-49fd-873a-aa46f1747b4d',
+    'pkg-royal-tobacco': '86088322-3d9d-4767-88a5-73f4ef896abf',
+    'باقة-رويال-توباكو': '86088322-3d9d-4767-88a5-73f4ef896abf',
+    'pkg-tolah-collection': 'a1ef6ad8-d3e1-45f1-bd3e-2d554826533e',
+    'مجموعة-التولات-الخاصة-اختر-3': 'a1ef6ad8-d3e1-45f1-bd3e-2d554826533e'
   }};
 
   // 5.1 Zid Live Sync Manager (Fail-Safe Stale-While-Revalidate Engine)
@@ -2318,8 +2333,10 @@ app_js_code = f"""/**
               }}
               const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
               const baseAfterBundle = Math.max(0, total - bundleDiscount);
-              if ((savedCoupon || bundleDiscount > 0) && total > 0) {{
-                const pct = (savedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : (savedCoupon ? 5 : 0);
+              if (bundleDiscount > 0) {{
+                totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${{formatPrice(total)}}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${{formatPrice(baseAfterBundle)}}</span>`;
+              }} else if (savedCoupon && total > 0) {{
+                const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : 5;
                 const discount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
                 const finalTotal = Math.max(0, Math.round((baseAfterBundle - discount) * 100) / 100);
                 totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${{formatPrice(total)}}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${{formatPrice(finalTotal)}}</span>`;
@@ -2464,8 +2481,10 @@ app_js_code = f"""/**
       const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
       if (totalEl) {{
         const baseAfterBundle = Math.max(0, total - bundleDiscount);
-        if ((savedCoupon || bundleDiscount > 0) && total > 0) {{
-          const pct = (savedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : (savedCoupon ? 5 : 0);
+        if (bundleDiscount > 0) {{
+          totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${{formatPrice(total)}}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${{formatPrice(baseAfterBundle)}}</span>`;
+        }} else if (savedCoupon && total > 0) {{
+          const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : 5;
           const discount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
           const finalTotal = Math.max(0, Math.round((baseAfterBundle - discount) * 100) / 100);
           totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${{formatPrice(total)}}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${{formatPrice(finalTotal)}}</span>`;
@@ -4298,8 +4317,13 @@ app_js_code = f"""/**
 
     const appliedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
     const baseAfterBundle = Math.max(0, amount - bundleDiscount);
-    if ((appliedCoupon || bundleDiscount > 0) && amount > 0) {{
-      const pct = (appliedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : (appliedCoupon ? 5 : 0);
+    if (bundleDiscount > 0) {{
+      const grandEl = document.getElementById('page-grand-total');
+      if (grandEl) {{
+        grandEl.innerHTML = `<span class="note-cart-total-old line-through text-stone-400 font-semibold text-sm sm:text-base ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:15px!important;font-weight:600!important;margin-left:8px!important;">${{formatPrice(amount)}}</span><span class="note-cart-total-new text-rose-600 font-black text-xl sm:text-2xl" style="color:#ef4444!important;font-size:22px!important;font-weight:900!important;">${{formatPrice(baseAfterBundle)}}</span>`;
+      }}
+    }} else if (appliedCoupon && amount > 0) {{
+      const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : 5;
       const discount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
       const finalAmount = Math.max(0, Math.round((baseAfterBundle - discount) * 100) / 100);
       const grandEl = document.getElementById('page-grand-total');
@@ -4396,16 +4420,23 @@ app_js_code = f"""/**
         }}
       }}
 
-      const appliedCoupon = localStorage.getItem('note_applied_coupon');
-      if (appliedCoupon && api && typeof api.applyCoupon === 'function') {{
-        try {{
-          if (api.removeCoupons) await api.removeCoupons().catch(() => null);
-          await api.applyCoupon({{ coupon_code: appliedCoupon }});
-        }} catch (e) {{
-          console.warn('NOTE coupon sync warning:', e);
+      const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
+      if (liveBundleDisc > 0) {{
+        if (api && typeof api.removeCoupons === 'function') {{
+          try {{ await api.removeCoupons().catch(() => null); }} catch (_) {{}}
         }}
-      }} else if (!appliedCoupon && api && typeof api.removeCoupons === 'function') {{
-        try {{ await api.removeCoupons().catch(() => null); }} catch (_) {{}}
+      }} else {{
+        const appliedCoupon = localStorage.getItem('note_applied_coupon');
+        if (appliedCoupon && api && typeof api.applyCoupon === 'function') {{
+          try {{
+            if (api.removeCoupons) await api.removeCoupons().catch(() => null);
+            await api.applyCoupon({{ coupon_code: appliedCoupon }});
+          }} catch (e) {{
+            console.warn('NOTE coupon sync warning:', e);
+          }}
+        }} else if (!appliedCoupon && api && typeof api.removeCoupons === 'function') {{
+          try {{ await api.removeCoupons().catch(() => null); }} catch (_) {{}}
+        }}
       }}
 
       let checkoutUrl = '/checkout';
