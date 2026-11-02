@@ -3125,6 +3125,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         }
 
         if (matched) {
+          matched.zid_id = zId;
           if (zPrice && !isNaN(zPrice)) {
             matched.price = Math.round(Number(zPrice));
           }
@@ -5621,10 +5622,26 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         } catch (_) {}
       }
 
+      const isUuid = (s) => typeof s === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+      const resolveZidUuid = (item) => {
+        if (!item) return null;
+        const rawKey = item.id || item.product_id;
+        const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === rawKey || cp.id === item.product_id || cp.slug === rawKey || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[rawKey] === cp.id)) : null;
+        if (p && isUuid(p.zid_id)) return p.zid_id;
+        if (typeof ZID_PRODUCT_MAP !== 'undefined') {
+          if (ZID_PRODUCT_MAP[rawKey]) return ZID_PRODUCT_MAP[rawKey];
+          if (p && ZID_PRODUCT_MAP[p.id]) return ZID_PRODUCT_MAP[p.id];
+        }
+        if (isUuid(item.product_id)) return item.product_id;
+        if (isUuid(item.id)) return item.id;
+        if (p && isUuid(p.id)) return p.id;
+        return (p && p.zid_id) || item.product_id || item.id;
+      };
+
       if (api && typeof api.addProduct === 'function') {
         for (const item of cart) {
-          const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === item.id || cp.id === item.product_id || cp.slug === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[item.id] === cp.id)) : null;
-          const zidUuid = (p && p.zid_id) || (p && p.id && p.id.includes('-') ? p.id : null) || (typeof ZID_PRODUCT_MAP !== 'undefined' ? ZID_PRODUCT_MAP[item.id] : null) || item.product_id || item.id;
+          const zidUuid = resolveZidUuid(item);
+          if (!zidUuid) continue;
           try {
             await api.addProduct({
               product_id: zidUuid,
@@ -5649,7 +5666,18 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         try { await api.removeCoupons().catch(() => null); } catch (_) {}
       }
 
-      window.location.href = '/checkout';
+      let checkoutUrl = '/checkout';
+      try {
+        if (api && typeof api.get === 'function') {
+          const finalRes = await api.get();
+          const fc = finalRes?.data?.cart || finalRes?.cart || finalRes;
+          if (fc && fc.basket_url) {
+            checkoutUrl = fc.basket_url;
+          }
+        }
+      } catch (_) {}
+
+      window.location.href = checkoutUrl;
       return;
     } catch (err) {
       console.error('Zid sync error:', err);
@@ -7040,9 +7068,25 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         } catch(_) {}
       }
 
+      const isUuid = (s) => typeof s === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+      const resolveZidUuid = (item) => {
+        if (!item) return null;
+        const rawKey = item.id || item.product_id;
+        const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === rawKey || cp.id === item.product_id || cp.slug === rawKey || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[rawKey] === cp.id)) : null;
+        if (p && isUuid(p.zid_id)) return p.zid_id;
+        if (typeof ZID_PRODUCT_MAP !== 'undefined') {
+          if (ZID_PRODUCT_MAP[rawKey]) return ZID_PRODUCT_MAP[rawKey];
+          if (p && ZID_PRODUCT_MAP[p.id]) return ZID_PRODUCT_MAP[p.id];
+        }
+        if (isUuid(item.product_id)) return item.product_id;
+        if (isUuid(item.id)) return item.id;
+        if (p && isUuid(p.id)) return p.id;
+        return (p && p.zid_id) || item.product_id || item.id;
+      };
+
       for(const item of cart) {
-        const p = noteProductsCatalog.find(cp => cp.id === item.id || cp.id === item.product_id || cp.slug === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[item.id] === cp.id));
-        const zidUuid = (p && p.zid_id) || (p && p.id && p.id.includes('-') ? p.id : null) || (typeof ZID_PRODUCT_MAP !== 'undefined' ? ZID_PRODUCT_MAP[item.id] : null) || item.product_id || item.id;
+        const zidUuid = resolveZidUuid(item);
+        if (!zidUuid) continue;
         try {
           await api.addProduct({
             product_id: zidUuid,
@@ -7065,7 +7109,18 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       } else if (!appliedCoupon && api?.removeCoupons) {
         try { await api.removeCoupons().catch(() => null); } catch (_) {}
       }
-      location.href='/checkout';
+
+      let checkoutUrl = '/checkout';
+      try {
+        if (typeof api.get === 'function') {
+          const finalRes = await api.get();
+          const fc = finalRes?.data?.cart || finalRes?.cart || finalRes;
+          if (fc && fc.basket_url) {
+            checkoutUrl = fc.basket_url;
+          }
+        }
+      } catch (_) {}
+      location.href = checkoutUrl;
     } catch(error) {
       CartManager.showToast(escapeHTML(error.message));
       checkoutBtns.forEach((b, idx) => {
