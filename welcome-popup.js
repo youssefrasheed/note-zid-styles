@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const config = { enabled: true, code: 'NOTE5', delay: 2500 };
+  const config = { enabled: false, code: 'NOTE5', delay: 2500 };
   const key = 'note-welcome-surprise-v2';
   function start() {
     if (!config.enabled || location.pathname !== '/' || document.getElementById('note-welcome')) return;

@@ -2815,6 +2815,53 @@ app_js_code = f"""/**
     }}
   }}
 
+  // White Friday Offer Announcement Popup
+  function openOfferPopup() {{
+    const p = document.getElementById('white-friday-popup');
+    const c = document.getElementById('white-friday-card');
+    if (!p) return;
+    p.classList.remove('hidden');
+    void p.offsetWidth;
+    p.classList.remove('opacity-0');
+    if (c) {{
+      c.classList.remove('scale-95');
+      c.classList.add('scale-100');
+    }}
+  }}
+
+  function closeOfferPopup() {{
+    const p = document.getElementById('white-friday-popup');
+    const c = document.getElementById('white-friday-card');
+    if (!p) return;
+    if (c) {{
+      c.classList.remove('scale-100');
+      c.classList.add('scale-95');
+    }}
+    p.classList.add('opacity-0');
+    setTimeout(() => {{
+      p.classList.add('hidden');
+    }}, 300);
+    try {{
+      sessionStorage.setItem('note_white_friday_popup_dismissed', '1');
+    }} catch (_) {{}}
+  }}
+
+  function acceptOfferPopup() {{
+    closeOfferPopup();
+    const el = document.getElementById('bestsellers');
+    if (el) {{
+      el.scrollIntoView({{ behavior: 'smooth' }});
+    }} else if (window.NoteRouter) {{
+      window.NoteRouter.navigate('/');
+      setTimeout(() => {{
+        const b = document.getElementById('bestsellers');
+        if (b) b.scrollIntoView({{ behavior: 'smooth' }});
+      }}, 300);
+    }} else {{
+      window.location.href = '/#bestsellers';
+    }}
+  }}
+
   // Arabic Text Normalization (Removes Tashkeel, Normalizes Alef/Yeh/Teh)
   function normalizeArabic(text) {{
     if (!text) return '';
@@ -4428,6 +4475,22 @@ app_js_code = f"""/**
   window.goToOfferSlide = goToOfferSlide;
   window.nextOfferSlide = nextOfferSlide;
   window.prevOfferSlide = prevOfferSlide;
+  window.openOfferPopup = openOfferPopup;
+  window.closeOfferPopup = closeOfferPopup;
+  window.acceptOfferPopup = acceptOfferPopup;
+
+  // Auto-trigger White Friday Offer Popup after 2 seconds
+  setTimeout(() => {{
+    try {{
+      if (!sessionStorage.getItem('note_white_friday_popup_dismissed')) {{
+        if (!window.location.pathname.includes('/checkout') && !window.location.pathname.includes('/cart')) {{
+          openOfferPopup();
+        }}
+      }}
+    }} catch (_) {{
+      openOfferPopup();
+    }}
+  }}, 2000);
 
   // PDP Handlers
   window.changePDPQuantity = changePDPQuantity;

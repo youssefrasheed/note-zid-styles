@@ -160,20 +160,68 @@
     <!-- Slides Container -->
     <div id="hero-slides-wrapper" class="absolute inset-0 w-full h-full">
 
-      <!-- Slide 1: Musk Centered Minimal (Primary Hero) -->
+      <!-- Slide 1: Offer 2 (عطرك بـ 1 ريال - 2+1) - Priority 1 -->
       <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-100 z-10" data-index="0">
         <picture class="w-full h-full block">
+          <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Offer2_Perfume_1SAR_Mobile.webp">
+          <img src="/assets/banners/Desktop/NOTE_Offer2_Perfume_1SAR_Desktop.webp" alt="عطرك بـ 1 ريال - عروض الجمعة البيضاء" fetchpriority="high" loading="eager" class="w-full h-full object-cover object-center">
+        </picture>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 via-35% to-transparent"></div>
+        <div class="absolute inset-0 flex flex-col justify-end items-center pb-10 sm:pb-14 lg:pb-16 px-4 sm:px-6 max-w-5xl mx-auto pointer-events-auto text-center">
+          <span class="inline-block px-3.5 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-300 text-[10px] sm:text-xs font-black tracking-wider mb-2 backdrop-blur-md">عروض الجمعة البيضاء | 2+1</span>
+          <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-tight drop-shadow-2xl">
+            عطرك بـ 1 ريال
+          </h1>
+          <p class="text-xs sm:text-base md:text-xl font-medium text-stone-200 mt-2 sm:mt-3 drop-shadow-md max-w-xl">
+            عند شرائك أي عطرين 100 مل... احصل على العطر الثالث بريال واحد فقط
+          </p>
+          <div class="mt-4 sm:mt-5 mb-2 sm:mb-3">
+            <a href="#bestsellers" class="inline-flex items-center gap-2.5 px-8 py-3 sm:py-3.5 rounded-full bg-white text-black hover:bg-stone-100 font-extrabold text-xs sm:text-sm transition-all duration-300 shadow-xl active:scale-95">
+              <span>تسوّق العرض الآن</span>
+              <i class="sicon-keyboard_arrow_left text-xs"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 2: Offer 1 (تولة بـ 1 ريال - 1+تولة) - Priority 2 -->
+      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="1">
+        <picture class="w-full h-full block">
+          <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Offer1_Tolah_1SAR_Mobile.webp">
+          <img src="/assets/banners/Desktop/NOTE_Offer1_Tolah_1SAR_Desktop.webp" alt="تولة بـ 1 ريال - عروض الجمعة البيضاء" loading="lazy" class="w-full h-full object-cover object-center">
+        </picture>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 via-35% to-transparent"></div>
+        <div class="absolute inset-0 flex flex-col justify-end items-center pb-10 sm:pb-14 lg:pb-16 px-4 sm:px-6 max-w-5xl mx-auto pointer-events-auto text-center">
+          <span class="inline-block px-3.5 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-300 text-[10px] sm:text-xs font-black tracking-wider mb-2 backdrop-blur-md">عروض الجمعة البيضاء | 1+تولة</span>
+          <h2 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-tight drop-shadow-2xl">
+            تولة بـ 1 ريال
+          </h2>
+          <p class="text-xs sm:text-base md:text-xl font-medium text-stone-200 mt-2 sm:mt-3 drop-shadow-md max-w-xl">
+            عند شرائك أي عطر 100 مل... احصل على تولة مِسك فاخرة بريال واحد فقط
+          </p>
+          <div class="mt-4 sm:mt-5 mb-2 sm:mb-3">
+            <a href="#bestsellers" class="inline-flex items-center gap-2.5 px-8 py-3 sm:py-3.5 rounded-full bg-white text-black hover:bg-stone-100 font-extrabold text-xs sm:text-sm transition-all duration-300 shadow-xl active:scale-95">
+              <span>تسوّق العرض الآن</span>
+              <i class="sicon-keyboard_arrow_left text-xs"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 3: Musk Centered Minimal -->
+      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="2">
+        <picture class="w-full h-full block">
           <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Musk_Centered_Minimal_Hero_Mobile.webp">
-          <img src="/assets/banners/Desktop/NOTE_Musk_Centered_Minimal_Hero_Desktop.webp" alt="مِسك نوت - أثر يُعرف قبل أن يُرى" fetchpriority="high" loading="eager" class="w-full h-full object-cover object-center">
+          <img src="/assets/banners/Desktop/NOTE_Musk_Centered_Minimal_Hero_Desktop.webp" alt="مِسك نوت - أثر يُعرف قبل أن يُرى" loading="lazy" class="w-full h-full object-cover object-center">
         </picture>
         <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 via-35% to-transparent"></div>
         <div class="absolute inset-0 flex flex-col justify-end items-center pb-10 sm:pb-14 lg:pb-16 px-4 sm:px-6 max-w-5xl mx-auto pointer-events-auto">
-          <h1 class="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-tight drop-shadow-lg whitespace-nowrap">
+          <h2 class="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-tight drop-shadow-lg whitespace-nowrap">
             مِسك... أثر يُعرف قبل أن يُرى
-          </h1>
-          <h2 class="text-sm sm:text-lg md:text-2xl font-light text-stone-200 mt-1.5 sm:mt-2.5 drop-shadow-md">
-            الأثر الخالد قبل الحضور
           </h2>
+          <p class="text-sm sm:text-lg md:text-2xl font-light text-stone-200 mt-1.5 sm:mt-2.5 drop-shadow-md">
+            الأثر الخالد قبل الحضور
+          </p>
           <div class="mt-4 sm:mt-5 mb-2 sm:mb-3">
             <a href="#bestsellers" class="inline-flex items-center gap-2.5 px-8 py-3 sm:py-3.5 rounded-full bg-white text-black hover:bg-stone-100 font-bold text-xs sm:text-sm transition-all duration-300 shadow-xl active:scale-95">
               <span>اكتشف العطور</span>
@@ -183,8 +231,8 @@
         </div>
       </div>
 
-      <!-- Slide 2: Royal Tobacco & Oud Rosewood -->
-      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="1">
+      <!-- Slide 4: Royal Tobacco & Oud Rosewood -->
+      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="3">
         <picture class="w-full h-full block">
           <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Royal_Tobacco_Oud_Rosewood_Hero_Option_01_Mobile.webp">
           <img src="/assets/banners/Desktop/NOTE_Royal_Tobacco_Oud_Rosewood_Hero_Option_01_Desktop.webp" alt="رويال توباكو وعود روزوود" class="w-full h-full object-cover object-center">
@@ -206,8 +254,8 @@
         </div>
       </div>
 
-      <!-- Slide 3: Aura Musk & Royal Powder -->
-      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="2">
+      <!-- Slide 5: Aura Musk & Royal Powder -->
+      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="4">
         <picture class="w-full h-full block">
           <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Hero_Aura_Musk_Royal_Powder_Mobile.webp">
           <img src="/assets/banners/Desktop/NOTE_Hero_Aura_Musk_Royal_Powder_Desktop.webp" alt="أورا مسك ورويال باودر" class="w-full h-full object-cover object-center">
@@ -229,8 +277,8 @@
         </div>
       </div>
 
-      <!-- Slide 4: Ivory Stone Luxury -->
-      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="3">
+      <!-- Slide 6: Ivory Stone Luxury -->
+      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="5">
         <picture class="w-full h-full block">
           <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Hero_02_Ivory_Stone_Mobile.webp">
           <img src="/assets/banners/Desktop/NOTE_Hero_02_Ivory_Stone_Desktop.webp" alt="مجموعة المسك الملكية" class="w-full h-full object-cover object-center">
@@ -252,8 +300,8 @@
         </div>
       </div>
 
-      <!-- Slide 5: Amber Silk -->
-      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="4">
+      <!-- Slide 7: Amber Silk -->
+      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="6">
         <picture class="w-full h-full block">
           <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Hero_01_Amber_Silk_Mobile.webp">
           <img src="/assets/banners/Desktop/NOTE_Hero_01_Amber_Silk_Desktop.webp" alt="حرير العنبر نوت" class="w-full h-full object-cover object-center">
@@ -292,6 +340,8 @@
       <button onclick="goToHeroSlide(2)" class="hero-dot w-2 h-1 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300 cursor-pointer" aria-label="شريحة 3"></button>
       <button onclick="goToHeroSlide(3)" class="hero-dot w-2 h-1 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300 cursor-pointer" aria-label="شريحة 4"></button>
       <button onclick="goToHeroSlide(4)" class="hero-dot w-2 h-1 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300 cursor-pointer" aria-label="شريحة 5"></button>
+      <button onclick="goToHeroSlide(5)" class="hero-dot w-2 h-1 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300 cursor-pointer" aria-label="شريحة 6"></button>
+      <button onclick="goToHeroSlide(6)" class="hero-dot w-2 h-1 rounded-full bg-white/40 hover:bg-white/70 transition-all duration-300 cursor-pointer" aria-label="شريحة 7"></button>
     </div>
 
   </section>
@@ -803,6 +853,80 @@
     <span id="cart-toast-text"></span>
   </div>
 
+  <!-- ================= WHITE FRIDAY OFFER POPUP MODAL ================= -->
+  <div id="white-friday-popup" class="fixed inset-0 z-[120] bg-black/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4" onclick="if(event.target === this) closeOfferPopup()">
+    <div class="relative bg-stone-900 border border-stone-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl text-white transform transition-transform duration-300 scale-95" id="white-friday-card">
+      
+      <!-- Close Button -->
+      <button onclick="closeOfferPopup()" class="absolute top-4 left-4 z-20 w-9 h-9 rounded-full bg-black/60 hover:bg-black text-white/80 hover:text-white flex items-center justify-center transition border border-white/10 backdrop-blur-sm cursor-pointer shadow-lg" aria-label="إغلاق">
+        <i class="sicon-cancel text-xs"></i>
+      </button>
+
+      <!-- Visual Banner / Header Image -->
+      <div class="relative w-full h-44 sm:h-52 overflow-hidden bg-black">
+        <img src="/assets/banners/NOTE_Offer2_Social.webp" alt="عروض الجمعة البيضاء نوت" class="w-full h-full object-cover object-center scale-105">
+        <div class="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/30 to-transparent"></div>
+        <div class="absolute top-4 right-4">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-black text-[10px] font-black tracking-wider shadow-lg">
+            <i class="sicon-star text-xs"></i>
+            <span>حملة الجمعة البيضاء</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 sm:p-6 pt-2 text-center space-y-4">
+        <div>
+          <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight">
+            عروض الجمعة البيضاء الحصرية
+          </h3>
+          <p class="text-xs text-stone-300 mt-1">
+            اختر عطرك المفضل واستمتع بأقوى عروض الموسم من دار نوت
+          </p>
+        </div>
+
+        <!-- The 2 Offers Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-right">
+          <!-- Offer 1 Card -->
+          <div class="bg-stone-800/90 border border-amber-400/40 rounded-2xl p-3.5 relative overflow-hidden group hover:border-amber-400 transition">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[9px] font-extrabold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded-full">عرض 2 + 1</span>
+              <span class="text-sm font-black text-amber-400">1 ر.س</span>
+            </div>
+            <h4 class="text-sm font-black text-white mb-0.5">عطرك بـ 1 ريال</h4>
+            <p class="text-[10px] text-stone-300 leading-relaxed font-normal">
+              عند شرائك أي عطرين 100 مل... احصل على العطر الثالث بريال واحد فقط.
+            </p>
+          </div>
+
+          <!-- Offer 2 Card -->
+          <div class="bg-stone-800/90 border border-amber-400/40 rounded-2xl p-3.5 relative overflow-hidden group hover:border-amber-400 transition">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[9px] font-extrabold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded-full">عرض 1 + تولة</span>
+              <span class="text-sm font-black text-amber-400">1 ر.س</span>
+            </div>
+            <h4 class="text-sm font-black text-white mb-0.5">تولة بـ 1 ريال</h4>
+            <p class="text-[10px] text-stone-300 leading-relaxed font-normal">
+              عند شرائك أي عطر 100 مل... احصل على تولة مِسك فاخرة بريال واحد فقط.
+            </p>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="pt-2 space-y-2">
+          <button onclick="acceptOfferPopup()" class="w-full py-3.5 rounded-full bg-white hover:bg-stone-100 text-black font-extrabold text-xs sm:text-sm transition shadow-xl active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+            <span>تسوّق العروض الآن</span>
+            <i class="sicon-keyboard_arrow_left text-xs"></i>
+          </button>
+          <button onclick="closeOfferPopup()" class="text-[11px] text-stone-400 hover:text-white transition font-normal cursor-pointer py-1 block w-full text-center">
+            متابعة التصفح
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- Search Modal (Luxury Instant Autocomplete & Results) -->
   <div id="search-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 flex items-start justify-center pt-16 sm:pt-24 px-4" onclick="if(event.target === this) closeSearchModal()">
     <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300 text-right p-5 sm:p-6 flex flex-col max-h-[85vh]">
@@ -1272,6 +1396,56 @@
       modal.classList.remove('flex');
       modal.classList.add('hidden');
     }
+
+    // White Friday Offer Announcement Popup
+    function openOfferPopup() {
+      const p = document.getElementById('white-friday-popup');
+      const c = document.getElementById('white-friday-card');
+      if (!p) return;
+      p.classList.remove('hidden');
+      void p.offsetWidth;
+      p.classList.remove('opacity-0');
+      if (c) {
+        c.classList.remove('scale-95');
+        c.classList.add('scale-100');
+      }
+    }
+
+    function closeOfferPopup() {
+      const p = document.getElementById('white-friday-popup');
+      const c = document.getElementById('white-friday-card');
+      if (!p) return;
+      if (c) {
+        c.classList.remove('scale-100');
+        c.classList.add('scale-95');
+      }
+      p.classList.add('opacity-0');
+      setTimeout(() => {
+        p.classList.add('hidden');
+      }, 300);
+      try {
+        sessionStorage.setItem('note_white_friday_popup_dismissed', '1');
+      } catch (_) {}
+    }
+
+    function acceptOfferPopup() {
+      closeOfferPopup();
+      const el = document.getElementById('bestsellers');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    // Auto-trigger White Friday Offer Popup after 1.5 seconds
+    setTimeout(() => {
+      try {
+        if (!sessionStorage.getItem('note_white_friday_popup_dismissed')) {
+          openOfferPopup();
+        }
+      } catch (_) {
+        openOfferPopup();
+      }
+    }, 1500);
 
     function addToCart(title) {
       cartCount++;
