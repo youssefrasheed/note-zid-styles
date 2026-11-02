@@ -3315,7 +3315,7 @@ app_js_code = f"""/**
       startHeroTimer();
     }}, {{ passive: true }});
 
-    startHeroTimer();
+    goToHeroSlide(0);
   }}
 
   // 14. Offers Auto-Rotating Carousel (3s Interval)

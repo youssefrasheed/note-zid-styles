@@ -4573,7 +4573,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       startHeroTimer();
     }, { passive: true });
 
-    startHeroTimer();
+    goToHeroSlide(0);
   }
 
   // 14. Offers Auto-Rotating Carousel (3s Interval)
