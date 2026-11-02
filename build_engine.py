@@ -636,6 +636,23 @@ body[class*="account"]::after {{
   display: none !important;
 }}
 
+/* Universal Rozia native cart & header suppression */
+.cart-view,
+.breadcrumb-subtitle,
+.section-cart-products,
+.cart-totals,
+.cart-products-with-totals,
+.cart-flex,
+.tp-bar-header,
+header.header-nav,
+.header-wrapper,
+.header-container,
+.tp-footer-area,
+.whatsapp-icon {{
+  display: none !important;
+  visibility: hidden !important;
+}}
+
 body:not(.note-ready) section[section-id],
 body:not(.note-ready) .tp-home,
 body:not(.note-ready) .tp-bar-header,
@@ -4242,7 +4259,7 @@ app_js_code = f"""/**
     }}
 
     // Remove Rozia footers, headers and native sections
-    document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer').forEach(el => {{
+    document.querySelectorAll('[section-id], footer:not(#note-store-footer), .tp-footer-area, .tp-bar-header, header.header-nav, .whatsapp-icon, .footer, .cart-view, .breadcrumb-subtitle, .section-cart-products, .cart-totals, .cart-products-with-totals, .cart-flex').forEach(el => {{
       el.remove();
     }});
 
