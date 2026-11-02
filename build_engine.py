@@ -1447,9 +1447,16 @@ app_js_code = f"""/**
     if (document.body) document.body.style.setProperty('font-size', '16px', 'important');
   }} catch(e) {{}}
 
-  // Universal Price Formatter: Guarantees consistent 'X ر.س' with zero duplication
+  // Universal Price Formatter: Guarantees consistent 'X ر.س' with zero duplication & clean rounding
   function formatPrice(val) {{
     if (val === null || val === undefined || val === '' || val === 'null' || val === 'undefined') return '';
+    const num = Number(String(val).replace(/ر\.س/g, '').replace(/SAR/gi, '').trim());
+    if (Number.isFinite(num)) {{
+      const formatted = (num % 1 === 0) 
+        ? num.toLocaleString('en-US') 
+        : num.toLocaleString('en-US', {{ minimumFractionDigits: 2, maximumFractionDigits: 2 }});
+      return `${{formatted}} ر.س`;
+    }}
     const clean = String(val).replace(/ر\.س/g, '').replace(/SAR/gi, '').trim();
     return clean ? `${{clean}} ر.س` : '';
   }}
@@ -1937,77 +1944,107 @@ app_js_code = f"""/**
     getLiveCartState: function() {{
       return (typeof window !== 'undefined' && window._noteLiveCartState) ? window._noteLiveCartState : null;
     }},
+    _isQualifying100mlPerfume: function(item) {{
+      if (!item) return false;
+      const title = (item.title || item.name || '').toLowerCase();
+      const size = (item.size || '').toLowerCase();
+      // Exclude packages, sets, gift boxes
+      if (title.includes('باقة') || title.includes('مجموعة') || title.includes('بكج') || title.includes('بوكس')) return false;
+      // Exclude minis, oils, sprays, cosmetics
+      if (title.includes('30 مل') || title.includes('30مل') || size.includes('30')) return false;
+      if (title.includes('تولة') || title.includes('توله') || title.includes('مسك توفي') || title.includes('عنبر مِسك')) return false;
+      if (title.includes('معطر') || title.includes('لوشن') || title.includes('جل') || title.includes('شاور')) return false;
+      // All single 100ml perfumes in Note are >= 150 SAR
+      return (Number(item.price) >= 150);
+    }},
+    _isQualifyingTola: function(item) {{
+      if (!item) return false;
+      const title = (item.title || item.name || '').toLowerCase();
+      return title.includes('تولة') || title.includes('توله') || (title.includes('مسك') && Number(item.price) < 200 && Number(item.price) > 50);
+    }},
     getLiveBundleOffers: function() {{
-      const s = this.getLiveCartState();
-      if (s) {{
-        const c = s.cart || s;
-        if (c && c.has_bundle_offer && Array.isArray(c.bundle_offers) && c.bundle_offers.length > 0) {{
-          const valid = c.bundle_offers.filter(b => (Number(b.discount_total) || 0) > 0 || (Number(b.usage_count) || 0) > 0);
-          if (valid.length > 0) return valid;
-        }}
-      }}
-      // Fallback local bundle detection if live state is not yet loaded
       const cart = this.getCart();
-      let fullSizeCount = 0;
-      for (let ci = 0; ci < cart.length; ci++) {{
-        const item = cart[ci];
-        const title = (item.title || item.name || '').toLowerCase();
-        const size = (item.size || '').toLowerCase();
-        const isNotSmall = !size.includes('30') && !title.includes('30 مل') && !title.includes('30مل') && !title.includes('تولة') && !title.includes('توله');
-        if (isNotSmall && item.price > 1) {{
-          fullSizeCount += (Number(item.quantity) || 1);
+      if (!cart || cart.length === 0) return [];
+      
+      let perfume100Count = 0;
+      let tolaCount = 0;
+      for (let i = 0; i < cart.length; i++) {{
+        if (this._isQualifying100mlPerfume(cart[i])) {{
+          perfume100Count += (Number(cart[i].quantity) || 1);
+        }}
+        if (this._isQualifyingTola(cart[i])) {{
+          tolaCount += (Number(cart[i].quantity) || 1);
         }}
       }}
-      if (fullSizeCount >= 3) {{
-        return [{{
+      
+      const offers = [];
+      // Offer 2: "عطرك بـ 1 ريال (2+1)" -> ONLY applies if at least 3 qualifying 100ml perfumes exist!
+      if (perfume100Count >= 3) {{
+        offers.push({{
           id: 'a31fcdea-5aac-447f-a220-0ef1d60bb0a6',
           name: 'عطرك بـ 1 ريال (2+1)',
-          usage_count: Math.floor(fullSizeCount / 3),
+          usage_count: Math.floor(perfume100Count / 3),
           discount_total: 0
-        }}];
+        }});
       }}
-      return [];
+      // Offer 1: "عطرك بريال (1+تولة)" -> Requires 1 perfume and 1 tola
+      const remainingPerfumes = perfume100Count % 3;
+      if (remainingPerfumes >= 1 && tolaCount >= 1) {{
+        offers.push({{
+          id: 'a31e7108-b61d-4611-a968-9cdf0eca636f',
+          name: 'عطرك بريال (1+تولة)',
+          usage_count: Math.min(remainingPerfumes, tolaCount),
+          discount_total: 0
+        }});
+      }}
+      return offers;
     }},
     getLiveBundleDiscount: function() {{
       const bundles = this.getLiveBundleOffers();
       if (!bundles || bundles.length === 0) return 0;
       const cart = this.getCart();
       let totalDiscount = 0;
+      
       for (let bi = 0; bi < bundles.length; bi++) {{
         const b = bundles[bi];
         const name = ((b.name || '') + ' ' + (b.description || '')).toLowerCase();
-        const isOneRiyalBundle = name.includes('1 ريال') || name.includes('بريال') || name.includes('1ريال');
-        const usageCount = Number(b.usage_count) || (b.discount_total > 0 ? 1 : 0);
-        if (isOneRiyalBundle && cart && cart.length > 0 && usageCount > 0) {{
-          const isOffer2 = name.includes('2+1') || name.includes('1+2') || (!name.includes('تولة') && !name.includes('توله'));
-          if (isOffer2) {{
-            const eligible = [];
-            for (let ci = 0; ci < cart.length; ci++) {{
-              const item = cart[ci];
-              const title = (item.title || item.name || '').toLowerCase();
-              const size = (item.size || '').toLowerCase();
-              const isNotSmall = !size.includes('30') && !title.includes('30 مل') && !title.includes('30مل') && !title.includes('تولة') && !title.includes('توله');
-              if (isNotSmall && item.price > 1) {{
-                const qty = Number(item.quantity) || 1;
-                for (let q = 0; q < qty; q++) {{
-                  eligible.push(Number(item.price) || 0);
-                }}
+        const usageCount = Number(b.usage_count) || 0;
+        if (usageCount <= 0) continue;
+        
+        if (name.includes('2+1') || name.includes('1+2')) {{
+          const eligible = [];
+          for (let ci = 0; ci < cart.length; ci++) {{
+            if (this._isQualifying100mlPerfume(cart[ci])) {{
+              const qty = Number(cart[ci].quantity) || 1;
+              for (let q = 0; q < qty; q++) {{
+                eligible.push(Number(cart[ci].price) || 0);
               }}
             }}
-            eligible.sort((a, b) => a - b);
-            let bDisc = 0;
-            for (let i = 0; i < usageCount && i < eligible.length; i++) {{
-              bDisc += Math.max(0, eligible[i] - 1);
-            }}
-            totalDiscount += (bDisc > 0 ? bDisc : (Number(b.discount_total) || 0));
-          }} else {{
-            totalDiscount += (Number(b.discount_total) || 0);
           }}
-        }} else {{
-          totalDiscount += (Number(b.discount_total) || 0);
+          if (eligible.length >= 3) {{
+            eligible.sort((a, b) => a - b);
+            const maxSets = Math.min(usageCount, Math.floor(eligible.length / 3));
+            for (let i = 0; i < maxSets; i++) {{
+              totalDiscount += Math.max(0, eligible[i] - 1);
+            }}
+          }}
+        }} else if (name.includes('تولة') || name.includes('توله')) {{
+          const tolas = [];
+          for (let ci = 0; ci < cart.length; ci++) {{
+            if (this._isQualifyingTola(cart[ci])) {{
+              const qty = Number(cart[ci].quantity) || 1;
+              for (let q = 0; q < qty; q++) {{
+                tolas.push(Number(cart[ci].price) || 0);
+              }}
+            }}
+          }}
+          tolas.sort((a, b) => a - b);
+          for (let i = 0; i < usageCount && i < tolas.length; i++) {{
+            totalDiscount += Math.max(0, tolas[i] - 1);
+          }}
         }}
       }}
-      return totalDiscount;
+      return Math.round(totalDiscount * 100) / 100;
     }},
     syncLiveCart: async function() {{
       if (typeof window === 'undefined' || typeof fetch !== 'function') return null;
@@ -2048,8 +2085,8 @@ app_js_code = f"""/**
               const baseAfterBundle = Math.max(0, total - bundleDiscount);
               if ((savedCoupon || bundleDiscount > 0) && total > 0) {{
                 const pct = (savedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : (savedCoupon ? 5 : 0);
-                const discount = (baseAfterBundle * pct) / 100;
-                const finalTotal = Math.max(0, baseAfterBundle - discount);
+                const discount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
+                const finalTotal = Math.max(0, Math.round((baseAfterBundle - discount) * 100) / 100);
                 totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${{formatPrice(total)}}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${{formatPrice(finalTotal)}}</span>`;
               }} else {{
                 totalEl.textContent = formatPrice(total);
@@ -2194,8 +2231,8 @@ app_js_code = f"""/**
         const baseAfterBundle = Math.max(0, total - bundleDiscount);
         if ((savedCoupon || bundleDiscount > 0) && total > 0) {{
           const pct = (savedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : (savedCoupon ? 5 : 0);
-          const discount = (baseAfterBundle * pct) / 100;
-          const finalTotal = Math.max(0, baseAfterBundle - discount);
+          const discount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
+          const finalTotal = Math.max(0, Math.round((baseAfterBundle - discount) * 100) / 100);
           totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${{formatPrice(total)}}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${{formatPrice(finalTotal)}}</span>`;
         }} else {{
           totalEl.textContent = formatPrice(total);
@@ -3953,11 +3990,11 @@ app_js_code = f"""/**
     const baseAfterBundle = Math.max(0, amount - bundleDiscount);
     if ((appliedCoupon || bundleDiscount > 0) && amount > 0) {{
       const pct = (appliedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : (appliedCoupon ? 5 : 0);
-      const discount = (baseAfterBundle * pct) / 100;
-      const finalAmount = Math.max(0, baseAfterBundle - discount);
+      const discount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
+      const finalAmount = Math.max(0, Math.round((baseAfterBundle - discount) * 100) / 100);
       const grandEl = document.getElementById('page-grand-total');
       if (grandEl) {{
-        grandEl.innerHTML = `<span class="note-cart-total-old line-through text-stone-400 font-semibold text-sm sm:text-base ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:15px!important;font-weight:600!important;margin-left:8px!important;">${{amount.toLocaleString('en-US',{{maximumFractionDigits:2}})}} ر.س</span><span class="note-cart-total-new text-rose-600 font-black text-xl sm:text-2xl" style="color:#ef4444!important;font-size:22px!important;font-weight:900!important;">${{finalAmount.toLocaleString('en-US',{{maximumFractionDigits:2}})}} ر.س</span>`;
+        grandEl.innerHTML = `<span class="note-cart-total-old line-through text-stone-400 font-semibold text-sm sm:text-base ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:15px!important;font-weight:600!important;margin-left:8px!important;">${{formatPrice(amount)}}</span><span class="note-cart-total-new text-rose-600 font-black text-xl sm:text-2xl" style="color:#ef4444!important;font-size:22px!important;font-weight:900!important;">${{formatPrice(finalAmount)}}</span>`;
       }}
     }}
 
