@@ -1487,9 +1487,10 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     if (val === null || val === undefined || val === '' || val === 'null' || val === 'undefined') return '';
     const num = Number(String(val).replace(/ر\.س/g, '').replace(/SAR/gi, '').trim());
     if (Number.isFinite(num)) {
-      const formatted = (num % 1 === 0) 
-        ? num.toLocaleString('en-US') 
-        : num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const rounded = Math.round(num * 100) / 100;
+      const formatted = (rounded % 1 === 0) 
+        ? rounded.toLocaleString('en-US') 
+        : rounded.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       return `${formatted} ر.س`;
     }
     const clean = String(val).replace(/ر\.س/g, '').replace(/SAR/gi, '').trim();
@@ -3396,7 +3397,12 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       this.saveCart(cart);
     },
     getTotal: function() {
-      return this.getCart().reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      return this.getCart().reduce((sum, item) => {
+        const rawPrice = item && (item.price ?? item.sale_price ?? 0);
+        const numPrice = typeof rawPrice === 'number' ? rawPrice : (Number(String(rawPrice).replace(/[^\d.]/g, '')) || 0);
+        const qty = Math.max(1, parseInt(item && item.quantity, 10) || 1);
+        return sum + (numPrice * qty);
+      }, 0);
     },
     getCount: function() {
       return this.getCart().reduce((count, item) => count + item.quantity, 0);
@@ -5569,20 +5575,49 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     });
 
     try {
-      const appliedCoupon = localStorage.getItem('note_applied_coupon');
-      if (appliedCoupon && window.zid && window.zid.cart && typeof window.zid.cart.applyCoupon === 'function') {
+      if (!window.zid || !window.zid.cart) {
         try {
-          await window.zid.cart.applyCoupon({ coupon_code: appliedCoupon });
+          const mod = await import('https://static.zid.store/sdk/v3.30.4/theme-service/vitrin-theme-service.es.js');
+          window.zid = mod.default || mod;
+        } catch (_) {}
+      }
+      const api = window.zid?.cart;
+      if (api && typeof api.get === 'function') {
+        try {
+          let nativeRes = await api.get();
+          let native = (nativeRes?.data?.cart?.products || nativeRes?.data?.products || nativeRes?.products || nativeRes?.items || []);
+          if (Array.isArray(native)) {
+            const currentValidIds = new Set(cart.map(i => {
+              const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === (i.product_id || i.id)) : null;
+              return p ? p.id : (ZID_PRODUCT_MAP[i.id] || i.product_id || i.id);
+            }));
+            for (const n of native) {
+              const nProdId = n.product_id || n.product?.id;
+              if (nProdId && !currentValidIds.has(nProdId)) {
+                try { await api.removeProduct({ product_id: n.id }); } catch (_) {}
+              }
+            }
+          }
+        } catch (_) {}
+      }
+
+      const appliedCoupon = localStorage.getItem('note_applied_coupon');
+      if (appliedCoupon && api && typeof api.applyCoupon === 'function') {
+        try {
+          if (api.removeCoupons) await api.removeCoupons().catch(() => null);
+          await api.applyCoupon({ coupon_code: appliedCoupon });
         } catch (e) {
           console.warn('NOTE coupon sync warning:', e);
         }
+      } else if (!appliedCoupon && api && typeof api.removeCoupons === 'function') {
+        try { await api.removeCoupons().catch(() => null); } catch (_) {}
       }
 
-      if (window.zid && window.zid.cart && typeof window.zid.cart.addProduct === 'function') {
+      if (api && typeof api.addProduct === 'function') {
         for (const item of cart) {
-          const zidUuid = ZID_PRODUCT_MAP[item.id] || item.id;
+          const zidUuid = ZID_PRODUCT_MAP[item.id] || item.product_id || item.id;
           try {
-            await window.zid.cart.addProduct({
+            await api.addProduct({
               product_id: zidUuid,
               quantity: item.quantity || 1
             });
@@ -6956,6 +6991,17 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         return;
       }
       let native=nativeCartItems(await api.get());
+      const currentValidIds = new Set(cart.map(i => {
+        const p = noteProductsCatalog.find(cp => cp.id === i.product_id || cp.id === i.id);
+        return p ? p.id : (i.product_id || i.id);
+      }));
+      for(const n of native) {
+        const nId = n.product_id || n.product?.id;
+        if(nId && !currentValidIds.has(nId)) {
+          try { await api.removeProduct({product_id:n.id}); } catch(_) {}
+        }
+      }
+      native=nativeCartItems(await api.get());
       for(const item of cart) {
         const p=noteProductsCatalog.find(p=>p.id===item.product_id);
         if(!p || !p.in_stock || (p.stock && item.quantity>p.stock)) throw Error('راجع توفر وكمية '+item.title);
@@ -6981,6 +7027,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         } catch (e) {
           console.warn('NOTE coupon sync warning:', e);
         }
+      } else if (!appliedCoupon && api?.removeCoupons) {
+        try { await api.removeCoupons().catch(() => null); } catch (_) {}
       }
       location.href='/checkout';
     } catch(error) {

@@ -1038,6 +1038,17 @@
         return;
       }
       let native=nativeCartItems(await api.get());
+      const currentValidIds = new Set(cart.map(i => {
+        const p = noteProductsCatalog.find(cp => cp.id === i.product_id || cp.id === i.id);
+        return p ? p.id : (i.product_id || i.id);
+      }));
+      for(const n of native) {
+        const nId = n.product_id || n.product?.id;
+        if(nId && !currentValidIds.has(nId)) {
+          try { await api.removeProduct({product_id:n.id}); } catch(_) {}
+        }
+      }
+      native=nativeCartItems(await api.get());
       for(const item of cart) {
         const p=noteProductsCatalog.find(p=>p.id===item.product_id);
         if(!p || !p.in_stock || (p.stock && item.quantity>p.stock)) throw Error('راجع توفر وكمية '+item.title);
@@ -1063,6 +1074,8 @@
         } catch (e) {
           console.warn('NOTE coupon sync warning:', e);
         }
+      } else if (!appliedCoupon && api?.removeCoupons) {
+        try { await api.removeCoupons().catch(() => null); } catch (_) {}
       }
       location.href='/checkout';
     } catch(error) {

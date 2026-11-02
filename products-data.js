@@ -1231,10 +1231,149 @@ const CartManager = {
     this.saveCart(cart);
   },
   getTotal: function() {
-    return this.getCart().reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return this.getCart().reduce((sum, item) => {
+      const rawPrice = item && (item.price ?? item.sale_price ?? 0);
+      const numPrice = typeof rawPrice === 'number' ? rawPrice : (Number(String(rawPrice).replace(/[^\d.]/g, '')) || 0);
+      const qty = Math.max(1, parseInt(item && item.quantity, 10) || 1);
+      return sum + (numPrice * qty);
+    }, 0);
   },
   getCount: function() {
-    return this.getCart().reduce((count, item) => count + item.quantity, 0);
+    return this.getCart().reduce((count, item) => count + (Math.max(1, parseInt(item && item.quantity, 10) || 1)), 0);
+  },
+  getLiveCartState: function() {
+    return (typeof window !== 'undefined' && window._noteLiveCartState) ? window._noteLiveCartState : null;
+  },
+  _isQualifying100mlPerfume: function(item) {
+    if (!item) return false;
+    const id = String(item.id || '').toLowerCase();
+    const title = (item.title || item.name || '').toLowerCase();
+    const cat = String(item.cat || item.category || '').toLowerCase();
+    const size = String(item.size || '').toLowerCase();
+    // Strictly exclude packages, sets, gift collections
+    if (id.startsWith('pkg-') || id.includes('bundle') || id.includes('gift')) return false;
+    if (cat.includes('package') || cat.includes('set') || cat.includes('bundle')) return false;
+    if (title.includes('باقة') || title.includes('مجموعة') || title.includes('بكج') || title.includes('بوكس') || 
+        title.includes('طقم') || title.includes('سفنتشر') || title.includes('سجنتشر') || title.includes('إسكيب') || 
+        title.includes('اسكيب') || title.includes('الملكية') || title.includes('الكلاسيكية')) return false;
+    // Strictly exclude 30ml minis, oils/tolas, sprays, and cosmetics
+    if (title.includes('30 مل') || title.includes('30مل') || size.includes('30') || cat.includes('travel')) return false;
+    if (title.includes('تولة') || title.includes('توله') || title.includes('مسك توفي') || title.includes('عنبر مِسك') || cat.includes('tollah')) return false;
+    if (title.includes('معطر') || title.includes('لوشن') || title.includes('جل') || title.includes('شاور') || cat.includes('linen') || cat.includes('body')) return false;
+    // All single 100ml perfumes in Note are >= 150 SAR
+    return (Number(item.price) >= 150);
+  },
+  _isQualifyingTola: function(item) {
+    if (!item) return false;
+    const id = String(item.id || '').toLowerCase();
+    const title = (item.title || item.name || '').toLowerCase();
+    const cat = String(item.cat || item.category || '').toLowerCase();
+    if (title.includes('مجموعة') || title.includes('باقة') || id.startsWith('pkg-') || title.includes('معطر') || cat.includes('all-over') || cat.includes('linen')) return false;
+    return (cat.includes('tollah') || title.includes('تولة') || title.includes('توله')) && Number(item.price) <= 120 && Number(item.price) >= 40;
+  },
+  getLiveBundleOffers: function() {
+    const cart = this.getCart();
+    if (!cart || cart.length === 0) return [];
+    
+    let perfume100Count = 0;
+    let tolaCount = 0;
+    for (let i = 0; i < cart.length; i++) {
+      if (this._isQualifying100mlPerfume(cart[i])) {
+        perfume100Count += (Number(cart[i].quantity) || 1);
+      }
+      if (this._isQualifyingTola(cart[i])) {
+        tolaCount += (Number(cart[i].quantity) || 1);
+      }
+    }
+    
+    const offers = [];
+    if (perfume100Count >= 3) {
+      offers.push({
+        id: 'a31fcdea-5aac-447f-a220-0ef1d60bb0a6',
+        name: 'عطرك بـ 1 ريال (2+1)',
+        usage_count: Math.floor(perfume100Count / 3),
+        discount_total: 0
+      });
+    }
+    const remainingPerfumes = perfume100Count % 3;
+    if (remainingPerfumes >= 1 && tolaCount >= 1) {
+      offers.push({
+        id: 'a31e7108-b61d-4611-a968-9cdf0eca636f',
+        name: 'عطرك بريال (1+تولة)',
+        usage_count: Math.min(remainingPerfumes, tolaCount),
+        discount_total: 0
+      });
+    }
+    return offers;
+  },
+  getLiveBundleDiscount: function() {
+    const bundles = this.getLiveBundleOffers();
+    if (!bundles || bundles.length === 0) return 0;
+    const cart = this.getCart();
+    let totalDiscount = 0;
+    
+    for (let bi = 0; bi < bundles.length; bi++) {
+      const b = bundles[bi];
+      const name = ((b.name || '') + ' ' + (b.description || '')).toLowerCase();
+      const usageCount = Number(b.usage_count) || 0;
+      if (usageCount <= 0) continue;
+      
+      if (name.includes('2+1') || name.includes('1+2')) {
+        const eligible = [];
+        for (let ci = 0; ci < cart.length; ci++) {
+          if (this._isQualifying100mlPerfume(cart[ci])) {
+            const qty = Number(cart[ci].quantity) || 1;
+            for (let q = 0; q < qty; q++) {
+              eligible.push(Number(cart[ci].price) || 0);
+            }
+          }
+        }
+        if (eligible.length >= 3) {
+          eligible.sort((a, b) => a - b);
+          const maxSets = Math.min(usageCount, Math.floor(eligible.length / 3));
+          for (let i = 0; i < maxSets; i++) {
+            totalDiscount += Math.max(0, eligible[i] - 1);
+          }
+        }
+      } else if (name.includes('تولة') || name.includes('توله')) {
+        const tolas = [];
+        for (let ci = 0; ci < cart.length; ci++) {
+          if (this._isQualifyingTola(cart[ci])) {
+            const qty = Number(cart[ci].quantity) || 1;
+            for (let q = 0; q < qty; q++) {
+              tolas.push(Number(cart[ci].price) || 0);
+            }
+          }
+        }
+        tolas.sort((a, b) => a - b);
+        for (let i = 0; i < usageCount && i < tolas.length; i++) {
+          totalDiscount += Math.max(0, tolas[i] - 1);
+        }
+      }
+    }
+    return Math.round(totalDiscount * 100) / 100;
+  },
+  syncLiveCart: async function() {
+    if (typeof window === 'undefined' || typeof fetch !== 'function') return null;
+    if (this._syncingLiveCart) return this._syncingLiveCart;
+    this._syncingLiveCart = (async () => {
+      try {
+        const res = await fetch('/api/v1/cart', {
+          cache: 'no-store',
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          window._noteLiveCartState = data;
+          this.renderDrawer();
+        }
+      } catch (e) {
+        console.warn('NOTE live cart sync notice:', e);
+      } finally {
+        this._syncingLiveCart = null;
+      }
+    })();
+    return this._syncingLiveCart;
   },
   updateBadge: function() {
     const count = this.getCount();
@@ -1342,20 +1481,39 @@ const CartManager = {
     }
     
     if (subtotalEl) {
-      subtotalEl.textContent = total + ' ر.س';
+      subtotalEl.textContent = formatPrice(total);
+    }
+
+    // Sync bundle offers in drawer from live Zid state
+    const bundleOffers = (typeof this.getLiveBundleOffers === 'function') ? this.getLiveBundleOffers() : [];
+    const bundleDiscount = (typeof this.getLiveBundleDiscount === 'function') ? this.getLiveBundleDiscount() : 0;
+    const drawerBundleRow = document.getElementById('drawer-bundle-discount-row');
+    const drawerBundleTitle = document.getElementById('drawer-bundle-discount-title');
+    const drawerBundleVal = document.getElementById('drawer-bundle-discount-val');
+    if (drawerBundleRow) {
+      if (bundleDiscount > 0) {
+        drawerBundleRow.classList.remove('hidden');
+        if (drawerBundleTitle) {
+          const offerNames = bundleOffers.map(b => b.name).filter(Boolean).join(' + ');
+          drawerBundleTitle.textContent = offerNames ? `وفّرت مع العرض (${offerNames}):` : 'وفّرت مع العرض:';
+        }
+        if (drawerBundleVal) drawerBundleVal.textContent = `-${bundleDiscount.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س`;
+      } else {
+        drawerBundleRow.classList.add('hidden');
+      }
     }
 
     // Sync coupon input in drawer with localStorage & display strikethrough total if applied
     const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
     if (totalEl) {
-      if (savedCoupon && total > 0) {
-        const match = savedCoupon.match(/(\d+)/);
-        const pct = match ? parseInt(match[1], 10) : 5;
-        const discount = (total * pct) / 100;
-        const finalTotal = Math.max(0, total - discount);
-        totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${total.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${finalTotal.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س</span>`;
+      const baseAfterBundle = Math.max(0, total - bundleDiscount);
+      if ((savedCoupon || bundleDiscount > 0) && total > 0) {
+        const pct = (savedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : (savedCoupon ? 5 : 0);
+        const discount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
+        const finalTotal = Math.max(0, Math.round((baseAfterBundle - discount) * 100) / 100);
+        totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(finalTotal)}</span>`;
       } else {
-        totalEl.textContent = total + ' ر.س';
+        totalEl.textContent = formatPrice(total);
       }
     }
 
