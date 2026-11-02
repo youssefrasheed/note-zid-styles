@@ -3575,17 +3575,22 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       }
       
       const offers = [];
-      // Offer 2: "عطرك بـ 1 ريال (2+1)" -> ONLY applies if at least 3 qualifying 100ml perfumes exist!
-      if (perfume100Count >= 3) {
+      // Offer 2: "عطرك بـ 1 ريال (2+1)" -> Evaluated first, greedy multi-rule in Zid (5 perfumes triggers 2 sets)
+      let offer2Count = Math.floor(perfume100Count / 3);
+      if (perfume100Count % 3 === 2 && perfume100Count >= 5) {
+        offer2Count = Math.floor((perfume100Count + 1) / 3);
+      }
+      if (offer2Count > 0) {
         offers.push({
           id: 'a31fcdea-5aac-447f-a220-0ef1d60bb0a6',
           name: 'عطرك بـ 1 ريال (2+1)',
-          usage_count: Math.floor(perfume100Count / 3),
+          usage_count: offer2Count,
           discount_total: 0
         });
       }
       // Offer 1: "عطرك بريال (1+تولة)" -> Requires 1 perfume and 1 tola
-      const remainingPerfumes = perfume100Count % 3;
+      const consumedInOffer2 = (perfume100Count === 5 && offer2Count === 2) ? 5 : (offer2Count * 3);
+      const remainingPerfumes = Math.max(0, perfume100Count - consumedInOffer2);
       if (remainingPerfumes >= 1 && tolaCount >= 1) {
         offers.push({
           id: 'a31e7108-b61d-4611-a968-9cdf0eca636f',
@@ -3620,8 +3625,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
           }
           if (eligible.length >= 3) {
             eligible.sort((a, b) => a - b);
-            const maxSets = Math.min(usageCount, Math.floor(eligible.length / 3));
-            for (let i = 0; i < maxSets; i++) {
+            const maxSets = usageCount;
+            for (let i = 0; i < maxSets && i < eligible.length; i++) {
               totalDiscount += Math.max(0, eligible[i] - 1);
             }
           }
@@ -5345,35 +5350,44 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       const tolas = units.filter(u => u.isTola);
       const others = units.filter(u => !u.isPerfume && !u.isTola);
 
-      const offer2Count = Math.floor(perfumes.length / 3);
+      let offer2Count = Math.floor(perfumes.length / 3);
+      if (perfumes.length % 3 === 2 && perfumes.length >= 5) {
+        offer2Count = Math.floor((perfumes.length + 1) / 3);
+      }
       const offer2Groups = [];
       const usedPerfumes = new Set();
       const usedTolas = new Set();
 
       if (offer2Count > 0) {
         const sortedPerfumes = [...perfumes].sort((a, b) => b.price - a.price);
-        const totalPerfumesInOffer2 = offer2Count * 3;
-        const offer2Perfumes = sortedPerfumes.slice(0, totalPerfumesInOffer2);
-        const paidPerfumes = offer2Perfumes.slice(0, offer2Count * 2);
-        const discountedPerfumes = offer2Perfumes.slice(offer2Count * 2);
+        const consumedCount = (perfumes.length === 5 && offer2Count === 2) ? 5 : (offer2Count * 3);
+        const offer2Perfumes = sortedPerfumes.slice(0, consumedCount);
+        const discountedPerfumes = offer2Perfumes.slice(offer2Perfumes.length - offer2Count);
+        const paidPerfumes = offer2Perfumes.slice(0, offer2Perfumes.length - offer2Count);
 
+        let paidIdx = 0;
         for (let s = 0; s < offer2Count; s++) {
-          const p1 = paidPerfumes[s * 2];
-          const p2 = paidPerfumes[s * 2 + 1];
           const p3 = discountedPerfumes[s];
-          usedPerfumes.add(p1);
-          usedPerfumes.add(p2);
           usedPerfumes.add(p3);
+          const p1 = paidPerfumes[paidIdx++];
+          usedPerfumes.add(p1);
+          const p2 = paidIdx < paidPerfumes.length ? paidPerfumes[paidIdx++] : null;
+          if (p2) usedPerfumes.add(p2);
 
+          const groupItems = [
+            { ...p1, effectivePrice: p1.price, isDiscounted: false }
+          ];
+          if (p2) {
+            groupItems.push({ ...p2, effectivePrice: p2.price, isDiscounted: false });
+          }
+          groupItems.push({ ...p3, effectivePrice: 1, originalPrice: p3.price, isDiscounted: true });
+
+          const grpTotal = (p1.price) + (p2 ? p2.price : 0) + 1;
           offer2Groups.push({
             type: 'offer2',
             title: 'عرض عطرك بـ 1 ريال (اشترِ 2 واحصل على الثالث بـ 1 ريال)',
-            items: [
-              { ...p1, effectivePrice: p1.price, isDiscounted: false },
-              { ...p2, effectivePrice: p2.price, isDiscounted: false },
-              { ...p3, effectivePrice: 1, originalPrice: p3.price, isDiscounted: true }
-            ],
-            total: p1.price + p2.price + 1,
+            items: groupItems,
+            total: grpTotal,
             savings: Math.max(0, p3.price - 1)
           });
         }
