@@ -2793,10 +2793,16 @@ app_js_code = f"""/**
         if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
 
         if (tag) tag.classList.remove('hidden');
-        msg.textContent = alreadyApplied
-          ? `كود الخصم (${{code}}) مفعّل بالفعل لطلبك! 🎉`
-          : `تم تفعيل كود الخصم (${{code}}) بنجاح! سيتم احتسابه عند الدفع.`;
-        msg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5 note-msg-anim';
+        const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
+        if (liveBundleDisc > 0) {{
+          msg.textContent = `تم حفظ كود الخصم (${{code}}). سلتك مؤهلة لعرض الحزم التلقائي (الأكبر توفيراً)، والخصم مطبق بالكامل.`;
+          msg.className = 'text-[11px] font-bold text-amber-600 block mt-1.5 note-msg-anim';
+        }} else {{
+          msg.textContent = alreadyApplied
+            ? `كود الخصم (${{code}}) مفعّل بالفعل لطلبك! 🎉`
+            : `تم تفعيل كود الخصم (${{code}}) بنجاح! سيتم احتسابه عند الدفع.`;
+          msg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5 note-msg-anim';
+        }}
         msg.classList.remove('hidden');
 
         const container = input.closest('.rounded-2xl') || input.parentElement?.parentElement || document.getElementById('cart-drawer-coupon-box');
@@ -4226,10 +4232,16 @@ app_js_code = f"""/**
         if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
       }} else if (applied) {{
         localStorage.setItem('note_applied_coupon', code);
-        msg.textContent = alreadyApplied
-          ? `كود الخصم (${{code}}) مفعّل بالفعل لطلبك! 🎉`
-          : `تم تفعيل كود الخصم (${{code}}) بنجاح! سيتم تطبيقه لطلبك عند الدفع.`;
-        msg.className = 'text-[11px] font-bold text-emerald-600 block note-msg-anim';
+        const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
+        if (liveBundleDisc > 0) {{
+          msg.textContent = `تم حفظ كود الخصم (${{code}}). سلتك مؤهلة لعرض الحزم التلقائي (الأكبر توفيراً)، والخصم مطبق بالكامل.`;
+          msg.className = 'text-[11px] font-bold text-amber-600 block note-msg-anim';
+        }} else {{
+          msg.textContent = alreadyApplied
+            ? `كود الخصم (${{code}}) مفعّل بالفعل لطلبك! 🎉`
+            : `تم تفعيل كود الخصم (${{code}}) بنجاح! سيتم تطبيقه لطلبك عند الدفع.`;
+          msg.className = 'text-[11px] font-bold text-emerald-600 block note-msg-anim';
+        }}
         if (tag) tag.classList.remove('hidden');
         if (clearBtn) clearBtn.classList.remove('hidden');
         if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
@@ -4281,8 +4293,14 @@ app_js_code = f"""/**
     if (tag) tag.classList.remove('hidden');
     if (clearBtn) clearBtn.classList.remove('hidden');
     if (msg && msg.classList.contains('hidden')) {{
-      msg.textContent = `كود الخصم (${{saved}}) مفعّل لطلبك.`;
-      msg.className = 'text-[11px] font-bold text-emerald-600 block';
+      const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
+      if (liveBundleDisc > 0) {{
+        msg.textContent = `كود الخصم (${{saved}}) محفوظ. (سلتك تستفيد حالياً من عرض الحزم التلقائي الأكبر توفيراً).`;
+        msg.className = 'text-[11px] font-bold text-amber-600 block';
+      }} else {{
+        msg.textContent = `كود الخصم (${{saved}}) مفعّل لطلبك.`;
+        msg.className = 'text-[11px] font-bold text-emerald-600 block';
+      }}
     }}
     if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
   }}
