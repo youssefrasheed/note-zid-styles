@@ -60,6 +60,23 @@
       scrollbar-width: none;
     }
 
+    /* Header Bar Seamless Integration - No Bottom Line & Responsive Blur */
+    #site-header {
+      border: none !important;
+      border-bottom: none !important;
+    }
+    #site-header.border-none,
+    #site-header.hero-light-top,
+    #site-header.hero-dark-top {
+      border: none !important;
+      border-bottom: none !important;
+      box-shadow: none !important;
+    }
+    #site-header.backdrop-blur-none {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
     /* Hero Offer Announcement Gold Pill - Radiant & High Contrast */
     .hero-offer-badge {
       display: inline-block !important;
@@ -1433,6 +1450,23 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 #coupon-apply-btn bdi {
   color: #111111 !important;
   font-weight: 800 !important;
+}
+
+/* Header Bar Seamless Integration - No Bottom Line & Responsive Blur */
+#site-header {
+  border: none !important;
+  border-bottom: none !important;
+}
+#site-header.border-none,
+#site-header.hero-light-top,
+#site-header.hero-dark-top {
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+#site-header.backdrop-blur-none {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* Hero Offer Announcement Gold Pill - Radiant & High Contrast */

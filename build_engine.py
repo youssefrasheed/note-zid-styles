@@ -1315,6 +1315,23 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   font-weight: 800 !important;
 }}
 
+/* Header Bar Seamless Integration - No Bottom Line & Responsive Blur */
+#site-header {{
+  border: none !important;
+  border-bottom: none !important;
+}}
+#site-header.border-none,
+#site-header.hero-light-top,
+#site-header.hero-dark-top {{
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}}
+#site-header.backdrop-blur-none {{
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}}
+
 /* Hero Offer Announcement Gold Pill - Radiant & High Contrast */
 .hero-offer-badge {{
   display: inline-block !important;
@@ -2943,10 +2960,10 @@ app_js_code = f"""/**
     const heroHeight = hero ? hero.offsetHeight : 800;
 
     if (!hero || scrollY >= (heroHeight - 90)) {{
-      // Scrolled past hero: solid frosted white glass, black text, dark logo
+      // Scrolled past hero: solid frosted white glass, black text, dark logo (NO BORDER)
       if (lastHeaderState !== 'scrolled-solid') {{
         lastHeaderState = 'scrolled-solid';
-        header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 text-black shadow-sm border-b border-stone-200/50 backdrop-blur-xl bg-white/85';
+        header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 text-black shadow-xs backdrop-blur-xl bg-white/85 border-none';
         if (storeLogo && !storeLogo.src.endsWith('/logo_dark_crisp.png')) {{
           storeLogo.src = ASSET_HOST + '/logo_dark_crisp.png';
         }}
@@ -2958,9 +2975,9 @@ app_js_code = f"""/**
         if (lastHeaderState !== state) {{
           lastHeaderState = state;
           if (scrollY > 20) {{
-            header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 text-black border-b border-black/10 backdrop-blur-md bg-white/40 shadow-xs';
+            header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 text-black backdrop-blur-md bg-white/70 shadow-xs border-none';
           }} else {{
-            header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 text-black border-b border-black/10 bg-transparent';
+            header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 text-black bg-transparent border-none shadow-none backdrop-blur-none';
           }}
           if (storeLogo && !storeLogo.src.endsWith('/logo_dark_crisp.png')) {{
             storeLogo.src = ASSET_HOST + '/logo_dark_crisp.png';
@@ -2971,9 +2988,9 @@ app_js_code = f"""/**
         if (lastHeaderState !== state) {{
           lastHeaderState = state;
           if (scrollY > 20) {{
-            header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 text-white border-b border-white/10 backdrop-blur-md bg-black/25 shadow-xs';
+            header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 text-white backdrop-blur-md bg-black/40 shadow-xs border-none';
           }} else {{
-            header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-colors duration-300 text-white border-b border-white/10 bg-transparent';
+            header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 text-white bg-transparent border-none shadow-none backdrop-blur-none';
           }}
           if (storeLogo && !storeLogo.src.endsWith('/logo_white_crisp.png')) {{
             storeLogo.src = ASSET_HOST + '/logo_white_crisp.png';
