@@ -7019,7 +7019,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     return items;
   }
   let checkoutBusy=false;
-  proceedToCheckout=async function() {
+  window.proceedToCheckout = proceedToCheckout = async function() {
     if(checkoutBusy) return;
     checkoutBusy=true;
     const checkoutBtns = document.querySelectorAll('button[onclick*="proceedToCheckout"], a[onclick*="proceedToCheckout"], #cart-checkout-btn, .note-checkout-btn');
