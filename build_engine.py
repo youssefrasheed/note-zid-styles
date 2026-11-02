@@ -2020,7 +2020,7 @@ app_js_code = f"""/**
                   drawerBundleRow.classList.remove('hidden');
                   if (drawerBundleTitle) {{
                     const offerNames = bundleOffers.map(b => b.name).filter(Boolean).join(' + ');
-                    drawerBundleTitle.textContent = offerNames ? `خصم الحزمة - ${{offerNames}}:` : 'خصم الحزمة:';
+                    drawerBundleTitle.textContent = offerNames ? `توفير العرض (${{offerNames}}):` : 'توفير العرض الخاص:';
                   }}
                   if (drawerBundleVal) drawerBundleVal.textContent = `-${{bundleDiscount.toLocaleString('en-US', {{maximumFractionDigits: 2}})}} ر.س`;
                 }} else {{
@@ -2163,7 +2163,7 @@ app_js_code = f"""/**
           drawerBundleRow.classList.remove('hidden');
           if (drawerBundleTitle) {{
             const offerNames = bundleOffers.map(b => b.name).filter(Boolean).join(' + ');
-            drawerBundleTitle.textContent = offerNames ? `خصم الحزمة - ${{offerNames}}:` : 'خصم الحزمة:';
+            drawerBundleTitle.textContent = offerNames ? `توفير العرض (${{offerNames}}):` : 'توفير العرض الخاص:';
           }}
           if (drawerBundleVal) drawerBundleVal.textContent = `-${{bundleDiscount.toLocaleString('en-US', {{maximumFractionDigits: 2}})}} ر.س`;
         }} else {{
@@ -3924,7 +3924,7 @@ app_js_code = f"""/**
         bundleRow.classList.remove('hidden');
         if (bundleTitle) {{
           const offerNames = bundleOffers.map(b => b.name).filter(Boolean).join(' + ');
-          bundleTitle.textContent = offerNames ? `خصم الحزمة - ${{offerNames}}:` : 'خصم الحزمة:';
+          bundleTitle.textContent = offerNames ? `توفير العرض (${{offerNames}}):` : 'توفير العرض الخاص:';
         }}
         if (bundleVal) bundleVal.textContent = `-${{bundleDiscount.toLocaleString('en-US', {{maximumFractionDigits: 2}})}} ر.س`;
       }} else {{
