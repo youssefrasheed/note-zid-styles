@@ -1461,6 +1461,12 @@ app_js_code = f"""/**
     return clean ? `${{clean}} ر.س` : '';
   }}
 
+  function resolveImgUrl(img) {{
+    const s = String(img || '').trim();
+    if (!s || s === 'undefined' || s === 'null') return 'https://youssefrasheed.github.io/note-zid-styles/products/09_Linen_Room_Spray_Brand_Box.webp';
+    return (s.startsWith('http') ? '' : ASSET_HOST) + s;
+  }}
+
   // 5. Products Data
   const productsData = {products_data_json_str};
   const noteProductsCatalog = {full_catalog_str};
@@ -1897,7 +1903,7 @@ app_js_code = f"""/**
       }} else {{
         const rawPrice = typeof product.price === 'string' ? parseInt(product.price.replace(/[^0-9]/g, '')) : product.price;
         const rawOldPrice = product.old_price ? (typeof product.old_price === 'string' ? parseInt(product.old_price.replace(/[^0-9]/g, '')) : product.old_price) : null;
-        const imgUrl = (product.img.startsWith('http') ? '' : ASSET_HOST) + product.img;
+        const imgUrl = resolveImgUrl(product.img);
         cart.push({{
           id: product.id,
           title: product.title,
@@ -1946,21 +1952,30 @@ app_js_code = f"""/**
     }},
     _isQualifying100mlPerfume: function(item) {{
       if (!item) return false;
+      const id = String(item.id || '').toLowerCase();
       const title = (item.title || item.name || '').toLowerCase();
-      const size = (item.size || '').toLowerCase();
-      // Exclude packages, sets, gift boxes
-      if (title.includes('باقة') || title.includes('مجموعة') || title.includes('بكج') || title.includes('بوكس')) return false;
-      // Exclude minis, oils, sprays, cosmetics
-      if (title.includes('30 مل') || title.includes('30مل') || size.includes('30')) return false;
-      if (title.includes('تولة') || title.includes('توله') || title.includes('مسك توفي') || title.includes('عنبر مِسك')) return false;
-      if (title.includes('معطر') || title.includes('لوشن') || title.includes('جل') || title.includes('شاور')) return false;
+      const cat = String(item.cat || item.category || '').toLowerCase();
+      const size = String(item.size || '').toLowerCase();
+      // Strictly exclude packages, sets, gift collections
+      if (id.startsWith('pkg-') || id.includes('bundle') || id.includes('gift')) return false;
+      if (cat.includes('package') || cat.includes('set') || cat.includes('bundle')) return false;
+      if (title.includes('باقة') || title.includes('مجموعة') || title.includes('بكج') || title.includes('بوكس') || 
+          title.includes('طقم') || title.includes('سفنتشر') || title.includes('سجنتشر') || title.includes('إسكيب') || 
+          title.includes('اسكيب') || title.includes('الملكية') || title.includes('الكلاسيكية')) return false;
+      // Strictly exclude 30ml minis, oils/tolas, sprays, and cosmetics
+      if (title.includes('30 مل') || title.includes('30مل') || size.includes('30') || cat.includes('travel')) return false;
+      if (title.includes('تولة') || title.includes('توله') || title.includes('مسك توفي') || title.includes('عنبر مِسك') || cat.includes('tollah')) return false;
+      if (title.includes('معطر') || title.includes('لوشن') || title.includes('جل') || title.includes('شاور') || cat.includes('linen') || cat.includes('body')) return false;
       // All single 100ml perfumes in Note are >= 150 SAR
       return (Number(item.price) >= 150);
     }},
     _isQualifyingTola: function(item) {{
       if (!item) return false;
+      const id = String(item.id || '').toLowerCase();
       const title = (item.title || item.name || '').toLowerCase();
-      return title.includes('تولة') || title.includes('توله') || (title.includes('مسك') && Number(item.price) < 200 && Number(item.price) > 50);
+      const cat = String(item.cat || item.category || '').toLowerCase();
+      if (title.includes('مجموعة') || title.includes('باقة') || id.startsWith('pkg-') || title.includes('معطر') || cat.includes('all-over') || cat.includes('linen')) return false;
+      return (cat.includes('tollah') || title.includes('تولة') || title.includes('توله')) && Number(item.price) <= 120 && Number(item.price) >= 40;
     }},
     getLiveBundleOffers: function() {{
       const cart = this.getCart();
@@ -2255,7 +2270,7 @@ app_js_code = f"""/**
       // Render Laverne-style 2-tier item cards
       itemsContainer.innerHTML = cart.map(item => {{
         const zidSlug = zidSlugMap[item.id] || item.id;
-        const imgUrl = (item.img.startsWith('http') ? '' : ASSET_HOST) + item.img;
+        const imgUrl = resolveImgUrl(item.img);
         const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
         const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
         const itemLineTotal = item.price * item.quantity;
@@ -2329,7 +2344,7 @@ app_js_code = f"""/**
         if (recs.length > 0) {{
           recsContainer.classList.remove('hidden');
           recsList.innerHTML = recs.map(p => {{
-            const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+            const imgUrl = resolveImgUrl(p.img);
             return `
               <div class="flex items-center justify-between gap-2.5 p-2.5 bg-stone-50 rounded-xl border border-stone-200/70 shadow-2xs">
                 <div class="flex items-center gap-2.5 min-w-0">
@@ -2566,7 +2581,7 @@ app_js_code = f"""/**
   // 8. Product Card Rendering
   function renderProductCard(p, index) {{
     const zidSlug = zidSlugMap[p.id] || p.id;
-    const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+    const imgUrl = resolveImgUrl(p.img);
     const isOutOfStock = p.in_stock === false || p.stock === 0;
     return `
       <div class="min-w-[175px] sm:min-w-[270px] max-w-[185px] sm:max-w-[280px] shrink-0 p-1 flex flex-col justify-between text-center group cursor-pointer bg-transparent ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" style="scroll-snap-align: start;" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
@@ -2748,7 +2763,7 @@ app_js_code = f"""/**
   function openQuickView(idx) {{
     const p = productsData[idx];
     if (!p) return;
-    const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+    const imgUrl = resolveImgUrl(p.img);
     const modalImg = document.getElementById('modal-img');
     if (modalImg) modalImg.src = imgUrl;
     const modalTitle = document.getElementById('modal-title');
@@ -2891,7 +2906,7 @@ app_js_code = f"""/**
 
     resultsContainer.innerHTML = matches.slice(0, 8).map(p => {{
       const zidSlug = zidSlugMap[p.id] || p.id;
-      const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+      const imgUrl = resolveImgUrl(p.img);
       const isOutOfStock = p.in_stock === false || p.stock === 0;
       return `
         <div class="py-3 flex items-center justify-between gap-4 hover:bg-stone-50 px-2.5 rounded-xl transition cursor-pointer ${{isOutOfStock ? 'opacity-80' : ''}}" onclick="closeSearchModal(); NoteRouter.navigate('/products/${{zidSlug}}')">
@@ -3194,7 +3209,7 @@ app_js_code = f"""/**
     if (tabbyEl) tabbyEl.textContent = formatPrice(tabbyPrice);
 
     const mainImg = document.getElementById('pdp-main-image');
-    const mainImgUrl = (currentProduct.img.startsWith('http') ? '' : ASSET_HOST) + currentProduct.img;
+    const mainImgUrl = resolveImgUrl(currentProduct.img);
     if (mainImg) {{
       mainImg.src = mainImgUrl;
       mainImg.alt = currentProduct.title;
@@ -3212,7 +3227,7 @@ app_js_code = f"""/**
       if (images.length > 1) {{
         thumbsContainer.style.display = 'flex';
         images.forEach((img, idx) => {{
-          const fullUrl = (img.startsWith('http') ? '' : ASSET_HOST) + img;
+          const fullUrl = resolveImgUrl(img);
           const btn = document.createElement('button');
           btn.className = `w-14 h-14 sm:w-16 sm:h-16 rounded-xl border-2 p-1 bg-stone-50 transition-all flex items-center justify-center overflow-hidden ${{idx === 0 ? 'thumb-active border-black' : 'border-stone-200 opacity-60 hover:opacity-100'}}`;
           btn.onclick = () => {{
@@ -3345,7 +3360,7 @@ app_js_code = f"""/**
 
     container.innerHTML = related.map(p => {{
       const zidSlug = zidSlugMap[p.id] || p.id;
-      const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+      const imgUrl = resolveImgUrl(p.img);
       const isOutOfStock = p.in_stock === false || p.stock === 0;
       return `
         <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border-0 shadow-none transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
@@ -3562,7 +3577,7 @@ app_js_code = f"""/**
 
     container.innerHTML = filtered.map(p => {{
       const zidSlug = zidSlugMap[p.id] || p.id;
-      const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+      const imgUrl = resolveImgUrl(p.img);
       const isOutOfStock = p.in_stock === false || p.stock === 0;
       return `
         <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border-0 shadow-none transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
@@ -3640,7 +3655,7 @@ app_js_code = f"""/**
 
     itemsContainer.innerHTML = cart.map(item => {{
       const zidSlug = zidSlugMap[item.id] || item.id;
-      const imgUrl = (item.img.startsWith('http') ? '' : ASSET_HOST) + item.img;
+      const imgUrl = resolveImgUrl(item.img);
       const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
       const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
       const itemLineTotal = item.price * item.quantity;
@@ -3713,7 +3728,7 @@ app_js_code = f"""/**
     }}
 
     upsellCard.classList.remove('hidden');
-    const imgUrl = (item.img.startsWith('http') ? '' : ASSET_HOST) + item.img;
+    const imgUrl = resolveImgUrl(item.img);
     const imgEl = document.getElementById('upsell-img');
     if (imgEl) imgEl.src = imgUrl;
     const titleEl = document.getElementById('upsell-title');
@@ -3768,7 +3783,7 @@ app_js_code = f"""/**
       .slice(0, 4);
 
     recsGrid.innerHTML = recs.map(p => {{
-      const imgUrl = (p.img.startsWith('http') ? '' : ASSET_HOST) + p.img;
+      const imgUrl = resolveImgUrl(p.img);
       const zidSlug = zidSlugMap[p.id] || p.id;
       return `
         <div class="p-3 rounded-2xl bg-stone-50 border border-stone-200/70 flex flex-col justify-between text-center group hover:border-black transition">
