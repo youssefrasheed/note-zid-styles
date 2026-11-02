@@ -5575,6 +5575,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     });
 
     try {
+      if (!window.zidStoreRegion) window.zidStoreRegion = { location_selection: false };
       if (!window.zid || !window.zid.cart) {
         try {
           const mod = await import('https://static.zid.store/sdk/v3.30.4/theme-service/vitrin-theme-service.es.js');
@@ -5582,13 +5583,15 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         } catch (_) {}
       }
       const api = window.zid?.cart;
-      if (api && typeof api.get === 'function') {
+      if (api && typeof api.empty === 'function') {
+        try { await api.empty(); } catch (_) {}
+      } else if (api && typeof api.get === 'function') {
         try {
           let nativeRes = await api.get();
           let native = (nativeRes?.data?.cart?.products || nativeRes?.data?.products || nativeRes?.products || nativeRes?.items || []);
           if (Array.isArray(native)) {
             const currentValidIds = new Set(cart.map(i => {
-              const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === (i.product_id || i.id)) : null;
+              const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === (i.product_id || i.id) || cp.slug === i.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[i.id] === cp.id)) : null;
               return p ? p.id : (ZID_PRODUCT_MAP[i.id] || i.product_id || i.id);
             }));
             for (const n of native) {
@@ -5599,6 +5602,22 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
             }
           }
         } catch (_) {}
+      }
+
+      if (api && typeof api.addProduct === 'function') {
+        for (const item of cart) {
+          const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === item.id || cp.id === item.product_id || cp.slug === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[item.id] === cp.id)) : null;
+          const zidUuid = (p && p.zid_id) || (p && p.id && p.id.includes('-') ? p.id : null) || (typeof ZID_PRODUCT_MAP !== 'undefined' ? ZID_PRODUCT_MAP[item.id] : null) || item.product_id || item.id;
+          try {
+            await api.addProduct({
+              product_id: zidUuid,
+              quantity: item.quantity || 1,
+              ...(item.sub_items?.length ? { sub_items: item.sub_items.map(({id, quantity, selection_group_id}) => ({id, quantity, selection_group_id})) } : {})
+            });
+          } catch (e) {
+            console.warn('Sync notice:', item.id, e);
+          }
+        }
       }
 
       const appliedCoupon = localStorage.getItem('note_applied_coupon');
@@ -5613,21 +5632,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         try { await api.removeCoupons().catch(() => null); } catch (_) {}
       }
 
-      if (api && typeof api.addProduct === 'function') {
-        for (const item of cart) {
-          const zidUuid = ZID_PRODUCT_MAP[item.id] || item.product_id || item.id;
-          try {
-            await api.addProduct({
-              product_id: zidUuid,
-              quantity: item.quantity || 1
-            });
-          } catch (e) {
-            console.warn('Sync notice:', item.id, e);
-          }
-        }
-        window.location.href = '/checkout';
-        return;
-      }
+      window.location.href = '/checkout';
+      return;
     } catch (err) {
       console.error('Zid sync error:', err);
     }
@@ -6979,46 +6985,58 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       b.style.opacity = '0.85';
     });
     try {
+      if (!window.zidStoreRegion) window.zidStoreRegion = { location_selection: false };
       if (!ZidSyncManager.lastSuccess || (Date.now() - ZidSyncManager.lastSuccess > 120000)) {
         await ZidSyncManager.fetchLiveCatalog(3000).catch(() => null);
       }
       await CartManager._nativeQueue;
       const cart=CartManager.getCart();
       if(!cart.length) throw Error('السلة فارغة');
+      
+      if (!window.zid || !window.zid.cart) {
+        try {
+          const mod = await import('https://static.zid.store/sdk/v3.30.4/theme-service/vitrin-theme-service.es.js');
+          window.zid = mod.default || mod;
+        } catch (_) {}
+      }
       const api=window.zid?.cart;
-      if(!api?.addProduct || !api?.get || !api?.updateProduct) {
+      if(!api?.addProduct) {
         location.href='/checkout';
         return;
       }
-      let native=nativeCartItems(await api.get());
-      const currentValidIds = new Set(cart.map(i => {
-        const p = noteProductsCatalog.find(cp => cp.id === i.product_id || cp.id === i.id);
-        return p ? p.id : (i.product_id || i.id);
-      }));
-      for(const n of native) {
-        const nId = n.product_id || n.product?.id;
-        if(nId && !currentValidIds.has(nId)) {
-          try { await api.removeProduct({product_id:n.id}); } catch(_) {}
-        }
+
+      if (typeof api.empty === 'function') {
+        try { await api.empty(); } catch (_) {}
+      } else if (typeof api.get === 'function') {
+        try {
+          let native=nativeCartItems(await api.get());
+          const currentValidIds = new Set(cart.map(i => {
+            const p = noteProductsCatalog.find(cp => cp.id === i.product_id || cp.id === i.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[i.id] === cp.id));
+            return p ? p.id : (i.product_id || i.id);
+          }));
+          for(const n of native) {
+            const nId = n.product_id || n.product?.id;
+            if(nId && !currentValidIds.has(nId)) {
+              try { await api.removeProduct({product_id:n.id}); } catch(_) {}
+            }
+          }
+        } catch(_) {}
       }
-      native=nativeCartItems(await api.get());
+
       for(const item of cart) {
-        const p=noteProductsCatalog.find(p=>p.id===item.product_id);
-        if(!p || !p.in_stock || (p.stock && item.quantity>p.stock)) throw Error('راجع توفر وكمية '+item.title);
-        if(p.product_class==='dynamic_bundle' && !item.sub_items?.length) throw Error('اختار مكونات '+p.title+' من صفحة المنتج');
-        let line=item.native_line_id && native.find(n=>String(n.id)===String(item.native_line_id));
-        if(!line && !item.sub_items?.length) line=native.find(n=>(n.product_id || n.product?.id)===p.id && !n.sub_items?.length);
-        if(line) assertCartResponse(await api.updateProduct({product_id:line.id,quantity:item.quantity}));
-        else {
-          const before=new Set(native.map(n=>String(n.id)));
-          const response=assertCartResponse(await api.addProduct({product_id:p.id,quantity:item.quantity,...(item.sub_items?.length ? {sub_items:item.sub_items.map(({id,quantity,selection_group_id})=>({id,quantity,selection_group_id}))} : {})}));
-          native=nativeCartItems(await api.get());
-          line=native.find(n=>!before.has(String(n.id)) && (n.product_id || n.product?.id)===p.id) || native.find(n=>String(n.id)===String(response?.data?.item?.id || response?.item?.id));
-          if(!line) throw Error('تم تحديث زد؛ تعذر تأكيد سطر المنتج. راجع السلة قبل إعادة المحاولة.');
+        const p = noteProductsCatalog.find(cp => cp.id === item.id || cp.id === item.product_id || cp.slug === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[item.id] === cp.id));
+        const zidUuid = (p && p.zid_id) || (p && p.id && p.id.includes('-') ? p.id : null) || (typeof ZID_PRODUCT_MAP !== 'undefined' ? ZID_PRODUCT_MAP[item.id] : null) || item.product_id || item.id;
+        try {
+          await api.addProduct({
+            product_id: zidUuid,
+            quantity: item.quantity || 1,
+            ...(item.sub_items?.length ? {sub_items:item.sub_items.map(({id,quantity,selection_group_id})=>({id,quantity,selection_group_id}))} : {})
+          });
+        } catch (e) {
+          console.warn('Sync notice:', item.id, e);
         }
-        item.native_line_id=line.id;
-        CartManager.saveCart(cart);
       }
+
       const appliedCoupon = localStorage.getItem('note_applied_coupon');
       if (appliedCoupon && api?.applyCoupon) {
         try {
@@ -7043,31 +7061,35 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   };
   const originalRemove=CartManager.removeItem, originalUpdateQuantity=CartManager.updateQuantity;
   CartManager.removeItem=async function(key) {
-    await this._nativeQueue;
-    const item=this.getCart().find(i=>i.id===key);
     try {
-      if(item?.native_line_id) {
-        const res = assertCartResponse(await window.zid.cart.removeProduct({product_id:item.native_line_id}));
-        if (res?.data?.cart || res?.cart) window._noteLiveCartState = res.data?.cart || res.cart;
+      await this._nativeQueue;
+      const item=this.getCart().find(i=>i.id===key);
+      if(item?.native_line_id && window.zid?.cart?.removeProduct) {
+        try {
+          const res = await window.zid.cart.removeProduct({product_id:item.native_line_id});
+          if (res?.data?.cart || res?.cart) window._noteLiveCartState = res.data?.cart || res.cart;
+        } catch(_) {}
       }
-      originalRemove.call(this,key);
-      if (typeof CartManager.syncLiveCart === 'function') CartManager.syncLiveCart();
-    } catch(e) {this.showToast('تعذر حذف المنتج من زد. حاول مجددًا.');}
+    } catch(_) {}
+    originalRemove.call(this,key);
+    if (typeof CartManager.syncLiveCart === 'function') CartManager.syncLiveCart();
   };
   CartManager.updateQuantity=async function(key,delta) {
-    await this._nativeQueue;
     const item=this.getCart().find(i=>i.id===key);if(!item)return;
     if(item.quantity+delta<=0) return this.removeItem(key);
-    const p=noteProductsCatalog.find(p=>p.id===item.product_id);
-    if(delta>0 && (!p?.in_stock || item.quantity+delta>p.stock)) {this.showToast('الكمية المطلوبة غير متاحة');return;}
+    const p=noteProductsCatalog.find(cp=>cp.id===(item.product_id||item.id) || cp.slug===item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[item.id]===cp.id));
+    if(delta>0 && p && (!p.in_stock || (p.stock && item.quantity+delta>p.stock))) {this.showToast('الكمية المطلوبة غير متاحة');return;}
     try {
-      if(item.native_line_id) {
-        const res = assertCartResponse(await window.zid.cart.updateProduct({product_id:item.native_line_id,quantity:item.quantity+delta}));
-        if (res?.data?.cart || res?.cart) window._noteLiveCartState = res.data?.cart || res.cart;
+      await this._nativeQueue;
+      if(item.native_line_id && window.zid?.cart?.updateProduct) {
+        try {
+          const res = await window.zid.cart.updateProduct({product_id:item.native_line_id,quantity:item.quantity+delta});
+          if (res?.data?.cart || res?.cart) window._noteLiveCartState = res.data?.cart || res.cart;
+        } catch(_) {}
       }
-      originalUpdateQuantity.call(this,key,delta);
-      if (typeof CartManager.syncLiveCart === 'function') CartManager.syncLiveCart();
-    } catch(e) {this.showToast('تعذر تعديل الكمية في زد. حاول مجددًا.');}
+    } catch(_) {}
+    originalUpdateQuantity.call(this,key,delta);
+    if (typeof CartManager.syncLiveCart === 'function') CartManager.syncLiveCart();
   };
 
   if (typeof document !== 'undefined') {

@@ -4317,6 +4317,7 @@ app_js_code = f"""/**
     }});
 
     try {{
+      if (!window.zidStoreRegion) window.zidStoreRegion = {{ location_selection: false }};
       if (!window.zid || !window.zid.cart) {{
         try {{
           const mod = await import('https://static.zid.store/sdk/v3.30.4/theme-service/vitrin-theme-service.es.js');
@@ -4324,13 +4325,15 @@ app_js_code = f"""/**
         }} catch (_) {{}}
       }}
       const api = window.zid?.cart;
-      if (api && typeof api.get === 'function') {{
+      if (api && typeof api.empty === 'function') {{
+        try {{ await api.empty(); }} catch (_) {{}}
+      }} else if (api && typeof api.get === 'function') {{
         try {{
           let nativeRes = await api.get();
           let native = (nativeRes?.data?.cart?.products || nativeRes?.data?.products || nativeRes?.products || nativeRes?.items || []);
           if (Array.isArray(native)) {{
             const currentValidIds = new Set(cart.map(i => {{
-              const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === (i.product_id || i.id)) : null;
+              const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === (i.product_id || i.id) || cp.slug === i.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[i.id] === cp.id)) : null;
               return p ? p.id : (ZID_PRODUCT_MAP[i.id] || i.product_id || i.id);
             }}));
             for (const n of native) {{
@@ -4341,6 +4344,22 @@ app_js_code = f"""/**
             }}
           }}
         }} catch (_) {{}}
+      }}
+
+      if (api && typeof api.addProduct === 'function') {{
+        for (const item of cart) {{
+          const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === item.id || cp.id === item.product_id || cp.slug === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[item.id] === cp.id)) : null;
+          const zidUuid = (p && p.zid_id) || (p && p.id && p.id.includes('-') ? p.id : null) || (typeof ZID_PRODUCT_MAP !== 'undefined' ? ZID_PRODUCT_MAP[item.id] : null) || item.product_id || item.id;
+          try {{
+            await api.addProduct({{
+              product_id: zidUuid,
+              quantity: item.quantity || 1,
+              ...(item.sub_items?.length ? {{ sub_items: item.sub_items.map(({{id, quantity, selection_group_id}}) => ({{id, quantity, selection_group_id}})) }} : {{}})
+            }});
+          }} catch (e) {{
+            console.warn('Sync notice:', item.id, e);
+          }}
+        }}
       }}
 
       const appliedCoupon = localStorage.getItem('note_applied_coupon');
@@ -4355,21 +4374,8 @@ app_js_code = f"""/**
         try {{ await api.removeCoupons().catch(() => null); }} catch (_) {{}}
       }}
 
-      if (api && typeof api.addProduct === 'function') {{
-        for (const item of cart) {{
-          const zidUuid = ZID_PRODUCT_MAP[item.id] || item.product_id || item.id;
-          try {{
-            await api.addProduct({{
-              product_id: zidUuid,
-              quantity: item.quantity || 1
-            }});
-          }} catch (e) {{
-            console.warn('Sync notice:', item.id, e);
-          }}
-        }}
-        window.location.href = '/checkout';
-        return;
-      }}
+      window.location.href = '/checkout';
+      return;
     }} catch (err) {{
       console.error('Zid sync error:', err);
     }}
