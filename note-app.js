@@ -1237,29 +1237,31 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   animation: noteMsgSlideDown 0.35s ease-out both !important;
 }
 
-/* Luxury Soft Champagne Gold "تطبيق" (Apply Coupon) Button */
+/* Coupon "تطبيق" (Apply Coupon) Button - Default Premium Black */
 #drawer-coupon-btn,
 #coupon-apply-btn {
-  background: linear-gradient(135deg, #f5e9c9 0%, #dfc485 100%) !important;
-  color: #111111 !important;
-  border: 1px solid rgba(195, 160, 85, 0.45) !important;
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #111111 !important;
   font-weight: 800 !important;
-  box-shadow: 0 2px 8px rgba(223, 196, 133, 0.25) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
   cursor: pointer !important;
 }
 
 #drawer-coupon-btn:hover,
 #coupon-apply-btn:hover {
-  background: linear-gradient(135deg, #faefd4 0%, #e6cd90 100%) !important;
-  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.4) !important;
+  background: #262626 !important;
+  border-color: #262626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
   transform: translateY(-1px);
 }
 
 #drawer-coupon-btn:active,
 #coupon-apply-btn:active {
   transform: translateY(0);
-  box-shadow: 0 1px 4px rgba(223, 196, 133, 0.2) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
 }
 
 #drawer-coupon-btn:disabled,
@@ -1273,8 +1275,95 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 #coupon-apply-btn span,
 #drawer-coupon-btn bdi,
 #coupon-apply-btn bdi {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+/* Luxury Soft Champagne Gold ONLY when coupon discount is actually applied */
+#drawer-coupon-btn.note-btn-gold,
+#coupon-apply-btn.note-btn-gold {
+  background: linear-gradient(135deg, #f5e9c9 0%, #dfc485 100%) !important;
+  color: #111111 !important;
+  border: 1px solid rgba(195, 160, 85, 0.5) !important;
+  box-shadow: 0 2px 8px rgba(223, 196, 133, 0.35) !important;
+}
+
+#drawer-coupon-btn.note-btn-gold:hover,
+#coupon-apply-btn.note-btn-gold:hover {
+  background: linear-gradient(135deg, #faefd4 0%, #e6cd90 100%) !important;
+  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.45) !important;
+  transform: translateY(-1px);
+}
+
+#drawer-coupon-btn.note-btn-gold span,
+#coupon-apply-btn.note-btn-gold span,
+#drawer-coupon-btn.note-btn-gold bdi,
+#coupon-apply-btn.note-btn-gold bdi {
   color: #111111 !important;
   font-weight: 800 !important;
+}
+
+/* Grouped Offer Bundle Cards in /cart Page */
+.note-bundle-group-card {
+  background: #ffffff !important;
+  border: 1px solid #e7e5e4 !important;
+  border-radius: 20px !important;
+  padding: 16px 18px !important;
+  margin-bottom: 16px !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02) !important;
+  position: relative !important;
+}
+@media (min-width: 640px) {
+  .note-bundle-group-card {
+    padding: 20px 22px !important;
+    border-radius: 22px !important;
+  }
+}
+.note-bundle-group-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding-bottom: 12px !important;
+  border-bottom: 1px solid #f0eee9 !important;
+  margin-bottom: 14px !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+.note-bundle-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: #fff8eb !important;
+  color: #855900 !important;
+  border: 1px solid #fce7b2 !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  padding: 4px 12px !important;
+  border-radius: 9999px !important;
+}
+.note-bundle-savings {
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  color: #059669 !important;
+  background: #ecfdf5 !important;
+  padding: 3px 10px !important;
+  border-radius: 9999px !important;
+  border: 1px solid #a7f3d0 !important;
+}
+.note-bundle-sub-item {
+  border-radius: 16px !important;
+  border: 1px solid #f0eee9 !important;
+  background: #ffffff !important;
+  padding: 12px 14px !important;
+  margin-bottom: 10px !important;
+}
+.note-bundle-sub-item:last-child {
+  margin-bottom: 0 !important;
+}
+.note-bundle-sub-item-discounted {
+  background: #fafaf7 !important;
+  border-color: #dfc485 !important;
+  box-shadow: 0 0 0 1px rgba(223, 196, 133, 0.25) !important;
 }
 
 /* Header Bar Seamless Integration - No Bottom Line & Responsive Blur */
@@ -3266,7 +3355,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     drawer: "<!-- ================= UNIVERSAL SLIDE-OUT CART DRAWER ================= -->\n  <div id=\"cart-drawer-overlay\" class=\"fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] hidden opacity-0 transition-opacity duration-300\" onclick=\"CartManager.closeDrawer()\"></div>\n  <div id=\"cart-drawer\" class=\"fixed top-0 left-0 bottom-0 w-full sm:w-[420px] bg-white z-[9999] transform -translate-x-full transition-transform duration-300 flex flex-col justify-between shadow-2xl text-right hidden\">\n    <!-- Header -->\n    <div class=\"p-5 border-b border-stone-100 flex items-center justify-between shrink-0\">\n      <div class=\"flex items-center gap-2\">\n        <i class=\"sicon-shopping-bag text-lg text-black\"></i>\n        <h3 class=\"text-sm font-bold text-black\">سلة المشتريات</h3>\n        <span class=\"cart-badge-count text-xs font-bold text-stone-400\">(0)</span>\n      </div>\n      <button onclick=\"CartManager.closeDrawer()\" class=\"w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-black flex items-center justify-center transition\" aria-label=\"إغلاق السلة\">\n        <i class=\"sicon-cancel text-sm\"></i>\n      </button>\n    </div>\n\n    <!-- Free Shipping Progress -->\n    <div hidden <div class=\"px-5 py-3 bg-stone-50 border-b border-stone-100 shrink-0\">\n      <p id=\"cart-free-shipping-text\" class=\"text-xs text-stone-600 mb-1.5\"></p>\n      <div class=\"w-full bg-stone-200 h-1.5 rounded-full overflow-hidden\">\n        <div hidden  id=\"cart-free-shipping-progress\" class=\"bg-black h-full transition-all duration-500\" style=\"width: 0%\"></div>\n      </div>\n    </div>\n\n    <!-- Scrollable Body (Items + Coupon + Recommendations All Scroll Together) -->\n    <div id=\"cart-drawer-scroll-area\" class=\"flex-grow overflow-y-auto overscroll-contain p-3 sm:p-4.5 space-y-3\">\n      <!-- Items Container -->\n      <div id=\"cart-drawer-items\" class=\"space-y-3\"></div>\n\n      <!-- Coupon Code Box (Under items inside scroll area like Laverne) -->\n      <div id=\"cart-drawer-coupon-box\" class=\"pt-1 pb-1\">\n        <div class=\"p-3.5 rounded-2xl bg-stone-50 border border-stone-200/80\">\n          <div class=\"flex items-center justify-between mb-2\">\n            <label for=\"drawer-coupon-input\" class=\"text-xs font-bold text-stone-800 flex items-center gap-1.5 cursor-pointer\">\n              <i class=\"sicon-discount-coupon text-stone-500 text-xs\"></i>\n              <span>كود الخصم</span>\n            </label>\n            <span id=\"drawer-coupon-applied-tag\" class=\"hidden text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200\">مفعّل ✓</span>\n          </div>\n          <div class=\"flex gap-2\">\n            <input type=\"text\" id=\"drawer-coupon-input\" placeholder=\"أدخل كود الخصم\" class=\"flex-1 min-w-0 px-3 py-2 rounded-xl border border-stone-200 bg-white text-xs font-medium text-stone-900 placeholder-stone-400 focus:outline-none focus:border-black transition\">\n            <button type=\"button\" id=\"drawer-coupon-btn\" onclick=\"applyDrawerCoupon()\" class=\"px-4 py-2 rounded-xl text-stone-900 text-xs font-bold transition shrink-0 cursor-pointer shadow-xs\">تطبيق</button>\n          </div>\n          <p id=\"drawer-coupon-msg\" class=\"text-[11px] mt-1.5 hidden font-medium\"></p>\n        </div>\n      </div>\n\n      <!-- Recommendations Section inside Drawer (Under coupon inside scroll area like Laverne) -->\n      <div id=\"cart-drawer-recommendations\" class=\"pt-2 hidden\">\n        <div class=\"flex items-center justify-between mb-2\">\n          <span class=\"text-xs font-bold text-black flex items-center gap-1\">\n            <i class=\"sicon-sparkles text-amber-500 text-xs\"></i>\n            <span>ترشيح نوت لك</span>\n          </span>\n          <span class=\"text-[10px] text-stone-400\">إضافة سريعة بنقرة واحدة</span>\n        </div>\n        <div id=\"cart-drawer-recs-list\" class=\"space-y-2\"></div>\n      </div>\n    </div>\n\n    <!-- Empty State -->\n    <div id=\"cart-drawer-empty\" class=\"hidden flex flex-col items-center justify-center p-8 text-center my-auto\">\n      <div class=\"w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 mb-4\">\n        <i class=\"sicon-shopping-bag text-2xl\"></i>\n      </div>\n      <h4 class=\"text-sm font-bold text-black mb-1\">سلتك فارغة حالياً</h4>\n      <p class=\"text-xs text-stone-400 max-w-xs mb-6\">تصفح تشكيلتنا العطرية الاستثنائية واختر عطرك المفضل الآن</p>\n      <a href=\"/categories\" onclick=\"CartManager.closeDrawer()\" class=\"px-6 py-2.5 rounded-full bg-black text-white text-xs font-bold hover:bg-stone-800 transition\">\n        تصفح العطور\n      </a>\n    </div>\n\n    <!-- Footer Checkout Area -->\n    <div id=\"cart-drawer-footer\" class=\"p-4 sm:p-5 border-t border-stone-100 bg-white space-y-2.5 shrink-0\">\n      <span id=\"cart-drawer-subtotal\" class=\"hidden\">0 ر.س</span>\n      <div id=\"drawer-bundle-discount-row\" class=\"hidden flex items-center justify-between text-xs font-bold text-amber-800 bg-amber-50/90 px-3 py-1.5 rounded-xl border border-amber-200/70\">\n        <span id=\"drawer-bundle-discount-label\" class=\"flex items-center gap-1.5\">\n          <i class=\"sicon-gift text-amber-600 text-xs\"></i>\n          <span id=\"drawer-bundle-discount-title\">وفّرت مع العرض:</span>\n        </span>\n        <span id=\"drawer-bundle-discount-val\" class=\"font-black text-rose-600\">- 0 ر.س</span>\n      </div>\n      <div class=\"flex items-center justify-between text-base font-extrabold text-black pt-1\">\n        <span>الإجمالي:</span>\n        <span id=\"cart-drawer-total\" class=\"text-lg font-black text-black\">0 ر.س</span>\n      </div>\n      <div class=\"text-[11px] text-stone-400 text-right\">\n        <span>شامل ضريبة القيمة المضافة (<bdi class=\"note-vat-rate\" dir=\"ltr\">15%</bdi>)</span>\n      </div>\n\n      <div class=\"pt-2 space-y-2\">\n        <a href=\"/cart\" class=\"w-full py-3 rounded-full bg-black hover:bg-stone-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition duration-300 shadow-md\">\n          <span>إتمام الطلب بأمان</span>\n          <i class=\"sicon-keyboard_arrow_left text-sm\"></i>\n        </a>\n        <button onclick=\"CartManager.closeDrawer()\" class=\"w-full py-2.5 rounded-full border border-stone-200 hover:bg-stone-50 text-stone-700 font-bold text-xs transition\">\n          متابعة التسوق\n        </button>\n      </div>\n\n      <div class=\"pt-2 border-t border-stone-100 flex items-center justify-center gap-1.5\">\n        <div class=\"h-5 px-1.5 bg-stone-50 border border-stone-200 rounded flex items-center justify-center\" title=\"مدى\">\n          <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/mada.png\" alt=\"Mada\" class=\"h-2.5 w-auto object-contain\">\n        </div>\n        <div class=\"h-5 px-1.5 bg-stone-50 border border-stone-200 rounded flex items-center justify-center\" title=\"Apple Pay\">\n          <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/apple_pay.svg\" alt=\"Apple Pay\" class=\"h-2.5 w-auto object-contain\">\n        </div>\n        <div class=\"h-5 px-1.5 bg-stone-50 border border-stone-200 rounded flex items-center justify-center\" title=\"Visa\">\n          <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/visa.png\" alt=\"Visa\" class=\"h-2 w-auto object-contain\">\n        </div>\n        <div class=\"h-5 px-1.5 bg-stone-50 border border-stone-200 rounded flex items-center justify-center\" title=\"Mastercard\">\n          <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/mastercard.png\" alt=\"Mastercard\" class=\"h-3 w-auto object-contain\">\n        </div>\n        <div class=\"h-5 px-1.5 bg-stone-50 border border-stone-200 rounded flex items-center justify-center\" title=\"Tabby\">\n          <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/tabby.svg\" alt=\"Tabby\" class=\"h-2 w-auto object-contain\">\n        </div>\n        <div class=\"h-5 px-1.5 bg-stone-50 border border-stone-200 rounded flex items-center justify-center\" title=\"Tamara\">\n          <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/tamara.svg\" alt=\"Tamara\" class=\"h-2 w-auto object-contain\">\n        </div>\n      </div>\n    </div>\n  </div>",
     product: "<main id=\"page-main-wrapper\"  class=\"pt-28 sm:pt-32 pb-20 bg-white\">\n    <div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\">\n      \n      <!-- Breadcrumb -->\n      <nav class=\"flex items-center gap-2 text-xs text-stone-400 mb-6 font-medium overflow-x-auto whitespace-nowrap\">\n        <a href=\"/\" class=\"hover:text-black transition\">الرئيسية</a>\n        <span>/</span>\n        <a id=\"pdp-breadcrumb-cat\" href=\"/category.html\" class=\"hover:text-black transition\">العطور</a>\n        <span>/</span>\n        <span id=\"pdp-breadcrumb-title\" class=\"text-black font-bold\">عطر رويال توباكو</span>\n      </nav>\n\n      <!-- ================= PRODUCT MAIN GRID ================= -->\n      <div class=\"grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start\">\n        \n        <!-- RIGHT: Product Image Gallery (Frameless Pure White) -->\n        <div class=\"lg:col-span-6 flex flex-col gap-4\">\n          <!-- Main Large Frameless Bottle (Seamless Pure White) -->\n          <div id=\"pdp-main-image-container\" class=\"relative w-full aspect-square bg-white border-0 shadow-none overflow-hidden flex items-center justify-center group\">\n            <span id=\"pdp-tag-badge\" class=\"note-product-badge absolute top-4 right-4 z-10 whitespace-nowrap shadow-xs\">الأكثر طلباً</span>\n            <span class=\"absolute top-4 left-4 z-10 text-[10px] font-bold px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-stone-800 border border-stone-200/80 shadow-sm flex items-center gap-1.5\">\n              <i class=\"sicon-shield-check text-black\"></i>\n              <span>الضمان الذهبي للتجربة</span>\n            </span>\n            \n            <img id=\"pdp-main-image\" src=\"https://youssefrasheed.github.io/note-zid-styles/products/NOTE_Royal_Tobacco_Flat_Lay.webp\" alt=\"عطر رويال توباكو\" class=\"w-full h-full object-contain p-4 sm:p-6 transition-transform duration-700 ease-out group-hover:scale-105\">\n          </div>\n\n          <!-- Thumbnails Row -->\n          <div id=\"pdp-thumbnails\" class=\"flex items-center justify-center gap-3 pt-2\" style=\"display: none;\">\n            <!-- Dynamic thumbnails inserted via JS -->\n          </div>\n\n          <!-- Free Sample Guarantee Banner Under Image -->\n          <div class=\"p-4 rounded-xl bg-stone-50 border border-stone-100 flex items-center gap-3 text-xs text-stone-700 mt-2\">\n            <div class=\"w-9 h-9 rounded-full bg-black text-white flex items-center justify-center shrink-0\">\n              <i class=\"sicon-drop text-base\"></i>\n            </div>\n            <div>\n              <h5 class=\"font-bold text-black text-xs\">عينة تجربة مجانية مرفقة مع كل عطر</h5>\n              <p class=\"text-[11px] text-stone-500 font-normal mt-0.5\">جرب العينة أولاً؛ في حال لم يناسبك العطر، يمكنك استرجاعه خلال 3 أيام شرط عدم فتح السلوفان الأصلي للعبوة.</p>\n            </div>\n          </div>\n        </div>\n\n        <!-- LEFT: Product Purchase & Details Column -->\n        <div class=\"lg:col-span-6 flex flex-col space-y-6 text-right\">\n          \n          <!-- Category & Title -->\n          <div class=\"space-y-2\">\n            <div class=\"flex items-center justify-between\">\n              <span id=\"pdp-category-name\" class=\"text-xs text-stone-400 font-bold uppercase tracking-wider\">العطور الفاخرة • EXTRAIT DE PARFUM</span>\n              <div class=\"flex items-center gap-1 text-amber-500 text-xs font-bold\">\n                <span>★</span>\n                <span id=\"pdp-rating-num\" class=\"text-black\">4.91</span>\n                <span id=\"pdp-rating-count\" class=\"text-stone-400 font-normal\">(410 تقييم موثق)</span>\n              </div>\n            </div>\n\n            <h1 id=\"pdp-title\" class=\"text-2xl sm:text-3xl lg:text-4xl font-extrabold text-black tracking-tight\">عطر رويال توباكو</h1>\n            <h2 id=\"pdp-title-en\" class=\"text-sm sm:text-base font-bold text-stone-400 tracking-widest font-mono uppercase\">ROAYAL TOBACCO</h2>\n          </div>\n\n          <!-- Price Row -->\n          <div class=\"flex items-baseline gap-3 pt-1 border-b border-stone-100 pb-5\">\n            <span id=\"pdp-price\" class=\"text-3xl font-extrabold text-black\">229 ر.س</span>\n            <span id=\"pdp-old-price\" class=\"text-base text-stone-400 line-through font-normal\">410 ر.س</span>\n            <span id=\"pdp-discount-badge\" class=\"note-product-badge note-discount-badge\"><span>وفر</span> <bdi dir=\"ltr\">45%</bdi></span>\n            <span class=\"text-xs text-stone-400 font-light mr-auto\">شامل الضريبة المضافة</span>\n          </div>\n\n          <!-- Installment Options: Tabby & Tamara Minimalist Widgets -->\n          <div class=\"space-y-2.5\">\n            <!-- Tabby -->\n            <div class=\"p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 flex items-center justify-between text-xs\">\n              <div class=\"flex items-center gap-2.5\">\n                <div class=\"h-6 px-2 rounded bg-[#3EEDBF] flex items-center justify-center\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/tabby.svg\" alt=\"Tabby\" class=\"h-3 w-auto object-contain\">\n                </div>\n                <span class=\"text-stone-800\">أو قسّمها على 4 دفعات بقيمة <strong id=\"pdp-tabby-price\" class=\"font-extrabold text-black\">57.25 ر.س</strong> بدون فوائد</span>\n              </div>\n              <span class=\"text-[10px] text-stone-400 font-bold hover:underline cursor-pointer\">معرفة المزيد</span>\n            </div>\n            \n            <!-- Tamara -->\n            <div class=\"p-3.5 rounded-xl border border-stone-200/80 bg-stone-50/50 flex items-center justify-between text-xs\">\n              <div class=\"flex items-center gap-2.5\">\n                <div class=\"h-6 px-2 rounded bg-white border border-stone-200 flex items-center justify-center\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/tamara.svg\" alt=\"Tamara\" class=\"h-3.5 w-auto object-contain\">\n                </div>\n                <span class=\"text-stone-800\">أو قسّمها على 4 دفعات بدون أي رسوم تأخير</span>\n              </div>\n              <span class=\"text-[10px] text-stone-400 font-bold hover:underline cursor-pointer\">معرفة المزيد</span>\n            </div>\n          </div>\n\n          <!-- Slogan & Notes Summary -->\n          <div class=\"space-y-1.5 pt-1\">\n            <p id=\"pdp-slogan\" class=\"text-xs sm:text-sm text-stone-600 leading-relaxed font-normal\"></p>\n            <div class=\"flex items-center gap-2 text-xs text-stone-500 pt-1\">\n              <span class=\"font-bold text-black\">النوتات الأساسية:</span>\n              <span id=\"pdp-notes-summary\" class=\"font-medium text-stone-700\"></span>\n            </div>\n          </div>\n\n          <!-- Size / Volume Selector -->\n          <div class=\"space-y-2 pt-2\">\n            <label class=\"text-xs font-bold text-black block\">الحجم / السعة:</label>\n            <div class=\"flex flex-wrap gap-2.5\">\n              <button class=\"px-5 py-2.5 rounded-full border-2 border-black text-black text-xs font-bold bg-white transition shadow-sm\">\n                100 مل (الحجم الأساسي)\n              </button>\n              <a id=\"pdp-30ml-link\" href=\"#\" class=\"px-5 py-2.5 rounded-full border border-stone-200 text-stone-600 hover:border-black hover:text-black text-xs font-bold transition\">\n                30 مل (حجم السفر)\n              </a>\n              <a href=\"/categories/1752110/packages\" class=\"px-5 py-2.5 rounded-full border border-stone-200 text-stone-600 hover:border-black hover:text-black text-xs font-bold transition\">\n                الباقات الحصرية\n              </a>\n            </div>\n          </div>\n\n          <!-- Quantity & Purchase Buttons -->\n          <div class=\"space-y-3 pt-3\">\n            <div class=\"flex items-center gap-3\">\n              <!-- Quantity Stepper -->\n              <div class=\"flex items-center border border-stone-200 rounded-full h-12 px-3 gap-3 text-sm font-bold bg-stone-50\">\n                <button onclick=\"changePDPQuantity(-1)\" class=\"text-stone-500 hover:text-black w-6 text-center text-lg\">-</button>\n                <span id=\"pdp-qty-val\" class=\"min-w-[20px] text-center text-black font-extrabold\">1</span>\n                <button onclick=\"changePDPQuantity(1)\" class=\"text-stone-500 hover:text-black w-6 text-center text-lg\">+</button>\n              </div>\n\n              <!-- Primary Add to Cart Button -->\n              <button id=\"pdp-add-cart-btn\" onclick=\"addToCartCurrentProduct()\" class=\"flex-grow h-12 rounded-full bg-black hover:bg-stone-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition duration-300 shadow-md active:scale-98\">\n                <i class=\"sicon-shopping-bag text-base\"></i>\n                <span>إضافة إلى السلة</span>\n              </button>\n            </div>\n\n            <!-- Instant Checkout CTA -->\n            <button onclick=\"buyNowCurrentProduct()\" class=\"w-full h-12 rounded-full border border-black hover:bg-stone-50 text-black font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition duration-300 active:scale-98\">\n              <i class=\"sicon-apple-pay text-xl\"></i>\n              <span>شراء فوري عبر Apple Pay / مدى</span>\n            </button>\n\n            <!-- Certified Payment Badges Row -->\n            <div class=\"flex items-center justify-center gap-2 pt-1 pb-1\">\n              <span class=\"text-[10px] text-stone-400 font-bold ml-1\">الدفع المعتمد:</span>\n              <div class=\"flex items-center gap-1.5\">\n                <div class=\"h-6 px-2 bg-stone-50 border border-stone-200/80 rounded flex items-center justify-center\" title=\"مدى Mada\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/mada.png\" alt=\"Mada\" class=\"h-3 w-auto object-contain\">\n                </div>\n                <div class=\"h-6 px-2 bg-stone-50 border border-stone-200/80 rounded flex items-center justify-center\" title=\"Apple Pay\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/apple_pay.svg\" alt=\"Apple Pay\" class=\"h-3 w-auto object-contain\">\n                </div>\n                <div class=\"h-6 px-2 bg-stone-50 border border-stone-200/80 rounded flex items-center justify-center\" title=\"Visa\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/visa.png\" alt=\"Visa\" class=\"h-2 w-auto object-contain\">\n                </div>\n                <div class=\"h-6 px-2 bg-stone-50 border border-stone-200/80 rounded flex items-center justify-center\" title=\"Mastercard\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/mastercard.png\" alt=\"Mastercard\" class=\"h-3.5 w-auto object-contain\">\n                </div>\n                <div class=\"h-6 px-1.5 bg-stone-50 border border-stone-200/80 rounded flex items-center justify-center\" title=\"Tabby\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/tabby.svg\" alt=\"Tabby\" class=\"h-2.5 w-auto object-contain\">\n                </div>\n                <div class=\"h-6 px-1.5 bg-stone-50 border border-stone-200/80 rounded flex items-center justify-center\" title=\"Tamara\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/tamara.svg\" alt=\"Tamara\" class=\"h-2.5 w-auto object-contain\">\n                </div>\n              </div>\n            </div>\n          </div>\n\n          <!-- Trust Badges Row -->\n          <div class=\"grid grid-cols-3 gap-2 pt-4 border-t border-stone-100 text-center\">\n            <div class=\"p-3 rounded-xl bg-stone-50 text-center\">\n              <i class=\"sicon-shield-check text-black text-lg block mb-1\"></i>\n              <span class=\"text-[11px] font-bold text-black block\">ضمان ذهبي</span>\n              <span class=\"text-[9px] text-stone-400 block mt-0.5\">عينة مجانية للتجربة</span>\n            </div>\n            <div class=\"p-3 rounded-xl bg-stone-50 text-center\">\n              <i class=\"sicon-shipping-fast text-black text-lg block mb-1\"></i>\n              <span class=\"text-[11px] font-bold text-black block\">شحن سريع</span>\n              <span class=\"text-[9px] text-stone-400 block mt-0.5\">2 - 4 أيام عمل</span>\n            </div>\n            <div class=\"p-3 rounded-xl bg-stone-50 text-center\">\n              <i class=\"sicon-award-ribbon text-black text-lg block mb-1\"></i>\n              <span class=\"text-[11px] font-bold text-black block\">أصلي 100%</span>\n              <span class=\"text-[9px] text-stone-400 block mt-0.5\">ثبات يفوق 24 ساعة</span>\n            </div>\n          </div>\n\n        </div>\n      </div>\n\n      <!-- ================= 3. OLFACTORY PYRAMID (الهرم العطري الملكي) ================= -->\n      <section class=\"mt-20 sm:mt-28 pt-14 border-t border-stone-100\">\n        <div class=\"text-center max-w-2xl mx-auto mb-12\">\n          <span class=\"text-[10px] text-stone-400 font-bold tracking-widest uppercase block mb-1\">ARCHITECTURE & NOTES</span>\n          <h3 class=\"text-2xl sm:text-3xl font-extrabold text-black\">الهرم العطري والتوليفة</h3>\n          <p class=\"text-xs text-stone-500 mt-2 font-normal\">تمت صياغة هذا العطر بمزيج متناغم من أندر الزيوت الطبيعية النقية</p>\n        </div>\n\n        <div class=\"grid grid-cols-1 md:grid-cols-3 gap-6\">\n          <!-- Top Notes -->\n          <div class=\"p-6 rounded-2xl bg-stone-50/70 border border-stone-100 text-center space-y-3 hover:shadow-md transition\">\n            <div class=\"w-12 h-12 rounded-full bg-white shadow-sm mx-auto flex items-center justify-center text-black\">\n              <svg class=\"w-5 h-5 text-black\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                <path d=\"M12 2l2.4 7.2L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4L12 2z\"/>\n              </svg>\n            </div>\n            <h4 class=\"text-sm font-bold text-black\">قمة العطر (الإفتتاحية)</h4>\n            <p class=\"text-[11px] text-stone-400 font-normal\">أول انطباع يأسرك خلال اللحظات الأولى من الرش</p>\n            <p id=\"pdp-pyramid-top\" class=\"text-xs font-bold text-stone-800 leading-relaxed pt-2 border-t border-stone-200/60\"></p>\n          </div>\n\n          <!-- Heart Notes -->\n          <div class=\"p-6 rounded-2xl bg-stone-50/70 border border-stone-100 text-center space-y-3 hover:shadow-md transition\">\n            <div class=\"w-12 h-12 rounded-full bg-white shadow-sm mx-auto flex items-center justify-center text-black\">\n              <svg class=\"w-5 h-5 text-black\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                <path d=\"M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z\"/>\n              </svg>\n            </div>\n            <h4 class=\"text-sm font-bold text-black\">قلب العطر (الجوهر)</h4>\n            <p class=\"text-[11px] text-stone-400 font-normal\">روح العطر وفوحانه المتألق الذي يدوم لساعات</p>\n            <p id=\"pdp-pyramid-heart\" class=\"text-xs font-bold text-stone-800 leading-relaxed pt-2 border-t border-stone-200/60\"></p>\n          </div>\n\n          <!-- Base Notes -->\n          <div class=\"p-6 rounded-2xl bg-stone-50/70 border border-stone-100 text-center space-y-3 hover:shadow-md transition\">\n            <div class=\"w-12 h-12 rounded-full bg-white shadow-sm mx-auto flex items-center justify-center text-black\">\n              <svg class=\"w-5 h-5 text-black\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                <path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/>\n                <path d=\"m9 12 2 2 4-4\"/>\n              </svg>\n            </div>\n            <h4 class=\"text-sm font-bold text-black\">قاعدة العطر (الثبات)</h4>\n            <p class=\"text-[11px] text-stone-400 font-normal\">العمق الخالد الذي يستقر على بشرتك وملابسك لأيام</p>\n            <p id=\"pdp-pyramid-base\" class=\"text-xs font-bold text-stone-800 leading-relaxed pt-2 border-t border-stone-200/60\"></p>\n          </div>\n        </div>\n      </section>\n\n      <!-- ================= 4. ACCORDION / DETAILS TABS ================= -->\n      <section class=\"mt-16 max-w-4xl mx-auto border-t border-stone-100 pt-10\">\n        <div class=\"space-y-4\">\n          <!-- Accordion 1: Description -->\n          <details class=\"group bg-stone-50/60 rounded-xl p-4 sm:p-5 border border-stone-100\" open>\n            <summary class=\"flex items-center justify-between font-bold text-sm text-black cursor-pointer select-none\">\n              <span class=\"flex items-center gap-2\">\n                <i class=\"sicon-feather\"></i>\n                <span>عن العطر وقصته</span>\n              </span>\n              <i class=\"sicon-keyboard_arrow_down text-sm transition-transform duration-300 group-open:rotate-180\"></i>\n            </summary>\n            <div class=\"pt-4 text-xs text-stone-600 leading-relaxed font-normal\" id=\"pdp-full-description\"></div>\n          </details>\n\n          <!-- Accordion 2: How to Use -->\n          <details class=\"group bg-stone-50/60 rounded-xl p-4 sm:p-5 border border-stone-100\">\n            <summary class=\"flex items-center justify-between font-bold text-sm text-black cursor-pointer select-none\">\n              <span class=\"flex items-center gap-2\">\n                <i class=\"sicon-magic-wand\"></i>\n                <span>طريقة الاستخدام ومناطق الفوحان</span>\n              </span>\n              <i class=\"sicon-keyboard_arrow_down text-sm transition-transform duration-300 group-open:rotate-180\"></i>\n            </summary>\n            <div class=\"pt-4 text-xs text-stone-600 leading-relaxed space-y-2 font-normal\">\n              <p>للحصول على أفضل أداء وفوحان يدوم لأكثر من 24 ساعة، ينصح برش العطر على نقاط النبض في الجسم:</p>\n              <ul class=\"list-disc list-inside space-y-1 pr-2 text-stone-500\">\n                <li>جانبي الرقبة وخلف الأذنين.</li>\n                <li>معصم اليدين وتجويف المرفقين.</li>\n                <li>رش رذاذ خفيف على الملابس النظيفة والقطنية من مسافة 15 إلى 20 سم.</li>\n              </ul>\n            </div>\n          </details>\n\n          <!-- Accordion 3: Golden Guarantee & Return Policy -->\n          <details class=\"group bg-stone-50/60 rounded-xl p-4 sm:p-5 border border-stone-100\">\n            <summary class=\"flex items-center justify-between font-bold text-sm text-black cursor-pointer select-none\">\n              <span class=\"flex items-center gap-2\">\n                <i class=\"sicon-shield-check\"></i>\n                <span>الضمان الذهبي الملكي وسياسة الاسترجاع</span>\n              </span>\n              <i class=\"sicon-keyboard_arrow_down text-sm transition-transform duration-300 group-open:rotate-180\"></i>\n            </summary>\n            <div class=\"pt-4 text-xs text-stone-600 leading-relaxed space-y-2 font-normal\">\n              <p>من أجل رضا عملائنا الكرام في NOTE perfumes، فإننا نقدم الضمان الذهبي لجميع منتجاتنا:</p>\n              <p>جميع عطورنا قابلة للاسترجاع خلال 3 أيام من تاريخ التسليم. يرجى تجربة العينة المجانية المرفقة أولاً دون فتح تغليف العطر الأساسي. في حال عدم ملائمة الرائحة لذوقكم، يمكنكم طلب الاسترجاع فوراً عبر خدمة العملاء أو الواتساب.</p>\n              <p class=\"text-[11px] text-stone-400\">للاطلاع على الشروط الكاملة يرجى زيارة <a href=\"/refund-policy.html\" class=\"text-black font-bold underline\">صفحة سياسة الاستبدال والاسترجاع</a>.</p>\n            </div>\n          </details>\n        </div>\n      </section>\n\n      <!-- ================= 5. RELATED PRODUCTS (\"قد يعجبك أيضاً\") ================= -->\n      <section class=\"mt-20 sm:mt-28 pt-14 border-t border-stone-100\">\n        <div class=\"text-center mb-10\">\n          <span class=\"text-[10px] text-stone-400 font-bold tracking-widest uppercase block mb-1\">YOU MAY ALSO LIKE</span>\n          <h3 class=\"text-2xl sm:text-3xl font-extrabold text-black\">عطور قد تعجبك أيضاً</h3>\n          <p class=\"text-xs text-stone-500 mt-2 font-normal\">توليفات ملكية متناغمة من نفس العائلة العطرية</p>\n        </div>\n\n        <div id=\"pdp-related-grid\" class=\"grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6\">\n          <!-- Injected via JavaScript -->\n        </div>\n      </section>\n\n    </div>\n  </main>",
     category: "<main id=\"page-main-wrapper\"  class=\"pt-28 sm:pt-36 pb-24 bg-white\">\n    <!-- Category Header Banner (contained in max-w-7xl) -->\n    <div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\">\n      <div class=\"text-center max-w-3xl mx-auto mb-10 sm:mb-14\">\n        <span id=\"cat-badge-text\" class=\"text-[10px] text-stone-400 font-bold uppercase tracking-widest block mb-2\">NOTE PERFUMES COLLECTION</span>\n        <h1 id=\"cat-title\" class=\"text-2xl sm:text-4xl font-extrabold text-black tracking-tight mb-3\">جميع المنتجات</h1>\n        <p id=\"cat-desc\" class=\"text-xs sm:text-sm text-stone-500 leading-relaxed font-normal\">\n          تصفح المجموعة الكاملة من أروع إبداعات دار نوت للعطور، توليفات نيش استثنائية وباقات حصرية صُممت لتناسب ذوقك الرفيع.\n        </p>\n      </div>\n    </div>\n\n    <!-- ================= STICKY CONTROLS & CATEGORY PILLS BAR (FULL-WIDTH EDGE-TO-EDGE) ================= -->\n    <div id=\"sticky-catalog-controls\" class=\"sticky top-20 sm:top-24 z-30 w-full bg-white/95 backdrop-blur-md pt-3.5 pb-3.5 border-b border-stone-200/80 mb-8 transition-all duration-300 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.06)]\">\n      <div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\">\n        \n        <!-- Controls Row: Search Input + Sorting Dropdown + Product Count (Centered Axis) -->\n        <div class=\"flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-2.5 sm:mb-3 max-w-3xl mx-auto\">\n          \n          <!-- Live Search Field -->\n          <div class=\"relative w-full sm:w-80 md:w-96 max-w-md\">\n            <i class=\"sicon-search absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-sm\"></i>\n            <input id=\"cat-search-input\" oninput=\"handleSearch(this.value)\" type=\"text\" placeholder=\"ابحث بالاسم، المكونات، الرائحة...\" class=\"w-full pr-10 pl-8 py-2 rounded-full border border-stone-200/90 text-xs focus:outline-none focus:border-black transition bg-stone-50/70 hover:bg-white focus:bg-white shadow-xs\">\n            <button id=\"cat-search-clear\" onclick=\"clearCatSearch()\" class=\"hidden absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-black text-xs transition\" title=\"مسح\">\n              <i class=\"sicon-cancel\"></i>\n            </button>\n          </div>\n\n          <!-- Right Side: Count and Sort Dropdown -->\n          <div class=\"flex items-center justify-center gap-2 sm:gap-3 text-xs font-bold text-stone-600 shrink-0\">\n            <span id=\"cat-products-count\" class=\"text-stone-500 whitespace-nowrap hidden sm:inline-block\">عرض 0 منتج</span>\n\n            <div class=\"flex items-center gap-1.5\">\n              <span class=\"text-stone-400 font-normal hidden md:inline\">الترتيب:</span>\n              <select id=\"cat-sort-select\" onchange=\"handleSort(this.value)\" class=\"bg-stone-50 hover:bg-stone-100 border border-stone-200/90 rounded-full px-3 sm:px-4 py-1.5 text-xs font-bold text-black focus:outline-none focus:border-black cursor-pointer shadow-xs\">\n                <option value=\"popular\">ترتيب المتجر الافتراضي</option>\n                <option value=\"price-asc\">السعر: من الأقل للأعلى</option>\n                <option value=\"price-desc\">السعر: من الأعلى للأقل</option>\n                <option value=\"rating\">الأعلى تقييماً</option>\n                <option value=\"newest\">أحدث المنتجات</option>\n              </select>\n            </div>\n          </div>\n\n        </div>\n\n        <!-- Category Filter Pills Bar (Centered Horizontal Axis, Wrapped on desktop, scrollable on mobile) -->\n        <div id=\"category-pills-bar\" class=\"cat-pills-container flex items-center justify-start sm:justify-center flex-nowrap sm:flex-wrap gap-2 overflow-x-auto sm:overflow-visible scrollbar-none py-1 text-xs font-bold\">\n          <button onclick=\"selectCategory('all')\" id=\"pill-all\" class=\"cat-pill shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-stone-200 text-stone-700 hover:border-black transition cat-pill-active\">\n            الكل (جميع المنتجات)\n          </button>\n          <button onclick=\"selectCategory('perfumes')\" id=\"pill-perfumes\" class=\"cat-pill shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-stone-200 text-stone-700 hover:border-black transition\">\n            العطور (100 مل)\n          </button>\n          <button onclick=\"selectCategory('niche')\" id=\"pill-niche\" class=\"cat-pill shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-stone-200 text-stone-700 hover:border-black transition\">\n            عطور النيش\n          </button>\n          <button onclick=\"selectCategory('bestsellers')\" id=\"pill-bestsellers\" class=\"cat-pill shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-stone-200 text-stone-700 hover:border-black transition\">\n            الأكثر مبيعاً\n          </button>\n          <button onclick=\"selectCategory('new')\" id=\"pill-new\" class=\"cat-pill shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-stone-200 text-stone-700 hover:border-black transition\">\n            أحدث المنتجات\n          </button>\n          <button onclick=\"selectCategory('travel')\" id=\"pill-travel\" class=\"cat-pill shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-stone-200 text-stone-700 hover:border-black transition\">\n            عطور بيبي (30 مل)\n          </button>\n          <!-- Line break for web/desktop to create two perfectly balanced rows (6 pills + 5 pills) -->\n          <div class=\"cat-pills-break\"></div>\n          <button onclick=\"selectCategory('all-over')\" id=\"pill-all-over\" class=\"cat-pill shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-stone-200 text-stone-700 hover:border-black transition\">\n            معطر للجسم بالكامل\n          </button>\n          <button onclick=\"selectCategory('linen')\" id=\"pill-linen\" class=\"cat-pill shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-stone-200 text-stone-700 hover:border-black transition\">\n            معطرات جو ومفارش\n          </button>\n          <button onclick=\"selectCategory('body-care')\" id=\"pill-body-care\" class=\"cat-pill shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-stone-200 text-stone-700 hover:border-black transition\">\n            منتجات العناية\n          </button>\n          <button onclick=\"selectCategory('tollah')\" id=\"pill-tollah\" class=\"cat-pill shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-stone-200 text-stone-700 hover:border-black transition\">\n            تولات ودهن عود\n          </button>\n          <button onclick=\"selectCategory('packages')\" id=\"pill-packages\" class=\"cat-pill shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-stone-200 text-stone-700 hover:border-black transition\">\n            العروض والباكجات\n          </button>\n        </div>\n\n      </div>\n    </div>\n\n    <!-- Product Grid Container (contained in max-w-7xl) -->\n    <div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\">\n      <!-- ================= PRODUCT GRID (FRAMELESS PURE WHITE) ================= -->\n      <div id=\"catalog-products-grid\" class=\"grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8\">\n        <!-- Injected via JavaScript from noteProductsCatalog -->\n      </div>\n\n      <!-- No Products Found State -->\n      <div id=\"cat-no-products\" class=\"hidden text-center py-20\">\n        <div class=\"w-16 h-16 rounded-full bg-stone-100 mx-auto flex items-center justify-center text-stone-400 mb-4\">\n          <i class=\"sicon-search text-2xl\"></i>\n        </div>\n        <h3 class=\"text-base font-bold text-black mb-1\">لم نجد أي منتجات تطابق بحثك</h3>\n        <p class=\"text-xs text-stone-400 max-w-sm mx-auto mb-6\">جرب البحث بكلمات أخرى أو تصفح باقي تصنيفات الدار</p>\n        <button onclick=\"resetFilters()\" class=\"px-6 py-2.5 rounded-full bg-black text-white text-xs font-bold hover:bg-stone-800 transition\">\n          إعادة تعيين التصفيات\n        </button>\n      </div>\n\n    </div>\n  </main>",
-    cart: "<main id=\"page-main-wrapper\"  class=\"pt-28 sm:pt-36 pb-20 flex-grow\">\n    <div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\">\n      \n      <div class=\"mb-8 text-right\">\n        <h1 class=\"text-2xl sm:text-3xl font-extrabold text-black tracking-tight\">سلة المشتريات</h1>\n        <p class=\"text-xs text-stone-500 mt-1\">راجع المنتجات والكميات قبل استكمال عملية الدفع</p>\n      </div>\n\n      <div class=\"grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start\">\n        \n        <!-- RIGHT: Items Table / List (8 cols) -->\n        <div class=\"lg:col-span-8\">\n          <div id=\"cart-page-items\" class=\"space-y-3\">\n            <!-- Items rendered via JS -->\n          </div>\n\n          <!-- Empty State -->\n          <div id=\"cart-page-empty\" class=\"hidden text-center py-20\">\n            <div class=\"w-20 h-20 rounded-full bg-stone-100 mx-auto flex items-center justify-center text-stone-400 mb-4\">\n              <i class=\"sicon-shopping-bag text-3xl\"></i>\n            </div>\n            <h3 class=\"text-lg font-bold text-black mb-2\">سلة المشتريات فارغة حالياً</h3>\n            <p class=\"text-xs text-stone-400 max-w-sm mx-auto mb-6\">لم تقم بإضافة أي عطور إلى سلتك بعد. استكشف مجموعاتنا العطرية الفاخرة.</p>\n            <a href=\"/categories\" class=\"inline-flex items-center gap-2 px-8 py-3 rounded-full bg-black text-white text-xs font-bold hover:bg-stone-800 transition\">\n              <span>تصفح العطور الآن</span>\n              <i class=\"sicon-keyboard_arrow_left text-xs\"></i>\n            </a>\n          </div>\n\n          <!-- Back to Shopping Link -->\n          <div class=\"mt-6 flex items-center justify-between\">\n            <a href=\"/categories\" class=\"text-xs font-bold text-stone-600 hover:text-black flex items-center gap-1.5 transition\">\n              <i class=\"sicon-keyboard_arrow_right\"></i>\n              <span>متابعة التسوق وإضافة عطور أخرى</span>\n            </a>\n          </div>\n\n          <!-- Recommendations Section in Cart Page (Compact) -->\n          <div id=\"cart-page-recommendations-section\" class=\"mt-8 pt-6 border-t border-stone-200 text-right\">\n            <div class=\"flex items-center justify-between mb-3\">\n              <div>\n                <span class=\"text-[9px] text-stone-400 font-bold uppercase tracking-wider block\">RECOMMENDED FOR YOU</span>\n                <h3 class=\"text-xs sm:text-sm font-extrabold text-black\">ترشيحات تكمل مجموعتك العطرية</h3>\n              </div>\n              <span class=\"text-[10px] text-stone-400 hidden sm:block\">إضافة سريعة بنقرة واحدة</span>\n            </div>\n            <div id=\"cart-page-recs-grid\" class=\"grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3\">\n              <!-- Rendered dynamically via JS -->\n            </div>\n          </div>\n        </div>\n\n        <!-- LEFT: Summary Card (4 cols) -->\n        <div id=\"cart-page-summary-wrapper\" class=\"lg:col-span-4\">\n          <div class=\"p-6 rounded-2xl bg-stone-50 border border-stone-200/80 text-right space-y-4\">\n            <h3 class=\"text-sm font-extrabold text-black pb-3 border-b border-stone-200/80\">ملخص الطلب</h3>\n\n            <!-- Coupon Input -->\n            <div id=\"note-cart-coupon-section\" class=\"pt-1 pb-1 space-y-2\">\n              <div class=\"flex items-center justify-between\">\n                <label for=\"coupon-code-input\" class=\"text-[11px] font-bold text-stone-700 flex items-center gap-1.5 cursor-pointer\">\n                  <i class=\"sicon-discount-coupon text-stone-500 text-xs\"></i>\n                  <span>كوبون الخصم أو قسيمة التخفيض:</span>\n                </label>\n                <span id=\"coupon-applied-tag\" class=\"hidden text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200\">مفعّل ✓</span>\n              </div>\n              <div class=\"flex gap-2\">\n                <div class=\"relative flex-1\">\n                  <input \n                    id=\"coupon-code-input\" \n                    type=\"text\" \n                    placeholder=\"أدخل كود الخصم (مثال: NOTE5)\" \n                    autocomplete=\"off\"\n                    autocapitalize=\"characters\"\n                    spellcheck=\"false\"\n                    class=\"w-full h-10 px-3.5 pl-8 rounded-xl border border-stone-200 bg-white text-xs uppercase font-mono tracking-wider focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition placeholder:text-stone-400\"\n                    dir=\"ltr\"\n                    style=\"text-align: right;\"\n                    onkeydown=\"if(event.key==='Enter'){event.preventDefault();applyCartCoupon();}\"\n                  >\n                  <button \n                    id=\"coupon-clear-btn\" \n                    type=\"button\" \n                    onclick=\"clearCartCoupon()\" \n                    class=\"hidden absolute left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-stone-200/70 hover:bg-stone-300 text-stone-600 flex items-center justify-center text-xs transition cursor-pointer\"\n                    title=\"إزالة الكوبون\"\n                    aria-label=\"إزالة الكوبون\"\n                  >×</button>\n                </div>\n                <button \n                  id=\"coupon-apply-btn\" \n                  type=\"button\" \n                  onclick=\"applyCartCoupon()\" \n                  class=\"h-10 px-5 rounded-xl text-stone-900 text-xs font-bold transition flex items-center justify-center gap-1.5 shrink-0 shadow-xs cursor-pointer\"\n                >\n                  <span id=\"coupon-btn-text\">تطبيق</span>\n                </button>\n              </div>\n              <p id=\"coupon-msg\" class=\"text-[11px] font-bold hidden leading-relaxed transition-all\"></p>\n            </div>\n\n            <!-- Price Breakdown -->\n            <div class=\"space-y-2.5 text-xs text-stone-600 pt-2 border-t border-stone-200/80\">\n              <span id=\"page-subtotal\" class=\"hidden\">0 ر.س</span>\n              <div id=\"bundle-discount-row\" class=\"hidden flex items-center justify-between text-xs font-bold text-amber-800 bg-amber-50/90 px-3 py-2 rounded-xl border border-amber-200/70\">\n                <span id=\"page-bundle-discount-label\" class=\"flex items-center gap-1.5\">\n                  <i class=\"sicon-gift text-amber-600 text-xs\"></i>\n                  <span id=\"page-bundle-discount-title\">وفّرت مع العرض:</span>\n                </span>\n                <span id=\"page-bundle-discount\" class=\"font-black text-rose-600\">- 0 ر.س</span>\n              </div>\n              <div id=\"discount-row\" class=\"hidden flex items-center justify-between text-emerald-600 font-bold\">\n                <span>خصم الكوبون:</span>\n                <span id=\"page-discount\">- 0 ر.س</span>\n              </div>\n              <div class=\"flex items-center justify-between\">\n                <span>الشحن والتوصيل:</span>\n                <span id=\"page-shipping\" class=\"font-bold text-black\">مجاني</span>\n              </div>\n              <div class=\"flex items-center justify-between text-stone-400 text-[11px]\">\n                <span>ضريبة القيمة المضافة (<bdi class=\"note-vat-rate\" dir=\"ltr\">15%</bdi>):</span>\n                <span>مشمولة في الأسعار</span>\n              </div>\n            </div>\n\n            <!-- Single Authoritative Total (Laverne Style) -->\n            <div class=\"pt-3 border-t border-stone-200/80 flex items-center justify-between\">\n              <div>\n                <span class=\"text-xs text-stone-500 font-medium block\" data-label=\"إجمالي المنتجات قبل الشحن والخصومات:\">الإجمالي:</span>\n                <span id=\"page-grand-total\" class=\"text-2xl font-black text-black\">0 ر.س</span>\n              </div>\n              <div class=\"text-left text-[11px] text-stone-400\">\n                <span>شامل الضريبة (<bdi class=\"note-vat-rate\" dir=\"ltr\">15%</bdi>)</span>\n              </div>\n            </div>\n\n            <!-- Exclusive Checkout Order Upsell (Compact Slim Bar) -->\n            <div id=\"checkout-upsell-card\" class=\"p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/70 text-right\">\n              <div class=\"flex items-center justify-between gap-2\">\n                <div class=\"flex items-center gap-2 min-w-0\">\n                  <div class=\"w-9 h-9 rounded-lg bg-white p-0.5 border border-amber-100 shrink-0 flex items-center justify-center\">\n                    <img id=\"upsell-img\" src=\"https://youssefrasheed.github.io/note-zid-styles/products/NOTE_For_Her_30ml_v02.webp\" alt=\"NOTE 30ml\" class=\"w-full h-full object-contain\">\n                  </div>\n                  <div class=\"min-w-0\">\n                    <div class=\"flex items-center gap-1.5\">\n                      <span class=\"text-[9px] font-extrabold text-amber-800 bg-amber-100/90 px-1.5 py-0.2 rounded\">عرض خاص</span>\n                      <h5 id=\"upsell-title\" class=\"text-[11px] font-bold text-black truncate\">عطر نوت فور هير (30 مل)</h5>\n                    </div>\n                    <div class=\"flex items-center gap-1.5 mt-0.5\">\n                      <span id=\"upsell-price\" class=\"text-[11px] font-extrabold text-rose-600\">89 ر.س</span>\n                      <span id=\"upsell-old-price\" class=\"text-[9px] text-stone-400 line-through\">199 ر.س</span>\n                      <span class=\"text-[9px] text-emerald-600 font-bold hidden sm:inline\">(وفر 55%)</span>\n                    </div>\n                  </div>\n                </div>\n                <button id=\"upsell-add-btn\" class=\"px-2.5 py-1 rounded-lg bg-black hover:bg-stone-800 text-white text-[10px] font-bold transition shrink-0 shadow-xs active:scale-95 flex items-center gap-1\">\n                  <i class=\"sicon-plus text-[9px]\"></i>\n                  <span>أضف للطلب</span>\n                </button>\n              </div>\n            </div>\n\n            <!-- Checkout CTA -->\n            <button onclick=\"proceedToCheckout()\" class=\"w-full py-3.5 rounded-full bg-black hover:bg-stone-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition duration-300 shadow-lg active:scale-98\">\n              <span>إتمام الدفع الآمن</span>\n              <i class=\"sicon-lock text-sm\"></i>\n            </button>\n\n            <!-- Golden Guarantee Box -->\n            <div class=\"p-3 rounded-xl bg-white border border-stone-200/60 text-[11px] text-stone-600 flex items-center gap-2.5\">\n              <i class=\"sicon-shield-check text-black text-lg shrink-0\"></i>\n              <span>مشمول بـ <strong>الضمان الذهبي</strong>: عينة تجربة مجانية مرفقة مع كل عطر وحق الاسترجاع خلال 3 أيام.</span>\n            </div>\n\n            <!-- Payment Methods Icons -->\n            <div class=\"pt-3 border-t border-stone-200/60 mt-3 text-center\">\n              <span class=\"text-[10px] text-stone-400 font-bold uppercase tracking-wider block mb-2.5\">وسائل الدفع الآمنة المعتمدة</span>\n              <div class=\"flex flex-wrap items-center justify-center gap-2\">\n                <div class=\"h-7 px-2.5 bg-white rounded-lg border border-stone-200 flex items-center justify-center shadow-xs\" title=\"مدى Mada\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/mada.png\" alt=\"مدى Mada\" class=\"h-3.5 w-auto object-contain\">\n                </div>\n                <div class=\"h-7 px-2.5 bg-white rounded-lg border border-stone-200 flex items-center justify-center shadow-xs\" title=\"Apple Pay\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/apple_pay.svg\" alt=\"Apple Pay\" class=\"h-3.5 w-auto object-contain\">\n                </div>\n                <div class=\"h-7 px-2.5 bg-white rounded-lg border border-stone-200 flex items-center justify-center shadow-xs\" title=\"Visa\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/visa.png\" alt=\"Visa\" class=\"h-2.5 w-auto object-contain\">\n                </div>\n                <div class=\"h-7 px-2.5 bg-white rounded-lg border border-stone-200 flex items-center justify-center shadow-xs\" title=\"Mastercard\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/mastercard.png\" alt=\"Mastercard\" class=\"h-4 w-auto object-contain\">\n                </div>\n                <div class=\"h-7 px-2.5 bg-white rounded-lg border border-stone-200 flex items-center justify-center shadow-xs\" title=\"تابي Tabby\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/tabby.svg\" alt=\"تابي Tabby\" class=\"h-3.5 w-auto object-contain\">\n                </div>\n                <div class=\"h-7 px-2.5 bg-white rounded-lg border border-stone-200 flex items-center justify-center shadow-xs\" title=\"تمارا Tamara\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/tamara.svg\" alt=\"تمارا Tamara\" class=\"h-3.5 w-auto object-contain\">\n                </div>\n              </div>\n            </div>\n\n          </div>\n        </div>\n\n      </div>\n\n    </div>\n  </main>\n<!-- Checkout Success Modal -->\n  <div id=\"checkout-modal\" class=\"fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4\">\n    <div class=\"bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 text-center space-y-4 shadow-2xl\">\n      <div class=\"w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center\">\n        <i class=\"sicon-check-circle text-3xl\"></i>\n      </div>\n      <h3 class=\"text-xl font-bold text-black\">شكراً لاختيارك دار نوت للعطور!</h3>\n      <p class=\"text-xs text-stone-600 leading-relaxed\">\n        تم استلام طلبك بنجاح وسيتواصل معك فريق الشحن والتوصيل خلال ساعات. تم إرسال تفاصيل الفاتورة ورقم التتبع إلى بريدك الإلكتروني وهاتفك.\n      </p>\n      <div class=\"p-3 bg-stone-50 rounded-xl text-xs font-mono font-bold text-black\">\n        رقم الطلب: #NOTE-2026-9814\n      </div>\n\n      <!-- VIP Gift for Next Order -->\n      <div class=\"p-3.5 bg-stone-50 rounded-xl border border-stone-200/80 text-right space-y-2\">\n        <div class=\"flex items-center justify-between\">\n          <span class=\"text-xs font-bold text-black flex items-center gap-1.5\">\n            <i class=\"sicon-gift text-emerald-600\"></i>\n            <span>هدية نوت لطلبك القادم (خصم 10%)</span>\n          </span>\n          <button onclick=\"navigator.clipboard.writeText('NOTE-VIP10'); alert('تم نسخ كود الخصم NOTE-VIP10 بنجاح!');\" class=\"text-[10px] font-bold text-stone-600 hover:text-black underline cursor-pointer\">\n            نسخ الكود\n          </button>\n        </div>\n        <div class=\"p-2 bg-white rounded-lg border border-stone-200 flex items-center justify-between font-mono text-xs font-bold text-black\">\n          <span>NOTE-VIP10</span>\n          <span class=\"text-[10px] font-sans text-emerald-600\">فعّال لطلبك القادم</span>\n        </div>\n      </div>",
+    cart: "<main id=\"page-main-wrapper\"  class=\"pt-28 sm:pt-36 pb-20 flex-grow\">\n    <div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\">\n      \n      <div class=\"mb-8 text-right\">\n        <h1 class=\"text-2xl sm:text-3xl font-extrabold text-black tracking-tight\">سلة المشتريات</h1>\n        <p class=\"text-xs text-stone-500 mt-1\">راجع المنتجات والكميات قبل استكمال عملية الدفع</p>\n      </div>\n\n      <div class=\"grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start\">\n        \n        <!-- RIGHT: Items Table / List (8 cols) -->\n        <div class=\"lg:col-span-8\">\n          <div id=\"cart-page-items\" class=\"space-y-3\">\n            <!-- Items rendered via JS -->\n          </div>\n\n          <!-- Empty State -->\n          <div id=\"cart-page-empty\" class=\"hidden text-center py-20\">\n            <div class=\"w-20 h-20 rounded-full bg-stone-100 mx-auto flex items-center justify-center text-stone-400 mb-4\">\n              <i class=\"sicon-shopping-bag text-3xl\"></i>\n            </div>\n            <h3 class=\"text-lg font-bold text-black mb-2\">سلة المشتريات فارغة حالياً</h3>\n            <p class=\"text-xs text-stone-400 max-w-sm mx-auto mb-6\">لم تقم بإضافة أي عطور إلى سلتك بعد. استكشف مجموعاتنا العطرية الفاخرة.</p>\n            <a href=\"/categories\" class=\"inline-flex items-center gap-2 px-8 py-3 rounded-full bg-black text-white text-xs font-bold hover:bg-stone-800 transition\">\n              <span>تصفح العطور الآن</span>\n              <i class=\"sicon-keyboard_arrow_left text-xs\"></i>\n            </a>\n          </div>\n\n          <!-- Back to Shopping Link -->\n          <div class=\"mt-6 flex items-center justify-between\">\n            <a href=\"/categories\" class=\"text-xs font-bold text-stone-600 hover:text-black flex items-center gap-1.5 transition\">\n              <i class=\"sicon-keyboard_arrow_right\"></i>\n              <span>متابعة التسوق وإضافة عطور أخرى</span>\n            </a>\n          </div>\n\n          <!-- Recommendations Section in Cart Page (Compact) -->\n          <div id=\"cart-page-recommendations-section\" class=\"mt-8 pt-6 border-t border-stone-200 text-right\">\n            <div class=\"flex items-center justify-between mb-3\">\n              <div>\n                <span class=\"text-[9px] text-stone-400 font-bold uppercase tracking-wider block\">RECOMMENDED FOR YOU</span>\n                <h3 class=\"text-xs sm:text-sm font-extrabold text-black\">ترشيحات تكمل مجموعتك العطرية</h3>\n              </div>\n              <span class=\"text-[10px] text-stone-400 hidden sm:block\">إضافة سريعة بنقرة واحدة</span>\n            </div>\n            <div id=\"cart-page-recs-grid\" class=\"grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3\">\n              <!-- Rendered dynamically via JS -->\n            </div>\n          </div>\n        </div>\n\n        <!-- LEFT: Summary Card (4 cols) -->\n        <div id=\"cart-page-summary-wrapper\" class=\"lg:col-span-4\">\n          <div class=\"p-6 rounded-2xl bg-stone-50 border border-stone-200/80 text-right space-y-4\">\n            <h3 class=\"text-sm font-extrabold text-black pb-3 border-b border-stone-200/80\">ملخص الطلب</h3>\n\n            <!-- Coupon Input -->\n            <div id=\"note-cart-coupon-section\" class=\"pt-1 pb-1 space-y-2\">\n              <div class=\"flex items-center justify-between\">\n                <label for=\"coupon-code-input\" class=\"text-[11px] font-bold text-stone-700 flex items-center gap-1.5 cursor-pointer\">\n                  <i class=\"sicon-discount-coupon text-stone-500 text-xs\"></i>\n                  <span>كوبون الخصم أو قسيمة التخفيض:</span>\n                </label>\n                <span id=\"coupon-applied-tag\" class=\"hidden text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200\">مفعّل ✓</span>\n              </div>\n              <div class=\"flex gap-2\">\n                <div class=\"relative flex-1\">\n                  <input \n                    id=\"coupon-code-input\" \n                    type=\"text\" \n                    placeholder=\"أدخل كود الخصم\" \n                    autocomplete=\"off\"\n                    autocapitalize=\"characters\"\n                    spellcheck=\"false\"\n                    class=\"w-full h-10 px-3.5 pl-8 rounded-xl border border-stone-200 bg-white text-xs uppercase font-mono tracking-wider focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition placeholder:text-stone-400\"\n                    dir=\"ltr\"\n                    style=\"text-align: right;\"\n                    onkeydown=\"if(event.key==='Enter'){event.preventDefault();applyCartCoupon();}\"\n                  >\n                  <button \n                    id=\"coupon-clear-btn\" \n                    type=\"button\" \n                    onclick=\"clearCartCoupon()\" \n                    class=\"hidden absolute left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-stone-200/70 hover:bg-stone-300 text-stone-600 flex items-center justify-center text-xs transition cursor-pointer\"\n                    title=\"إزالة الكوبون\"\n                    aria-label=\"إزالة الكوبون\"\n                  >×</button>\n                </div>\n                <button \n                  id=\"coupon-apply-btn\" \n                  type=\"button\" \n                  onclick=\"applyCartCoupon()\" \n                  class=\"h-10 px-5 rounded-xl text-stone-900 text-xs font-bold transition flex items-center justify-center gap-1.5 shrink-0 shadow-xs cursor-pointer\"\n                >\n                  <span id=\"coupon-btn-text\">تطبيق</span>\n                </button>\n              </div>\n              <p id=\"coupon-msg\" class=\"text-[11px] font-bold hidden leading-relaxed transition-all\"></p>\n            </div>\n\n            <!-- Price Breakdown -->\n            <div class=\"space-y-2.5 text-xs text-stone-600 pt-2 border-t border-stone-200/80\">\n              <span id=\"page-subtotal\" class=\"hidden\">0 ر.س</span>\n              <div id=\"bundle-discount-row\" class=\"hidden flex items-center justify-between text-xs font-bold text-amber-800 bg-amber-50/90 px-3 py-2 rounded-xl border border-amber-200/70\">\n                <span id=\"page-bundle-discount-label\" class=\"flex items-center gap-1.5\">\n                  <i class=\"sicon-gift text-amber-600 text-xs\"></i>\n                  <span id=\"page-bundle-discount-title\">وفّرت مع العرض:</span>\n                </span>\n                <span id=\"page-bundle-discount\" class=\"font-black text-rose-600\">- 0 ر.س</span>\n              </div>\n              <div id=\"discount-row\" class=\"hidden flex items-center justify-between text-emerald-600 font-bold\">\n                <span>خصم الكوبون:</span>\n                <span id=\"page-discount\">- 0 ر.س</span>\n              </div>\n              <div class=\"flex items-center justify-between\">\n                <span>الشحن والتوصيل:</span>\n                <span id=\"page-shipping\" class=\"font-bold text-black\">مجاني</span>\n              </div>\n              <div class=\"flex items-center justify-between text-stone-400 text-[11px]\">\n                <span>ضريبة القيمة المضافة (<bdi class=\"note-vat-rate\" dir=\"ltr\">15%</bdi>):</span>\n                <span>مشمولة في الأسعار</span>\n              </div>\n            </div>\n\n            <!-- Single Authoritative Total (Laverne Style) -->\n            <div class=\"pt-3 border-t border-stone-200/80 flex items-center justify-between\">\n              <div>\n                <span class=\"text-xs text-stone-500 font-medium block\" data-label=\"إجمالي المنتجات قبل الشحن والخصومات:\">الإجمالي:</span>\n                <span id=\"page-grand-total\" class=\"text-2xl font-black text-black\">0 ر.س</span>\n              </div>\n              <div class=\"text-left text-[11px] text-stone-400\">\n                <span>شامل الضريبة (<bdi class=\"note-vat-rate\" dir=\"ltr\">15%</bdi>)</span>\n              </div>\n            </div>\n\n            <!-- Exclusive Checkout Order Upsell (Compact Slim Bar) -->\n            <div id=\"checkout-upsell-card\" class=\"p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/70 text-right\">\n              <div class=\"flex items-center justify-between gap-2\">\n                <div class=\"flex items-center gap-2 min-w-0\">\n                  <div class=\"w-9 h-9 rounded-lg bg-white p-0.5 border border-amber-100 shrink-0 flex items-center justify-center\">\n                    <img id=\"upsell-img\" src=\"https://youssefrasheed.github.io/note-zid-styles/products/NOTE_For_Her_30ml_v02.webp\" alt=\"NOTE 30ml\" class=\"w-full h-full object-contain\">\n                  </div>\n                  <div class=\"min-w-0\">\n                    <div class=\"flex items-center gap-1.5\">\n                      <span class=\"text-[9px] font-extrabold text-amber-800 bg-amber-100/90 px-1.5 py-0.2 rounded\">عرض خاص</span>\n                      <h5 id=\"upsell-title\" class=\"text-[11px] font-bold text-black truncate\">عطر نوت فور هير (30 مل)</h5>\n                    </div>\n                    <div class=\"flex items-center gap-1.5 mt-0.5\">\n                      <span id=\"upsell-price\" class=\"text-[11px] font-extrabold text-rose-600\">89 ر.س</span>\n                      <span id=\"upsell-old-price\" class=\"text-[9px] text-stone-400 line-through\">199 ر.س</span>\n                      <span class=\"text-[9px] text-emerald-600 font-bold hidden sm:inline\">(وفر 55%)</span>\n                    </div>\n                  </div>\n                </div>\n                <button id=\"upsell-add-btn\" class=\"px-2.5 py-1 rounded-lg bg-black hover:bg-stone-800 text-white text-[10px] font-bold transition shrink-0 shadow-xs active:scale-95 flex items-center gap-1\">\n                  <i class=\"sicon-plus text-[9px]\"></i>\n                  <span>أضف للطلب</span>\n                </button>\n              </div>\n            </div>\n\n            <!-- Checkout CTA -->\n            <button onclick=\"proceedToCheckout()\" class=\"w-full py-3.5 rounded-full bg-black hover:bg-stone-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition duration-300 shadow-lg active:scale-98\">\n              <span>إتمام الدفع الآمن</span>\n              <i class=\"sicon-lock text-sm\"></i>\n            </button>\n\n            <!-- Golden Guarantee Box -->\n            <div class=\"p-3 rounded-xl bg-white border border-stone-200/60 text-[11px] text-stone-600 flex items-center gap-2.5\">\n              <i class=\"sicon-shield-check text-black text-lg shrink-0\"></i>\n              <span>مشمول بـ <strong>الضمان الذهبي</strong>: عينة تجربة مجانية مرفقة مع كل عطر وحق الاسترجاع خلال 3 أيام.</span>\n            </div>\n\n            <!-- Payment Methods Icons -->\n            <div class=\"pt-3 border-t border-stone-200/60 mt-3 text-center\">\n              <span class=\"text-[10px] text-stone-400 font-bold uppercase tracking-wider block mb-2.5\">وسائل الدفع الآمنة المعتمدة</span>\n              <div class=\"flex flex-wrap items-center justify-center gap-2\">\n                <div class=\"h-7 px-2.5 bg-white rounded-lg border border-stone-200 flex items-center justify-center shadow-xs\" title=\"مدى Mada\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/mada.png\" alt=\"مدى Mada\" class=\"h-3.5 w-auto object-contain\">\n                </div>\n                <div class=\"h-7 px-2.5 bg-white rounded-lg border border-stone-200 flex items-center justify-center shadow-xs\" title=\"Apple Pay\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/apple_pay.svg\" alt=\"Apple Pay\" class=\"h-3.5 w-auto object-contain\">\n                </div>\n                <div class=\"h-7 px-2.5 bg-white rounded-lg border border-stone-200 flex items-center justify-center shadow-xs\" title=\"Visa\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/visa.png\" alt=\"Visa\" class=\"h-2.5 w-auto object-contain\">\n                </div>\n                <div class=\"h-7 px-2.5 bg-white rounded-lg border border-stone-200 flex items-center justify-center shadow-xs\" title=\"Mastercard\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/mastercard.png\" alt=\"Mastercard\" class=\"h-4 w-auto object-contain\">\n                </div>\n                <div class=\"h-7 px-2.5 bg-white rounded-lg border border-stone-200 flex items-center justify-center shadow-xs\" title=\"تابي Tabby\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/tabby.svg\" alt=\"تابي Tabby\" class=\"h-3.5 w-auto object-contain\">\n                </div>\n                <div class=\"h-7 px-2.5 bg-white rounded-lg border border-stone-200 flex items-center justify-center shadow-xs\" title=\"تمارا Tamara\">\n                  <img src=\"https://youssefrasheed.github.io/note-zid-styles/assets/icons/payment/tamara.svg\" alt=\"تمارا Tamara\" class=\"h-3.5 w-auto object-contain\">\n                </div>\n              </div>\n            </div>\n\n          </div>\n        </div>\n\n      </div>\n\n    </div>\n  </main>\n<!-- Checkout Success Modal -->\n  <div id=\"checkout-modal\" class=\"fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4\">\n    <div class=\"bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 text-center space-y-4 shadow-2xl\">\n      <div class=\"w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center\">\n        <i class=\"sicon-check-circle text-3xl\"></i>\n      </div>\n      <h3 class=\"text-xl font-bold text-black\">شكراً لاختيارك دار نوت للعطور!</h3>\n      <p class=\"text-xs text-stone-600 leading-relaxed\">\n        تم استلام طلبك بنجاح وسيتواصل معك فريق الشحن والتوصيل خلال ساعات. تم إرسال تفاصيل الفاتورة ورقم التتبع إلى بريدك الإلكتروني وهاتفك.\n      </p>\n      <div class=\"p-3 bg-stone-50 rounded-xl text-xs font-mono font-bold text-black\">\n        رقم الطلب: #NOTE-2026-9814\n      </div>\n\n      <!-- VIP Gift for Next Order -->\n      <div class=\"p-3.5 bg-stone-50 rounded-xl border border-stone-200/80 text-right space-y-2\">\n        <div class=\"flex items-center justify-between\">\n          <span class=\"text-xs font-bold text-black flex items-center gap-1.5\">\n            <i class=\"sicon-gift text-emerald-600\"></i>\n            <span>هدية نوت لطلبك القادم (خصم 10%)</span>\n          </span>\n          <button onclick=\"navigator.clipboard.writeText('NOTE-VIP10'); alert('تم نسخ كود الخصم NOTE-VIP10 بنجاح!');\" class=\"text-[10px] font-bold text-stone-600 hover:text-black underline cursor-pointer\">\n            نسخ الكود\n          </button>\n        </div>\n        <div class=\"p-2 bg-white rounded-lg border border-stone-200 flex items-center justify-between font-mono text-xs font-bold text-black\">\n          <span>NOTE-VIP10</span>\n          <span class=\"text-[10px] font-sans text-emerald-600\">فعّال لطلبك القادم</span>\n        </div>\n      </div>",
     faqs: "<main id=\"page-main-wrapper\"  class=\"pt-28 sm:pt-36 pb-20 flex-grow text-right\">\n    <div class=\"max-w-4xl mx-auto px-4 sm:px-6 lg:px-8\">\n      \n      <!-- Breadcrumb -->\n      <nav class=\"flex items-center gap-2 text-xs text-stone-400 mb-8 font-medium\">\n        <a href=\"/\" class=\"hover:text-black\">الرئيسية</a>\n        <span>/</span>\n        <span class=\"text-black font-bold\">الأسئلة الشائعة</span>\n      </nav>\n\n      <!-- Page Title -->\n      <div class=\"text-center max-w-2xl mx-auto mb-12\">\n        <span class=\"text-[10px] text-stone-400 font-bold uppercase tracking-widest block mb-2\">HELP CENTER & FAQS</span>\n        <h1 class=\"text-2xl sm:text-3xl lg:text-4xl font-extrabold text-black tracking-tight\">الأسئلة الأكثر تكراراً</h1>\n        <p class=\"text-xs sm:text-sm text-stone-500 mt-2\">إجابات شاملة ومفصلة عن استفساراتكم حول منتجات وعطور دار نوت، الشحن، والضمان الذهبي</p>\n      </div>\n\n      <!-- FAQ Accordions -->\n      <div class=\"space-y-4\">\n        \n        <!-- FAQ 1 -->\n        <details class=\"group bg-stone-50/70 rounded-2xl p-5 sm:p-6 border border-stone-200/80 transition\" open>\n          <summary class=\"flex items-center justify-between font-bold text-sm sm:text-base text-black cursor-pointer select-none\">\n            <span class=\"flex items-center gap-3\">\n              <i class=\"sicon-shield-check text-black text-lg\"></i>\n              <span>هل جميع عطور NOTE أصلية ومطابقة للمواصفات السعودية؟</span>\n            </span>\n            <i class=\"sicon-keyboard_arrow_down text-sm transition-transform duration-300 group-open:rotate-180\"></i>\n          </summary>\n          <div class=\"pt-4 text-xs sm:text-sm text-stone-600 leading-relaxed font-normal\">\n            نعم، 100%. دار نوت (مؤسسة هتان هشام بن محمد بادخن التجارية) هي علامة تجارية سعودية رسمية مسجلة بسجل تجاري رقم (4030422313) ورقم ضريبي (310980193500003). جميع عطورنا ومستحضراتنا مصنعة وفق أعلى معايير الجودة العالمية، ومرخصة ومطابقة لاشتراطات الهيئة العامة للغذاء والدواء بالمملكة العربية السعودية، ونستخدم أندر الزيوت العطرية النقية والمستخلصة طبيعياً.\n          </div>\n        </details>\n\n        <!-- FAQ 2 -->\n        <details class=\"group bg-stone-50/70 rounded-2xl p-5 sm:p-6 border border-stone-200/80 transition\">\n          <summary class=\"flex items-center justify-between font-bold text-sm sm:text-base text-black cursor-pointer select-none\">\n            <span class=\"flex items-center gap-3\">\n              <i class=\"sicon-award-ribbon text-black text-lg\"></i>\n              <span>ما هو الضمان الذهبي وكيف أستخدم عينة التجربة المجانية؟</span>\n            </span>\n            <i class=\"sicon-keyboard_arrow_down text-sm transition-transform duration-300 group-open:rotate-180\"></i>\n          </summary>\n          <div class=\"pt-4 text-xs sm:text-sm text-stone-600 leading-relaxed font-normal\">\n            الضمان الذهبي هو وعد نوت لعملائها بالرضا التام. مع كل زجاجة عطر تطلبها، نرفق عينة تجربة مجانية بحجم صغير. يمكنك فك العينة وتجربتها على بشرتك وملابسك دون فتح كرتون أو سلوفان العطر الأساسي. إذا لم تعجبك الرائحة أو الثبات، يحق لك طلب استرجاع المبلغ خلال 3 أيام من تاريخ استلام الشحنة بكل سهولة.\n          </div>\n        </details>\n\n        <!-- FAQ 3 -->\n        <details class=\"group bg-stone-50/70 rounded-2xl p-5 sm:p-6 border border-stone-200/80 transition\">\n          <summary class=\"flex items-center justify-between font-bold text-sm sm:text-base text-black cursor-pointer select-none\">\n            <span class=\"flex items-center gap-3\">\n              <i class=\"sicon-shipping-fast text-black text-lg\"></i>\n              <span>كم يستغرق الشحن والتوصيل؟ وما هي تكلفته؟</span>\n            </span>\n            <i class=\"sicon-keyboard_arrow_down text-sm transition-transform duration-300 group-open:rotate-180\"></i>\n          </summary>\n          <div class=\"pt-4 text-xs sm:text-sm text-stone-600 leading-relaxed font-normal\">\n            يتم تجهيز الطلبات وشحنها فورياً عبر شريكنا اللوجستي المعتمد أرامكس (Aramex). يستغرق التوصيل داخل مدينة الرياض وجدة ومدن المملكة الرئيسية من 2 إلى 4 أيام عمل. الشحن <strong>مجاني بالكامل</strong> لكافة الطلبات التي تزيد قيمتها عن 300 ر.س، وتبلغ رسوم الشحن 25 ر.س للطلبات الأقل من ذلك.\n          </div>\n        </details>\n\n        <!-- FAQ 4 -->\n        <details class=\"group bg-stone-50/70 rounded-2xl p-5 sm:p-6 border border-stone-200/80 transition\">\n          <summary class=\"flex items-center justify-between font-bold text-sm sm:text-base text-black cursor-pointer select-none\">\n            <span class=\"flex items-center gap-3\">\n              <i class=\"sicon-card text-black text-lg\"></i>\n              <span>هل يتوفر تقسيط المشتريات عبر تابي (Tabby) وتمارا (Tamara)؟</span>\n            </span>\n            <i class=\"sicon-keyboard_arrow_down text-sm transition-transform duration-300 group-open:rotate-180\"></i>\n          </summary>\n          <div class=\"pt-4 text-xs sm:text-sm text-stone-600 leading-relaxed font-normal\">\n            نعم، نوفر خدمة التقسيط على 4 دفعات ميسرة بدون أي فوائد أو رسوم إضافية عبر تابي وتمارا. يمكنك اختيار وسيلة التقسيط المفضلة عند الوصول لصفحة الدفع وسداد القسط الأول فقط مع شحن طلبك فوراً.\n          </div>\n        </details>\n\n        <!-- FAQ 5 -->\n        <details class=\"group bg-stone-50/70 rounded-2xl p-5 sm:p-6 border border-stone-200/80 transition\">\n          <summary class=\"flex items-center justify-between font-bold text-sm sm:text-base text-black cursor-pointer select-none\">\n            <span class=\"flex items-center gap-3\">\n              <i class=\"sicon-drop text-black text-lg\"></i>\n              <span>ما هو تركيز عطور دار نوت وكم تدوم فترة الثبات؟</span>\n            </span>\n            <i class=\"sicon-keyboard_arrow_down text-sm transition-transform duration-300 group-open:rotate-180\"></i>\n          </summary>\n          <div class=\"pt-4 text-xs sm:text-sm text-stone-600 leading-relaxed font-normal\">\n            تعتمد دار نوت أعلى درجات التركيز العطري في صناعة العطور العالمية وهو <strong>Extrait de Parfum</strong> بتركيز زيوت عطرية نقية تتراوح بين 30% إلى 40%، مما يمنح العطر ثباتاً يتجاوز 24 ساعة على الجلد وعدة أيام على الأقمشة والملابس مع فوحان متوازن وراقٍ.\n          </div>\n        </details>\n\n        <!-- FAQ 6 -->\n        <details class=\"group bg-stone-50/70 rounded-2xl p-5 sm:p-6 border border-stone-200/80 transition\">\n          <summary class=\"flex items-center justify-between font-bold text-sm sm:text-base text-black cursor-pointer select-none\">\n            <span class=\"flex items-center gap-3\">\n              <i class=\"sicon-chat-conversation-alt text-black text-lg\"></i>\n              <span>كيف أتواصل مع خدمة العملاء؟</span>\n            </span>\n            <i class=\"sicon-keyboard_arrow_down text-sm transition-transform duration-300 group-open:rotate-180\"></i>\n          </summary>\n          <div class=\"pt-4 text-xs sm:text-sm text-stone-600 leading-relaxed font-normal\">\n            فريق خدمة عملاء NOTE يسعد بخدمتكم عبر واتساب على الرقم: <strong><a href=\"https://wa.me/966565955420\" target=\"_blank\" class=\"text-black font-bold underline\">+966 56 595 5420</a></strong> أو عبر البريد الإلكتروني المعتمد: <strong>marketing.noteperf@gmail.com</strong>.\n          </div>\n        </details>\n\n      </div>\n\n      <!-- Still Have Questions Box -->\n      <div class=\"p-8 rounded-2xl bg-stone-50 border border-stone-200 mt-12 text-center space-y-3\">\n        <h3 class=\"text-base font-bold text-black\">هل لديك سؤال آخر لم تجد إجابته هنا؟</h3>\n        <p class=\"text-xs text-stone-500\">فريقنا متواجد ومستعد لمساعدتك في أي استفسار حول روائح العطور أو طلبك الحالي</p>\n        <div class=\"flex flex-wrap items-center justify-center gap-3 pt-2\">\n          <a href=\"https://wa.me/966565955420\" target=\"_blank\" class=\"px-6 py-2.5 rounded-full bg-black text-white text-xs font-bold hover:bg-stone-800 transition flex items-center gap-2\">\n            <i class=\"sicon-whatsapp\"></i>\n            <span>محادثة واتساب مباشرة</span>\n          </a>\n          <a href=\"/contact.html\" class=\"px-6 py-2.5 rounded-full border border-stone-200 text-black text-xs font-bold hover:border-black transition\">\n            صفحة الشكاوى والمقترحات\n          </a>\n        </div>\n      </div>\n\n    </div>\n  </main>",
     contact: "<main id=\"page-main-wrapper\"  class=\"pt-28 sm:pt-36 pb-20 flex-grow text-right\">\n    <div class=\"max-w-5xl mx-auto px-4 sm:px-6 lg:px-8\">\n      \n      <!-- Breadcrumb -->\n      <nav class=\"flex items-center gap-2 text-xs text-stone-400 mb-8 font-medium\">\n        <a href=\"/\" class=\"hover:text-black\">الرئيسية</a>\n        <span>/</span>\n        <span class=\"text-black font-bold\">تواصل معنا</span>\n      </nav>\n\n      <!-- Page Header -->\n      <div class=\"text-center max-w-2xl mx-auto mb-12\">\n        <span class=\"text-[10px] text-stone-400 font-bold uppercase tracking-widest block mb-2\">GET IN TOUCH</span>\n        <h1 class=\"text-2xl sm:text-3xl lg:text-4xl font-extrabold text-black tracking-tight\">خدمة العملاء والشكاوى والمقترحات</h1>\n        <p class=\"text-xs sm:text-sm text-stone-500 mt-2\">يسعدنا دائماً الاستماع إليكم وتلقي آرائكم واستفساراتكم لتقديم أرقى تجربة تسوق تليق بكم</p>\n      </div>\n\n      <div class=\"grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start\">\n        \n        <!-- RIGHT: Contact Info Cards (5 cols) -->\n        <div class=\"lg:col-span-5 space-y-4\">\n          \n          <!-- WhatsApp Card -->\n          <a href=\"https://wa.me/966565955420\" target=\"_blank\" class=\"block p-5 rounded-2xl bg-stone-50 border border-stone-200/80 hover:border-black transition group\">\n            <div class=\"flex items-center gap-3 mb-2\">\n              <div class=\"w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg shrink-0\">\n                <i class=\"sicon-whatsapp\"></i>\n              </div>\n              <div>\n                <h3 class=\"text-sm font-bold text-black group-hover:text-emerald-600 transition\">واتساب خدمة العملاء</h3>\n                <span class=\"text-[10px] text-stone-400\">رد فوري ومباشر</span>\n              </div>\n            </div>\n            <p class=\"text-xs font-mono font-bold text-stone-800\" dir=\"ltr\">+966 56 595 5420</p>\n          </a>\n\n          <!-- Email Card -->\n          <div class=\"p-5 rounded-2xl bg-stone-50 border border-stone-200/80\">\n            <div class=\"flex items-center gap-3 mb-2\">\n              <div class=\"w-10 h-10 rounded-full bg-stone-100 text-black flex items-center justify-center text-lg shrink-0\">\n                <i class=\"sicon-mail\"></i>\n              </div>\n              <div>\n                <h3 class=\"text-sm font-bold text-black\">البريد الإلكتروني</h3>\n                <span class=\"text-[10px] text-stone-400\">للاستفسارات والطلبات الخاصة</span>\n              </div>\n            </div>\n            <p class=\"text-xs font-mono font-bold text-stone-800\">marketing.noteperf@gmail.com</p>\n          </div>\n\n          <!-- Official Commercial Data Card -->\n          <div class=\"p-5 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-2 text-xs text-stone-600\">\n            <h4 class=\"font-bold text-black text-xs border-b border-stone-200 pb-2\">بيانات المؤسسة والترخيص:</h4>\n            <div class=\"flex justify-between\">\n              <span>الكيان التجاري:</span>\n              <span class=\"font-bold text-black\">مؤسسة هتان هشام بن محمد بادخن التجارية</span>\n            </div>\n            <div class=\"flex justify-between\">\n              <span>السجل التجاري:</span>\n              <span class=\"font-mono font-bold text-black\">4030422313</span>\n            </div>\n            <div class=\"flex justify-between\">\n              <span>الرقم الضريبي:</span>\n              <span class=\"font-mono font-bold text-black\">310980193500003</span>\n            </div>\n            <div class=\"flex justify-between\">\n              <span>المقر والإدارة:</span>\n              <span class=\"font-bold text-black\">جدة، المملكة العربية السعودية</span>\n            </div>\n            <div class=\"flex justify-between\">\n              <span>ساعات العمل:</span>\n              <span class=\"font-bold text-black\">يومياً: 9:00 ص - 11:00 م</span>\n            </div>\n          </div>\n\n        </div>\n\n        <!-- LEFT: Message & Complaints Form (7 cols) -->\n        <div class=\"lg:col-span-7\">\n          <div class=\"p-6 sm:p-8 rounded-2xl bg-stone-50 border border-stone-200/80\">\n            <h3 class=\"text-base font-bold text-black mb-1\">أرسل لنا رسالة أو شكوى</h3>\n            <p class=\"text-xs text-stone-400 mb-6\">سيتم الرد عليك في غضون 24 ساعة كحد أقصى</p>\n\n            <form onsubmit=\"handleContactSubmit(event)\" class=\"space-y-4 text-xs font-bold text-stone-700\">\n              <div class=\"grid grid-cols-1 sm:grid-cols-2 gap-4\">\n                <div>\n                  <label class=\"block mb-1.5\">الاسم الكريم *</label>\n                  <input type=\"text\" required placeholder=\"محمد عبدالله\" class=\"w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-black font-normal bg-white\">\n                </div>\n                <div>\n                  <label class=\"block mb-1.5\">رقم الجوال *</label>\n                  <input type=\"tel\" required placeholder=\"05XXXXXXXX\" class=\"w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-black font-normal bg-white\" dir=\"ltr\">\n                </div>\n              </div>\n\n              <div>\n                <label class=\"block mb-1.5\">البريد الإلكتروني *</label>\n                <input type=\"email\" required placeholder=\"name@example.com\" class=\"w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-black font-normal bg-white\" dir=\"ltr\">\n              </div>\n\n              <div>\n                <label class=\"block mb-1.5\">نوع الرسالة *</label>\n                <select class=\"w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-black bg-white cursor-pointer font-normal\">\n                  <option>استفسار عن عطر أو توليفة</option>\n                  <option>استفسار عن حالة شحنة وطلب</option>\n                  <option>طلب استرجاع تحت الضمان الذهبي</option>\n                  <option>شكوى واعتراض</option>\n                  <option>اقتراح لتطوير الخدمات</option>\n                  <option>طلب شراكة وتوزيع</option>\n                </select>\n              </div>\n\n              <div>\n                <label class=\"block mb-1.5\">نص الرسالة أو الشكوى بالتفصيل *</label>\n                <textarea required rows=\"4\" placeholder=\"اكتب استفسارك أو ملاحظاتك هنا...\" class=\"w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-black font-normal bg-white resize-none\"></textarea>\n              </div>\n\n              <button type=\"submit\" class=\"w-full py-3.5 rounded-full bg-black hover:bg-stone-800 text-white font-bold text-xs transition duration-300 shadow-md active:scale-98\">\n                إرسال الرسالة الآن\n              </button>\n            </form>\n\n            <div id=\"contact-success-msg\" class=\"hidden mt-4 p-4 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs text-center font-bold\">\n              ✓ تم استلام رسالتك بنجاح! سيقوم فريق خدمة عملاء NOTE بالتواصل معك قريباً.\n            </div>\n          </div>\n        </div>\n\n      </div>\n\n    </div>\n  </main>",
     privacy: "<main id=\"page-main-wrapper\"  class=\"pt-28 sm:pt-36 pb-20 flex-grow text-right\">\n    <div class=\"max-w-4xl mx-auto px-4 sm:px-6 lg:px-8\">\n      \n      <!-- Breadcrumb -->\n      <nav class=\"flex items-center gap-2 text-xs text-stone-400 mb-8 font-medium\">\n        <a href=\"/\" class=\"hover:text-black\">الرئيسية</a>\n        <span>/</span>\n        <span class=\"text-black font-bold\">سياسة الخصوصية</span>\n      </nav>\n\n      <!-- Page Title -->\n      <div class=\"mb-10 pb-6 border-b border-stone-100\">\n        <h1 class=\"text-2xl sm:text-3xl font-extrabold text-black\">سياسة الخصوصية وأمان المعلومات</h1>\n        <p class=\"text-xs text-stone-500 mt-1\">نلتزم بحماية بياناتك الشخصية وسريتها وفق نظام حماية البيانات الشخصية السعودي</p>\n      </div>\n\n      <!-- Articles -->\n      <div class=\"space-y-6 text-xs sm:text-sm text-stone-700 leading-relaxed font-normal\">\n        \n        <section class=\"space-y-2\">\n          <h2 class=\"text-base font-bold text-black\">1. ما هي البيانات التي نجمعها؟</h2>\n          <p>\n            نقوم بجمع المعلومات الضرورية لإتمام عمليات الشراء والتوصيل وخدمة ما بعد البيع، وتشمل: الاسم، رقم الجوال، عنوان التوصيل الدقيق، والبريد الإلكتروني. لا يقوم متجرنا بتخزين أي أرقام بطاقات ائتمانية على خوادمه إطلاقاً، بل تتم معالجتها وتشفيرها عبر بوابات الدفع الرسمية المعتمدة من البنك المركزي السعودي (ساما).\n          </p>\n        </section>\n\n        <section class=\"space-y-2 pt-4 border-t border-stone-100\">\n          <h2 class=\"text-base font-bold text-black\">2. كيف نستخدم بياناتك الشخصية؟</h2>\n          <ul class=\"list-disc list-inside space-y-1.5 pr-2 text-stone-600\">\n            <li>معالجة طلبات الشراء وشحنها إلى عنوانك بدقة.</li>\n            <li>إرسال رسائل التتبع وتحديثات حالة الطلب عبر الرسائل النصية القصيرة أو الواتساب.</li>\n            <li>الرد على استفساراتك وشكاواك وتقديم الدعم الفني.</li>\n            <li>تحسين تجربة تصفحك وتخصيص العروض الترويجية في حال موافقتك على ذلك.</li>\n          </ul>\n        </section>\n\n        <section class=\"space-y-2 pt-4 border-t border-stone-100\">\n          <h2 class=\"text-base font-bold text-black\">3. مشاركة البيانات مع أطراف ثالثة</h2>\n          <p>\n            لا نقوم ببيع أو تأجير أو مشاركة بياناتك الشخصية مع أي طرف ثالث لأغراض تسويقية. لا تتم مشاركة معلوماتك إلا بالقدر اللازم مع شركاء الشحن المعتمدين (مثل أرامكس) لتوصيل طلبك، وبوابات الدفع المعتمدة لإتمام المعاملة المالية.\n          </p>\n        </section>\n\n        <section class=\"space-y-2 pt-4 border-t border-stone-100\">\n          <h2 class=\"text-base font-bold text-black\">4. أمان البيانات والتشفير</h2>\n          <p>\n            نطبق أعلى معايير الأمان التقنية والتنظيمية باستخدام بروتوكولات التشفير العالمية SSL لحماية البيانات أثناء نقلها ومنع أي وصول غير مصرح به.\n          </p>\n        </section>\n\n      </div>\n\n    </div>\n  </main>",
@@ -4053,19 +4142,21 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         if (tag) tag.classList.remove('hidden');
         const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
         if (liveBundleDisc > 0) {
+          if (btn) btn.classList.remove('note-btn-gold');
           msg.textContent = `تم حفظ كود الخصم (${code}). سلتك مؤهلة لعرض الحزم التلقائي (الأكبر توفيراً)، والخصم مطبق بالكامل.`;
           msg.className = 'text-[11px] font-bold text-amber-600 block mt-1.5 note-msg-anim';
         } else {
+          if (btn) btn.classList.add('note-btn-gold');
           msg.textContent = alreadyApplied
             ? `كود الخصم (${code}) مفعّل بالفعل لطلبك! 🎉`
             : `تم تفعيل كود الخصم (${code}) بنجاح! سيتم احتسابه عند الدفع.`;
           msg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5 note-msg-anim';
+
+          const container = input.closest('.rounded-2xl') || input.parentElement?.parentElement || document.getElementById('cart-drawer-coupon-box');
+          const totalEl = document.getElementById('cart-drawer-total');
+          triggerCouponCelebration(container, tag, btn, totalEl);
         }
         msg.classList.remove('hidden');
-
-        const container = input.closest('.rounded-2xl') || input.parentElement?.parentElement || document.getElementById('cart-drawer-coupon-box');
-        const totalEl = document.getElementById('cart-drawer-total');
-        triggerCouponCelebration(container, tag, btn, totalEl);
       }
     } catch (e) {
       msg.textContent = 'حدث خطأ أثناء تطبيق الكود. يرجى المحاولة مجدداً.';
@@ -5231,53 +5322,314 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       }
     }
 
-    itemsContainer.innerHTML = cart.map(item => {
-      const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
-      const imgUrl = resolveImgUrl(item.img);
-      const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
-      const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
-      const itemLineTotal = item.price * item.quantity;
-      return `
-        <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
-          <!-- Top Row: Thumbnail + Info (Title & Red Sale Price) + Coral Red ✕ Delete Button -->
-          <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
-            <div class="note-cart-item-start" style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0!important;flex:1 1 auto!important;">
-              <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="note-cart-item-thumb cart-thumb-box" style="width:82px!important;height:82px!important;min-width:82px!important;min-height:82px!important;max-width:82px!important;max-height:82px!important;border-radius:14px!important;background:#ffffff!important;border:1px solid #f0eee9!important;padding:4px!important;flex-shrink:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;box-sizing:border-box!important;">
-                <img src="${imgUrl}" alt="${escapeHTML(item.title)}" style="width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;">
-              </a>
-              <div class="note-cart-item-info" style="display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;min-width:0!important;flex:1 1 auto!important;text-align:right!important;">
-                <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="note-cart-item-title-link" style="text-decoration:none!important;color:inherit!important;display:block!important;">
-                  <h4 class="note-cart-item-title" style="font-size:15px!important;font-weight:700!important;color:#1c1917!important;line-height:1.35!important;margin:0!important;">${escapeHTML(item.title)}</h4>
-                </a>
-                <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
-                  ${oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${formatPrice(oldPriceVal)}</span>` : ''}
-                  <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${formatPrice(item.price)}</span>
+    function partitionCartForPage(cartList) {
+      const units = [];
+      cartList.forEach(item => {
+        const qty = Number(item.quantity) || 1;
+        for (let i = 0; i < qty; i++) {
+          units.push({
+            id: item.id,
+            title: item.title || item.name,
+            price: Number(item.price) || 0,
+            old_price: item.old_price,
+            img: item.img,
+            cat: item.cat,
+            isPerfume: (typeof CartManager !== 'undefined' && CartManager._isQualifying100mlPerfume) ? CartManager._isQualifying100mlPerfume(item) : false,
+            isTola: (typeof CartManager !== 'undefined' && CartManager._isQualifyingTola) ? CartManager._isQualifyingTola(item) : false,
+            originalItem: item
+          });
+        }
+      });
+
+      const perfumes = units.filter(u => u.isPerfume);
+      const tolas = units.filter(u => u.isTola);
+      const others = units.filter(u => !u.isPerfume && !u.isTola);
+
+      const offer2Count = Math.floor(perfumes.length / 3);
+      const offer2Groups = [];
+      const usedPerfumes = new Set();
+      const usedTolas = new Set();
+
+      if (offer2Count > 0) {
+        const sortedPerfumes = [...perfumes].sort((a, b) => b.price - a.price);
+        const totalPerfumesInOffer2 = offer2Count * 3;
+        const offer2Perfumes = sortedPerfumes.slice(0, totalPerfumesInOffer2);
+        const paidPerfumes = offer2Perfumes.slice(0, offer2Count * 2);
+        const discountedPerfumes = offer2Perfumes.slice(offer2Count * 2);
+
+        for (let s = 0; s < offer2Count; s++) {
+          const p1 = paidPerfumes[s * 2];
+          const p2 = paidPerfumes[s * 2 + 1];
+          const p3 = discountedPerfumes[s];
+          usedPerfumes.add(p1);
+          usedPerfumes.add(p2);
+          usedPerfumes.add(p3);
+
+          offer2Groups.push({
+            type: 'offer2',
+            title: 'عرض عطرك بـ 1 ريال (اشترِ 2 واحصل على الثالث بـ 1 ريال)',
+            items: [
+              { ...p1, effectivePrice: p1.price, isDiscounted: false },
+              { ...p2, effectivePrice: p2.price, isDiscounted: false },
+              { ...p3, effectivePrice: 1, originalPrice: p3.price, isDiscounted: true }
+            ],
+            total: p1.price + p2.price + 1,
+            savings: Math.max(0, p3.price - 1)
+          });
+        }
+      }
+
+      const remainingPerfumes = perfumes.filter(p => !usedPerfumes.has(p)).sort((a, b) => b.price - a.price);
+      const sortedTolas = [...tolas].sort((a, b) => b.price - a.price);
+      const offer1Count = Math.min(remainingPerfumes.length, sortedTolas.length);
+      const offer1Groups = [];
+
+      if (offer1Count > 0) {
+        for (let s = 0; s < offer1Count; s++) {
+          const p = remainingPerfumes[s];
+          const t = sortedTolas[s];
+          usedPerfumes.add(p);
+          usedTolas.add(t);
+
+          offer1Groups.push({
+            type: 'offer1',
+            title: 'عرض عطرك بريال (اشترِ عطر واحصل على تولة بـ 1 ريال)',
+            items: [
+              { ...p, effectivePrice: p.price, isDiscounted: false },
+              { ...t, effectivePrice: 1, originalPrice: t.price, isDiscounted: true }
+            ],
+            total: p.price + 1,
+            savings: Math.max(0, t.price - 1)
+          });
+        }
+      }
+
+      const standaloneUnits = [
+        ...perfumes.filter(p => !usedPerfumes.has(p)),
+        ...tolas.filter(t => !usedTolas.has(t)),
+        ...others
+      ];
+
+      const standaloneMap = new Map();
+      standaloneUnits.forEach(u => {
+        if (!standaloneMap.has(u.id)) {
+          standaloneMap.set(u.id, { ...u.originalItem, quantity: 0, lineTotal: 0 });
+        }
+        const grp = standaloneMap.get(u.id);
+        grp.quantity += 1;
+        grp.lineTotal += grp.price;
+      });
+
+      return {
+        offer2Groups,
+        offer1Groups,
+        standaloneItems: Array.from(standaloneMap.values())
+      };
+    }
+
+    const partitioned = partitionCartForPage(cart);
+    const hasBundles = (partitioned.offer2Groups.length > 0 || partitioned.offer1Groups.length > 0);
+
+    let html = '';
+
+    if (hasBundles) {
+      // 1. Render Offer 2 Bundles (2+1)
+      partitioned.offer2Groups.forEach(grp => {
+        html += `
+          <div class="note-bundle-group-card" style="background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:20px!important;padding:16px 18px!important;margin-bottom:16px!important;box-shadow:0 1px 4px rgba(0,0,0,0.02)!important;position:relative!important;text-align:right!important;direction:rtl!important;">
+            <div class="note-bundle-group-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding-bottom:12px!important;border-bottom:1px solid #f0eee9!important;margin-bottom:14px!important;flex-wrap:wrap!important;gap:8px!important;">
+              <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;gap:6px!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">
+                <span>📦</span>
+                <span>${grp.title}</span>
+              </span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="note-bundle-savings" style="font-size:11px!important;font-weight:800!important;color:#059669!important;background:#ecfdf5!important;padding:3px 10px!important;border-radius:9999px!important;border:1px solid #a7f3d0!important;">وفّرت ${formatPrice(grp.savings)}</span>
+                <span style="font-size:13px;font-weight:800;color:#1c1917;">المجموع: ${formatPrice(grp.total)}</span>
+              </div>
+            </div>
+            <div class="note-bundle-items-list" style="display:flex;flex-direction:column;gap:8px;">
+              ${grp.items.map(sub => {
+                const zidSlug = zidSlugMap[sub.id] || sub.id;
+                const imgUrl = resolveImgUrl(sub.img);
+                return `
+                  <div class="note-bundle-sub-item ${sub.isDiscounted ? 'note-bundle-sub-item-discounted' : ''}" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:10px 12px!important;border:1px solid ${sub.isDiscounted ? '#e5d39e' : '#f0eee9'}!important;border-radius:14px!important;background:${sub.isDiscounted ? '#fffdf7' : '#ffffff'}!important;box-sizing:border-box!important;">
+                    <div style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0;flex:1 1 auto;">
+                      <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" style="width:58px;height:58px;min-width:58px;min-height:58px;border-radius:12px;background:#ffffff;border:1px solid #f0eee9;padding:3px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                        <img src="${imgUrl}" alt="${sub.title}" style="width:100%;height:100%;object-fit:contain;">
+                      </a>
+                      <div style="display:flex;flex-direction:column;gap:3px;min-width:0;text-align:right;">
+                        <h5 style="font-size:13.5px;font-weight:700;color:#1c1917;margin:0;line-height:1.3;">${sub.title}</h5>
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                          ${sub.isDiscounted ? `
+                            <span style="font-size:12px;color:#a8a29e;text-decoration:line-through;">${formatPrice(sub.originalPrice)}</span>
+                            <span style="font-size:14px;font-weight:900;color:#059669;">1 ر.س</span>
+                            <span style="font-size:10px;font-weight:800;color:#047857;background:#d1fae5;padding:2px 8px;border-radius:9999px;border:1px solid #a7f3d0;">مشمول بالعرض بـ 1 ريال ✨</span>
+                          ` : `
+                            <span style="font-size:13.5px;font-weight:800;color:#1c1917;">${formatPrice(sub.effectivePrice)}</span>
+                          `}
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" onclick="CartManager.updateQuantity('${sub.id}', -1); renderCartPage();" title="حذف وحدة من العرض" style="width:26px;height:26px;min-width:26px;border-radius:9999px;background:#f87171;border:none;color:#ffffff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                      <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+                    </button>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      // 2. Render Offer 1 Bundles (1+tola)
+      partitioned.offer1Groups.forEach(grp => {
+        html += `
+          <div class="note-bundle-group-card" style="background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:20px!important;padding:16px 18px!important;margin-bottom:16px!important;box-shadow:0 1px 4px rgba(0,0,0,0.02)!important;position:relative!important;text-align:right!important;direction:rtl!important;">
+            <div class="note-bundle-group-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding-bottom:12px!important;border-bottom:1px solid #f0eee9!important;margin-bottom:14px!important;flex-wrap:wrap!important;gap:8px!important;">
+              <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;gap:6px!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">
+                <span>📦</span>
+                <span>${grp.title}</span>
+              </span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="note-bundle-savings" style="font-size:11px!important;font-weight:800!important;color:#059669!important;background:#ecfdf5!important;padding:3px 10px!important;border-radius:9999px!important;border:1px solid #a7f3d0!important;">وفّرت ${formatPrice(grp.savings)}</span>
+                <span style="font-size:13px;font-weight:800;color:#1c1917;">المجموع: ${formatPrice(grp.total)}</span>
+              </div>
+            </div>
+            <div class="note-bundle-items-list" style="display:flex;flex-direction:column;gap:8px;">
+              ${grp.items.map(sub => {
+                const zidSlug = zidSlugMap[sub.id] || sub.id;
+                const imgUrl = resolveImgUrl(sub.img);
+                return `
+                  <div class="note-bundle-sub-item ${sub.isDiscounted ? 'note-bundle-sub-item-discounted' : ''}" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:10px 12px!important;border:1px solid ${sub.isDiscounted ? '#e5d39e' : '#f0eee9'}!important;border-radius:14px!important;background:${sub.isDiscounted ? '#fffdf7' : '#ffffff'}!important;box-sizing:border-box!important;">
+                    <div style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0;flex:1 1 auto;">
+                      <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" style="width:58px;height:58px;min-width:58px;min-height:58px;border-radius:12px;background:#ffffff;border:1px solid #f0eee9;padding:3px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                        <img src="${imgUrl}" alt="${sub.title}" style="width:100%;height:100%;object-fit:contain;">
+                      </a>
+                      <div style="display:flex;flex-direction:column;gap:3px;min-width:0;text-align:right;">
+                        <h5 style="font-size:13.5px;font-weight:700;color:#1c1917;margin:0;line-height:1.3;">${sub.title}</h5>
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                          ${sub.isDiscounted ? `
+                            <span style="font-size:12px;color:#a8a29e;text-decoration:line-through;">${formatPrice(sub.originalPrice)}</span>
+                            <span style="font-size:14px;font-weight:900;color:#059669;">1 ر.س</span>
+                            <span style="font-size:10px;font-weight:800;color:#047857;background:#d1fae5;padding:2px 8px;border-radius:9999px;border:1px solid #a7f3d0;">مشمول بالعرض بـ 1 ريال ✨</span>
+                          ` : `
+                            <span style="font-size:13.5px;font-weight:800;color:#1c1917;">${formatPrice(sub.effectivePrice)}</span>
+                          `}
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" onclick="CartManager.updateQuantity('${sub.id}', -1); renderCartPage();" title="حذف وحدة من العرض" style="width:26px;height:26px;min-width:26px;border-radius:9999px;background:#f87171;border:none;color:#ffffff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                      <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+                    </button>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      // 3. Render Standalone Items
+      if (partitioned.standaloneItems.length > 0) {
+        html += `
+          <div class="mt-6 mb-3 flex items-center justify-between text-right">
+            <h3 class="text-xs sm:text-sm font-extrabold text-black flex items-center gap-1.5">
+              <span>🛍️</span>
+              <span>منتجات فردية (خارج العرض)</span>
+            </h3>
+            <span class="text-[10px] text-stone-400">سعر الحبة العادي</span>
+          </div>
+        `;
+        html += partitioned.standaloneItems.map(item => {
+          const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
+          const imgUrl = resolveImgUrl(item.img);
+          const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
+          const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
+          const itemLineTotal = item.price * item.quantity;
+          return `
+            <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
+              <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
+                <div class="note-cart-item-start" style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0!important;flex:1 1 auto!important;">
+                  <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="note-cart-item-thumb cart-thumb-box" style="width:82px!important;height:82px!important;min-width:82px!important;min-height:82px!important;max-width:82px!important;max-height:82px!important;border-radius:14px!important;background:#ffffff!important;border:1px solid #f0eee9!important;padding:4px!important;flex-shrink:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;box-sizing:border-box!important;">
+                    <img src="${imgUrl}" alt="${escapeHTML(item.title)}" style="width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;">
+                  </a>
+                  <div class="note-cart-item-info" style="display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;min-width:0!important;flex:1 1 auto!important;text-align:right!important;">
+                    <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="note-cart-item-title-link" style="text-decoration:none!important;color:inherit!important;display:block!important;">
+                      <h4 class="note-cart-item-title" style="font-size:15px!important;font-weight:700!important;color:#1c1917!important;line-height:1.35!important;margin:0!important;">${escapeHTML(item.title)}</h4>
+                    </a>
+                    <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
+                      ${oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${formatPrice(oldPriceVal)}</span>` : ''}
+                      <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${formatPrice(item.price)}</span>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" onclick="CartManager.removeItem('${item.id}'); renderCartPage();" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
+                </button>
+              </div>
+              <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:12px 0!important;padding:0!important;display:block!important;"></div>
+              <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;">
+                <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:38px!important;width:126px!important;min-width:126px!important;border:1px solid #e7e5e4!important;border-radius:11px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;">
+                  <button type="button" onclick="CartManager.updateQuantity('${item.id}', 1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">+</button>
+                  <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:14px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;box-sizing:border-box!important;">${item.quantity}</span>
+                  <button type="button" onclick="CartManager.updateQuantity('${item.id}', -1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
+                </div>
+                <div class="note-cart-item-total" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;text-align:left!important;">
+                  <span class="note-cart-item-total-label" style="font-size:13px!important;font-weight:500!important;color:#78716c!important;">المجموع:</span>
+                  <span class="note-cart-item-total-val" style="font-size:16px!important;font-weight:800!important;color:#1c1917!important;">${formatPrice(itemLineTotal)}</span>
                 </div>
               </div>
             </div>
-            <button type="button" onclick="CartManager.removeItem('${item.id}'); renderCartPage();" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
-            </button>
-          </div>
-
-          <!-- Crisp Horizontal Divider -->
-          <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:12px 0!important;padding:0!important;display:block!important;"></div>
-
-          <!-- Bottom Row: Segmented Stepper on Start, Line Total on End -->
-          <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;">
-            <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:38px!important;width:126px!important;min-width:126px!important;border:1px solid #e7e5e4!important;border-radius:11px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;">
-              <button type="button" onclick="CartManager.updateQuantity('${item.id}', 1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">+</button>
-              <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:14px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;box-sizing:border-box!important;">${item.quantity}</span>
-              <button type="button" onclick="CartManager.updateQuantity('${item.id}', -1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
+          `;
+        }).join('');
+      }
+    } else {
+      // Standard render when no offers active
+      html = cart.map(item => {
+        const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
+        const imgUrl = resolveImgUrl(item.img);
+        const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
+        const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
+        const itemLineTotal = item.price * item.quantity;
+        return `
+          <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
+            <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
+              <div class="note-cart-item-start" style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0!important;flex:1 1 auto!important;">
+                <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="note-cart-item-thumb cart-thumb-box" style="width:82px!important;height:82px!important;min-width:82px!important;min-height:82px!important;max-width:82px!important;max-height:82px!important;border-radius:14px!important;background:#ffffff!important;border:1px solid #f0eee9!important;padding:4px!important;flex-shrink:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;box-sizing:border-box!important;">
+                  <img src="${imgUrl}" alt="${escapeHTML(item.title)}" style="width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;">
+                </a>
+                <div class="note-cart-item-info" style="display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;min-width:0!important;flex:1 1 auto!important;text-align:right!important;">
+                  <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="note-cart-item-title-link" style="text-decoration:none!important;color:inherit!important;display:block!important;">
+                    <h4 class="note-cart-item-title" style="font-size:15px!important;font-weight:700!important;color:#1c1917!important;line-height:1.35!important;margin:0!important;">${escapeHTML(item.title)}</h4>
+                  </a>
+                  <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
+                    ${oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${formatPrice(oldPriceVal)}</span>` : ''}
+                    <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${formatPrice(item.price)}</span>
+                  </div>
+                </div>
+              </div>
+              <button type="button" onclick="CartManager.removeItem('${item.id}'); renderCartPage();" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
+              </button>
             </div>
-            <div class="note-cart-item-total" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;text-align:left!important;">
-              <span class="note-cart-item-total-label" style="font-size:13px!important;font-weight:500!important;color:#78716c!important;">المجموع:</span>
-              <span class="note-cart-item-total-val" style="font-size:16px!important;font-weight:800!important;color:#1c1917!important;">${formatPrice(itemLineTotal)}</span>
+            <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:12px 0!important;padding:0!important;display:block!important;"></div>
+            <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;">
+              <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:38px!important;width:126px!important;min-width:126px!important;border:1px solid #e7e5e4!important;border-radius:11px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;">
+                <button type="button" onclick="CartManager.updateQuantity('${item.id}', 1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">+</button>
+                <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:14px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;box-sizing:border-box!important;">${item.quantity}</span>
+                <button type="button" onclick="CartManager.updateQuantity('${item.id}', -1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
+              </div>
+              <div class="note-cart-item-total" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;text-align:left!important;">
+                <span class="note-cart-item-total-label" style="font-size:13px!important;font-weight:500!important;color:#78716c!important;">المجموع:</span>
+                <span class="note-cart-item-total-val" style="font-size:16px!important;font-weight:800!important;color:#1c1917!important;">${formatPrice(itemLineTotal)}</span>
+              </div>
             </div>
           </div>
-        </div>
-      `;
-    }).join('');
+        `;
+      }).join('');
+    }
+
+    itemsContainer.innerHTML = html;
 
     updateCartFinancials(total);
     updateCheckoutUpsell(cart);
@@ -5492,21 +5844,23 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         localStorage.setItem('note_applied_coupon', code);
         const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
         if (liveBundleDisc > 0) {
+          if (applyBtn) applyBtn.classList.remove('note-btn-gold');
           msg.textContent = `تم حفظ كود الخصم (${code}). سلتك مؤهلة لعرض الحزم التلقائي (الأكبر توفيراً)، والخصم مطبق بالكامل.`;
           msg.className = 'text-[11px] font-bold text-amber-600 block note-msg-anim';
         } else {
+          if (applyBtn) applyBtn.classList.add('note-btn-gold');
           msg.textContent = alreadyApplied
             ? `كود الخصم (${code}) مفعّل بالفعل لطلبك! 🎉`
             : `تم تفعيل كود الخصم (${code}) بنجاح! سيتم تطبيقه لطلبك عند الدفع.`;
           msg.className = 'text-[11px] font-bold text-emerald-600 block note-msg-anim';
+
+          const container = document.getElementById('note-cart-coupon-section') || input.closest('.rounded-2xl');
+          const totalEl = document.getElementById('page-grand-total');
+          triggerCouponCelebration(container, tag, applyBtn, totalEl);
         }
         if (tag) tag.classList.remove('hidden');
         if (clearBtn) clearBtn.classList.remove('hidden');
         if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
-
-        const container = document.getElementById('note-cart-coupon-section') || input.closest('.rounded-2xl');
-        const totalEl = document.getElementById('page-grand-total');
-        triggerCouponCelebration(container, tag, applyBtn, totalEl);
       }
     } catch (e) {
       msg.textContent = 'حدث خطأ أثناء تطبيق الكود. يرجى المحاولة مجدداً.';
@@ -5523,7 +5877,9 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     const msg = document.getElementById('coupon-msg');
     const tag = document.getElementById('coupon-applied-tag');
     const clearBtn = document.getElementById('coupon-clear-btn');
+    const applyBtn = document.getElementById('coupon-apply-btn');
 
+    if (applyBtn) applyBtn.classList.remove('note-btn-gold');
     if (input) input.value = '';
     if (tag) tag.classList.add('hidden');
     if (clearBtn) clearBtn.classList.add('hidden');
@@ -5541,17 +5897,29 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 
   function restoreSavedCartCoupon() {
     const saved = localStorage.getItem('note_applied_coupon');
-    if (!saved) return;
+    const applyBtn = document.getElementById('coupon-apply-btn');
+    const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
+
+    if (!saved) {
+      if (applyBtn) applyBtn.classList.remove('note-btn-gold');
+      return;
+    }
     const input = document.getElementById('coupon-code-input');
     const tag = document.getElementById('coupon-applied-tag');
     const clearBtn = document.getElementById('coupon-clear-btn');
     const msg = document.getElementById('coupon-msg');
 
+    if (applyBtn) {
+      if (liveBundleDisc === 0) {
+        applyBtn.classList.add('note-btn-gold');
+      } else {
+        applyBtn.classList.remove('note-btn-gold');
+      }
+    }
     if (input && !input.value) input.value = saved;
     if (tag) tag.classList.remove('hidden');
     if (clearBtn) clearBtn.classList.remove('hidden');
     if (msg && msg.classList.contains('hidden')) {
-      const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
       if (liveBundleDisc > 0) {
         msg.textContent = `كود الخصم (${saved}) محفوظ. (سلتك تستفيد حالياً من عرض الحزم التلقائي الأكبر توفيراً).`;
         msg.className = 'text-[11px] font-bold text-amber-600 block';
@@ -5643,25 +6011,19 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         } catch (_) {}
       }
       const api = window.zid?.cart;
-      if (api && typeof api.empty === 'function') {
-        try { await api.empty(); } catch (_) {}
-      } else if (api && typeof api.get === 'function') {
+      if (api) {
         try {
-          let nativeRes = await api.get();
-          let native = (nativeRes?.data?.cart?.products || nativeRes?.data?.products || nativeRes?.products || nativeRes?.items || []);
-          if (Array.isArray(native)) {
-            const currentValidIds = new Set(cart.map(i => {
-              const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === (i.product_id || i.id) || cp.slug === i.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[i.id] === cp.id)) : null;
-              return p ? p.id : (ZID_PRODUCT_MAP[i.id] || i.product_id || i.id);
-            }));
-            for (const n of native) {
-              const nProdId = n.product_id || n.product?.id;
-              if (nProdId && !currentValidIds.has(nProdId)) {
-                try { await api.removeProduct({ product_id: n.id }); } catch (_) {}
-              }
+          const currentZidCart = await api.get();
+          const existingProds = currentZidCart?.products || currentZidCart?.data?.cart?.products || [];
+          for (const ep of existingProds) {
+            if (ep && ep.id) {
+              try { await api.removeProduct({ product_id: ep.id }); } catch (_) {}
             }
           }
         } catch (_) {}
+        if (typeof api.empty === 'function') {
+          try { await api.empty(); } catch (_) {}
+        }
       }
 
       const isUuid = (s) => typeof s === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
@@ -6156,27 +6518,29 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   }
 }
 
-/* Luxury Soft Champagne Gold "تطبيق" (Apply Coupon) Button */
+/* Coupon "تطبيق" (Apply Coupon) Button - Default Premium Black */
 #drawer-coupon-btn,
 #coupon-apply-btn {
-  background: linear-gradient(135deg, #f5e9c9 0%, #dfc485 100%) !important;
-  color: #111111 !important;
-  border: 1px solid rgba(195, 160, 85, 0.45) !important;
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #111111 !important;
   font-weight: 800 !important;
-  box-shadow: 0 2px 8px rgba(223, 196, 133, 0.25) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
   cursor: pointer !important;
 }
 #drawer-coupon-btn:hover,
 #coupon-apply-btn:hover {
-  background: linear-gradient(135deg, #faefd4 0%, #e6cd90 100%) !important;
-  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.4) !important;
+  background: #262626 !important;
+  border-color: #262626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
   transform: translateY(-1px);
 }
 #drawer-coupon-btn:active,
 #coupon-apply-btn:active {
   transform: translateY(0);
-  box-shadow: 0 1px 4px rgba(223, 196, 133, 0.2) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
 }
 #drawer-coupon-btn:disabled,
 #coupon-apply-btn:disabled {
@@ -6188,6 +6552,28 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 #coupon-apply-btn span,
 #drawer-coupon-btn bdi,
 #coupon-apply-btn bdi {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+/* Luxury Soft Champagne Gold ONLY when coupon discount is applied */
+#drawer-coupon-btn.note-btn-gold,
+#coupon-apply-btn.note-btn-gold {
+  background: linear-gradient(135deg, #f5e9c9 0%, #dfc485 100%) !important;
+  color: #111111 !important;
+  border: 1px solid rgba(195, 160, 85, 0.5) !important;
+  box-shadow: 0 2px 8px rgba(223, 196, 133, 0.35) !important;
+}
+#drawer-coupon-btn.note-btn-gold:hover,
+#coupon-apply-btn.note-btn-gold:hover {
+  background: linear-gradient(135deg, #faefd4 0%, #e6cd90 100%) !important;
+  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.45) !important;
+  transform: translateY(-1px);
+}
+#drawer-coupon-btn.note-btn-gold span,
+#coupon-apply-btn.note-btn-gold span,
+#drawer-coupon-btn.note-btn-gold bdi,
+#coupon-apply-btn.note-btn-gold bdi {
   color: #111111 !important;
   font-weight: 800 !important;
 }
@@ -7099,22 +7485,19 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         return;
       }
 
-      if (typeof api.empty === 'function') {
-        try { await api.empty(); } catch (_) {}
-      } else if (typeof api.get === 'function') {
+      if (api) {
         try {
-          let native=nativeCartItems(await api.get());
-          const currentValidIds = new Set(cart.map(i => {
-            const p = noteProductsCatalog.find(cp => cp.id === i.product_id || cp.id === i.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[i.id] === cp.id));
-            return p ? p.id : (i.product_id || i.id);
-          }));
-          for(const n of native) {
-            const nId = n.product_id || n.product?.id;
-            if(nId && !currentValidIds.has(nId)) {
-              try { await api.removeProduct({product_id:n.id}); } catch(_) {}
+          const currentZidCart = await api.get();
+          const existingProds = currentZidCart?.products || currentZidCart?.data?.cart?.products || [];
+          for (const ep of existingProds) {
+            if (ep && ep.id) {
+              try { await api.removeProduct({ product_id: ep.id }); } catch (_) {}
             }
           }
-        } catch(_) {}
+        } catch (_) {}
+        if (typeof api.empty === 'function') {
+          try { await api.empty(); } catch (_) {}
+        }
       }
 
       const isUuid = (s) => typeof s === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);

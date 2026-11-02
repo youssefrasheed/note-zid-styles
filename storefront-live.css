@@ -845,29 +845,31 @@ header nav a:not(.active-link) {
   animation: noteMsgSlideDown 0.35s ease-out both !important;
 }
 
-/* Luxury Soft Champagne Gold "تطبيق" (Apply Coupon) Button */
+/* Coupon "تطبيق" (Apply Coupon) Button - Default Premium Black */
 #drawer-coupon-btn,
 #coupon-apply-btn {
-  background: linear-gradient(135deg, #f5e9c9 0%, #dfc485 100%) !important;
-  color: #111111 !important;
-  border: 1px solid rgba(195, 160, 85, 0.45) !important;
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #111111 !important;
   font-weight: 800 !important;
-  box-shadow: 0 2px 8px rgba(223, 196, 133, 0.25) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
   cursor: pointer !important;
 }
 
 #drawer-coupon-btn:hover,
 #coupon-apply-btn:hover {
-  background: linear-gradient(135deg, #faefd4 0%, #e6cd90 100%) !important;
-  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.4) !important;
+  background: #262626 !important;
+  border-color: #262626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
   transform: translateY(-1px);
 }
 
 #drawer-coupon-btn:active,
 #coupon-apply-btn:active {
   transform: translateY(0);
-  box-shadow: 0 1px 4px rgba(223, 196, 133, 0.2) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
 }
 
 #drawer-coupon-btn:disabled,
@@ -881,6 +883,94 @@ header nav a:not(.active-link) {
 #coupon-apply-btn span,
 #drawer-coupon-btn bdi,
 #coupon-apply-btn bdi {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+/* Luxury Soft Champagne Gold ONLY when coupon discount is applied */
+#drawer-coupon-btn.note-btn-gold,
+#coupon-apply-btn.note-btn-gold {
+  background: linear-gradient(135deg, #f5e9c9 0%, #dfc485 100%) !important;
+  color: #111111 !important;
+  border: 1px solid rgba(195, 160, 85, 0.5) !important;
+  box-shadow: 0 2px 8px rgba(223, 196, 133, 0.35) !important;
+}
+
+#drawer-coupon-btn.note-btn-gold:hover,
+#coupon-apply-btn.note-btn-gold:hover {
+  background: linear-gradient(135deg, #faefd4 0%, #e6cd90 100%) !important;
+  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.45) !important;
+  transform: translateY(-1px);
+}
+
+#drawer-coupon-btn.note-btn-gold span,
+#coupon-apply-btn.note-btn-gold span,
+#drawer-coupon-btn.note-btn-gold bdi,
+#coupon-apply-btn.note-btn-gold bdi {
   color: #111111 !important;
   font-weight: 800 !important;
+}
+
+/* Grouped Offer Bundle Cards in /cart Page */
+.note-bundle-group-card {
+  background: #ffffff !important;
+  border: 1px solid #e7e5e4 !important;
+  border-radius: 20px !important;
+  padding: 16px 18px !important;
+  margin-bottom: 16px !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02) !important;
+  position: relative !important;
+}
+@media (min-width: 640px) {
+  .note-bundle-group-card {
+    padding: 20px 22px !important;
+    border-radius: 22px !important;
+  }
+}
+.note-bundle-group-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding-bottom: 12px !important;
+  border-bottom: 1px solid #f0eee9 !important;
+  margin-bottom: 14px !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+.note-bundle-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: #fff8eb !important;
+  color: #855900 !important;
+  border: 1px solid #fce7b2 !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  padding: 4px 12px !important;
+  border-radius: 9999px !important;
+}
+.note-bundle-savings {
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  color: #059669 !important;
+  background: #ecfdf5 !important;
+  padding: 3px 10px !important;
+  border-radius: 9999px !important;
+  border: 1px solid #a7f3d0 !important;
+}
+.note-bundle-sub-item {
+  border-radius: 16px !important;
+  border: 1px solid #f0eee9 !important;
+  background: #ffffff !important;
+  padding: 12px 14px !important;
+  margin-bottom: 10px !important;
+}
+.note-bundle-sub-item:last-child {
+  margin-bottom: 0 !important;
+}
+.note-bundle-sub-item-discounted {
+  background: #fafaf7 !important;
+  border-color: #dfc485 !important;
+  box-shadow: 0 0 0 1px rgba(223, 196, 133, 0.25) !important;
+}
 }

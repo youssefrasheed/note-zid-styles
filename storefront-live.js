@@ -103,27 +103,29 @@
   }
 }
 
-/* Luxury Soft Champagne Gold "تطبيق" (Apply Coupon) Button */
+/* Coupon "تطبيق" (Apply Coupon) Button - Default Premium Black */
 #drawer-coupon-btn,
 #coupon-apply-btn {
-  background: linear-gradient(135deg, #f5e9c9 0%, #dfc485 100%) !important;
-  color: #111111 !important;
-  border: 1px solid rgba(195, 160, 85, 0.45) !important;
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #111111 !important;
   font-weight: 800 !important;
-  box-shadow: 0 2px 8px rgba(223, 196, 133, 0.25) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
   cursor: pointer !important;
 }
 #drawer-coupon-btn:hover,
 #coupon-apply-btn:hover {
-  background: linear-gradient(135deg, #faefd4 0%, #e6cd90 100%) !important;
-  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.4) !important;
+  background: #262626 !important;
+  border-color: #262626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
   transform: translateY(-1px);
 }
 #drawer-coupon-btn:active,
 #coupon-apply-btn:active {
   transform: translateY(0);
-  box-shadow: 0 1px 4px rgba(223, 196, 133, 0.2) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
 }
 #drawer-coupon-btn:disabled,
 #coupon-apply-btn:disabled {
@@ -135,6 +137,28 @@
 #coupon-apply-btn span,
 #drawer-coupon-btn bdi,
 #coupon-apply-btn bdi {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+/* Luxury Soft Champagne Gold ONLY when coupon discount is applied */
+#drawer-coupon-btn.note-btn-gold,
+#coupon-apply-btn.note-btn-gold {
+  background: linear-gradient(135deg, #f5e9c9 0%, #dfc485 100%) !important;
+  color: #111111 !important;
+  border: 1px solid rgba(195, 160, 85, 0.5) !important;
+  box-shadow: 0 2px 8px rgba(223, 196, 133, 0.35) !important;
+}
+#drawer-coupon-btn.note-btn-gold:hover,
+#coupon-apply-btn.note-btn-gold:hover {
+  background: linear-gradient(135deg, #faefd4 0%, #e6cd90 100%) !important;
+  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.45) !important;
+  transform: translateY(-1px);
+}
+#drawer-coupon-btn.note-btn-gold span,
+#coupon-apply-btn.note-btn-gold span,
+#drawer-coupon-btn.note-btn-gold bdi,
+#coupon-apply-btn.note-btn-gold bdi {
   color: #111111 !important;
   font-weight: 800 !important;
 }
@@ -1046,22 +1070,19 @@
         return;
       }
 
-      if (typeof api.empty === 'function') {
-        try { await api.empty(); } catch (_) {}
-      } else if (typeof api.get === 'function') {
+      if (api) {
         try {
-          let native=nativeCartItems(await api.get());
-          const currentValidIds = new Set(cart.map(i => {
-            const p = noteProductsCatalog.find(cp => cp.id === i.product_id || cp.id === i.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[i.id] === cp.id));
-            return p ? p.id : (i.product_id || i.id);
-          }));
-          for(const n of native) {
-            const nId = n.product_id || n.product?.id;
-            if(nId && !currentValidIds.has(nId)) {
-              try { await api.removeProduct({product_id:n.id}); } catch(_) {}
+          const currentZidCart = await api.get();
+          const existingProds = currentZidCart?.products || currentZidCart?.data?.cart?.products || [];
+          for (const ep of existingProds) {
+            if (ep && ep.id) {
+              try { await api.removeProduct({ product_id: ep.id }); } catch (_) {}
             }
           }
-        } catch(_) {}
+        } catch (_) {}
+        if (typeof api.empty === 'function') {
+          try { await api.empty(); } catch (_) {}
+        }
       }
 
       const isUuid = (s) => typeof s === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);

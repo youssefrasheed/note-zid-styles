@@ -1275,29 +1275,31 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   animation: noteMsgSlideDown 0.35s ease-out both !important;
 }}
 
-/* Luxury Soft Champagne Gold "تطبيق" (Apply Coupon) Button */
+/* Coupon "تطبيق" (Apply Coupon) Button - Default Premium Black */
 #drawer-coupon-btn,
 #coupon-apply-btn {{
-  background: linear-gradient(135deg, #f5e9c9 0%, #dfc485 100%) !important;
-  color: #111111 !important;
-  border: 1px solid rgba(195, 160, 85, 0.45) !important;
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #111111 !important;
   font-weight: 800 !important;
-  box-shadow: 0 2px 8px rgba(223, 196, 133, 0.25) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
   cursor: pointer !important;
 }}
 
 #drawer-coupon-btn:hover,
 #coupon-apply-btn:hover {{
-  background: linear-gradient(135deg, #faefd4 0%, #e6cd90 100%) !important;
-  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.4) !important;
+  background: #262626 !important;
+  border-color: #262626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
   transform: translateY(-1px);
 }}
 
 #drawer-coupon-btn:active,
 #coupon-apply-btn:active {{
   transform: translateY(0);
-  box-shadow: 0 1px 4px rgba(223, 196, 133, 0.2) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
 }}
 
 #drawer-coupon-btn:disabled,
@@ -1311,8 +1313,95 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 #coupon-apply-btn span,
 #drawer-coupon-btn bdi,
 #coupon-apply-btn bdi {{
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}}
+
+/* Luxury Soft Champagne Gold ONLY when coupon discount is actually applied */
+#drawer-coupon-btn.note-btn-gold,
+#coupon-apply-btn.note-btn-gold {{
+  background: linear-gradient(135deg, #f5e9c9 0%, #dfc485 100%) !important;
+  color: #111111 !important;
+  border: 1px solid rgba(195, 160, 85, 0.5) !important;
+  box-shadow: 0 2px 8px rgba(223, 196, 133, 0.35) !important;
+}}
+
+#drawer-coupon-btn.note-btn-gold:hover,
+#coupon-apply-btn.note-btn-gold:hover {{
+  background: linear-gradient(135deg, #faefd4 0%, #e6cd90 100%) !important;
+  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.45) !important;
+  transform: translateY(-1px);
+}}
+
+#drawer-coupon-btn.note-btn-gold span,
+#coupon-apply-btn.note-btn-gold span,
+#drawer-coupon-btn.note-btn-gold bdi,
+#coupon-apply-btn.note-btn-gold bdi {{
   color: #111111 !important;
   font-weight: 800 !important;
+}}
+
+/* Grouped Offer Bundle Cards in /cart Page */
+.note-bundle-group-card {{
+  background: #ffffff !important;
+  border: 1px solid #e7e5e4 !important;
+  border-radius: 20px !important;
+  padding: 16px 18px !important;
+  margin-bottom: 16px !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02) !important;
+  position: relative !important;
+}}
+@media (min-width: 640px) {{
+  .note-bundle-group-card {{
+    padding: 20px 22px !important;
+    border-radius: 22px !important;
+  }}
+}}
+.note-bundle-group-header {{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding-bottom: 12px !important;
+  border-bottom: 1px solid #f0eee9 !important;
+  margin-bottom: 14px !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}}
+.note-bundle-badge {{
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: #fff8eb !important;
+  color: #855900 !important;
+  border: 1px solid #fce7b2 !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  padding: 4px 12px !important;
+  border-radius: 9999px !important;
+}}
+.note-bundle-savings {{
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  color: #059669 !important;
+  background: #ecfdf5 !important;
+  padding: 3px 10px !important;
+  border-radius: 9999px !important;
+  border: 1px solid #a7f3d0 !important;
+}}
+.note-bundle-sub-item {{
+  border-radius: 16px !important;
+  border: 1px solid #f0eee9 !important;
+  background: #ffffff !important;
+  padding: 12px 14px !important;
+  margin-bottom: 10px !important;
+}}
+.note-bundle-sub-item:last-child {{
+  margin-bottom: 0 !important;
+}}
+.note-bundle-sub-item-discounted {{
+  background: #fafaf7 !important;
+  border-color: #dfc485 !important;
+  box-shadow: 0 0 0 1px rgba(223, 196, 133, 0.25) !important;
 }}
 
 /* Header Bar Seamless Integration - No Bottom Line & Responsive Blur */
@@ -2795,19 +2884,21 @@ app_js_code = f"""/**
         if (tag) tag.classList.remove('hidden');
         const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
         if (liveBundleDisc > 0) {{
+          if (btn) btn.classList.remove('note-btn-gold');
           msg.textContent = `تم حفظ كود الخصم (${{code}}). سلتك مؤهلة لعرض الحزم التلقائي (الأكبر توفيراً)، والخصم مطبق بالكامل.`;
           msg.className = 'text-[11px] font-bold text-amber-600 block mt-1.5 note-msg-anim';
         }} else {{
+          if (btn) btn.classList.add('note-btn-gold');
           msg.textContent = alreadyApplied
             ? `كود الخصم (${{code}}) مفعّل بالفعل لطلبك! 🎉`
             : `تم تفعيل كود الخصم (${{code}}) بنجاح! سيتم احتسابه عند الدفع.`;
           msg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5 note-msg-anim';
+
+          const container = input.closest('.rounded-2xl') || input.parentElement?.parentElement || document.getElementById('cart-drawer-coupon-box');
+          const totalEl = document.getElementById('cart-drawer-total');
+          triggerCouponCelebration(container, tag, btn, totalEl);
         }}
         msg.classList.remove('hidden');
-
-        const container = input.closest('.rounded-2xl') || input.parentElement?.parentElement || document.getElementById('cart-drawer-coupon-box');
-        const totalEl = document.getElementById('cart-drawer-total');
-        triggerCouponCelebration(container, tag, btn, totalEl);
       }}
     }} catch (e) {{
       msg.textContent = 'حدث خطأ أثناء تطبيق الكود. يرجى المحاولة مجدداً.';
@@ -3973,53 +4064,314 @@ app_js_code = f"""/**
       }}
     }}
 
-    itemsContainer.innerHTML = cart.map(item => {{
-      const zidSlug = zidSlugMap[item.id] || item.id;
-      const imgUrl = resolveImgUrl(item.img);
-      const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
-      const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
-      const itemLineTotal = item.price * item.quantity;
-      return `
-        <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${{item.id}}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
-          <!-- Top Row: Thumbnail + Info (Title & Red Sale Price) + Coral Red ✕ Delete Button -->
-          <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
-            <div class="note-cart-item-start" style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0!important;flex:1 1 auto!important;">
-              <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" class="note-cart-item-thumb cart-thumb-box" style="width:82px!important;height:82px!important;min-width:82px!important;min-height:82px!important;max-width:82px!important;max-height:82px!important;border-radius:14px!important;background:#ffffff!important;border:1px solid #f0eee9!important;padding:4px!important;flex-shrink:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;box-sizing:border-box!important;">
-                <img src="${{imgUrl}}" alt="${{item.title}}" style="width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;">
-              </a>
-              <div class="note-cart-item-info" style="display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;min-width:0!important;flex:1 1 auto!important;text-align:right!important;">
-                <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" class="note-cart-item-title-link" style="text-decoration:none!important;color:inherit!important;display:block!important;">
-                  <h4 class="note-cart-item-title" style="font-size:15px!important;font-weight:700!important;color:#1c1917!important;line-height:1.35!important;margin:0!important;">${{item.title}}</h4>
-                </a>
-                <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
-                  ${{oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${{formatPrice(oldPriceVal)}}</span>` : ''}}
-                  <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${{formatPrice(item.price)}}</span>
+    function partitionCartForPage(cartList) {{
+      const units = [];
+      cartList.forEach(item => {{
+        const qty = Number(item.quantity) || 1;
+        for (let i = 0; i < qty; i++) {{
+          units.push({{
+            id: item.id,
+            title: item.title || item.name,
+            price: Number(item.price) || 0,
+            old_price: item.old_price,
+            img: item.img,
+            cat: item.cat,
+            isPerfume: (typeof CartManager !== 'undefined' && CartManager._isQualifying100mlPerfume) ? CartManager._isQualifying100mlPerfume(item) : false,
+            isTola: (typeof CartManager !== 'undefined' && CartManager._isQualifyingTola) ? CartManager._isQualifyingTola(item) : false,
+            originalItem: item
+          }});
+        }}
+      }});
+
+      const perfumes = units.filter(u => u.isPerfume);
+      const tolas = units.filter(u => u.isTola);
+      const others = units.filter(u => !u.isPerfume && !u.isTola);
+
+      const offer2Count = Math.floor(perfumes.length / 3);
+      const offer2Groups = [];
+      const usedPerfumes = new Set();
+      const usedTolas = new Set();
+
+      if (offer2Count > 0) {{
+        const sortedPerfumes = [...perfumes].sort((a, b) => b.price - a.price);
+        const totalPerfumesInOffer2 = offer2Count * 3;
+        const offer2Perfumes = sortedPerfumes.slice(0, totalPerfumesInOffer2);
+        const paidPerfumes = offer2Perfumes.slice(0, offer2Count * 2);
+        const discountedPerfumes = offer2Perfumes.slice(offer2Count * 2);
+
+        for (let s = 0; s < offer2Count; s++) {{
+          const p1 = paidPerfumes[s * 2];
+          const p2 = paidPerfumes[s * 2 + 1];
+          const p3 = discountedPerfumes[s];
+          usedPerfumes.add(p1);
+          usedPerfumes.add(p2);
+          usedPerfumes.add(p3);
+
+          offer2Groups.push({{
+            type: 'offer2',
+            title: 'عرض عطرك بـ 1 ريال (اشترِ 2 واحصل على الثالث بـ 1 ريال)',
+            items: [
+              {{ ...p1, effectivePrice: p1.price, isDiscounted: false }},
+              {{ ...p2, effectivePrice: p2.price, isDiscounted: false }},
+              {{ ...p3, effectivePrice: 1, originalPrice: p3.price, isDiscounted: true }}
+            ],
+            total: p1.price + p2.price + 1,
+            savings: Math.max(0, p3.price - 1)
+          }});
+        }}
+      }}
+
+      const remainingPerfumes = perfumes.filter(p => !usedPerfumes.has(p)).sort((a, b) => b.price - a.price);
+      const sortedTolas = [...tolas].sort((a, b) => b.price - a.price);
+      const offer1Count = Math.min(remainingPerfumes.length, sortedTolas.length);
+      const offer1Groups = [];
+
+      if (offer1Count > 0) {{
+        for (let s = 0; s < offer1Count; s++) {{
+          const p = remainingPerfumes[s];
+          const t = sortedTolas[s];
+          usedPerfumes.add(p);
+          usedTolas.add(t);
+
+          offer1Groups.push({{
+            type: 'offer1',
+            title: 'عرض عطرك بريال (اشترِ عطر واحصل على تولة بـ 1 ريال)',
+            items: [
+              {{ ...p, effectivePrice: p.price, isDiscounted: false }},
+              {{ ...t, effectivePrice: 1, originalPrice: t.price, isDiscounted: true }}
+            ],
+            total: p.price + 1,
+            savings: Math.max(0, t.price - 1)
+          }});
+        }}
+      }}
+
+      const standaloneUnits = [
+        ...perfumes.filter(p => !usedPerfumes.has(p)),
+        ...tolas.filter(t => !usedTolas.has(t)),
+        ...others
+      ];
+
+      const standaloneMap = new Map();
+      standaloneUnits.forEach(u => {{
+        if (!standaloneMap.has(u.id)) {{
+          standaloneMap.set(u.id, {{ ...u.originalItem, quantity: 0, lineTotal: 0 }});
+        }}
+        const grp = standaloneMap.get(u.id);
+        grp.quantity += 1;
+        grp.lineTotal += grp.price;
+      }});
+
+      return {{
+        offer2Groups,
+        offer1Groups,
+        standaloneItems: Array.from(standaloneMap.values())
+      }};
+    }}
+
+    const partitioned = partitionCartForPage(cart);
+    const hasBundles = (partitioned.offer2Groups.length > 0 || partitioned.offer1Groups.length > 0);
+
+    let html = '';
+
+    if (hasBundles) {{
+      // 1. Render Offer 2 Bundles (2+1)
+      partitioned.offer2Groups.forEach(grp => {{
+        html += `
+          <div class="note-bundle-group-card" style="background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:20px!important;padding:16px 18px!important;margin-bottom:16px!important;box-shadow:0 1px 4px rgba(0,0,0,0.02)!important;position:relative!important;text-align:right!important;direction:rtl!important;">
+            <div class="note-bundle-group-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding-bottom:12px!important;border-bottom:1px solid #f0eee9!important;margin-bottom:14px!important;flex-wrap:wrap!important;gap:8px!important;">
+              <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;gap:6px!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">
+                <span>📦</span>
+                <span>${{grp.title}}</span>
+              </span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="note-bundle-savings" style="font-size:11px!important;font-weight:800!important;color:#059669!important;background:#ecfdf5!important;padding:3px 10px!important;border-radius:9999px!important;border:1px solid #a7f3d0!important;">وفّرت ${{formatPrice(grp.savings)}}</span>
+                <span style="font-size:13px;font-weight:800;color:#1c1917;">المجموع: ${{formatPrice(grp.total)}}</span>
+              </div>
+            </div>
+            <div class="note-bundle-items-list" style="display:flex;flex-direction:column;gap:8px;">
+              ${{grp.items.map(sub => {{
+                const zidSlug = zidSlugMap[sub.id] || sub.id;
+                const imgUrl = resolveImgUrl(sub.img);
+                return `
+                  <div class="note-bundle-sub-item ${{sub.isDiscounted ? 'note-bundle-sub-item-discounted' : ''}}" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:10px 12px!important;border:1px solid ${{sub.isDiscounted ? '#e5d39e' : '#f0eee9'}}!important;border-radius:14px!important;background:${{sub.isDiscounted ? '#fffdf7' : '#ffffff'}}!important;box-sizing:border-box!important;">
+                    <div style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0;flex:1 1 auto;">
+                      <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" style="width:58px;height:58px;min-width:58px;min-height:58px;border-radius:12px;background:#ffffff;border:1px solid #f0eee9;padding:3px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                        <img src="${{imgUrl}}" alt="${{sub.title}}" style="width:100%;height:100%;object-fit:contain;">
+                      </a>
+                      <div style="display:flex;flex-direction:column;gap:3px;min-width:0;text-align:right;">
+                        <h5 style="font-size:13.5px;font-weight:700;color:#1c1917;margin:0;line-height:1.3;">${{sub.title}}</h5>
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                          ${{sub.isDiscounted ? `
+                            <span style="font-size:12px;color:#a8a29e;text-decoration:line-through;">${{formatPrice(sub.originalPrice)}}</span>
+                            <span style="font-size:14px;font-weight:900;color:#059669;">1 ر.س</span>
+                            <span style="font-size:10px;font-weight:800;color:#047857;background:#d1fae5;padding:2px 8px;border-radius:9999px;border:1px solid #a7f3d0;">مشمول بالعرض بـ 1 ريال ✨</span>
+                          ` : `
+                            <span style="font-size:13.5px;font-weight:800;color:#1c1917;">${{formatPrice(sub.effectivePrice)}}</span>
+                          `}}
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" onclick="CartManager.updateQuantity('${{sub.id}}', -1); renderCartPage();" title="حذف وحدة من العرض" style="width:26px;height:26px;min-width:26px;border-radius:9999px;background:#f87171;border:none;color:#ffffff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                      <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+                    </button>
+                  </div>
+                `;
+              }}).join('')}}
+            </div>
+          </div>
+        `;
+      }});
+
+      // 2. Render Offer 1 Bundles (1+tola)
+      partitioned.offer1Groups.forEach(grp => {{
+        html += `
+          <div class="note-bundle-group-card" style="background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:20px!important;padding:16px 18px!important;margin-bottom:16px!important;box-shadow:0 1px 4px rgba(0,0,0,0.02)!important;position:relative!important;text-align:right!important;direction:rtl!important;">
+            <div class="note-bundle-group-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding-bottom:12px!important;border-bottom:1px solid #f0eee9!important;margin-bottom:14px!important;flex-wrap:wrap!important;gap:8px!important;">
+              <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;gap:6px!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">
+                <span>📦</span>
+                <span>${{grp.title}}</span>
+              </span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="note-bundle-savings" style="font-size:11px!important;font-weight:800!important;color:#059669!important;background:#ecfdf5!important;padding:3px 10px!important;border-radius:9999px!important;border:1px solid #a7f3d0!important;">وفّرت ${{formatPrice(grp.savings)}}</span>
+                <span style="font-size:13px;font-weight:800;color:#1c1917;">المجموع: ${{formatPrice(grp.total)}}</span>
+              </div>
+            </div>
+            <div class="note-bundle-items-list" style="display:flex;flex-direction:column;gap:8px;">
+              ${{grp.items.map(sub => {{
+                const zidSlug = zidSlugMap[sub.id] || sub.id;
+                const imgUrl = resolveImgUrl(sub.img);
+                return `
+                  <div class="note-bundle-sub-item ${{sub.isDiscounted ? 'note-bundle-sub-item-discounted' : ''}}" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:10px 12px!important;border:1px solid ${{sub.isDiscounted ? '#e5d39e' : '#f0eee9'}}!important;border-radius:14px!important;background:${{sub.isDiscounted ? '#fffdf7' : '#ffffff'}}!important;box-sizing:border-box!important;">
+                    <div style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0;flex:1 1 auto;">
+                      <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" style="width:58px;height:58px;min-width:58px;min-height:58px;border-radius:12px;background:#ffffff;border:1px solid #f0eee9;padding:3px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                        <img src="${{imgUrl}}" alt="${{sub.title}}" style="width:100%;height:100%;object-fit:contain;">
+                      </a>
+                      <div style="display:flex;flex-direction:column;gap:3px;min-width:0;text-align:right;">
+                        <h5 style="font-size:13.5px;font-weight:700;color:#1c1917;margin:0;line-height:1.3;">${{sub.title}}</h5>
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                          ${{sub.isDiscounted ? `
+                            <span style="font-size:12px;color:#a8a29e;text-decoration:line-through;">${{formatPrice(sub.originalPrice)}}</span>
+                            <span style="font-size:14px;font-weight:900;color:#059669;">1 ر.س</span>
+                            <span style="font-size:10px;font-weight:800;color:#047857;background:#d1fae5;padding:2px 8px;border-radius:9999px;border:1px solid #a7f3d0;">مشمول بالعرض بـ 1 ريال ✨</span>
+                          ` : `
+                            <span style="font-size:13.5px;font-weight:800;color:#1c1917;">${{formatPrice(sub.effectivePrice)}}</span>
+                          `}}
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" onclick="CartManager.updateQuantity('${{sub.id}}', -1); renderCartPage();" title="حذف وحدة من العرض" style="width:26px;height:26px;min-width:26px;border-radius:9999px;background:#f87171;border:none;color:#ffffff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                      <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"><path d="M1 1l10 10M11 1L1 11"/></svg>
+                    </button>
+                  </div>
+                `;
+              }}).join('')}}
+            </div>
+          </div>
+        `;
+      }});
+
+      // 3. Render Standalone Items
+      if (partitioned.standaloneItems.length > 0) {{
+        html += `
+          <div class="mt-6 mb-3 flex items-center justify-between text-right">
+            <h3 class="text-xs sm:text-sm font-extrabold text-black flex items-center gap-1.5">
+              <span>🛍️</span>
+              <span>منتجات فردية (خارج العرض)</span>
+            </h3>
+            <span class="text-[10px] text-stone-400">سعر الحبة العادي</span>
+          </div>
+        `;
+        html += partitioned.standaloneItems.map(item => {{
+          const zidSlug = zidSlugMap[item.id] || item.id;
+          const imgUrl = resolveImgUrl(item.img);
+          const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
+          const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
+          const itemLineTotal = item.price * item.quantity;
+          return `
+            <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${{item.id}}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
+              <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
+                <div class="note-cart-item-start" style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0!important;flex:1 1 auto!important;">
+                  <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" class="note-cart-item-thumb cart-thumb-box" style="width:82px!important;height:82px!important;min-width:82px!important;min-height:82px!important;max-width:82px!important;max-height:82px!important;border-radius:14px!important;background:#ffffff!important;border:1px solid #f0eee9!important;padding:4px!important;flex-shrink:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;box-sizing:border-box!important;">
+                    <img src="${{imgUrl}}" alt="${{item.title}}" style="width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;">
+                  </a>
+                  <div class="note-cart-item-info" style="display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;min-width:0!important;flex:1 1 auto!important;text-align:right!important;">
+                    <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" class="note-cart-item-title-link" style="text-decoration:none!important;color:inherit!important;display:block!important;">
+                      <h4 class="note-cart-item-title" style="font-size:15px!important;font-weight:700!important;color:#1c1917!important;line-height:1.35!important;margin:0!important;">${{item.title}}</h4>
+                    </a>
+                    <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
+                      ${{oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${{formatPrice(oldPriceVal)}}</span>` : ''}}
+                      <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${{formatPrice(item.price)}}</span>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" onclick="CartManager.removeItem('${{item.id}}'); renderCartPage();" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" title="حذف" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
+                </button>
+              </div>
+              <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:12px 0!important;padding:0!important;display:block!important;"></div>
+              <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;">
+                <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:38px!important;width:126px!important;min-width:126px!important;border:1px solid #e7e5e4!important;border-radius:11px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;">
+                  <button type="button" onclick="CartManager.updateQuantity('${{item.id}}', 1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">+</button>
+                  <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:14px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;box-sizing:border-box!important;">${{item.quantity}}</span>
+                  <button type="button" onclick="CartManager.updateQuantity('${{item.id}}', -1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
+                </div>
+                <div class="note-cart-item-total" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;text-align:left!important;">
+                  <span class="note-cart-item-total-label" style="font-size:13px!important;font-weight:500!important;color:#78716c!important;">المجموع:</span>
+                  <span class="note-cart-item-total-val" style="font-size:16px!important;font-weight:800!important;color:#1c1917!important;">${{formatPrice(itemLineTotal)}}</span>
                 </div>
               </div>
             </div>
-            <button type="button" onclick="CartManager.removeItem('${{item.id}}'); renderCartPage();" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" title="حذف" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
-            </button>
-          </div>
-
-          <!-- Crisp Horizontal Divider -->
-          <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:12px 0!important;padding:0!important;display:block!important;"></div>
-
-          <!-- Bottom Row: Segmented Stepper on Start, Line Total on End -->
-          <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;">
-            <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:38px!important;width:126px!important;min-width:126px!important;border:1px solid #e7e5e4!important;border-radius:11px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;">
-              <button type="button" onclick="CartManager.updateQuantity('${{item.id}}', 1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">+</button>
-              <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:14px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;box-sizing:border-box!important;">${{item.quantity}}</span>
-              <button type="button" onclick="CartManager.updateQuantity('${{item.id}}', -1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
+          `;
+        }}).join('');
+      }}
+    }} else {{
+      // Standard render when no offers active
+      html = cart.map(item => {{
+        const zidSlug = zidSlugMap[item.id] || item.id;
+        const imgUrl = resolveImgUrl(item.img);
+        const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
+        const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
+        const itemLineTotal = item.price * item.quantity;
+        return `
+          <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${{item.id}}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
+            <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
+              <div class="note-cart-item-start" style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0!important;flex:1 1 auto!important;">
+                <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" class="note-cart-item-thumb cart-thumb-box" style="width:82px!important;height:82px!important;min-width:82px!important;min-height:82px!important;max-width:82px!important;max-height:82px!important;border-radius:14px!important;background:#ffffff!important;border:1px solid #f0eee9!important;padding:4px!important;flex-shrink:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;box-sizing:border-box!important;">
+                  <img src="${{imgUrl}}" alt="${{item.title}}" style="width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;">
+                </a>
+                <div class="note-cart-item-info" style="display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;min-width:0!important;flex:1 1 auto!important;text-align:right!important;">
+                  <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" class="note-cart-item-title-link" style="text-decoration:none!important;color:inherit!important;display:block!important;">
+                    <h4 class="note-cart-item-title" style="font-size:15px!important;font-weight:700!important;color:#1c1917!important;line-height:1.35!important;margin:0!important;">${{item.title}}</h4>
+                  </a>
+                  <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
+                    ${{oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${{formatPrice(oldPriceVal)}}</span>` : ''}}
+                    <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${{formatPrice(item.price)}}</span>
+                  </div>
+                </div>
+              </div>
+              <button type="button" onclick="CartManager.removeItem('${{item.id}}'); renderCartPage();" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" title="حذف" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
+              </button>
             </div>
-            <div class="note-cart-item-total" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;text-align:left!important;">
-              <span class="note-cart-item-total-label" style="font-size:13px!important;font-weight:500!important;color:#78716c!important;">المجموع:</span>
-              <span class="note-cart-item-total-val" style="font-size:16px!important;font-weight:800!important;color:#1c1917!important;">${{formatPrice(itemLineTotal)}}</span>
+            <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:12px 0!important;padding:0!important;display:block!important;"></div>
+            <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;">
+              <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:38px!important;width:126px!important;min-width:126px!important;border:1px solid #e7e5e4!important;border-radius:11px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;">
+                <button type="button" onclick="CartManager.updateQuantity('${{item.id}}', 1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">+</button>
+                <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:14px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;box-sizing:border-box!important;">${{item.quantity}}</span>
+                <button type="button" onclick="CartManager.updateQuantity('${{item.id}}', -1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
+              </div>
+              <div class="note-cart-item-total" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;text-align:left!important;">
+                <span class="note-cart-item-total-label" style="font-size:13px!important;font-weight:500!important;color:#78716c!important;">المجموع:</span>
+                <span class="note-cart-item-total-val" style="font-size:16px!important;font-weight:800!important;color:#1c1917!important;">${{formatPrice(itemLineTotal)}}</span>
+              </div>
             </div>
           </div>
-        </div>
-      `;
-    }}).join('');
+        `;
+      }}).join('');
+    }}
+
+    itemsContainer.innerHTML = html;
 
     updateCartFinancials(total);
     updateCheckoutUpsell(cart);
@@ -4234,21 +4586,23 @@ app_js_code = f"""/**
         localStorage.setItem('note_applied_coupon', code);
         const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
         if (liveBundleDisc > 0) {{
+          if (applyBtn) applyBtn.classList.remove('note-btn-gold');
           msg.textContent = `تم حفظ كود الخصم (${{code}}). سلتك مؤهلة لعرض الحزم التلقائي (الأكبر توفيراً)، والخصم مطبق بالكامل.`;
           msg.className = 'text-[11px] font-bold text-amber-600 block note-msg-anim';
         }} else {{
+          if (applyBtn) applyBtn.classList.add('note-btn-gold');
           msg.textContent = alreadyApplied
             ? `كود الخصم (${{code}}) مفعّل بالفعل لطلبك! 🎉`
             : `تم تفعيل كود الخصم (${{code}}) بنجاح! سيتم تطبيقه لطلبك عند الدفع.`;
           msg.className = 'text-[11px] font-bold text-emerald-600 block note-msg-anim';
+
+          const container = document.getElementById('note-cart-coupon-section') || input.closest('.rounded-2xl');
+          const totalEl = document.getElementById('page-grand-total');
+          triggerCouponCelebration(container, tag, applyBtn, totalEl);
         }}
         if (tag) tag.classList.remove('hidden');
         if (clearBtn) clearBtn.classList.remove('hidden');
         if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
-
-        const container = document.getElementById('note-cart-coupon-section') || input.closest('.rounded-2xl');
-        const totalEl = document.getElementById('page-grand-total');
-        triggerCouponCelebration(container, tag, applyBtn, totalEl);
       }}
     }} catch (e) {{
       msg.textContent = 'حدث خطأ أثناء تطبيق الكود. يرجى المحاولة مجدداً.';
@@ -4265,7 +4619,9 @@ app_js_code = f"""/**
     const msg = document.getElementById('coupon-msg');
     const tag = document.getElementById('coupon-applied-tag');
     const clearBtn = document.getElementById('coupon-clear-btn');
+    const applyBtn = document.getElementById('coupon-apply-btn');
 
+    if (applyBtn) applyBtn.classList.remove('note-btn-gold');
     if (input) input.value = '';
     if (tag) tag.classList.add('hidden');
     if (clearBtn) clearBtn.classList.add('hidden');
@@ -4283,17 +4639,29 @@ app_js_code = f"""/**
 
   function restoreSavedCartCoupon() {{
     const saved = localStorage.getItem('note_applied_coupon');
-    if (!saved) return;
+    const applyBtn = document.getElementById('coupon-apply-btn');
+    const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
+
+    if (!saved) {{
+      if (applyBtn) applyBtn.classList.remove('note-btn-gold');
+      return;
+    }}
     const input = document.getElementById('coupon-code-input');
     const tag = document.getElementById('coupon-applied-tag');
     const clearBtn = document.getElementById('coupon-clear-btn');
     const msg = document.getElementById('coupon-msg');
 
+    if (applyBtn) {{
+      if (liveBundleDisc === 0) {{
+        applyBtn.classList.add('note-btn-gold');
+      }} else {{
+        applyBtn.classList.remove('note-btn-gold');
+      }}
+    }}
     if (input && !input.value) input.value = saved;
     if (tag) tag.classList.remove('hidden');
     if (clearBtn) clearBtn.classList.remove('hidden');
     if (msg && msg.classList.contains('hidden')) {{
-      const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
       if (liveBundleDisc > 0) {{
         msg.textContent = `كود الخصم (${{saved}}) محفوظ. (سلتك تستفيد حالياً من عرض الحزم التلقائي الأكبر توفيراً).`;
         msg.className = 'text-[11px] font-bold text-amber-600 block';
@@ -4385,25 +4753,19 @@ app_js_code = f"""/**
         }} catch (_) {{}}
       }}
       const api = window.zid?.cart;
-      if (api && typeof api.empty === 'function') {{
-        try {{ await api.empty(); }} catch (_) {{}}
-      }} else if (api && typeof api.get === 'function') {{
+      if (api) {{
         try {{
-          let nativeRes = await api.get();
-          let native = (nativeRes?.data?.cart?.products || nativeRes?.data?.products || nativeRes?.products || nativeRes?.items || []);
-          if (Array.isArray(native)) {{
-            const currentValidIds = new Set(cart.map(i => {{
-              const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === (i.product_id || i.id) || cp.slug === i.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[i.id] === cp.id)) : null;
-              return p ? p.id : (ZID_PRODUCT_MAP[i.id] || i.product_id || i.id);
-            }}));
-            for (const n of native) {{
-              const nProdId = n.product_id || n.product?.id;
-              if (nProdId && !currentValidIds.has(nProdId)) {{
-                try {{ await api.removeProduct({{ product_id: n.id }}); }} catch (_) {{}}
-              }}
+          const currentZidCart = await api.get();
+          const existingProds = currentZidCart?.products || currentZidCart?.data?.cart?.products || [];
+          for (const ep of existingProds) {{
+            if (ep && ep.id) {{
+              try {{ await api.removeProduct({{ product_id: ep.id }}); }} catch (_) {{}}
             }}
           }}
         }} catch (_) {{}}
+        if (typeof api.empty === 'function') {{
+          try {{ await api.empty(); }} catch (_) {{}}
+        }}
       }}
 
       const isUuid = (s) => typeof s === 'string' && /^[0-9a-f]{{8}}-[0-9a-f]{{4}}-[0-9a-f]{{4}}-[0-9a-f]{{4}}-[0-9a-f]{{12}}$/i.test(s);
