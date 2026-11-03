@@ -1310,6 +1310,32 @@ const CartManager = {
 
     return (title.includes('تولة') || title.includes('توله')) && Number(item.price) <= 120 && Number(item.price) >= 40;
   },
+  _isQualifyingBodySpray: function(item) {
+    if (!item) return false;
+    const rawId = String(item.product_id || item.id || '').toLowerCase();
+    const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === rawId || cp.id === item.product_id || cp.id === item.id || cp.zid_id === rawId || cp.zid_id === item.product_id || cp.zid_id === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && (ZID_PRODUCT_MAP[rawId] === cp.id || ZID_PRODUCT_MAP[rawId] === cp.zid_id))) : null;
+
+    const id = String((p && p.id) || rawId).toLowerCase();
+    const zidId = String((p && p.zid_id) || item.zid_id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[id]) || '').toLowerCase();
+    const title = String((p && p.title) || item.title || item.name || '').toLowerCase();
+    const cat = String((p && p.cat) || item.cat || item.category || '').toLowerCase();
+    const catIds = Array.isArray(p?.category_ids) ? p.category_ids.map(String) : (Array.isArray(item.category_ids) ? item.category_ids.map(String) : []);
+
+    if (catIds.includes('1752110') || cat === 'packages' || id.startsWith('pkg-') || title.includes('باقة') || title.includes('مجموعة') || title.includes('طقم')) return false;
+    if (catIds.includes('1759044') || cat === 'linen' || title.includes('مفارش')) return false;
+
+    if (catIds.includes('1759042') || cat === 'all-over') return true;
+
+    const QUALIFIED_BODY_SPRAYS = [
+      '940195dc-fc3b-4180-b062-c1cd85809564', '7de839f3-86a9-4fac-ba15-fad102696e73',
+      '7a9286bf-4d38-447a-9b9f-fcd006e35e9b', '5d373011-9e95-472c-bec6-51fd8ed457dc',
+      '5ab145fc-2c1c-4a17-9e1e-926c863b0934', '8bdd1101-df55-4f0e-8645-f6c669932b69',
+      'all-over-royal-tobacco', 'all-over-choconilla', 'all-over-asal', 'all-over-bahr', 'all-over-note-tuffi', 'all-over-powderose'
+    ];
+    if (QUALIFIED_BODY_SPRAYS.includes(id) || QUALIFIED_BODY_SPRAYS.includes(zidId)) return true;
+
+    return (title.includes('معطر') && title.includes('جسم')) || title === 'رويال بودر';
+  },
   getLiveBundleOffers: function() {
     const cart = this.getCart();
     if (!cart || cart.length === 0) return [];

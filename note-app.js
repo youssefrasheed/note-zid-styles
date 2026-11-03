@@ -3607,6 +3607,32 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 
       return (title.includes('تولة') || title.includes('توله')) && Number(item.price) <= 120 && Number(item.price) >= 40;
     },
+    _isQualifyingBodySpray: function(item) {
+      if (!item) return false;
+      const rawId = String(item.product_id || item.id || '').toLowerCase();
+      const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === rawId || cp.id === item.product_id || cp.id === item.id || cp.zid_id === rawId || cp.zid_id === item.product_id || cp.zid_id === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && (ZID_PRODUCT_MAP[rawId] === cp.id || ZID_PRODUCT_MAP[rawId] === cp.zid_id))) : null;
+
+      const id = String((p && p.id) || rawId).toLowerCase();
+      const zidId = String((p && p.zid_id) || item.zid_id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[id]) || '').toLowerCase();
+      const title = String((p && p.title) || item.title || item.name || '').toLowerCase();
+      const cat = String((p && p.cat) || item.cat || item.category || '').toLowerCase();
+      const catIds = Array.isArray(p?.category_ids) ? p.category_ids.map(String) : (Array.isArray(item.category_ids) ? item.category_ids.map(String) : []);
+
+      if (catIds.includes('1752110') || cat === 'packages' || id.startsWith('pkg-') || title.includes('باقة') || title.includes('مجموعة') || title.includes('طقم')) return false;
+      if (catIds.includes('1759044') || cat === 'linen' || title.includes('مفارش')) return false;
+
+      if (catIds.includes('1759042') || cat === 'all-over') return true;
+
+      const QUALIFIED_BODY_SPRAYS = [
+        '940195dc-fc3b-4180-b062-c1cd85809564', '7de839f3-86a9-4fac-ba15-fad102696e73',
+        '7a9286bf-4d38-447a-9b9f-fcd006e35e9b', '5d373011-9e95-472c-bec6-51fd8ed457dc',
+        '5ab145fc-2c1c-4a17-9e1e-926c863b0934', '8bdd1101-df55-4f0e-8645-f6c669932b69',
+        'all-over-royal-tobacco', 'all-over-choconilla', 'all-over-asal', 'all-over-bahr', 'all-over-note-tuffi', 'all-over-powderose'
+      ];
+      if (QUALIFIED_BODY_SPRAYS.includes(id) || QUALIFIED_BODY_SPRAYS.includes(zidId)) return true;
+
+      return (title.includes('معطر') && title.includes('جسم')) || title === 'رويال بودر';
+    },
     getLiveBundleOffers: function() {
       const cart = this.getCart();
       if (!cart || cart.length === 0) return [];
@@ -3650,21 +3676,26 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       if (!Array.isArray(offers)) return false;
       let perfumesNeeded = 0;
       let tolasNeeded = 0;
+      let bodySpraysNeeded = 0;
       for (const offer of offers) {
         const count = Number(offer.usage_count) || 0;
         const name = String(offer.name || '');
         if (/تولة|توله/.test(name)) {
           perfumesNeeded += count;
           tolasNeeded += count;
+        } else if (/معطر/.test(name)) {
+          perfumesNeeded += count;
+          bodySpraysNeeded += count;
         } else if (/بريال|بـ 1 ريال/.test(name)) {
           perfumesNeeded += 3 * count;
         }
       }
       const cart = this.getCart();
-      const available = predicate => cart.reduce((count, item) =>
-        count + (predicate.call(this, item) ? Number(item.quantity) || 0 : 0), 0);
+      const available = predicate => predicate ? cart.reduce((count, item) =>
+        count + (predicate.call(this, item) ? Number(item.quantity) || 0 : 0), 0) : 0;
       return perfumesNeeded > available(this._isQualifying100mlPerfume) ||
-        tolasNeeded > available(this._isQualifyingTola);
+        tolasNeeded > available(this._isQualifyingTola) ||
+        (bodySpraysNeeded > 0 && bodySpraysNeeded > available(this._isQualifyingBodySpray));
     },
     getLiveBundleDiscount: function() {
       const state = this.getLiveCartState();
@@ -5454,13 +5485,15 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     };
     const perfumes = [];
     const tolas = [];
+    const bodySprays = [];
     const otherItems = [];
     for (const item of cart) {
       if (CartManager._isQualifying100mlPerfume(item)) perfumes.push(item);
       else if (CartManager._isQualifyingTola(item)) tolas.push(item);
+      else if (CartManager._isQualifyingBodySpray && CartManager._isQualifyingBodySpray(item)) bodySprays.push(item);
       else otherItems.push(item);
     }
-    const eligibleItems = [...perfumes, ...tolas];
+    const eligibleItems = [...perfumes, ...tolas, ...bodySprays];
     const renderSection = (title, rows) => rows.length ? `
       <section aria-label="${title}">
         <h3 class="text-sm font-bold text-stone-700 mb-3">${title}</h3>
@@ -5815,6 +5848,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
             activeZid.forEach(b => {
               const n = String(b.name || '');
               if (n.includes('تولة') || n.includes('توله') || n.includes('1+تولة')) cleanNames.add('تولة بـ 1 ريال');
+              else if (n.includes('معطر')) cleanNames.add('معطر بـ 1 ريال');
               else cleanNames.add('عطرك بـ 1 ريال');
             });
           }
@@ -5823,6 +5857,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
             localOffers.forEach(b => {
               const n = String(b.name || '');
               if (n.includes('تولة') || n.includes('توله')) cleanNames.add('تولة بـ 1 ريال');
+              else if (n.includes('معطر')) cleanNames.add('معطر بـ 1 ريال');
               else cleanNames.add('عطرك بـ 1 ريال');
             });
           }
