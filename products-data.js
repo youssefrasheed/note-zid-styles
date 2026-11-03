@@ -1329,10 +1329,12 @@ const CartManager = {
           }
         }
         if (eligible.length >= 3) {
-          eligible.sort((a, b) => a - b);
+          eligible.sort((a, b) => b - a);
           const maxSets = Math.min(usageCount, Math.floor(eligible.length / 3));
-          for (let i = 0; i < maxSets; i++) {
-            totalDiscount += Math.max(0, eligible[i] - 1);
+          const totalInSets = maxSets * 3;
+          const discounted = eligible.slice(0, totalInSets).slice(maxSets * 2);
+          for (let i = 0; i < discounted.length; i++) {
+            totalDiscount += Math.max(0, discounted[i] - 1);
           }
         }
       } else if (name.includes('تولة') || name.includes('توله')) {
@@ -1345,9 +1347,10 @@ const CartManager = {
             }
           }
         }
-        tolas.sort((a, b) => a - b);
-        for (let i = 0; i < usageCount && i < tolas.length; i++) {
-          totalDiscount += Math.max(0, tolas[i] - 1);
+        tolas.sort((a, b) => b - a);
+        const discountedTolas = tolas.slice(Math.max(0, tolas.length - usageCount));
+        for (let i = 0; i < discountedTolas.length; i++) {
+          totalDiscount += Math.max(0, discountedTolas[i] - 1);
         }
       }
     }

@@ -1603,6 +1603,10 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     return clean ? `${clean} ر.س` : '';
   }
 
+  function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+
   function resolveImgUrl(img) {
     const s = String(img || '').trim();
     if (!s || s === 'undefined' || s === 'null') return 'https://youssefrasheed.github.io/note-zid-styles/products/09_Linen_Room_Spray_Brand_Box.webp';
@@ -5560,7 +5564,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       // 3. Render Standalone Items (Leftovers)
       if (partitioned.standaloneItems.length > 0) {
         html += `
-          <div class="note-standalone-group-header" style="display:flex!important;align-items:center!gap:8px!important;margin:22px 0 12px 0!important;padding-right:4px!important;">
+          <div class="note-standalone-group-header" style="display:flex!important;align-items:center!important;gap:10px!important;margin:22px 0 12px 0!important;padding-right:4px!important;">
             <span style="font-size:13px!important;font-weight:800!important;color:#78716c!important;">🛍️ منتجات فردية (خارج العرض)</span>
             <span style="font-size:11px!important;color:#a8a29e!important;font-weight:600!important;">سعر الحبة العادي</span>
           </div>
