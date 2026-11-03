@@ -7690,25 +7690,16 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         } catch (_) {}
       }
       const api=window.zid?.cart;
-      if(!api?.addProduct) {
-        location.href='/checkout';
-        return;
-      }
-
-      if (api) {
-        try {
-          const currentZidCart = await api.get();
-          const existingProds = currentZidCart?.products || currentZidCart?.data?.cart?.products || [];
-          for (const ep of existingProds) {
-            if (ep && ep.id) {
-              try { await api.removeProduct({ product_id: ep.id }); } catch (_) {}
-            }
-          }
-        } catch (_) {}
-        if (typeof api.empty === 'function') {
-          try { await api.empty(); } catch (_) {}
-        }
-      }
+      if (!api?.get || !api?.addProduct) throw Error('تعذر الاتصال بسلة زد. أعد المحاولة.');
+      const readNativeCart = async () => {
+        const response = assertCartResponse(await api.get());
+        return response?.data?.cart || response?.cart || response?.data || response;
+      };
+      const quote = cartState => JSON.stringify(
+        (cartState?.totals || []).map(({code, value}) => [code, Number(value)]).sort()
+      );
+      const shownQuote = quote(window._noteLiveCartState);
+      let nativeCart = await readNativeCart();
 
       const isUuid = (s) => typeof s === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
       const resolveZidUuid = (item) => {
@@ -7726,50 +7717,55 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         return (p && p.zid_id) || item.product_id || item.id;
       };
 
-      for(const item of cart) {
-        const zidUuid = resolveZidUuid(item);
-        if (!zidUuid) continue;
-        try {
-          await api.addProduct({
-            product_id: zidUuid,
-            quantity: item.quantity || 1,
-            ...(item.sub_items?.length ? {sub_items:item.sub_items.map(({id,quantity,selection_group_id})=>({id,quantity,selection_group_id}))} : {})
-          });
-        } catch (e) {
-          console.warn('Sync notice:', item.id, e);
+      const payloads = cart.map(item => ({
+        product_id: resolveZidUuid(item),
+        quantity: Number(item.quantity) || 1,
+        ...(item.sub_items?.length ? {sub_items:item.sub_items.map(({id,quantity,selection_group_id})=>({id,quantity,selection_group_id}))} : {})
+      }));
+      const signature = items => items.map(item => {
+        const id = String(item.product_id || item.product?.id || '').replace(/-/g, '').toLowerCase();
+        const selections = (item.sub_items || []).map(sub =>
+          [String(sub.id), Number(sub.quantity), String(sub.selection_group_id || '')].join(':')
+        ).sort();
+        return JSON.stringify([id, Number(item.quantity), selections]);
+      }).sort().join('|');
+      const expected = signature(payloads);
+      if (signature(nativeCartItems(nativeCart)) !== expected) {
+        if (typeof api.empty === 'function') {
+          assertCartResponse(await api.empty());
+        } else {
+          for (const item of nativeCartItems(nativeCart)) {
+            assertCartResponse(await api.removeProduct({product_id: item.id}));
+          }
+        }
+        for (const payload of payloads) {
+          assertCartResponse(await api.addProduct(payload));
+        }
+        const coupon = localStorage.getItem('note_applied_coupon');
+        const hadBundle = window._noteLiveCartState?.bundle_offers?.some(
+          offer => Number(offer.usage_count) > 0 || Number(offer.discount_total) > 0
+        );
+        if (coupon && !hadBundle && api.applyCoupon) {
+          assertCartResponse(await api.applyCoupon({coupon_code: coupon}));
+        }
+        nativeCart = await readNativeCart();
+        if (signature(nativeCartItems(nativeCart)) !== expected) {
+          throw Error('الكميات في سلة زد لا تطابق سلتك. أعد المحاولة.');
         }
       }
 
-      const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
-      if (liveBundleDisc > 0) {
-        if (api?.removeCoupons) {
-          try { await api.removeCoupons().catch(() => null); } catch (_) {}
-        }
-      } else {
-        const appliedCoupon = localStorage.getItem('note_applied_coupon');
-        if (appliedCoupon && api?.applyCoupon) {
-          try {
-            if (api.removeCoupons) await api.removeCoupons().catch(() => null);
-            await api.applyCoupon({ coupon_code: appliedCoupon });
-          } catch (e) {
-            console.warn('NOTE coupon sync warning:', e);
-          }
-        } else if (!appliedCoupon && api?.removeCoupons) {
-          try { await api.removeCoupons().catch(() => null); } catch (_) {}
-        }
+      window._noteLiveCartState = nativeCart;
+      if (typeof updateCartFinancials === 'function' && document.getElementById('cart-page-items')) {
+        updateCartFinancials(CartManager.getTotal());
       }
-
-      let checkoutUrl = '/checkout';
-      try {
-        if (typeof api.get === 'function') {
-          const finalRes = await api.get();
-          const fc = finalRes?.data?.cart || finalRes?.cart || finalRes;
-          if (fc && fc.basket_url) {
-            checkoutUrl = fc.basket_url;
-          }
-        }
-      } catch (_) {}
-      location.href = checkoutUrl;
+      CartManager.renderDrawer();
+      if (!nativeCart.totals?.some(line => line.code === 'total') || !nativeCart.basket_url) {
+        throw Error('تعذر تأكيد إجمالي سلة زد. أعد المحاولة.');
+      }
+      if (shownQuote !== quote(nativeCart)) {
+        throw Error('تم تحديث إجمالي سلتك. راجعه ثم اضغط إتمام الدفع مرة أخرى.');
+      }
+      location.href = nativeCart.basket_url;
     } catch(error) {
       CartManager.showToast(escapeHTML(error.message));
       checkoutBtns.forEach((b, idx) => {
