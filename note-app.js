@@ -3707,9 +3707,12 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     },
     getLiveBundleDiscount: function() {
       const state = this.getLiveCartState();
-      if (this.hasConflictingBundleUsage(state)) return 0;
       const discount = state?.totals?.find(line => line.code === 'products_discount');
-      return Math.abs(Number(discount?.value) || 0);
+      if (discount && Number.isFinite(Number(discount.value))) {
+        return Math.abs(Number(discount.value));
+      }
+      if (this.hasConflictingBundleUsage(state)) return 0;
+      return 0;
     },
     syncLiveCart: async function() {
       if (typeof window === 'undefined' || typeof fetch !== 'function') return null;
@@ -3737,10 +3740,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
               }
             }
             const totalEl = document.getElementById('cart-drawer-total');
-            if (totalEl && this.hasConflictingBundleUsage(data)) {
-              document.getElementById('drawer-bundle-discount-row')?.classList.add('hidden');
-              totalEl.textContent = 'يُؤكّد الإجمالي عند الدفع';
-            } else if (totalEl) {
+            if (totalEl) {
               let total = this.getTotal();
               let bundleDiscount = this.getLiveBundleDiscount();
               let liveTotals = null;
@@ -3966,9 +3966,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 
       // Sync coupon input in drawer with localStorage & display strikethrough total if applied
       const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
-      if (totalEl && this.hasConflictingBundleUsage()) {
-        totalEl.textContent = 'يُؤكّد الإجمالي عند الدفع';
-      } else if (totalEl) {
+      if (totalEl) {
         const baseAfterBundle = Math.max(0, total - bundleDiscount);
         if (bundleDiscount > 0) {
           totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(baseAfterBundle)}</span>`;
@@ -5896,16 +5894,6 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 
     if (!liveTotals && typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) {
       bundleDiscount = CartManager.getLiveBundleDiscount();
-    }
-
-    if (typeof CartManager !== 'undefined' && (!liveTotals || CartManager.hasConflictingBundleUsage?.())) {
-      document.getElementById('bundle-discount-row')?.classList.add('hidden');
-      document.getElementById('discount-row')?.classList.add('hidden');
-      const subtotalEl = document.getElementById('page-subtotal');
-      if (subtotalEl) subtotalEl.textContent = formatPrice(amount);
-      const grandEl = document.getElementById('page-grand-total');
-      if (grandEl) grandEl.textContent = 'يُؤكّد الإجمالي عند الدفع';
-      return;
     }
 
     const bundleRow = document.getElementById('bundle-discount-row');

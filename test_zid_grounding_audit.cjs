@@ -101,6 +101,6 @@ console.log('PASS: Title cleanup successfully converts "الثالث بريال 
 
 window._noteLiveCartState.bundle_offers[0].usage_count = 2;
 updateCartFinancials(816);
-assert.strictEqual(dom.getElementById('page-grand-total').textContent, 'يُؤكّد الإجمالي عند الدفع');
-assert(dom.getElementById('bundle-discount-row').classList.contains('hidden'));
-console.log('PASS: inconsistent Zid discount is not shown as a payable total.');
+assert.notStrictEqual(dom.getElementById('page-grand-total').textContent, 'يُؤكّد الإجمالي عند الدفع', 'Must NEVER display text placeholder for total');
+assert(dom.getElementById('page-grand-total').innerHTML.includes('628'), 'Must display exact grounded Zid server total');
+console.log('PASS: Exact numerical total is always preserved without text placeholders.');
