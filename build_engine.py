@@ -2380,12 +2380,14 @@ app_js_code = f"""/**
       if (!cart || cart.length === 0) return [];
       
       let perfume100Count = 0;
+      let bodySprayCount = 0;
       let tolaCount = 0;
       for (let i = 0; i < cart.length; i++) {{
         if (this._isQualifying100mlPerfume(cart[i])) {{
           perfume100Count += (Number(cart[i].quantity) || 1);
-        }}
-        if (this._isQualifyingTola(cart[i])) {{
+        }} else if (this._isQualifyingBodySpray && this._isQualifyingBodySpray(cart[i])) {{
+          bodySprayCount += (Number(cart[i].quantity) || 1);
+        }} else if (this._isQualifyingTola(cart[i])) {{
           tolaCount += (Number(cart[i].quantity) || 1);
         }}
       }}
@@ -2401,13 +2403,13 @@ app_js_code = f"""/**
           discount_total: 0
         }});
       }}
-      // Offer 1: "عطرك بريال (1+تولة)" -> Requires 1 perfume and 1 tola
-      const remainingPerfumes = perfume100Count - (offer2Count * 3);
-      if (remainingPerfumes >= 1 && tolaCount >= 1) {{
+      // Offer 1: "عطرك بريال (1+تولة)" -> Requires 1 perfume or 1 body spray and 1 tola
+      const eligibleForTola = (perfume100Count - (offer2Count * 3)) + bodySprayCount;
+      if (eligibleForTola >= 1 && tolaCount >= 1) {{
         offers.push({{
           id: 'a31e7108-b61d-4611-a968-9cdf0eca636f',
           name: 'عطرك بريال (1+تولة)',
-          usage_count: Math.min(remainingPerfumes, tolaCount),
+          usage_count: Math.min(eligibleForTola, tolaCount),
           discount_total: 0
         }});
       }}

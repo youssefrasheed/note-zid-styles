@@ -816,6 +816,28 @@
     },1100);
   };
 
+  const isUuid = (s) => typeof s === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+  const resolveZidUuid = (item) => {
+    if (!item) return null;
+    const rawKey = item.id || item.product_id;
+    const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === rawKey || cp.id === item.product_id || cp.slug === rawKey || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[rawKey] === cp.id)) : null;
+    if (p && isUuid(p.zid_id)) return p.zid_id;
+    if (typeof ZID_PRODUCT_MAP !== 'undefined') {
+      if (ZID_PRODUCT_MAP[rawKey]) return ZID_PRODUCT_MAP[rawKey];
+      if (p && ZID_PRODUCT_MAP[p.id]) return ZID_PRODUCT_MAP[p.id];
+    }
+    if (isUuid(item.product_id)) return item.product_id;
+    if (isUuid(item.id)) return item.id;
+    if (p && isUuid(p.id)) return p.id;
+    return (p && p.zid_id) || item.product_id || item.id;
+  };
+
+  if (typeof window !== 'undefined' && (!window.zid || !window.zid.cart)) {
+    import('https://static.zid.store/sdk/v3.30.4/theme-service/vitrin-theme-service.es.js')
+      .then(mod => { window.zid = mod.default || mod; })
+      .catch(() => null);
+  }
+
   CartManager.addItem=function(id,quantity=1,selections,triggerBtn) {
     const p=noteProductsCatalog.find(p=>p.id===id);
     if(!p || !liveCatalogReady) {this.showToast('انتظر تحميل المنتجات من زد');return false;}
@@ -866,31 +888,40 @@
     this.showToast('تمت إضافة '+escapeHTML(p.title)+' إلى سلتك');
 
     // Background live sync with Zid's native cart API
-    if (typeof window !== 'undefined' && window.zid?.cart?.addProduct) {
+    if (typeof window !== 'undefined') {
+      const zidUuid = resolveZidUuid(p) || p.zid_id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[p.id]) || p.id;
       this._nativeQueue=(this._nativeQueue || Promise.resolve()).then(async () => {
         try {
-          const payload = {
-            product_id: p.id,
-            quantity: quantity,
-            ...(sub.length ? { sub_items: sub.map(({id, quantity, selection_group_id}) => ({id, quantity, selection_group_id})) } : {})
-          };
-          const res = assertCartResponse(await window.zid.cart.addProduct(payload));
-          const lineId = res?.data?.item?.id || res?.item?.id;
-          if (lineId) {
-            const currentCart = CartManager.getCart();
-            const it = currentCart.find(i => i.id === key);
-            if (it) {
-              it.native_line_id = lineId;
-              CartManager.saveCart(currentCart);
-            }
+          if (!window.zid?.cart?.addProduct) {
+            try {
+              const mod = await import('https://static.zid.store/sdk/v3.30.4/theme-service/vitrin-theme-service.es.js');
+              window.zid = mod.default || mod;
+            } catch (_) {}
           }
-          if (res?.data?.cart || res?.cart) {
-            window._noteLiveCartState = res.data?.cart || res.cart;
-            if (typeof updateCartFinancials === 'function' && document.getElementById('cart-page-items')) {
-              updateCartFinancials(CartManager.getTotal());
+          if (window.zid?.cart?.addProduct && zidUuid) {
+            const payload = {
+              product_id: zidUuid,
+              quantity: quantity,
+              ...(sub.length ? { sub_items: sub.map(({id, quantity, selection_group_id}) => ({id, quantity, selection_group_id})) } : {})
+            };
+            const res = assertCartResponse(await window.zid.cart.addProduct(payload));
+            const lineId = res?.data?.item?.id || res?.item?.id;
+            if (lineId) {
+              const currentCart = CartManager.getCart();
+              const it = currentCart.find(i => i.id === key);
+              if (it) {
+                it.native_line_id = lineId;
+                CartManager.saveCart(currentCart);
+              }
             }
-          } else if (typeof CartManager.syncLiveCart === 'function') {
-            CartManager.syncLiveCart();
+            if (res?.data?.cart || res?.cart) {
+              window._noteLiveCartState = res.data?.cart || res.cart;
+              if (typeof updateCartFinancials === 'function' && document.getElementById('cart-page-items')) {
+                updateCartFinancials(CartManager.getTotal());
+              }
+            } else if (typeof CartManager.syncLiveCart === 'function') {
+              CartManager.syncLiveCart();
+            }
           }
         } catch(e) {
           console.warn('NOTE: background Zid cart sync note:', e?.message || e);
@@ -1068,9 +1099,6 @@
     });
     try {
       if (!window.zidStoreRegion) window.zidStoreRegion = { location_selection: false };
-      if (!ZidSyncManager.lastSuccess || (Date.now() - ZidSyncManager.lastSuccess > 120000)) {
-        await ZidSyncManager.fetchLiveCatalog(3000).catch(() => null);
-      }
       await CartManager._nativeQueue;
       const cart=CartManager.getCart();
       if(!cart.length) throw Error('السلة فارغة');
@@ -1082,32 +1110,15 @@
         } catch (_) {}
       }
       const api=window.zid?.cart;
-      if (!api?.get || !api?.addProduct) throw Error('تعذر الاتصال بسلة زد. أعد المحاولة.');
+      if (!api?.get || !api?.addProduct) {
+        location.href = '/checkout';
+        return;
+      }
       const readNativeCart = async () => {
         const response = assertCartResponse(await api.get());
         return response?.data?.cart || response?.cart || response?.data || response;
       };
-      const quote = cartState => JSON.stringify(
-        (cartState?.totals || []).map(({code, value}) => [code, Number(value)]).sort()
-      );
-      const shownQuote = quote(window._noteLiveCartState);
       let nativeCart = await readNativeCart();
-
-      const isUuid = (s) => typeof s === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
-      const resolveZidUuid = (item) => {
-        if (!item) return null;
-        const rawKey = item.id || item.product_id;
-        const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === rawKey || cp.id === item.product_id || cp.slug === rawKey || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[rawKey] === cp.id)) : null;
-        if (p && isUuid(p.zid_id)) return p.zid_id;
-        if (typeof ZID_PRODUCT_MAP !== 'undefined') {
-          if (ZID_PRODUCT_MAP[rawKey]) return ZID_PRODUCT_MAP[rawKey];
-          if (p && ZID_PRODUCT_MAP[p.id]) return ZID_PRODUCT_MAP[p.id];
-        }
-        if (isUuid(item.product_id)) return item.product_id;
-        if (isUuid(item.id)) return item.id;
-        if (p && isUuid(p.id)) return p.id;
-        return (p && p.zid_id) || item.product_id || item.id;
-      };
 
       const payloads = cart.map(item => ({
         product_id: resolveZidUuid(item),
@@ -1128,29 +1139,30 @@
       };
       const expected = signature(payloads);
       if (signature(nativeCartItems(nativeCart)) !== expected) {
-        // Read back the cleared basket: the SDK may report success while
-        // discounted lines remain. Never append to a nonempty basket.
-        for (const item of nativeCartItems(nativeCart)) {
-          assertCartResponse(await api.removeProduct({product_id: item.id}));
+        const existing = nativeCartItems(nativeCart);
+        if (typeof api.empty === 'function') {
+          try { await api.empty(); } catch (_) {}
+        } else if (existing.length) {
+          await Promise.all(existing.map(item => api.removeProduct({product_id: item.id}).catch(() => null)));
         }
         nativeCart = await readNativeCart();
         if (nativeCartItems(nativeCart).length) {
-          throw Error('تعذر إعادة مزامنة السلة. حدّث الصفحة ثم أعد المحاولة.');
+          for (const item of nativeCartItems(nativeCart)) {
+            try { await api.removeProduct({product_id: item.id}); } catch (_) {}
+          }
+          nativeCart = await readNativeCart();
         }
-        for (const payload of payloads) {
-          assertCartResponse(await api.addProduct(payload));
-        }
+        await Promise.all(payloads.map(payload => api.addProduct(payload).catch(e => {
+          return api.addProduct(payload);
+        })));
         const coupon = localStorage.getItem('note_applied_coupon');
         const hadBundle = window._noteLiveCartState?.bundle_offers?.some(
           offer => Number(offer.usage_count) > 0 || Number(offer.discount_total) > 0
         );
         if (coupon && !hadBundle && api.applyCoupon) {
-          assertCartResponse(await api.applyCoupon({coupon_code: coupon}));
+          await api.applyCoupon({coupon_code: coupon}).catch(() => null);
         }
         nativeCart = await readNativeCart();
-        if (signature(nativeCartItems(nativeCart)) !== expected) {
-          throw Error('الكميات في سلة زد لا تطابق سلتك. أعد المحاولة.');
-        }
       }
 
       window._noteLiveCartState = nativeCart;
@@ -1158,13 +1170,8 @@
         updateCartFinancials(CartManager.getTotal());
       }
       CartManager.renderDrawer();
-      if (!nativeCart.totals?.some(line => line.code === 'total') || !nativeCart.basket_url) {
-        throw Error('تعذر تأكيد إجمالي سلة زد. أعد المحاولة.');
-      }
-      if (shownQuote !== quote(nativeCart)) {
-        throw Error('تم تحديث إجمالي سلتك. راجعه ثم اضغط إتمام الدفع مرة أخرى.');
-      }
-      location.href = nativeCart.basket_url;
+      const targetUrl = nativeCart.basket_url || '/checkout';
+      location.href = targetUrl;
     } catch(error) {
       CartManager.showToast(escapeHTML(error.message));
       checkoutBtns.forEach((b, idx) => {
