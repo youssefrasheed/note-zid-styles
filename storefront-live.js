@@ -1114,13 +1114,18 @@
         quantity: Number(item.quantity) || 1,
         ...(item.sub_items?.length ? {sub_items:item.sub_items.map(({id,quantity,selection_group_id})=>({id,quantity,selection_group_id}))} : {})
       }));
-      const signature = items => items.map(item => {
-        const id = String(item.product_id || item.product?.id || '').replace(/-/g, '').toLowerCase();
-        const selections = (item.sub_items || []).map(sub =>
-          [String(sub.id), Number(sub.quantity), String(sub.selection_group_id || '')].join(':')
-        ).sort();
-        return JSON.stringify([id, Number(item.quantity), selections]);
-      }).sort().join('|');
+      const signature = items => {
+        const quantities = new Map();
+        for (const item of items) {
+          const id = String(item.product_id || item.product?.id || '').replace(/-/g, '').toLowerCase();
+          const selections = (item.sub_items || []).map(sub =>
+            [String(sub.id), Number(sub.quantity), String(sub.selection_group_id || '')].join(':')
+          ).sort();
+          const key = JSON.stringify([id, selections]);
+          quantities.set(key, (quantities.get(key) || 0) + Number(item.quantity));
+        }
+        return JSON.stringify([...quantities].sort(([left], [right]) => left.localeCompare(right)));
+      };
       const expected = signature(payloads);
       if (signature(nativeCartItems(nativeCart)) !== expected) {
         if (typeof api.empty === 'function') {
