@@ -4152,7 +4152,7 @@ app_js_code = f"""/**
       }}
     }}
 
-    const html = cart.map(item => {{
+    const renderItem = item => {{
         const zidSlug = zidSlugMap[item.id] || item.id;
         const imgUrl = resolveImgUrl(item.img);
         const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
@@ -4193,7 +4193,23 @@ app_js_code = f"""/**
             </div>
           </div>
         `;
-      }}).join('');
+    }};
+    const perfumes = [];
+    const tolas = [];
+    const otherItems = [];
+    for (const item of cart) {{
+      if (CartManager._isQualifying100mlPerfume(item)) perfumes.push(item);
+      else if (CartManager._isQualifyingTola(item)) tolas.push(item);
+      else otherItems.push(item);
+    }}
+    const eligibleItems = [...perfumes, ...tolas];
+    const renderSection = (title, rows) => rows.length ? `
+      <section aria-label="${{title}}">
+        <h3 class="text-sm font-bold text-stone-700 mb-3">${{title}}</h3>
+        ${{rows.map(renderItem).join('')}}
+      </section>` : '';
+    const html = renderSection('منتجات مؤهلة للعروض', eligibleItems) +
+      renderSection(eligibleItems.length ? 'منتجات أخرى' : 'المنتجات', otherItems);
 
     itemsContainer.innerHTML = html;
 
