@@ -6680,7 +6680,10 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   });
   if (!window.formatPrice) window.formatPrice = formatPrice;
 
-  const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  var escapeHTML = typeof escapeHTML !== 'undefined' ? escapeHTML : (typeof window.escapeHTML === 'function' ? window.escapeHTML : function(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  });
+  if (!window.escapeHTML) window.escapeHTML = escapeHTML;
   const cleanSpelling = str => String(str ?? '')
     .replace(/الباكدجات/g, 'الباكجات')
     .replace(/باكدجات/g, 'باكجات')
