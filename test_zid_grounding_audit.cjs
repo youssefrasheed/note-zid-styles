@@ -65,11 +65,19 @@ assert.strictEqual(CartManager._isQualifying100mlPerfume(tobaccoPerfume), true, 
 assert.strictEqual(CartManager._isQualifying100mlPerfume(rosewoodPerfume), true, 'Rosewood must qualify as perfume');
 console.log('PASS: Perfume qualifier accurately excludes All-Over Sprays.');
 
-// 2. Scenario A: Musk + Tobacco + Royal Powder (627 SAR - Zero Discount in Zid)
+// 2. Scenario A: Musk + Tobacco + Royal Powder All-Over Body Spray (Qualifies for 2+1 offer, 158 SAR discount!)
 global.localStorage.setItem('note_cart', JSON.stringify([muskPerfume, tobaccoPerfume, royalPowderAllOver]));
-assert.strictEqual(CartManager.getLiveBundleOffers().length, 0, 'No bundle offers must trigger for 2 perfumes + 1 spray');
-assert.strictEqual(CartManager.getLiveBundleDiscount(), 0, 'Bundle discount must be 0 SAR');
-console.log('PASS: Zero fake discounts for Musk + Tobacco + Royal Powder.');
+assert.strictEqual(CartManager.getLiveBundleOffers().length, 1, 'Bundle offer 2+1 MUST trigger for 2 perfumes + 1 body spray');
+assert.strictEqual(CartManager.getLiveBundleOffers()[0].name, 'عطرك بـ 1 ريال (2+1)');
+assert.strictEqual(CartManager.getLiveBundleDiscount(), 158, 'Bundle discount must be 158 SAR (159 - 1)');
+console.log('PASS: Body spray properly qualifies in 2+1 offer for 158 SAR discount.');
+
+// Scenario A2: Non-qualifying items (e.g. Linen Spray) must NOT trigger bundle discounts
+const linenSpray = { id: 'linen-oud-rosewood', zid_id: '8a62dee7-ea33-4c54-a39a-ca25096701b9', title: 'معطر مفارش عود روز وود', cat: 'linen', category_ids: ['1759044'], price: 95 };
+global.localStorage.setItem('note_cart', JSON.stringify([muskPerfume, tobaccoPerfume, linenSpray]));
+assert.strictEqual(CartManager.getLiveBundleOffers().length, 0, 'No bundle offers must trigger for 2 perfumes + 1 linen spray');
+assert.strictEqual(CartManager.getLiveBundleDiscount(), 0, 'Bundle discount must be 0 SAR for non-qualifying linen');
+console.log('PASS: Non-qualifying linen spray correctly yields 0 bundle discount.');
 
 // 3. Scenario B: Title cleanup ("الثالث بريال 189" -> "عطرك بـ 1 ريال")
 // Test updateCartFinancials logic

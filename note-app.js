@@ -3633,11 +3633,13 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         '940195dc-fc3b-4180-b062-c1cd85809564', '7de839f3-86a9-4fac-ba15-fad102696e73',
         '7a9286bf-4d38-447a-9b9f-fcd006e35e9b', '5d373011-9e95-472c-bec6-51fd8ed457dc',
         '5ab145fc-2c1c-4a17-9e1e-926c863b0934', '8bdd1101-df55-4f0e-8645-f6c669932b69',
-        'all-over-royal-tobacco', 'all-over-choconilla', 'all-over-asal', 'all-over-bahr', 'all-over-note-tuffi', 'all-over-powderose'
+        'fe2daa2f-28ca-4342-8c7e-2b8e8dbbc95a',
+        'all-over-royal-tobacco', 'all-over-choconilla', 'all-over-asal', 'all-over-bahr', 'all-over-note-tuffi', 'all-over-powderose',
+        'asal', 'choconilla', 'bahr', 'note-tuffi'
       ];
       if (QUALIFIED_BODY_SPRAYS.includes(id) || QUALIFIED_BODY_SPRAYS.includes(zidId)) return true;
 
-      return (title.includes('معطر') && title.includes('جسم')) || title === 'رويال بودر';
+      return (title.includes('معطر') && title.includes('جسم')) || title === 'رويال بودر' || title.includes('عسل');
     },
     getLiveBundleOffers: function() {
       const cart = this.getCart();
@@ -3657,8 +3659,9 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       }
       
       const offers = [];
-      // Offer 2: "عطرك بـ 1 ريال (2+1)" -> Strict sets of 3 qualifying 100ml perfumes
-      const offer2Count = Math.floor(perfume100Count / 3);
+      // Offer 2: "عطرك بـ 1 ريال (2+1)" -> Strict sets of 3 qualifying 100ml perfumes or body sprays
+      const totalQualifying2Plus1 = perfume100Count + bodySprayCount;
+      const offer2Count = Math.floor(totalQualifying2Plus1 / 3);
       if (offer2Count > 0) {
         offers.push({
           id: 'a31fcdea-5aac-447f-a220-0ef1d60bb0a6',
@@ -3667,13 +3670,13 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
           discount_total: 0
         });
       }
-      // Offer 1: "عطرك بريال (1+تولة)" -> Requires 1 perfume or 1 body spray and 1 tola
-      const eligibleForTola = (perfume100Count - (offer2Count * 3)) + bodySprayCount;
-      if (eligibleForTola >= 1 && tolaCount >= 1) {
+      // Offer 1: "تولة بـ 1 ريال (1+تولة)" -> Requires 1 qualifying perfume or body spray and 1 tola
+      const remainingEligibleForTola = totalQualifying2Plus1 - (offer2Count * 3);
+      if (remainingEligibleForTola >= 1 && tolaCount >= 1) {
         offers.push({
           id: 'a31e7108-b61d-4611-a968-9cdf0eca636f',
-          name: 'عطرك بريال (1+تولة)',
-          usage_count: Math.min(eligibleForTola, tolaCount),
+          name: 'تولة بـ 1 ريال (1+تولة)',
+          usage_count: Math.min(remainingEligibleForTola, tolaCount),
           discount_total: 0
         });
       }
@@ -3682,37 +3685,91 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     hasConflictingBundleUsage: function(state = this.getLiveCartState()) {
       const offers = state?.bundle_offers;
       if (!Array.isArray(offers)) return false;
-      let perfumesNeeded = 0;
+      let bundleUnitsNeeded = 0;
       let tolasNeeded = 0;
-      let bodySpraysNeeded = 0;
       for (const offer of offers) {
         const count = Number(offer.usage_count) || 0;
         const name = String(offer.name || '');
         if (/تولة|توله/.test(name)) {
-          perfumesNeeded += count;
+          bundleUnitsNeeded += count;
           tolasNeeded += count;
         } else if (/معطر/.test(name)) {
-          perfumesNeeded += count;
-          bodySpraysNeeded += count;
+          bundleUnitsNeeded += 2 * count;
         } else if (/بريال|بـ 1 ريال/.test(name)) {
-          perfumesNeeded += 3 * count;
+          bundleUnitsNeeded += 3 * count;
         }
       }
       const cart = this.getCart();
       const available = predicate => predicate ? cart.reduce((count, item) =>
         count + (predicate.call(this, item) ? Number(item.quantity) || 0 : 0), 0) : 0;
-      return perfumesNeeded > available(this._isQualifying100mlPerfume) ||
-        tolasNeeded > available(this._isQualifyingTola) ||
-        (bodySpraysNeeded > 0 && bodySpraysNeeded > available(this._isQualifyingBodySpray));
+      const totalEligible = available(this._isQualifying100mlPerfume) + available(this._isQualifyingBodySpray);
+      return bundleUnitsNeeded > totalEligible || tolasNeeded > available(this._isQualifyingTola);
     },
     getLiveBundleDiscount: function() {
       const state = this.getLiveCartState();
-      const discount = state?.totals?.find(line => line.code === 'products_discount');
-      if (discount && Number.isFinite(Number(discount.value))) {
-        return Math.abs(Number(discount.value));
+      const localTotal = this.getTotal();
+      
+      // If live state from Zid is valid and in sync with local cart:
+      if (state && Array.isArray(state.totals)) {
+        const subObj = state.totals.find(t => t.code === 'sub_totals');
+        const serverSub = (subObj && Number.isFinite(Number(subObj.value))) ? Number(subObj.value) : null;
+        if (serverSub !== null && Math.abs(serverSub - localTotal) <= 1) {
+          const discount = state.totals.find(line => line.code === 'products_discount');
+          if (discount && Number.isFinite(Number(discount.value)) && Number(discount.value) < 0) {
+            return Math.abs(Number(discount.value));
+          }
+        }
       }
-      if (this.hasConflictingBundleUsage(state)) return 0;
-      return 0;
+
+      // Authoritative local bundle calculation:
+      const cart = this.getCart();
+      if (!cart || cart.length === 0) return 0;
+      const bundles = this.getLiveBundleOffers();
+      if (!bundles || bundles.length === 0) return 0;
+
+      let totalDiscount = 0;
+      for (let bi = 0; bi < bundles.length; bi++) {
+        const b = bundles[bi];
+        const name = ((b.name || '') + ' ' + (b.description || '')).toLowerCase();
+        const usageCount = Number(b.usage_count) || 0;
+        if (usageCount <= 0) continue;
+
+        if (name.includes('2+1') || name.includes('1+2')) {
+          const eligiblePrices = [];
+          for (let ci = 0; ci < cart.length; ci++) {
+            if (this._isQualifying100mlPerfume(cart[ci]) || (this._isQualifyingBodySpray && this._isQualifyingBodySpray(cart[ci]))) {
+              const qty = Number(cart[ci].quantity) || 1;
+              const p = Number(cart[ci].price) || 0;
+              for (let q = 0; q < qty; q++) {
+                eligiblePrices.push(p);
+              }
+            }
+          }
+          if (eligiblePrices.length >= 3) {
+            eligiblePrices.sort((a, b) => a - b);
+            const maxSets = Math.min(usageCount, Math.floor(eligiblePrices.length / 3));
+            for (let i = 0; i < maxSets; i++) {
+              totalDiscount += Math.max(0, eligiblePrices[i] - 1);
+            }
+          }
+        } else if (name.includes('تولة') || name.includes('توله')) {
+          const tolaPrices = [];
+          for (let ci = 0; ci < cart.length; ci++) {
+            if (this._isQualifyingTola(cart[ci])) {
+              const qty = Number(cart[ci].quantity) || 1;
+              const p = Number(cart[ci].price) || 0;
+              for (let q = 0; q < qty; q++) {
+                tolaPrices.push(p);
+              }
+            }
+          }
+          tolaPrices.sort((a, b) => a - b);
+          for (let i = 0; i < usageCount && i < tolaPrices.length; i++) {
+            totalDiscount += Math.max(0, tolaPrices[i] - 1);
+          }
+        }
+      }
+      return Math.round(totalDiscount * 100) / 100;
     },
     syncLiveCart: async function() {
       if (typeof window === 'undefined' || typeof fetch !== 'function') return null;
@@ -3745,11 +3802,14 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
               let bundleDiscount = this.getLiveBundleDiscount();
               let liveTotals = null;
               if (data && Array.isArray(data.totals) && data.totals.length > 0) {
-                liveTotals = data.totals;
-                const subObj = liveTotals.find(t => t.code === 'sub_totals');
-                if (subObj && Number.isFinite(Number(subObj.value)) && Number(subObj.value) > 0) total = Number(subObj.value);
-                const discObj = liveTotals.find(t => t.code === 'products_discount');
-                if (discObj && Number.isFinite(Number(discObj.value))) bundleDiscount = Math.abs(Number(discObj.value));
+                const subObj = data.totals.find(t => t.code === 'sub_totals');
+                const serverSub = (subObj && Number.isFinite(Number(subObj.value))) ? Number(subObj.value) : null;
+                if (serverSub !== null && Math.abs(serverSub - total) <= 1) {
+                  liveTotals = data.totals;
+                  total = serverSub;
+                  const discObj = liveTotals.find(t => t.code === 'products_discount');
+                  if (discObj && Number.isFinite(Number(discObj.value))) bundleDiscount = Math.abs(Number(discObj.value));
+                }
               }
               const bundleOffers = this.getLiveBundleOffers();
               const drawerBundleRow = document.getElementById('drawer-bundle-discount-row');
@@ -3799,18 +3859,18 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                   drawerCouponBtn.textContent = 'تطبيق';
                 }
               }
-              let finalDrawerTotal = Math.max(0, total - bundleDiscount);
+              const baseAfterBundle = Math.max(0, total - bundleDiscount);
+              let finalDrawerTotal = baseAfterBundle;
               if (liveTotals) {
                 const totObj = liveTotals.find(t => t.code === 'total');
                 if (totObj && Number.isFinite(Number(totObj.value))) finalDrawerTotal = Number(totObj.value);
-              }
-              if (bundleDiscount > 0) {
-                totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(finalDrawerTotal)}</span>`;
-              } else if (savedCoupon && total > 0) {
+              } else if (savedCoupon && baseAfterBundle > 0) {
                 const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : 5;
-                const discount = Math.round(((total * pct) / 100) * 100) / 100;
-                const finalTotal = Math.max(0, Math.round((total - discount) * 100) / 100);
-                totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(finalTotal)}</span>`;
+                const discount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
+                finalDrawerTotal = Math.max(0, Math.round((baseAfterBundle - discount) * 100) / 100);
+              }
+              if ((savedCoupon || bundleDiscount > 0) && total > 0 && finalDrawerTotal !== total) {
+                totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(finalDrawerTotal)}</span>`;
               } else {
                 totalEl.textContent = formatPrice(total);
               }
@@ -3968,13 +4028,12 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
       if (totalEl) {
         const baseAfterBundle = Math.max(0, total - bundleDiscount);
-        if (bundleDiscount > 0) {
-          totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(baseAfterBundle)}</span>`;
-        } else if (savedCoupon && total > 0) {
-          const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : 5;
-          const discount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
-          const finalTotal = Math.max(0, Math.round((baseAfterBundle - discount) * 100) / 100);
-          totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(finalTotal)}</span>`;
+        const pct = (savedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : (savedCoupon ? 5 : 0);
+        const couponDiscount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
+        const finalDrawerTotal = Math.max(0, Math.round((baseAfterBundle - couponDiscount) * 100) / 100);
+
+        if ((savedCoupon || bundleDiscount > 0) && total > 0 && finalDrawerTotal !== total) {
+          totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(finalDrawerTotal)}</span>`;
         } else {
           totalEl.textContent = formatPrice(total);
         }
@@ -5868,23 +5927,26 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   }
 
   function updateCartFinancials(subtotal) {
-    let amount = Number.isFinite(Number(subtotal)) ? Number(subtotal) : 0;
+    const localTotal = (typeof CartManager !== 'undefined' && CartManager.getTotal) ? CartManager.getTotal() : (Number(subtotal) || 0);
+    let amount = localTotal;
     let bundleDiscount = 0;
     let liveTotals = null;
 
     if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.totals) && window._noteLiveCartState.totals.length > 0) {
-      liveTotals = window._noteLiveCartState.totals;
-      const subObj = liveTotals.find(t => t.code === 'sub_totals');
-      if (subObj && Number.isFinite(Number(subObj.value)) && Number(subObj.value) > 0) {
-        amount = Number(subObj.value);
-      }
-      const discObj = liveTotals.find(t => t.code === 'products_discount');
-      if (discObj && Number.isFinite(Number(discObj.value))) {
-        bundleDiscount = Math.abs(Number(discObj.value));
+      const serverTotals = window._noteLiveCartState.totals;
+      const subObj = serverTotals.find(t => t.code === 'sub_totals');
+      const serverSub = (subObj && Number.isFinite(Number(subObj.value))) ? Number(subObj.value) : null;
+      if (serverSub !== null && Math.abs(serverSub - localTotal) <= 1) {
+        liveTotals = serverTotals;
+        amount = serverSub;
+        const discObj = liveTotals.find(t => t.code === 'products_discount');
+        if (discObj && Number.isFinite(Number(discObj.value))) {
+          bundleDiscount = Math.abs(Number(discObj.value));
+        }
       }
     }
 
-    if (!liveTotals && typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) {
+    if (bundleDiscount === 0 && typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) {
       bundleDiscount = CartManager.getLiveBundleDiscount();
     }
 
@@ -5896,7 +5958,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         bundleRow.classList.remove('hidden');
         if (bundleTitle) {
           const cleanNames = new Set();
-          if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.bundle_offers)) {
+          if (liveTotals && typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.bundle_offers)) {
             const activeZid = window._noteLiveCartState.bundle_offers.filter(b => b.usage_count > 0 || Number(b.discount_total) > 0);
             activeZid.forEach(b => {
               const n = String(b.name || '');
@@ -5923,32 +5985,50 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       }
     }
 
-    for(const id of ['page-subtotal','page-grand-total']) {
-      const el=document.getElementById(id);
-      if(el) el.textContent=amount.toLocaleString('en-US',{maximumFractionDigits:2})+' ر.س';
-    }
-    document.getElementById('discount-row')?.classList.add('hidden');
-    const shipping=document.getElementById('page-shipping');
-    if(shipping) shipping.textContent='يُحسب عند الدفع';
+    const subtotalEl = document.getElementById('page-subtotal');
+    if (subtotalEl) subtotalEl.textContent = (typeof formatPrice === 'function' ? formatPrice(amount) : (amount.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' ر.س'));
 
     const appliedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
-    let finalAmount = Math.max(0, amount - bundleDiscount);
-    if (liveTotals) {
+    const baseAfterBundle = Math.max(0, amount - bundleDiscount);
+    let finalAmount = baseAfterBundle;
+    let couponDiscount = 0;
+
+    if (appliedCoupon && baseAfterBundle > 0) {
+      const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : 5;
+      couponDiscount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
+      finalAmount = Math.max(0, Math.round((baseAfterBundle - couponDiscount) * 100) / 100);
+    } else if (liveTotals) {
       const totObj = liveTotals.find(t => t.code === 'total');
       if (totObj && Number.isFinite(Number(totObj.value))) {
         finalAmount = Number(totObj.value);
       }
-    } else if (appliedCoupon && amount > 0 && bundleDiscount === 0) {
-      const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : 5;
-      const discount = Math.round(((amount * pct) / 100) * 100) / 100;
-      finalAmount = Math.max(0, Math.round((amount - discount) * 100) / 100);
     }
 
+    const discountRow = document.getElementById('discount-row');
+    const discountVal = document.getElementById('page-discount');
+    const discountTitle = document.getElementById('page-discount-title');
+    if (discountRow) {
+      if (couponDiscount > 0) {
+        discountRow.classList.remove('hidden');
+        if (discountTitle) discountTitle.textContent = `كود الخصم (${appliedCoupon}):`;
+        if (discountVal) discountVal.textContent = `-${couponDiscount.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س`;
+      } else {
+        discountRow.classList.add('hidden');
+      }
+    }
+
+    const shipping = document.getElementById('page-shipping');
+    if (shipping) shipping.textContent = 'يُحسب عند الدفع';
+
     const grandEl = document.getElementById('page-grand-total');
-    if (grandEl && finalAmount !== amount) {
-      const formattedOld = (typeof formatPrice === 'function') ? formatPrice(amount) : (amount.toLocaleString('en-US',{maximumFractionDigits:2})+' ر.س');
-      const formattedNew = (typeof formatPrice === 'function') ? formatPrice(finalAmount) : (finalAmount.toLocaleString('en-US',{maximumFractionDigits:2})+' ر.س');
-      grandEl.innerHTML = `<span class="note-cart-total-old line-through text-stone-400 font-semibold text-sm sm:text-base ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:15px!important;font-weight:600!important;margin-left:8px!important;">${formattedOld}</span><span class="note-cart-total-new text-rose-600 font-black text-xl sm:text-2xl" style="color:#ef4444!important;font-size:22px!important;font-weight:900!important;">${formattedNew}</span>`;
+    if (grandEl) {
+      if (finalAmount !== amount) {
+        const formattedOld = (typeof formatPrice === 'function') ? formatPrice(amount) : (amount.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' ر.س');
+        const formattedNew = (typeof formatPrice === 'function') ? formatPrice(finalAmount) : (finalAmount.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' ر.س');
+        grandEl.innerHTML = `<span class="note-cart-total-old line-through text-stone-400 font-semibold text-sm sm:text-base ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:15px!important;font-weight:600!important;margin-left:8px!important;">${formattedOld}</span><span class="note-cart-total-new text-rose-600 font-black text-xl sm:text-2xl" style="color:#ef4444!important;font-size:22px!important;font-weight:900!important;">${formattedNew}</span>`;
+      } else {
+        grandEl.textContent = (typeof formatPrice === 'function' ? formatPrice(amount) : (amount.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' ر.س'));
+      }
     }
 
     const summary = document.getElementById('cart-page-summary-wrapper');

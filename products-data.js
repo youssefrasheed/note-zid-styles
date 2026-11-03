@@ -1354,7 +1354,8 @@ const CartManager = {
     }
     
     const offers = [];
-    const offer2Count = Math.floor(perfume100Count / 3);
+    const totalQualifying2Plus1 = perfume100Count + bodySprayCount;
+    const offer2Count = Math.floor(totalQualifying2Plus1 / 3);
     if (offer2Count > 0) {
       offers.push({
         id: 'a31fcdea-5aac-447f-a220-0ef1d60bb0a6',
@@ -1363,24 +1364,28 @@ const CartManager = {
         discount_total: 0
       });
     }
-    const eligibleForTola = (perfume100Count - (offer2Count * 3)) + bodySprayCount;
-    if (eligibleForTola >= 1 && tolaCount >= 1) {
+    const remainingEligibleForTola = totalQualifying2Plus1 - (offer2Count * 3);
+    if (remainingEligibleForTola >= 1 && tolaCount >= 1) {
       offers.push({
         id: 'a31e7108-b61d-4611-a968-9cdf0eca636f',
-        name: 'عطرك بريال (1+تولة)',
-        usage_count: Math.min(eligibleForTola, tolaCount),
+        name: 'تولة بـ 1 ريال (1+تولة)',
+        usage_count: Math.min(remainingEligibleForTola, tolaCount),
         discount_total: 0
       });
     }
     return offers;
   },
   getLiveBundleDiscount: function() {
+    const localTotal = this.getTotal();
     if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.totals)) {
-      const discObj = window._noteLiveCartState.totals.find(t => t.code === 'products_discount');
-      if (discObj && Number.isFinite(Number(discObj.value))) {
-        return Math.abs(Number(discObj.value));
+      const subObj = window._noteLiveCartState.totals.find(t => t.code === 'sub_totals');
+      const serverSub = (subObj && Number.isFinite(Number(subObj.value))) ? Number(subObj.value) : null;
+      if (serverSub !== null && Math.abs(serverSub - localTotal) <= 1) {
+        const discObj = window._noteLiveCartState.totals.find(t => t.code === 'products_discount');
+        if (discObj && Number.isFinite(Number(discObj.value)) && Number(discObj.value) < 0) {
+          return Math.abs(Number(discObj.value));
+        }
       }
-      return 0; // If Zid state exists and there is no products_discount, discount IS 0!
     }
     const bundles = this.getLiveBundleOffers();
     if (!bundles || bundles.length === 0) return 0;
@@ -1396,7 +1401,7 @@ const CartManager = {
       if (name.includes('2+1') || name.includes('1+2')) {
         const eligible = [];
         for (let ci = 0; ci < cart.length; ci++) {
-          if (this._isQualifying100mlPerfume(cart[ci])) {
+          if (this._isQualifying100mlPerfume(cart[ci]) || (this._isQualifyingBodySpray && this._isQualifyingBodySpray(cart[ci]))) {
             const qty = Number(cart[ci].quantity) || 1;
             for (let q = 0; q < qty; q++) {
               eligible.push(Number(cart[ci].price) || 0);
@@ -1404,12 +1409,10 @@ const CartManager = {
           }
         }
         if (eligible.length >= 3) {
-          eligible.sort((a, b) => b - a);
+          eligible.sort((a, b) => a - b);
           const maxSets = Math.min(usageCount, Math.floor(eligible.length / 3));
-          const totalInSets = maxSets * 3;
-          const discounted = eligible.slice(0, totalInSets).slice(maxSets * 2);
-          for (let i = 0; i < discounted.length; i++) {
-            totalDiscount += Math.max(0, discounted[i] - 1);
+          for (let i = 0; i < maxSets; i++) {
+            totalDiscount += Math.max(0, eligible[i] - 1);
           }
         }
       } else if (name.includes('تولة') || name.includes('توله')) {
@@ -1422,10 +1425,9 @@ const CartManager = {
             }
           }
         }
-        tolas.sort((a, b) => b - a);
-        const discountedTolas = tolas.slice(Math.max(0, tolas.length - usageCount));
-        for (let i = 0; i < discountedTolas.length; i++) {
-          totalDiscount += Math.max(0, discountedTolas[i] - 1);
+        tolas.sort((a, b) => a - b);
+        for (let i = 0; i < usageCount && i < tolas.length; i++) {
+          totalDiscount += Math.max(0, tolas[i] - 1);
         }
       }
     }
