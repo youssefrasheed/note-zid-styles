@@ -1246,30 +1246,69 @@ const CartManager = {
   },
   _isQualifying100mlPerfume: function(item) {
     if (!item) return false;
-    const id = String(item.id || '').toLowerCase();
-    const title = (item.title || item.name || '').toLowerCase();
-    const cat = String(item.cat || item.category || '').toLowerCase();
-    const size = String(item.size || '').toLowerCase();
-    // Strictly exclude packages, sets, gift collections
-    if (id.startsWith('pkg-') || id.includes('bundle') || id.includes('gift')) return false;
-    if (cat.includes('package') || cat.includes('set') || cat.includes('bundle')) return false;
-    if (title.includes('باقة') || title.includes('مجموعة') || title.includes('بكج') || title.includes('بوكس') || 
-        title.includes('طقم') || title.includes('سفنتشر') || title.includes('سجنتشر') || title.includes('إسكيب') || 
-        title.includes('اسكيب') || title.includes('الملكية') || title.includes('الكلاسيكية')) return false;
-    // Strictly exclude 30ml minis, oils/tolas, sprays, and cosmetics
-    if (title.includes('30 مل') || title.includes('30مل') || size.includes('30') || cat.includes('travel')) return false;
-    if (title.includes('تولة') || title.includes('توله') || title.includes('مسك توفي') || title.includes('عنبر مِسك') || cat.includes('tollah')) return false;
-    if (title.includes('معطر') || title.includes('لوشن') || title.includes('جل') || title.includes('شاور') || cat.includes('linen') || cat.includes('body')) return false;
-    // All single 100ml perfumes in Note are >= 150 SAR
-    return (Number(item.price) >= 150);
+    const rawId = String(item.product_id || item.id || '').toLowerCase();
+    const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === rawId || cp.id === item.product_id || cp.id === item.id || cp.zid_id === rawId || cp.zid_id === item.product_id || cp.zid_id === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && (ZID_PRODUCT_MAP[rawId] === cp.id || ZID_PRODUCT_MAP[rawId] === cp.zid_id))) : null;
+    
+    const id = String((p && p.id) || rawId).toLowerCase();
+    const zidId = String((p && p.zid_id) || item.zid_id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[id]) || '').toLowerCase();
+    const title = String((p && p.title) || item.title || item.name || '').toLowerCase();
+    const cat = String((p && p.cat) || item.cat || item.category || '').toLowerCase();
+    const catIds = Array.isArray(p?.category_ids) ? p.category_ids.map(String) : (Array.isArray(item.category_ids) ? item.category_ids.map(String) : []);
+
+    // 1. Strictly exclude non-perfumes: All-Over Sprays (1759042), Travel (1759043), Linen (1759044), Tolas (1421002), Packages (1752110), Body Care (1759046)
+    if (catIds.includes('1759042') || cat === 'all-over' || cat.includes('spray') || cat.includes('body')) return false;
+    if (catIds.includes('1759043') || cat === 'travel' || title.includes('30 مل') || title.includes('30مل') || (item.size && String(item.size).includes('30'))) return false;
+    if (catIds.includes('1759044') || cat === 'linen' || title.includes('مفارش')) return false;
+    if (catIds.includes('1421002') || cat === 'tollah' || title.includes('تولة') || title.includes('توله')) return false;
+    if (catIds.includes('1752110') || cat === 'packages' || id.startsWith('pkg-') || id.includes('bundle') || id.includes('gift') || title.includes('باقة') || title.includes('مجموعة') || title.includes('طقم') || title.includes('بكج') || title.includes('بوكس')) return false;
+    if (catIds.includes('1759046') || cat === 'body-care' || title.includes('لوشن') || title.includes('جل') || title.includes('شاور')) return false;
+
+    // Explicitly reject known non-perfume products like Royal Powder All-Over Spray
+    if (id === '940195dc-fc3b-4180-b062-c1cd85809564' || zidId === '940195dc-fc3b-4180-b062-c1cd85809564' || title === 'رويال بودر') return false;
+
+    // 2. Strict Qualification: Must belong to Zid's official 100ml / Niche Perfume categories (1748533 or 1759040)
+    if (catIds.includes('1748533') || catIds.includes('1759040')) return true;
+
+    const QUALIFIED_PERFUMES = [
+      '9ba63129-20bc-4a0f-b49f-17d06e130ad9', '764d587d-7cba-46b3-8d34-265ee4bc4b6a', '7a28376c-3973-4822-b6b2-b3a6a4e7013e',
+      '9be5ff2f-3d33-4402-b511-e099805c681d', '5d98daa5-9e6e-473d-9d41-3310cb2f3ca7', '4251cc74-23ba-45b0-9268-03b740df88bd',
+      '54805f9b-53c4-4e4c-a75a-5173eda716c8', '08874f48-a894-4b53-aaeb-8b010d8e285d', 'cc5e1bb2-e928-4efd-b94f-0158ec53ba49',
+      'b99d66f3-f6c6-4354-94cb-fa225e0bc08e', '21b12ed7-e9a6-4a49-8ef2-dc18d6e326c9', '1c6e8d65-9c1e-42d8-a9c3-265e7daa1a81',
+      'fe61d38b-aa5a-493d-9db2-7f7ea4cb72e7', '809c89af-801a-464a-a035-7c093ca5165a', '620ef67b-39ba-41f0-a4f2-f9ce56cf3b1c',
+      'c6380d1f-8255-4d3a-b5e5-f5b2b2b1a1c9', '8c331e9f-9721-4f11-9a70-761e0bb4dc0b',
+      'roayal-tobacco', 'royal-tobacco', 'oud-rosewood', 'musk', 'note-musk', 'aura', 'bn', 'gold',
+      'musk-bakhur', 'phantom', 'note-for-him', 'powderose', 'note-for-her', 'royal-powder', 'attraction',
+      'niche-oud', 'niche-royal-leather', 'niche-blue', 'niche-amber'
+    ];
+    if (QUALIFIED_PERFUMES.includes(id) || QUALIFIED_PERFUMES.includes(zidId)) return true;
+
+    return (cat === 'perfumes' || cat === 'niche') && Number(item.price) >= 165;
   },
   _isQualifyingTola: function(item) {
     if (!item) return false;
-    const id = String(item.id || '').toLowerCase();
-    const title = (item.title || item.name || '').toLowerCase();
-    const cat = String(item.cat || item.category || '').toLowerCase();
-    if (title.includes('مجموعة') || title.includes('باقة') || id.startsWith('pkg-') || title.includes('معطر') || cat.includes('all-over') || cat.includes('linen')) return false;
-    return (cat.includes('tollah') || title.includes('تولة') || title.includes('توله')) && Number(item.price) <= 120 && Number(item.price) >= 40;
+    const rawId = String(item.product_id || item.id || '').toLowerCase();
+    const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === rawId || cp.id === item.product_id || cp.id === item.id || cp.zid_id === rawId || cp.zid_id === item.product_id || cp.zid_id === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && (ZID_PRODUCT_MAP[rawId] === cp.id || ZID_PRODUCT_MAP[rawId] === cp.zid_id))) : null;
+
+    const id = String((p && p.id) || rawId).toLowerCase();
+    const zidId = String((p && p.zid_id) || item.zid_id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[id]) || '').toLowerCase();
+    const title = String((p && p.title) || item.title || item.name || '').toLowerCase();
+    const cat = String((p && p.cat) || item.cat || item.category || '').toLowerCase();
+    const catIds = Array.isArray(p?.category_ids) ? p.category_ids.map(String) : (Array.isArray(item.category_ids) ? item.category_ids.map(String) : []);
+
+    if (catIds.includes('1752110') || cat === 'packages' || id.startsWith('pkg-') || title.includes('باقة') || title.includes('مجموعة') || title.includes('طقم')) return false;
+    if (catIds.includes('1759042') || cat === 'all-over' || catIds.includes('1759044') || cat === 'linen') return false;
+
+    if (catIds.includes('1421002') || cat === 'tollah') return true;
+
+    const QUALIFIED_TOLAS = [
+      '95f09483-36aa-43e6-a2bc-3e4070fb1f2c', 'dcea75e0-fa65-4f7f-aa4e-73a7aa99c9d4',
+      '0dda8a6b-bfdc-4a37-b452-f1d93b320708', 'f0206dc9-440d-400a-b2fa-4cb2996ee866',
+      '1f091171-4602-452f-90d2-9750587285f5',
+      'tollah-musk-toffee', 'sugar-oud', 'lady-rose', 'amber-musk', 'pure-toffee', 'tollah'
+    ];
+    if (QUALIFIED_TOLAS.includes(id) || QUALIFIED_TOLAS.includes(zidId)) return true;
+
+    return (title.includes('تولة') || title.includes('توله')) && Number(item.price) <= 120 && Number(item.price) >= 40;
   },
   getLiveBundleOffers: function() {
     const cart = this.getCart();
@@ -1307,6 +1346,13 @@ const CartManager = {
     return offers;
   },
   getLiveBundleDiscount: function() {
+    if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.totals)) {
+      const discObj = window._noteLiveCartState.totals.find(t => t.code === 'products_discount');
+      if (discObj && Number.isFinite(Number(discObj.value))) {
+        return Math.abs(Number(discObj.value));
+      }
+      return 0; // If Zid state exists and there is no products_discount, discount IS 0!
+    }
     const bundles = this.getLiveBundleOffers();
     if (!bundles || bundles.length === 0) return 0;
     const cart = this.getCart();

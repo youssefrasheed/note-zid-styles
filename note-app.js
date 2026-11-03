@@ -3487,12 +3487,17 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         const imgUrl = resolveImgUrl(product.img);
         cart.push({
           id: product.id,
+          product_id: product.id,
+          zid_id: product.zid_id,
           title: product.title,
           title_en: product.title_en || '',
           price: rawPrice || 189,
           old_price: rawOldPrice,
           img: imgUrl,
-          size: product.size || '100 مل',
+          cat: product.cat,
+          category: product.category,
+          category_ids: product.category_ids,
+          size: product.size || (product.cat === 'tollah' ? 'ربع تولة' : (product.cat === 'travel' ? '30 مل' : (product.cat === 'all-over' ? '250 مل' : '100 مل'))),
           quantity: quantity
         });
       }
@@ -3538,30 +3543,69 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     },
     _isQualifying100mlPerfume: function(item) {
       if (!item) return false;
-      const id = String(item.id || '').toLowerCase();
-      const title = (item.title || item.name || '').toLowerCase();
-      const cat = String(item.cat || item.category || '').toLowerCase();
-      const size = String(item.size || '').toLowerCase();
-      // Strictly exclude packages, sets, gift collections
-      if (id.startsWith('pkg-') || id.includes('bundle') || id.includes('gift')) return false;
-      if (cat.includes('package') || cat.includes('set') || cat.includes('bundle')) return false;
-      if (title.includes('باقة') || title.includes('مجموعة') || title.includes('بكج') || title.includes('بوكس') || 
-          title.includes('طقم') || title.includes('سفنتشر') || title.includes('سجنتشر') || title.includes('إسكيب') || 
-          title.includes('اسكيب') || title.includes('الملكية') || title.includes('الكلاسيكية')) return false;
-      // Strictly exclude 30ml minis, oils/tolas, sprays, and cosmetics
-      if (title.includes('30 مل') || title.includes('30مل') || size.includes('30') || cat.includes('travel')) return false;
-      if (title.includes('تولة') || title.includes('توله') || title.includes('مسك توفي') || title.includes('عنبر مِسك') || cat.includes('tollah')) return false;
-      if (title.includes('معطر') || title.includes('لوشن') || title.includes('جل') || title.includes('شاور') || cat.includes('linen') || cat.includes('body')) return false;
-      // All single 100ml perfumes in Note are >= 150 SAR
-      return (Number(item.price) >= 150);
+      const rawId = String(item.product_id || item.id || '').toLowerCase();
+      const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === rawId || cp.id === item.product_id || cp.id === item.id || cp.zid_id === rawId || cp.zid_id === item.product_id || cp.zid_id === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && (ZID_PRODUCT_MAP[rawId] === cp.id || ZID_PRODUCT_MAP[rawId] === cp.zid_id))) : null;
+      
+      const id = String((p && p.id) || rawId).toLowerCase();
+      const zidId = String((p && p.zid_id) || item.zid_id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[id]) || '').toLowerCase();
+      const title = String((p && p.title) || item.title || item.name || '').toLowerCase();
+      const cat = String((p && p.cat) || item.cat || item.category || '').toLowerCase();
+      const catIds = Array.isArray(p?.category_ids) ? p.category_ids.map(String) : (Array.isArray(item.category_ids) ? item.category_ids.map(String) : []);
+
+      // 1. Strictly exclude non-perfumes: All-Over Sprays (1759042), Travel (1759043), Linen (1759044), Tolas (1421002), Packages (1752110), Body Care (1759046)
+      if (catIds.includes('1759042') || cat === 'all-over' || cat.includes('spray') || cat.includes('body')) return false;
+      if (catIds.includes('1759043') || cat === 'travel' || title.includes('30 مل') || title.includes('30مل') || (item.size && String(item.size).includes('30'))) return false;
+      if (catIds.includes('1759044') || cat === 'linen' || title.includes('مفارش')) return false;
+      if (catIds.includes('1421002') || cat === 'tollah' || title.includes('تولة') || title.includes('توله')) return false;
+      if (catIds.includes('1752110') || cat === 'packages' || id.startsWith('pkg-') || id.includes('bundle') || id.includes('gift') || title.includes('باقة') || title.includes('مجموعة') || title.includes('طقم') || title.includes('بكج') || title.includes('بوكس')) return false;
+      if (catIds.includes('1759046') || cat === 'body-care' || title.includes('لوشن') || title.includes('جل') || title.includes('شاور')) return false;
+
+      // Explicitly reject known non-perfume products like Royal Powder All-Over Spray
+      if (id === '940195dc-fc3b-4180-b062-c1cd85809564' || zidId === '940195dc-fc3b-4180-b062-c1cd85809564' || title === 'رويال بودر') return false;
+
+      // 2. Strict Qualification: Must belong to Zid's official 100ml / Niche Perfume categories (1748533 or 1759040)
+      if (catIds.includes('1748533') || catIds.includes('1759040')) return true;
+
+      const QUALIFIED_PERFUMES = [
+        '9ba63129-20bc-4a0f-b49f-17d06e130ad9', '764d587d-7cba-46b3-8d34-265ee4bc4b6a', '7a28376c-3973-4822-b6b2-b3a6a4e7013e',
+        '9be5ff2f-3d33-4402-b511-e099805c681d', '5d98daa5-9e6e-473d-9d41-3310cb2f3ca7', '4251cc74-23ba-45b0-9268-03b740df88bd',
+        '54805f9b-53c4-4e4c-a75a-5173eda716c8', '08874f48-a894-4b53-aaeb-8b010d8e285d', 'cc5e1bb2-e928-4efd-b94f-0158ec53ba49',
+        'b99d66f3-f6c6-4354-94cb-fa225e0bc08e', '21b12ed7-e9a6-4a49-8ef2-dc18d6e326c9', '1c6e8d65-9c1e-42d8-a9c3-265e7daa1a81',
+        'fe61d38b-aa5a-493d-9db2-7f7ea4cb72e7', '809c89af-801a-464a-a035-7c093ca5165a', '620ef67b-39ba-41f0-a4f2-f9ce56cf3b1c',
+        'c6380d1f-8255-4d3a-b5e5-f5b2b2b1a1c9', '8c331e9f-9721-4f11-9a70-761e0bb4dc0b',
+        'roayal-tobacco', 'royal-tobacco', 'oud-rosewood', 'musk', 'note-musk', 'aura', 'bn', 'gold',
+        'musk-bakhur', 'phantom', 'note-for-him', 'powderose', 'note-for-her', 'royal-powder', 'attraction',
+        'niche-oud', 'niche-royal-leather', 'niche-blue', 'niche-amber'
+      ];
+      if (QUALIFIED_PERFUMES.includes(id) || QUALIFIED_PERFUMES.includes(zidId)) return true;
+
+      return (cat === 'perfumes' || cat === 'niche') && Number(item.price) >= 165;
     },
     _isQualifyingTola: function(item) {
       if (!item) return false;
-      const id = String(item.id || '').toLowerCase();
-      const title = (item.title || item.name || '').toLowerCase();
-      const cat = String(item.cat || item.category || '').toLowerCase();
-      if (title.includes('مجموعة') || title.includes('باقة') || id.startsWith('pkg-') || title.includes('معطر') || cat.includes('all-over') || cat.includes('linen')) return false;
-      return (cat.includes('tollah') || title.includes('تولة') || title.includes('توله')) && Number(item.price) <= 120 && Number(item.price) >= 40;
+      const rawId = String(item.product_id || item.id || '').toLowerCase();
+      const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === rawId || cp.id === item.product_id || cp.id === item.id || cp.zid_id === rawId || cp.zid_id === item.product_id || cp.zid_id === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && (ZID_PRODUCT_MAP[rawId] === cp.id || ZID_PRODUCT_MAP[rawId] === cp.zid_id))) : null;
+
+      const id = String((p && p.id) || rawId).toLowerCase();
+      const zidId = String((p && p.zid_id) || item.zid_id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[id]) || '').toLowerCase();
+      const title = String((p && p.title) || item.title || item.name || '').toLowerCase();
+      const cat = String((p && p.cat) || item.cat || item.category || '').toLowerCase();
+      const catIds = Array.isArray(p?.category_ids) ? p.category_ids.map(String) : (Array.isArray(item.category_ids) ? item.category_ids.map(String) : []);
+
+      if (catIds.includes('1752110') || cat === 'packages' || id.startsWith('pkg-') || title.includes('باقة') || title.includes('مجموعة') || title.includes('طقم')) return false;
+      if (catIds.includes('1759042') || cat === 'all-over' || catIds.includes('1759044') || cat === 'linen') return false;
+
+      if (catIds.includes('1421002') || cat === 'tollah') return true;
+
+      const QUALIFIED_TOLAS = [
+        '95f09483-36aa-43e6-a2bc-3e4070fb1f2c', 'dcea75e0-fa65-4f7f-aa4e-73a7aa99c9d4',
+        '0dda8a6b-bfdc-4a37-b452-f1d93b320708', 'f0206dc9-440d-400a-b2fa-4cb2996ee866',
+        '1f091171-4602-452f-90d2-9750587285f5',
+        'tollah-musk-toffee', 'sugar-oud', 'lady-rose', 'amber-musk', 'pure-toffee', 'tollah'
+      ];
+      if (QUALIFIED_TOLAS.includes(id) || QUALIFIED_TOLAS.includes(zidId)) return true;
+
+      return (title.includes('تولة') || title.includes('توله')) && Number(item.price) <= 120 && Number(item.price) >= 40;
     },
     getLiveBundleOffers: function() {
       const cart = this.getCart();
@@ -3602,6 +3646,13 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       return offers;
     },
     getLiveBundleDiscount: function() {
+      if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.totals)) {
+        const discObj = window._noteLiveCartState.totals.find(t => t.code === 'products_discount');
+        if (discObj && Number.isFinite(Number(discObj.value))) {
+          return Math.abs(Number(discObj.value));
+        }
+        return 0; // If Zid state exists and there is no products_discount, discount IS 0!
+      }
       const bundles = this.getLiveBundleOffers();
       if (!bundles || bundles.length === 0) return 0;
       const cart = this.getCart();
@@ -3663,8 +3714,18 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
           if (res.ok) {
             const data = await res.json();
             window._noteLiveCartState = data;
-            if (typeof updateCartFinancials === 'function' && document.getElementById('cart-page-items')) {
-              updateCartFinancials(this.getTotal());
+            if (document.getElementById('cart-page-items')) {
+              if (typeof updateCartFinancials === 'function') {
+                updateCartFinancials(this.getTotal());
+              }
+              if (typeof renderCartPage === 'function' && !this._reRenderingFromSync) {
+                this._reRenderingFromSync = true;
+                try {
+                  renderCartPage(true);
+                } finally {
+                  this._reRenderingFromSync = false;
+                }
+              }
             }
             const totalEl = document.getElementById('cart-drawer-total');
             if (totalEl) {
@@ -3686,13 +3747,24 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                 if (bundleDiscount > 0) {
                   drawerBundleRow.classList.remove('hidden');
                   if (drawerBundleTitle) {
-                    let offerNames = '';
+                    const cleanNames = new Set();
                     if (data && Array.isArray(data.bundle_offers)) {
                       const activeZid = data.bundle_offers.filter(b => b.usage_count > 0 || Number(b.discount_total) > 0);
-                      if (activeZid.length > 0) offerNames = activeZid.map(b => b.name).filter(Boolean).join(' + ');
+                      activeZid.forEach(b => {
+                        const n = String(b.name || '');
+                        if (n.includes('تولة') || n.includes('توله') || n.includes('1+تولة')) cleanNames.add('تولة بـ 1 ريال');
+                        else cleanNames.add('عطرك بـ 1 ريال');
+                      });
                     }
-                    if (!offerNames) offerNames = bundleOffers.map(b => b.name).filter(Boolean).join(' + ');
-                    drawerBundleTitle.textContent = offerNames ? `وفّرت مع العرض (${offerNames}):` : 'وفّرت مع العرض:';
+                    if (cleanNames.size === 0) {
+                      bundleOffers.forEach(b => {
+                        const n = String(b.name || '');
+                        if (n.includes('تولة') || n.includes('توله')) cleanNames.add('تولة بـ 1 ريال');
+                        else cleanNames.add('عطرك بـ 1 ريال');
+                      });
+                    }
+                    const offerLabel = cleanNames.size > 0 ? Array.from(cleanNames).join(' + ') : 'عطرك بـ 1 ريال';
+                    drawerBundleTitle.textContent = `وفّرت مع العرض (${offerLabel}):`;
                   }
                   if (drawerBundleVal) drawerBundleVal.textContent = `-${bundleDiscount.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س`;
                 } else {
@@ -3840,8 +3912,24 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         if (bundleDiscount > 0) {
           drawerBundleRow.classList.remove('hidden');
           if (drawerBundleTitle) {
-            const offerNames = bundleOffers.map(b => b.name).filter(Boolean).join(' + ');
-            drawerBundleTitle.textContent = offerNames ? `وفّرت مع العرض (${offerNames}):` : 'وفّرت مع العرض:';
+            const cleanNames = new Set();
+            if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.bundle_offers)) {
+              const activeZid = window._noteLiveCartState.bundle_offers.filter(b => b.usage_count > 0 || Number(b.discount_total) > 0);
+              activeZid.forEach(b => {
+                const n = String(b.name || '');
+                if (n.includes('تولة') || n.includes('توله') || n.includes('1+تولة')) cleanNames.add('تولة بـ 1 ريال');
+                else cleanNames.add('عطرك بـ 1 ريال');
+              });
+            }
+            if (cleanNames.size === 0) {
+              bundleOffers.forEach(b => {
+                const n = String(b.name || '');
+                if (n.includes('تولة') || n.includes('توله')) cleanNames.add('تولة بـ 1 ريال');
+                else cleanNames.add('عطرك بـ 1 ريال');
+              });
+            }
+            const offerLabel = cleanNames.size > 0 ? Array.from(cleanNames).join(' + ') : 'عطرك بـ 1 ريال';
+            drawerBundleTitle.textContent = `وفّرت مع العرض (${offerLabel}):`;
           }
           if (drawerBundleVal) drawerBundleVal.textContent = `-${bundleDiscount.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س`;
         } else {
@@ -5310,7 +5398,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   // 17. Cart Page Controller
   let cartDiscountRate = 0;
 
-  function renderCartPage() {
+  function renderCartPage(skipSync) {
     document.title = 'سلة المشتريات | دار نوت للعطور NOTE Perfumes';
     const itemsContainer = document.getElementById('cart-page-items');
     const emptyState = document.getElementById('cart-page-empty');
@@ -5348,6 +5436,39 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     }
 
     function partitionCartForPage(cartList) {
+      const liveData = (typeof window !== 'undefined') ? window._noteLiveCartState : null;
+      let zidBundleDiscount = 0;
+      let maxOffer2Sets = null;
+      let maxOffer1Sets = null;
+      if (liveData && Array.isArray(liveData.totals)) {
+        const discObj = liveData.totals.find(t => t.code === 'products_discount');
+        if (discObj && Number.isFinite(Number(discObj.value))) {
+          zidBundleDiscount = Math.abs(Number(discObj.value));
+        }
+        // If Zid native API returned totals and bundle discount is 0:
+        // ZERO offers apply in Zid! Do not create any fake offer cards!
+        if (zidBundleDiscount === 0) {
+          return {
+            offer2Groups: [],
+            offer1Groups: [],
+            standaloneItems: cartList.map(item => ({ ...item, lineTotal: item.price * item.quantity }))
+          };
+        }
+      }
+      if (liveData && Array.isArray(liveData.bundle_offers)) {
+        liveData.bundle_offers.forEach(b => {
+          const n = String(b.name || '').toLowerCase();
+          const count = Number(b.usage_count) || 0;
+          if (count > 0) {
+            if (n.includes('تولة') || n.includes('توله') || n.includes('1+تولة')) {
+              maxOffer1Sets = (maxOffer1Sets || 0) + count;
+            } else {
+              maxOffer2Sets = (maxOffer2Sets || 0) + count;
+            }
+          }
+        });
+      }
+
       const units = [];
       cartList.forEach(item => {
         const qty = Number(item.quantity) || 1;
@@ -5376,7 +5497,10 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       const offer1Groups = [];
 
       // 1. Strict sets of 3 perfumes for Offer 2 (Buy 2 Get 1)
-      const offer2Count = Math.floor(perfumes.length / 3);
+      let offer2Count = Math.floor(perfumes.length / 3);
+      if (maxOffer2Sets !== null) {
+        offer2Count = Math.min(offer2Count, maxOffer2Sets);
+      }
       if (offer2Count > 0) {
         const sortedPerfumes = [...perfumes].sort((a, b) => b.price - a.price);
         const totalPerfumesInOffer2 = offer2Count * 3;
@@ -5411,7 +5535,10 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       // 2. Strict pairs of 1 perfume + 1 tola for Offer 1 (Buy 1 perfume + 1 tola for 1 SAR)
       const remainingPerfumes = perfumes.filter(p => !usedPerfumes.has(p)).sort((a, b) => b.price - a.price);
       const sortedTolas = [...tolas].sort((a, b) => b.price - a.price);
-      const offer1Count = Math.min(remainingPerfumes.length, sortedTolas.length);
+      let offer1Count = Math.min(remainingPerfumes.length, sortedTolas.length);
+      if (maxOffer1Sets !== null) {
+        offer1Count = Math.min(offer1Count, maxOffer1Sets);
+      }
 
       if (offer1Count > 0) {
         for (let s = 0; s < offer1Count; s++) {
@@ -5664,7 +5791,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     updateCheckoutUpsell(cart);
     renderCartPageRecommendations(cart);
     restoreSavedCartCoupon();
-    if (typeof CartManager !== 'undefined' && CartManager.syncLiveCart) CartManager.syncLiveCart();
+    if (!skipSync && typeof CartManager !== 'undefined' && CartManager.syncLiveCart) CartManager.syncLiveCart();
   }
 
   function updateCheckoutUpsell(cart) {
@@ -5977,11 +6104,10 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       }
     }
 
-    if (bundleDiscount === 0 && typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) {
+    if (!liveTotals && typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) {
       bundleDiscount = CartManager.getLiveBundleDiscount();
     }
 
-    const bundleOffers = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleOffers) ? CartManager.getLiveBundleOffers() : [];
     const bundleRow = document.getElementById('bundle-discount-row');
     const bundleTitle = document.getElementById('page-bundle-discount-title');
     const bundleVal = document.getElementById('page-bundle-discount');
@@ -5989,17 +6115,25 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       if (bundleDiscount > 0) {
         bundleRow.classList.remove('hidden');
         if (bundleTitle) {
-          let offerNames = '';
+          const cleanNames = new Set();
           if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.bundle_offers)) {
             const activeZid = window._noteLiveCartState.bundle_offers.filter(b => b.usage_count > 0 || Number(b.discount_total) > 0);
-            if (activeZid.length > 0) {
-              offerNames = activeZid.map(b => b.name).filter(Boolean).join(' + ');
-            }
+            activeZid.forEach(b => {
+              const n = String(b.name || '');
+              if (n.includes('تولة') || n.includes('توله') || n.includes('1+تولة')) cleanNames.add('تولة بـ 1 ريال');
+              else cleanNames.add('عطرك بـ 1 ريال');
+            });
           }
-          if (!offerNames) {
-            offerNames = bundleOffers.map(b => b.name).filter(Boolean).join(' + ');
+          if (cleanNames.size === 0 && typeof CartManager !== 'undefined' && CartManager.getLiveBundleOffers) {
+            const localOffers = CartManager.getLiveBundleOffers();
+            localOffers.forEach(b => {
+              const n = String(b.name || '');
+              if (n.includes('تولة') || n.includes('توله')) cleanNames.add('تولة بـ 1 ريال');
+              else cleanNames.add('عطرك بـ 1 ريال');
+            });
           }
-          bundleTitle.textContent = offerNames ? `وفّرت مع العرض (${offerNames}):` : 'وفّرت مع العرض:';
+          const offerLabel = cleanNames.size > 0 ? Array.from(cleanNames).join(' + ') : 'عطرك بـ 1 ريال';
+          bundleTitle.textContent = `وفّرت مع العرض (${offerLabel}):`;
         }
         if (bundleVal) bundleVal.textContent = `-${bundleDiscount.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س`;
       } else {
@@ -7311,7 +7445,21 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       existing.quantity+=quantity;
       targetItem=existing;
     } else {
-      targetItem={id:key,product_id:p.id,title:p.title,price:p.price,old_price:p.old_price,img:p.img,size:sub.map(s=>(s.quantity>1 ? s.quantity+' × ' : '')+s.name).join('، ') || p.size,quantity,sub_items:sub};
+      targetItem={
+        id:key,
+        product_id:p.id,
+        zid_id:p.zid_id,
+        title:p.title,
+        price:p.price,
+        old_price:p.old_price,
+        img:p.img,
+        cat:p.cat,
+        category:p.category,
+        category_ids:p.category_ids,
+        size:sub.map(s=>(s.quantity>1 ? s.quantity+' × ' : '')+s.name).join('، ') || p.size,
+        quantity,
+        sub_items:sub
+      };
       cart.push(targetItem);
     }
     this.saveCart(cart);

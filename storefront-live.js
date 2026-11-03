@@ -837,7 +837,21 @@
       existing.quantity+=quantity;
       targetItem=existing;
     } else {
-      targetItem={id:key,product_id:p.id,title:p.title,price:p.price,old_price:p.old_price,img:p.img,size:sub.map(s=>(s.quantity>1 ? s.quantity+' × ' : '')+s.name).join('، ') || p.size,quantity,sub_items:sub};
+      targetItem={
+        id:key,
+        product_id:p.id,
+        zid_id:p.zid_id,
+        title:p.title,
+        price:p.price,
+        old_price:p.old_price,
+        img:p.img,
+        cat:p.cat,
+        category:p.category,
+        category_ids:p.category_ids,
+        size:sub.map(s=>(s.quantity>1 ? s.quantity+' × ' : '')+s.name).join('، ') || p.size,
+        quantity,
+        sub_items:sub
+      };
       cart.push(targetItem);
     }
     this.saveCart(cart);

@@ -17,7 +17,7 @@ assert(!drawerCode.includes('partitionCartForPage'), 'Side drawer MUST NOT call 
 console.log('PASS: Side drawer verified 100% clean and free of bundle grouping.');
 
 // Check that cart page rendering includes partitionCartForPage
-const cartPageMatch = appJs.match(/function renderCartPage\(\)\s*\{([\s\S]*?)\n  \}/);
+const cartPageMatch = appJs.match(/function renderCartPage\([^)]*\)\s*\{([\s\S]*?)\n  \}/);
 assert(cartPageMatch, 'renderCartPage must exist in note-app.js');
 const cartPageCode = cartPageMatch[1];
 
