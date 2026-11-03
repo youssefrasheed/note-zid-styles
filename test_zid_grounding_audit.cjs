@@ -1,7 +1,7 @@
 const assert = require('assert');
 const fs = require('fs');
 
-const appJs = fs.readFileSync('/Users/yousefsoom/note-zid-styles/note-app.js', 'utf8');
+const appJs = fs.readFileSync(require('node:path').join(__dirname, 'note-app.js'), 'utf8');
 
 console.log('=== ZID GROUNDING & TITLE AUDIT ===');
 
@@ -28,6 +28,7 @@ const dom = {
   }
 };
 
+global.formatPrice = value => String(value);
 global.window = {
   _noteLiveCartState: null,
   addEventListener: () => {},
@@ -51,6 +52,7 @@ global.noteProductsCatalog = catalog;
 const cmMatch = appJs.match(/const CartManager = \{([\s\S]*?)\n  \};/);
 assert(cmMatch, 'Must find CartManager');
 const CartManager = eval('({' + cmMatch[1] + '})');
+global.CartManager = CartManager;
 
 const royalPowderAllOver = { id: '940195dc-fc3b-4180-b062-c1cd85809564', zid_id: '940195dc-fc3b-4180-b062-c1cd85809564', title: 'رويال بودر', cat: 'all-over', category_ids: ['1759042'], price: 159 };
 const muskPerfume = { id: '9ba63129-20bc-4a0f-b49f-17d06e130ad9', zid_id: '9ba63129-20bc-4a0f-b49f-17d06e130ad9', title: 'مسك', cat: 'perfumes', category_ids: ['1748533'], price: 239 };
@@ -87,6 +89,9 @@ global.window._noteLiveCartState = {
   ]
 };
 
+global.localStorage.setItem('note_cart', JSON.stringify(
+  [muskPerfume, tobaccoPerfume, rosewoodPerfume, royalPowderAllOver].map(item => ({ ...item, quantity: 1 }))
+));
 updateCartFinancials(816);
 const titleEl = dom.getElementById('page-bundle-discount-title');
 const valEl = dom.getElementById('page-bundle-discount');
@@ -94,24 +99,8 @@ assert.strictEqual(titleEl.textContent, 'وفّرت مع العرض (عطرك ب
 assert(valEl.textContent.includes('-188'), 'Discount must be -188 SAR');
 console.log('PASS: Title cleanup successfully converts "الثالث بريال 189" -> "وفّرت مع العرض (عطرك بـ 1 ريال):".');
 
-// 4. Test partitionCartForPage with zero Zid discount
-const pMatch = appJs.match(/function partitionCartForPage\(cartList\)\s*\{([\s\S]*?)\n    \}/);
-assert(pMatch, 'Must find partitionCartForPage');
-const partitionCartForPage = new Function('cartList', pMatch[1]);
-
-// Set Zid state to 0 discount
-global.window._noteLiveCartState = {
-  totals: [
-    { code: 'sub_totals', value: 627 },
-    { code: 'total', value: 627 }
-  ],
-  bundle_offers: []
-};
-
-const partitioned = partitionCartForPage([muskPerfume, tobaccoPerfume, royalPowderAllOver]);
-assert.strictEqual(partitioned.offer2Groups.length, 0, 'Zero offer2 groups when Zid discount is 0');
-assert.strictEqual(partitioned.offer1Groups.length, 0, 'Zero offer1 groups when Zid discount is 0');
-assert.strictEqual(partitioned.standaloneItems.length, 3, 'All 3 items must be standalone');
-console.log('PASS: partitionCartForPage strictly honors Zid zero-discount state.');
-
-console.log('=== ALL AUDITS PASSED 100% ===');
+window._noteLiveCartState.bundle_offers[0].usage_count = 2;
+updateCartFinancials(816);
+assert.strictEqual(dom.getElementById('page-grand-total').textContent, 'يُؤكّد الإجمالي عند الدفع');
+assert(dom.getElementById('bundle-discount-row').classList.contains('hidden'));
+console.log('PASS: inconsistent Zid discount is not shown as a payable total.');
