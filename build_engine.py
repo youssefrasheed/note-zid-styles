@@ -2318,10 +2318,37 @@ app_js_code = f"""/**
     getLiveCartState: function() {{
       return (typeof window !== 'undefined' && window._noteLiveCartState) ? window._noteLiveCartState : null;
     }},
+    _findCatalogProduct: function(item) {{
+      if (!item || typeof noteProductsCatalog === 'undefined') return null;
+      const rawId = String(item.product_id || item.id || '').trim().toLowerCase();
+      if (!rawId) return null;
+      const itemId = item.id ? String(item.id).trim().toLowerCase() : null;
+      const itemProdId = item.product_id ? String(item.product_id).trim().toLowerCase() : null;
+      const itemZidId = item.zid_id ? String(item.zid_id).trim().toLowerCase() : null;
+
+      return noteProductsCatalog.find(cp => {{
+        if (!cp) return false;
+        const cpId = cp.id ? String(cp.id).trim().toLowerCase() : null;
+        const cpZidId = cp.zid_id ? String(cp.zid_id).trim().toLowerCase() : null;
+
+        if (cpId && (cpId === rawId || (itemId && cpId === itemId) || (itemProdId && cpId === itemProdId))) return true;
+        if (cpZidId && (cpZidId === rawId || (itemId && cpZidId === itemId) || (itemProdId && cpZidId === itemProdId) || (itemZidId && cpZidId === itemZidId))) return true;
+
+        if (typeof ZID_PRODUCT_MAP !== 'undefined') {{
+          const mappedKey = ZID_PRODUCT_MAP[rawId] || (itemId && ZID_PRODUCT_MAP[itemId]) || (itemProdId && ZID_PRODUCT_MAP[itemProdId]);
+          if (mappedKey) {{
+            const cleanMapped = String(mappedKey).trim().toLowerCase();
+            if (cpId && cleanMapped === cpId) return true;
+            if (cpZidId && cleanMapped === cpZidId) return true;
+          }}
+        }}
+        return false;
+      }}) || null;
+    }},
     _isQualifying100mlPerfume: function(item) {{
       if (!item) return false;
+      const p = this._findCatalogProduct ? this._findCatalogProduct(item) : null;
       const rawId = String(item.product_id || item.id || '').toLowerCase();
-      const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === rawId || cp.id === item.product_id || cp.id === item.id || cp.zid_id === rawId || cp.zid_id === item.product_id || cp.zid_id === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && (ZID_PRODUCT_MAP[rawId] === cp.id || ZID_PRODUCT_MAP[rawId] === cp.zid_id))) : null;
       
       const id = String((p && p.id) || rawId).toLowerCase();
       const zidId = String((p && p.zid_id) || item.zid_id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[id]) || '').toLowerCase();
@@ -2360,8 +2387,8 @@ app_js_code = f"""/**
     }},
     _isQualifyingTola: function(item) {{
       if (!item) return false;
+      const p = this._findCatalogProduct ? this._findCatalogProduct(item) : null;
       const rawId = String(item.product_id || item.id || '').toLowerCase();
-      const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === rawId || cp.id === item.product_id || cp.id === item.id || cp.zid_id === rawId || cp.zid_id === item.product_id || cp.zid_id === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && (ZID_PRODUCT_MAP[rawId] === cp.id || ZID_PRODUCT_MAP[rawId] === cp.zid_id))) : null;
 
       const id = String((p && p.id) || rawId).toLowerCase();
       const zidId = String((p && p.zid_id) || item.zid_id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[id]) || '').toLowerCase();
@@ -2386,8 +2413,8 @@ app_js_code = f"""/**
     }},
     _isQualifyingBodySpray: function(item) {{
       if (!item) return false;
+      const p = this._findCatalogProduct ? this._findCatalogProduct(item) : null;
       const rawId = String(item.product_id || item.id || '').toLowerCase();
-      const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === rawId || cp.id === item.product_id || cp.id === item.id || cp.zid_id === rawId || cp.zid_id === item.product_id || cp.zid_id === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && (ZID_PRODUCT_MAP[rawId] === cp.id || ZID_PRODUCT_MAP[rawId] === cp.zid_id))) : null;
 
       const id = String((p && p.id) || rawId).toLowerCase();
       const zidId = String((p && p.zid_id) || item.zid_id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[id]) || '').toLowerCase();
@@ -2799,7 +2826,8 @@ app_js_code = f"""/**
       const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
       if (totalEl) {{
         const baseAfterBundle = Math.max(0, total - bundleDiscount);
-        const pct = (savedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : (savedCoupon ? 5 : 0);
+        const isEligibleForCoupon = (bundleDiscount === 0);
+        const pct = (savedCoupon && isEligibleForCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : ((savedCoupon && isEligibleForCoupon) ? 5 : 0);
         const couponDiscount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
         const finalDrawerTotal = Math.max(0, Math.round((baseAfterBundle - couponDiscount) * 100) / 100);
 
@@ -2817,16 +2845,25 @@ app_js_code = f"""/**
       const drawerCouponBtn = document.getElementById('drawer-coupon-btn');
       if (drawerCouponInput && savedCoupon) {{
         if (!drawerCouponInput.value) drawerCouponInput.value = savedCoupon;
-        if (drawerCouponTag) drawerCouponTag.classList.remove('hidden');
         if (drawerCouponBtn) {{
           drawerCouponBtn.style.backgroundColor = '';
           drawerCouponBtn.style.borderColor = '';
           drawerCouponBtn.classList.add('note-btn-gold');
           drawerCouponBtn.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
         }}
-        if (drawerCouponMsg && drawerCouponMsg.classList.contains('hidden')) {{
-          drawerCouponMsg.textContent = `كود الخصم (${{savedCoupon}}) مفعّل لطلبك.`;
-          drawerCouponMsg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5';
+        if (bundleDiscount > 0) {{
+          if (drawerCouponTag) drawerCouponTag.classList.add('hidden');
+          if (drawerCouponMsg) {{
+            drawerCouponMsg.textContent = 'تم تفعيل عروض جمعة نوت التلقائية (العرض الترويجي يعطيك أعلى خصم، ولا يقبل الجمع مع كوبونات إضافية).';
+            drawerCouponMsg.className = 'text-[11px] font-bold text-amber-700 block mt-1.5';
+            drawerCouponMsg.classList.remove('hidden');
+          }}
+        }} else {{
+          if (drawerCouponTag) drawerCouponTag.classList.remove('hidden');
+          if (drawerCouponMsg && drawerCouponMsg.classList.contains('hidden')) {{
+            drawerCouponMsg.textContent = `كود الخصم (${{savedCoupon}}) مفعّل لطلبك.`;
+            drawerCouponMsg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5';
+          }}
         }}
       }} else if (drawerCouponBtn && !savedCoupon) {{
         drawerCouponBtn.style.backgroundColor = '';
@@ -3059,6 +3096,18 @@ app_js_code = f"""/**
       msg.textContent = 'يرجى إضافة منتجات إلى السلة أولاً لتطبيق كود الخصم.';
       msg.className = 'text-[11px] font-bold text-rose-600 block mt-1.5';
       msg.classList.remove('hidden');
+      return;
+    }}
+
+    const liveBundle = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
+    if (liveBundle > 0) {{
+      msg.textContent = 'تم تفعيل عروض جمعة نوت التلقائية لسلتك — عروض الباقات الترويجية لا تقبل الجمع مع كوبونات الخصم.';
+      msg.className = 'text-[11px] font-bold text-amber-700 block mt-1.5';
+      msg.classList.remove('hidden');
+      if (btn) {{
+        btn.disabled = false;
+        btn.textContent = 'تطبيق';
+      }}
       return;
     }}
 
@@ -4520,6 +4569,16 @@ app_js_code = f"""/**
       return;
     }}
 
+    const liveBundle = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
+    if (liveBundle > 0) {{
+      msg.textContent = 'تم تفعيل عروض جمعة نوت التلقائية لسلتك — عروض الباقات الترويجية لا تقبل الجمع مع كوبونات الخصم.';
+      msg.className = 'text-[11px] font-bold text-amber-700 block';
+      msg.classList.remove('hidden');
+      if (applyBtn) applyBtn.disabled = false;
+      if (btnText) btnText.textContent = 'تطبيق';
+      return;
+    }}
+
     if (applyBtn) applyBtn.disabled = true;
     if (btnText) btnText.innerHTML = '<svg class="animate-spin h-3.5 w-3.5 text-black inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
 
@@ -4764,14 +4823,25 @@ app_js_code = f"""/**
     let finalAmount = baseAfterBundle;
     let couponDiscount = 0;
 
-    if (appliedCoupon && baseAfterBundle > 0) {{
+    if (appliedCoupon && baseAfterBundle > 0 && bundleDiscount === 0) {{
       const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : 5;
       couponDiscount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
       finalAmount = Math.max(0, Math.round((baseAfterBundle - couponDiscount) * 100) / 100);
-    }} else if (liveTotals) {{
+    }} else if (liveTotals && bundleDiscount === 0) {{
       const totObj = liveTotals.find(t => t.code === 'total');
       if (totObj && Number.isFinite(Number(totObj.value))) {{
         finalAmount = Number(totObj.value);
+      }}
+    }}
+
+    const couponMsgEl = document.getElementById('coupon-msg');
+    const couponTagEl = document.getElementById('coupon-applied-tag');
+    if (appliedCoupon && bundleDiscount > 0) {{
+      if (couponTagEl) couponTagEl.classList.add('hidden');
+      if (couponMsgEl) {{
+        couponMsgEl.textContent = 'تم تفعيل عروض جمعة نوت التلقائية (العرض الترويجي يعطيك أعلى خصم، ولا يقبل الجمع مع كوبونات إضافية).';
+        couponMsgEl.className = 'text-[11px] font-bold text-amber-700 block';
+        couponMsgEl.classList.remove('hidden');
       }}
     }}
 
