@@ -2811,16 +2811,12 @@ app_js_code = f"""/**
             <!-- Crisp Horizontal Divider -->
             <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:12px 0!important;padding:0!important;display:block!important;"></div>
 
-            <!-- Bottom Row: Segmented Stepper on Start, Line Total on End -->
-            <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;">
+            <!-- Bottom Row: Segmented Stepper -->
+            <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;width:100%!important;box-sizing:border-box!important;">
               <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:38px!important;width:126px!important;min-width:126px!important;border:1px solid #e7e5e4!important;border-radius:11px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;">
                 <button type="button" onclick="CartManager.updateQuantity('${{item.id}}', 1)" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">+</button>
                 <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:14px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;box-sizing:border-box!important;">${{item.quantity}}</span>
                 <button type="button" onclick="CartManager.updateQuantity('${{item.id}}', -1)" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
-              </div>
-              <div class="note-cart-item-total" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;text-align:left!important;">
-                <span class="note-cart-item-total-label" style="font-size:13px!important;font-weight:500!important;color:#78716c!important;">قبل خصم العرض:</span>
-                <span class="note-cart-item-total-val" style="font-size:16px!important;font-weight:800!important;color:#1c1917!important;">${{formatPrice(itemLineTotal)}}</span>
               </div>
             </div>
           </div>
@@ -4272,15 +4268,11 @@ app_js_code = f"""/**
               </button>
             </div>
             <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:12px 0!important;padding:0!important;display:block!important;"></div>
-            <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;">
+            <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;width:100%!important;box-sizing:border-box!important;">
               <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:38px!important;width:126px!important;min-width:126px!important;border:1px solid #e7e5e4!important;border-radius:11px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;">
                 <button type="button" onclick="CartManager.updateQuantity('${{item.id}}', 1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">+</button>
                 <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:14px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;box-sizing:border-box!important;">${{item.quantity}}</span>
                 <button type="button" onclick="CartManager.updateQuantity('${{item.id}}', -1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
-              </div>
-              <div class="note-cart-item-total" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;text-align:left!important;">
-                <span class="note-cart-item-total-label" style="font-size:13px!important;font-weight:500!important;color:#78716c!important;">قبل خصم العرض:</span>
-                <span class="note-cart-item-total-val" style="font-size:16px!important;font-weight:800!important;color:#1c1917!important;">${{formatPrice(itemLineTotal)}}</span>
               </div>
             </div>
           </div>

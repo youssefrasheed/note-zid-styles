@@ -6,7 +6,7 @@ const page = app.slice(app.indexOf('  function renderCartPage('), app.indexOf(' 
 assert(page.includes('منتجات مؤهلة للعروض'));
 assert(page.includes('rows.map(renderItem)'));
 assert(page.includes('CartManager.updateQuantity'));
-assert(page.includes('قبل خصم العرض'));
+assert(!page.includes('قبل خصم العرض'));
 assert(!page.includes('note-bundle-group-card'));
 assert(!page.includes('مشمول بالعرض بـ 1 ريال'));
 console.log('PASS: cart displays individual items and preserves quantity controls');
