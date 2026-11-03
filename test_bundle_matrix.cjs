@@ -37,10 +37,7 @@ function createCartManager(items) {
         if (this._isQualifyingTola(cart[i])) tolaCount += (Number(cart[i].quantity) || 1);
       }
       const offers = [];
-      let offer2Count = Math.floor(perfume100Count / 3);
-      if (perfume100Count % 3 === 2 && perfume100Count >= 5) {
-        offer2Count = Math.floor((perfume100Count + 1) / 3);
-      }
+      const offer2Count = Math.floor(perfume100Count / 3);
       if (offer2Count > 0) {
         offers.push({
           id: 'a31fcdea-5aac-447f-a220-0ef1d60bb0a6',
@@ -49,8 +46,7 @@ function createCartManager(items) {
           discount_total: 0
         });
       }
-      const consumedInOffer2 = (perfume100Count === 5 && offer2Count === 2) ? 5 : (offer2Count * 3);
-      const remainingPerfumes = Math.max(0, perfume100Count - consumedInOffer2);
+      const remainingPerfumes = perfume100Count - (offer2Count * 3);
       if (remainingPerfumes >= 1 && tolaCount >= 1) {
         offers.push({
           id: 'a31e7108-b61d-4611-a968-9cdf0eca636f',
@@ -80,9 +76,11 @@ function createCartManager(items) {
             }
           }
           if (eligible.length >= 3) {
-            eligible.sort((a, b) => a - b);
-            const maxSets = usageCount;
-            for (let i = 0; i < maxSets && i < eligible.length; i++) totalDiscount += Math.max(0, eligible[i] - 1);
+            eligible.sort((a, b) => b - a);
+            const maxSets = Math.min(usageCount, Math.floor(eligible.length / 3));
+            const totalInSets = maxSets * 3;
+            const discounted = eligible.slice(0, totalInSets).slice(maxSets * 2);
+            for (let i = 0; i < discounted.length; i++) totalDiscount += Math.max(0, discounted[i] - 1);
           }
         } else if (name.includes('تولة') || name.includes('توله')) {
           const tolas = [];
@@ -92,8 +90,9 @@ function createCartManager(items) {
               for (let q = 0; q < qty; q++) tolas.push(Number(cart[ci].price) || 0);
             }
           }
-          tolas.sort((a, b) => a - b);
-          for (let i = 0; i < usageCount && i < tolas.length; i++) totalDiscount += Math.max(0, tolas[i] - 1);
+          tolas.sort((a, b) => b - a);
+          const discountedTolas = tolas.slice(tolas.length - usageCount);
+          for (let i = 0; i < discountedTolas.length; i++) totalDiscount += Math.max(0, discountedTolas[i] - 1);
         }
       }
       return Math.round(totalDiscount * 100) / 100;
@@ -147,7 +146,7 @@ function createCartManager(items) {
   assert.strictEqual(cm.getLiveBundleDiscount(), 376);
 }
 
-// 5. Mixed: 4 perfumes (239, 229, 229, 189) + 1 tola (119) => Offer 2 (188 off) + Offer 1 (118 off) = 306 off
+// 5. Mixed: 4 perfumes (239, 229, 229, 189) + 1 tola (119) => Offer 2 takes (239, 229, 229 -> 228 off) + Offer 1 takes (189 + tola 119 -> 118 off) = 346 off
 {
   const cm = createCartManager([
     { id: 'musk', title: 'مسك', price: 239, quantity: 1, cat: 'perfumes' },
@@ -157,11 +156,11 @@ function createCartManager(items) {
   ]);
   const offers = cm.getLiveBundleOffers();
   assert.strictEqual(offers.length, 2);
-  assert.strictEqual(cm.getLiveBundleDiscount(), 306);
+  assert.strictEqual(cm.getLiveBundleDiscount(), 346);
 }
 
-// 6. Real Video Case (Zid greedy multi-rule): 4 Musk (239) + 1 Royal Tobacco (229) + 1 Tola Lady Rose (119)
-// In Zid: 5 perfumes triggers 2 "الثالث بريال" offers (Musk 1 SAR, Tobacco 1 SAR) => discount 238 + 228 = 466, Tola stays 119
+// 6. Strict Set Allocation: 4 Musk (239) + 1 Royal Tobacco (229) + 1 Tola Lady Rose (119)
+// Exactly: 1 set of Offer 2 (3 Musks, 238 off) + 1 set of Offer 1 (1 Musk + 1 Tola, 118 off) = 356 off, 1 Tobacco standalone
 {
   const cm = createCartManager([
     { id: 'musk', title: 'مسك', price: 239, quantity: 4, cat: 'perfumes' },
@@ -169,9 +168,10 @@ function createCartManager(items) {
     { id: 'lady-rose', title: 'تولة ليدي روز', price: 119, quantity: 1, cat: 'tollah' }
   ]);
   const offers = cm.getLiveBundleOffers();
-  assert.strictEqual(offers.length, 1);
-  assert.strictEqual(offers[0].usage_count, 2);
-  assert.strictEqual(cm.getLiveBundleDiscount(), 238 + 228); // 466 SAR
+  assert.strictEqual(offers.length, 2);
+  assert.strictEqual(offers.find(o => o.name.includes('2+1')).usage_count, 1);
+  assert.strictEqual(offers.find(o => o.name.includes('تولة')).usage_count, 1);
+  assert.strictEqual(cm.getLiveBundleDiscount(), 238 + 118); // 356 SAR
 }
 
 // 7. Unit Isolation: 3 perfumes + 1 tola => 3 perfumes used for Offer 2, remaining perfumes is 0 => tola is full price!

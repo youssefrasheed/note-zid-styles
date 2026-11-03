@@ -3575,11 +3575,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       }
       
       const offers = [];
-      // Offer 2: "عطرك بـ 1 ريال (2+1)" -> Evaluated first, greedy multi-rule in Zid (5 perfumes triggers 2 sets)
-      let offer2Count = Math.floor(perfume100Count / 3);
-      if (perfume100Count % 3 === 2 && perfume100Count >= 5) {
-        offer2Count = Math.floor((perfume100Count + 1) / 3);
-      }
+      // Offer 2: "عطرك بـ 1 ريال (2+1)" -> Strict sets of 3 qualifying 100ml perfumes
+      const offer2Count = Math.floor(perfume100Count / 3);
       if (offer2Count > 0) {
         offers.push({
           id: 'a31fcdea-5aac-447f-a220-0ef1d60bb0a6',
@@ -3589,8 +3586,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         });
       }
       // Offer 1: "عطرك بريال (1+تولة)" -> Requires 1 perfume and 1 tola
-      const consumedInOffer2 = (perfume100Count === 5 && offer2Count === 2) ? 5 : (offer2Count * 3);
-      const remainingPerfumes = Math.max(0, perfume100Count - consumedInOffer2);
+      const remainingPerfumes = perfume100Count - (offer2Count * 3);
       if (remainingPerfumes >= 1 && tolaCount >= 1) {
         offers.push({
           id: 'a31e7108-b61d-4611-a968-9cdf0eca636f',
@@ -3624,10 +3620,12 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
             }
           }
           if (eligible.length >= 3) {
-            eligible.sort((a, b) => a - b);
-            const maxSets = usageCount;
-            for (let i = 0; i < maxSets && i < eligible.length; i++) {
-              totalDiscount += Math.max(0, eligible[i] - 1);
+            eligible.sort((a, b) => b - a);
+            const maxSets = Math.min(usageCount, Math.floor(eligible.length / 3));
+            const totalInSets = maxSets * 3;
+            const discounted = eligible.slice(0, totalInSets).slice(maxSets * 2);
+            for (let i = 0; i < discounted.length; i++) {
+              totalDiscount += Math.max(0, discounted[i] - 1);
             }
           }
         } else if (name.includes('تولة') || name.includes('توله')) {
@@ -3640,9 +3638,10 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
               }
             }
           }
-          tolas.sort((a, b) => a - b);
-          for (let i = 0; i < usageCount && i < tolas.length; i++) {
-            totalDiscount += Math.max(0, tolas[i] - 1);
+          tolas.sort((a, b) => b - a);
+          const discountedTolas = tolas.slice(Math.max(0, tolas.length - usageCount));
+          for (let i = 0; i < discountedTolas.length; i++) {
+            totalDiscount += Math.max(0, discountedTolas[i] - 1);
           }
         }
       }
@@ -3665,9 +3664,17 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
             }
             const totalEl = document.getElementById('cart-drawer-total');
             if (totalEl) {
-              const total = this.getTotal();
+              let total = this.getTotal();
+              let bundleDiscount = this.getLiveBundleDiscount();
+              let liveTotals = null;
+              if (data && Array.isArray(data.totals) && data.totals.length > 0) {
+                liveTotals = data.totals;
+                const subObj = liveTotals.find(t => t.code === 'sub_totals');
+                if (subObj && Number.isFinite(Number(subObj.value)) && Number(subObj.value) > 0) total = Number(subObj.value);
+                const discObj = liveTotals.find(t => t.code === 'products_discount');
+                if (discObj && Number.isFinite(Number(discObj.value))) bundleDiscount = Math.abs(Number(discObj.value));
+              }
               const bundleOffers = this.getLiveBundleOffers();
-              const bundleDiscount = this.getLiveBundleDiscount();
               const drawerBundleRow = document.getElementById('drawer-bundle-discount-row');
               const drawerBundleTitle = document.getElementById('drawer-bundle-discount-title');
               const drawerBundleVal = document.getElementById('drawer-bundle-discount-val');
@@ -3675,7 +3682,12 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                 if (bundleDiscount > 0) {
                   drawerBundleRow.classList.remove('hidden');
                   if (drawerBundleTitle) {
-                    const offerNames = bundleOffers.map(b => b.name).filter(Boolean).join(' + ');
+                    let offerNames = '';
+                    if (data && Array.isArray(data.bundle_offers)) {
+                      const activeZid = data.bundle_offers.filter(b => b.usage_count > 0 || Number(b.discount_total) > 0);
+                      if (activeZid.length > 0) offerNames = activeZid.map(b => b.name).filter(Boolean).join(' + ');
+                    }
+                    if (!offerNames) offerNames = bundleOffers.map(b => b.name).filter(Boolean).join(' + ');
                     drawerBundleTitle.textContent = offerNames ? `وفّرت مع العرض (${offerNames}):` : 'وفّرت مع العرض:';
                   }
                   if (drawerBundleVal) drawerBundleVal.textContent = `-${bundleDiscount.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س`;
@@ -3684,13 +3696,17 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                 }
               }
               const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
-              const baseAfterBundle = Math.max(0, total - bundleDiscount);
+              let finalDrawerTotal = Math.max(0, total - bundleDiscount);
+              if (liveTotals) {
+                const totObj = liveTotals.find(t => t.code === 'total');
+                if (totObj && Number.isFinite(Number(totObj.value))) finalDrawerTotal = Number(totObj.value);
+              }
               if (bundleDiscount > 0) {
-                totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(baseAfterBundle)}</span>`;
+                totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(finalDrawerTotal)}</span>`;
               } else if (savedCoupon && total > 0) {
                 const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : 5;
-                const discount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
-                const finalTotal = Math.max(0, Math.round((baseAfterBundle - discount) * 100) / 100);
+                const discount = Math.round(((total * pct) / 100) * 100) / 100;
+                const finalTotal = Math.max(0, Math.round((total - discount) * 100) / 100);
                 totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(finalTotal)}</span>`;
               } else {
                 totalEl.textContent = formatPrice(total);
@@ -5327,55 +5343,320 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       }
     }
 
-    itemsContainer.innerHTML = cart.map(item => {
-      const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
-      const imgUrl = resolveImgUrl(item.img);
-      const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
-      const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
-      const itemLineTotal = item.price * item.quantity;
-      return `
-        <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
-          <!-- Top Row: Thumbnail + Info (Title & Red Sale Price) + Coral Red ✕ Delete Button -->
-          <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
-            <div class="note-cart-item-start" style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0!important;flex:1 1 auto!important;">
-              <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="note-cart-item-thumb cart-thumb-box" style="width:82px!important;height:82px!important;min-width:82px!important;min-height:82px!important;max-width:82px!important;max-height:82px!important;border-radius:14px!important;background:#ffffff!important;border:1px solid #f0eee9!important;padding:4px!important;flex-shrink:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;box-sizing:border-box!important;">
-                <img src="${imgUrl}" alt="${escapeHTML(item.title)}" style="width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;">
-              </a>
-              <div class="note-cart-item-info" style="display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;min-width:0!important;flex:1 1 auto!important;text-align:right!important;">
-                <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="note-cart-item-title-link" style="text-decoration:none!important;color:inherit!important;display:block!important;">
-                  <h4 class="note-cart-item-title" style="font-size:15px!important;font-weight:700!important;color:#1c1917!important;line-height:1.35!important;margin:0!important;">${escapeHTML(item.title)}</h4>
-                </a>
-                <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
-                  ${oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${formatPrice(oldPriceVal)}</span>` : ''}
-                  <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${formatPrice(item.price)}</span>
+    function partitionCartForPage(cartList) {
+      const units = [];
+      cartList.forEach(item => {
+        const qty = Number(item.quantity) || 1;
+        for (let i = 0; i < qty; i++) {
+          units.push({
+            id: item.id,
+            title: item.title || item.name,
+            price: Number(item.price) || 0,
+            old_price: item.old_price,
+            img: item.img,
+            cat: item.cat,
+            isPerfume: (typeof CartManager !== 'undefined' && CartManager._isQualifying100mlPerfume) ? CartManager._isQualifying100mlPerfume(item) : false,
+            isTola: (typeof CartManager !== 'undefined' && CartManager._isQualifyingTola) ? CartManager._isQualifyingTola(item) : false,
+            originalItem: item
+          });
+        }
+      });
+
+      const perfumes = units.filter(u => u.isPerfume);
+      const tolas = units.filter(u => u.isTola);
+      const others = units.filter(u => !u.isPerfume && !u.isTola);
+
+      const usedPerfumes = new Set();
+      const usedTolas = new Set();
+      const offer2Groups = [];
+      const offer1Groups = [];
+
+      // 1. Strict sets of 3 perfumes for Offer 2 (Buy 2 Get 1)
+      const offer2Count = Math.floor(perfumes.length / 3);
+      if (offer2Count > 0) {
+        const sortedPerfumes = [...perfumes].sort((a, b) => b.price - a.price);
+        const totalPerfumesInOffer2 = offer2Count * 3;
+        const offer2Perfumes = sortedPerfumes.slice(0, totalPerfumesInOffer2);
+        const paidPerfumes = offer2Perfumes.slice(0, offer2Count * 2);
+        const discountedPerfumes = offer2Perfumes.slice(offer2Count * 2);
+
+        for (let s = 0; s < offer2Count; s++) {
+          const p1 = paidPerfumes[s * 2];
+          const p2 = paidPerfumes[s * 2 + 1];
+          const p3 = discountedPerfumes[s];
+          if (p1 && p2 && p3) {
+            usedPerfumes.add(p1);
+            usedPerfumes.add(p2);
+            usedPerfumes.add(p3);
+
+            offer2Groups.push({
+              type: 'offer2',
+              title: 'عرض عطرك بـ 1 ريال (اشترِ 2 واحصل على الثالث بـ 1 ريال)',
+              items: [
+                { ...p1, effectivePrice: p1.price, isDiscounted: false },
+                { ...p2, effectivePrice: p2.price, isDiscounted: false },
+                { ...p3, effectivePrice: 1, originalPrice: p3.price, isDiscounted: true }
+              ],
+              total: p1.price + p2.price + 1,
+              savings: Math.max(0, p3.price - 1)
+            });
+          }
+        }
+      }
+
+      // 2. Strict pairs of 1 perfume + 1 tola for Offer 1 (Buy 1 perfume + 1 tola for 1 SAR)
+      const remainingPerfumes = perfumes.filter(p => !usedPerfumes.has(p)).sort((a, b) => b.price - a.price);
+      const sortedTolas = [...tolas].sort((a, b) => b.price - a.price);
+      const offer1Count = Math.min(remainingPerfumes.length, sortedTolas.length);
+
+      if (offer1Count > 0) {
+        for (let s = 0; s < offer1Count; s++) {
+          const p = remainingPerfumes[s];
+          const t = sortedTolas[s];
+          if (p && t) {
+            usedPerfumes.add(p);
+            usedTolas.add(t);
+
+            offer1Groups.push({
+              type: 'offer1',
+              title: 'عرض عطرك بريال (اشترِ عطر واحصل على تولة بـ 1 ريال)',
+              items: [
+                { ...p, effectivePrice: p.price, isDiscounted: false },
+                { ...t, effectivePrice: 1, originalPrice: t.price, isDiscounted: true }
+              ],
+              total: p.price + 1,
+              savings: Math.max(0, t.price - 1)
+            });
+          }
+        }
+      }
+
+      // 3. Standalone Items (any leftovers)
+      const standaloneUnits = [
+        ...perfumes.filter(p => !usedPerfumes.has(p)),
+        ...tolas.filter(t => !usedTolas.has(t)),
+        ...others
+      ];
+
+      const standaloneMap = new Map();
+      standaloneUnits.forEach(u => {
+        if (!standaloneMap.has(u.id)) {
+          standaloneMap.set(u.id, { ...u.originalItem, quantity: 0, lineTotal: 0 });
+        }
+        const grp = standaloneMap.get(u.id);
+        grp.quantity += 1;
+        grp.lineTotal += grp.price;
+      });
+
+      return {
+        offer2Groups,
+        offer1Groups,
+        standaloneItems: Array.from(standaloneMap.values())
+      };
+    }
+
+    const partitioned = partitionCartForPage(cart);
+    const hasBundles = (partitioned.offer2Groups.length > 0 || partitioned.offer1Groups.length > 0);
+
+    let html = '';
+
+    if (hasBundles) {
+      // 1. Render Offer 2 Packages (3 perfumes per box)
+      partitioned.offer2Groups.forEach(grp => {
+        html += `
+          <div class="note-bundle-group-card" style="background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:20px!important;padding:16px 18px!important;margin-bottom:16px!important;box-shadow:0 1px 4px rgba(0,0,0,0.02)!important;position:relative!important;text-align:right!important;direction:rtl!important;">
+            <div class="note-bundle-group-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding-bottom:12px!important;border-bottom:1px solid #f0eee9!important;margin-bottom:14px!important;flex-wrap:wrap!important;gap:8px!important;">
+              <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;gap:6px!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">
+                <span>📦</span>
+                <span>${grp.title}</span>
+              </span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="note-bundle-savings" style="font-size:11px!important;font-weight:800!important;color:#059669!important;background:#ecfdf5!important;padding:3px 10px!important;border-radius:9999px!important;border:1px solid #a7f3d0!important;">وفّرت ${formatPrice(grp.savings)}</span>
+                <span style="font-size:13px;font-weight:800;color:#1c1917;">المجموع: ${formatPrice(grp.total)}</span>
+              </div>
+            </div>
+            <div class="note-bundle-items-list" style="display:flex;flex-direction:column;gap:8px;">
+              ${grp.items.map(sub => {
+                const zidSlug = zidSlugMap[sub.id] || sub.id;
+                const imgUrl = resolveImgUrl(sub.img);
+                return `
+                  <div class="note-bundle-sub-item ${sub.isDiscounted ? 'note-bundle-sub-item-discounted' : ''}" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:10px 12px!important;border:1px solid ${sub.isDiscounted ? '#e5d39e' : '#f0eee9'}!important;border-radius:14px!important;background:${sub.isDiscounted ? '#fffdf7' : '#ffffff'}!important;box-sizing:border-box!important;">
+                    <div style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0;flex:1 1 auto;">
+                      <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" style="width:58px;height:58px;min-width:58px;min-height:58px;border-radius:12px;background:#ffffff;border:1px solid #f0eee9;padding:3px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                        <img src="${imgUrl}" alt="${sub.title}" style="width:100%;height:100%;object-fit:contain;">
+                      </a>
+                      <div style="display:flex;flex-direction:column;gap:3px;min-width:0;text-align:right;">
+                        <h5 style="font-size:13.5px;font-weight:700;color:#1c1917;margin:0;line-height:1.3;">${sub.title}</h5>
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                          ${sub.isDiscounted ? `
+                            <span style="font-size:12px;color:#a8a29e;text-decoration:line-through;">${formatPrice(sub.originalPrice)}</span>
+                            <span style="font-size:14px;font-weight:900;color:#059669;">1 ر.س</span>
+                            <span style="font-size:10px;font-weight:800;color:#047857;background:#d1fae5;padding:2px 8px;border-radius:9999px;border:1px solid #a7f3d0;">مشمول بالعرض بـ 1 ريال ✨</span>
+                          ` : `
+                            <span style="font-size:13.5px;font-weight:800;color:#1c1917;">${formatPrice(sub.effectivePrice)}</span>
+                          `}
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" onclick="CartManager.updateQuantity('${sub.id}', -1); renderCartPage();" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
+                    </button>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      // 2. Render Offer 1 Packages (1 perfume + 1 tola per box)
+      partitioned.offer1Groups.forEach(grp => {
+        html += `
+          <div class="note-bundle-group-card" style="background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:20px!important;padding:16px 18px!important;margin-bottom:16px!important;box-shadow:0 1px 4px rgba(0,0,0,0.02)!important;position:relative!important;text-align:right!important;direction:rtl!important;">
+            <div class="note-bundle-group-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding-bottom:12px!important;border-bottom:1px solid #f0eee9!important;margin-bottom:14px!important;flex-wrap:wrap!important;gap:8px!important;">
+              <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;gap:6px!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">
+                <span>📦</span>
+                <span>${grp.title}</span>
+              </span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="note-bundle-savings" style="font-size:11px!important;font-weight:800!important;color:#059669!important;background:#ecfdf5!important;padding:3px 10px!important;border-radius:9999px!important;border:1px solid #a7f3d0!important;">وفّرت ${formatPrice(grp.savings)}</span>
+                <span style="font-size:13px;font-weight:800;color:#1c1917;">المجموع: ${formatPrice(grp.total)}</span>
+              </div>
+            </div>
+            <div class="note-bundle-items-list" style="display:flex;flex-direction:column;gap:8px;">
+              ${grp.items.map(sub => {
+                const zidSlug = zidSlugMap[sub.id] || sub.id;
+                const imgUrl = resolveImgUrl(sub.img);
+                return `
+                  <div class="note-bundle-sub-item ${sub.isDiscounted ? 'note-bundle-sub-item-discounted' : ''}" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:10px 12px!important;border:1px solid ${sub.isDiscounted ? '#e5d39e' : '#f0eee9'}!important;border-radius:14px!important;background:${sub.isDiscounted ? '#fffdf7' : '#ffffff'}!important;box-sizing:border-box!important;">
+                    <div style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0;flex:1 1 auto;">
+                      <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" style="width:58px;height:58px;min-width:58px;min-height:58px;border-radius:12px;background:#ffffff;border:1px solid #f0eee9;padding:3px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                        <img src="${imgUrl}" alt="${sub.title}" style="width:100%;height:100%;object-fit:contain;">
+                      </a>
+                      <div style="display:flex;flex-direction:column;gap:3px;min-width:0;text-align:right;">
+                        <h5 style="font-size:13.5px;font-weight:700;color:#1c1917;margin:0;line-height:1.3;">${sub.title}</h5>
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                          ${sub.isDiscounted ? `
+                            <span style="font-size:12px;color:#a8a29e;text-decoration:line-through;">${formatPrice(sub.originalPrice)}</span>
+                            <span style="font-size:14px;font-weight:900;color:#059669;">1 ر.س</span>
+                            <span style="font-size:10px;font-weight:800;color:#047857;background:#d1fae5;padding:2px 8px;border-radius:9999px;border:1px solid #a7f3d0;">مشمول بالعرض بـ 1 ريال ✨</span>
+                          ` : `
+                            <span style="font-size:13.5px;font-weight:800;color:#1c1917;">${formatPrice(sub.effectivePrice)}</span>
+                          `}
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" onclick="CartManager.updateQuantity('${sub.id}', -1); renderCartPage();" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
+                    </button>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      // 3. Render Standalone Items (Leftovers)
+      if (partitioned.standaloneItems.length > 0) {
+        html += `
+          <div class="note-standalone-group-header" style="display:flex!important;align-items:center!gap:8px!important;margin:22px 0 12px 0!important;padding-right:4px!important;">
+            <span style="font-size:13px!important;font-weight:800!important;color:#78716c!important;">🛍️ منتجات فردية (خارج العرض)</span>
+            <span style="font-size:11px!important;color:#a8a29e!important;font-weight:600!important;">سعر الحبة العادي</span>
+          </div>
+        `;
+        html += partitioned.standaloneItems.map(item => {
+          const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
+          const imgUrl = resolveImgUrl(item.img);
+          const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
+          const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
+          const itemLineTotal = item.price * item.quantity;
+          return `
+            <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
+              <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
+                <div class="note-cart-item-start" style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0!important;flex:1 1 auto!important;">
+                  <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="note-cart-item-thumb cart-thumb-box" style="width:82px!important;height:82px!important;min-width:82px!important;min-height:82px!important;max-width:82px!important;max-height:82px!important;border-radius:14px!important;background:#ffffff!important;border:1px solid #f0eee9!important;padding:4px!important;flex-shrink:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;box-sizing:border-box!important;">
+                    <img src="${imgUrl}" alt="${escapeHTML(item.title)}" style="width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;">
+                  </a>
+                  <div class="note-cart-item-info" style="display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;min-width:0!important;flex:1 1 auto!important;text-align:right!important;">
+                    <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="note-cart-item-title-link" style="text-decoration:none!important;color:inherit!important;display:block!important;">
+                      <h4 class="note-cart-item-title" style="font-size:15px!important;font-weight:700!important;color:#1c1917!important;line-height:1.35!important;margin:0!important;">${escapeHTML(item.title)}</h4>
+                    </a>
+                    <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
+                      ${oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${formatPrice(oldPriceVal)}</span>` : ''}
+                      <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${formatPrice(item.price)}</span>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" onclick="CartManager.removeItem('${item.id}'); renderCartPage();" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
+                </button>
+              </div>
+              <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:12px 0!important;padding:0!important;display:block!important;"></div>
+              <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;">
+                <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:38px!important;width:126px!important;min-width:126px!important;border:1px solid #e7e5e4!important;border-radius:11px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;">
+                  <button type="button" onclick="CartManager.updateQuantity('${item.id}', 1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">+</button>
+                  <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:14px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;box-sizing:border-box!important;">${item.quantity}</span>
+                  <button type="button" onclick="CartManager.updateQuantity('${item.id}', -1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
+                </div>
+                <div class="note-cart-item-total" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;text-align:left!important;">
+                  <span class="note-cart-item-total-label" style="font-size:13px!important;font-weight:500!important;color:#78716c!important;">المجموع:</span>
+                  <span class="note-cart-item-total-val" style="font-size:16px!important;font-weight:800!important;color:#1c1917!important;">${formatPrice(itemLineTotal)}</span>
                 </div>
               </div>
             </div>
-            <button type="button" onclick="CartManager.removeItem('${item.id}'); renderCartPage();" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
-            </button>
-          </div>
-
-          <!-- Crisp Horizontal Divider -->
-          <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:12px 0!important;padding:0!important;display:block!important;"></div>
-
-          <!-- Bottom Row: Segmented Stepper on Start, Line Total on End -->
-          <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;">
-            <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:38px!important;width:126px!important;min-width:126px!important;border:1px solid #e7e5e4!important;border-radius:11px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;">
-              <button type="button" onclick="CartManager.updateQuantity('${item.id}', 1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">+</button>
-              <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:14px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;box-sizing:border-box!important;">${item.quantity}</span>
-              <button type="button" onclick="CartManager.updateQuantity('${item.id}', -1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
+          `;
+        }).join('');
+      }
+    } else {
+      // Standard render when no offers active
+      html = cart.map(item => {
+        const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
+        const imgUrl = resolveImgUrl(item.img);
+        const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
+        const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
+        const itemLineTotal = item.price * item.quantity;
+        return `
+          <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
+            <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
+              <div class="note-cart-item-start" style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0!important;flex:1 1 auto!important;">
+                <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="note-cart-item-thumb cart-thumb-box" style="width:82px!important;height:82px!important;min-width:82px!important;min-height:82px!important;max-width:82px!important;max-height:82px!important;border-radius:14px!important;background:#ffffff!important;border:1px solid #f0eee9!important;padding:4px!important;flex-shrink:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;box-sizing:border-box!important;">
+                  <img src="${imgUrl}" alt="${escapeHTML(item.title)}" style="width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;">
+                </a>
+                <div class="note-cart-item-info" style="display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;min-width:0!important;flex:1 1 auto!important;text-align:right!important;">
+                  <a href="/products/${zidSlug}" onclick="NoteRouter.navigate('/products/${zidSlug}')" class="note-cart-item-title-link" style="text-decoration:none!important;color:inherit!important;display:block!important;">
+                    <h4 class="note-cart-item-title" style="font-size:15px!important;font-weight:700!important;color:#1c1917!important;line-height:1.35!important;margin:0!important;">${escapeHTML(item.title)}</h4>
+                  </a>
+                  <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
+                    ${oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${formatPrice(oldPriceVal)}</span>` : ''}
+                    <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${formatPrice(item.price)}</span>
+                  </div>
+                </div>
+              </div>
+              <button type="button" onclick="CartManager.removeItem('${item.id}'); renderCartPage();" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
+              </button>
             </div>
-            <div class="note-cart-item-total" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;text-align:left!important;">
-              <span class="note-cart-item-total-label" style="font-size:13px!important;font-weight:500!important;color:#78716c!important;">المجموع:</span>
-              <span class="note-cart-item-total-val" style="font-size:16px!important;font-weight:800!important;color:#1c1917!important;">${formatPrice(itemLineTotal)}</span>
+            <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:12px 0!important;padding:0!important;display:block!important;"></div>
+            <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;width:100%!important;box-sizing:border-box!important;">
+              <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:38px!important;width:126px!important;min-width:126px!important;border:1px solid #e7e5e4!important;border-radius:11px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;">
+                <button type="button" onclick="CartManager.updateQuantity('${item.id}', 1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">+</button>
+                <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:14px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;box-sizing:border-box!important;">${item.quantity}</span>
+                <button type="button" onclick="CartManager.updateQuantity('${item.id}', -1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
+              </div>
+              <div class="note-cart-item-total" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;text-align:left!important;">
+                <span class="note-cart-item-total-label" style="font-size:13px!important;font-weight:500!important;color:#78716c!important;">المجموع:</span>
+                <span class="note-cart-item-total-val" style="font-size:16px!important;font-weight:800!important;color:#1c1917!important;">${formatPrice(itemLineTotal)}</span>
+              </div>
             </div>
           </div>
-        </div>
-      `;
-    }).join('');
+        `;
+      }).join('');
+    }
 
-    updateCartFinancials(total);
+    itemsContainer.innerHTML = html;
+
+        updateCartFinancials(total);
     updateCheckoutUpsell(cart);
     renderCartPageRecommendations(cart);
     restoreSavedCartCoupon();
@@ -5676,16 +5957,26 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   }
 
   function updateCartFinancials(subtotal) {
-    const amount=Number.isFinite(Number(subtotal)) ? Number(subtotal) : 0;
-    for(const id of ['page-subtotal','page-grand-total']) {
-      const el=document.getElementById(id);
-      if(el) el.textContent=amount.toLocaleString('en-US',{maximumFractionDigits:2})+' ر.س';
-    }
-    document.getElementById('discount-row')?.classList.add('hidden');
-    const shipping=document.getElementById('page-shipping');
-    if(shipping) shipping.textContent='يُحسب عند الدفع';
+    let amount = Number.isFinite(Number(subtotal)) ? Number(subtotal) : 0;
+    let bundleDiscount = 0;
+    let liveTotals = null;
 
-    const bundleDiscount = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
+    if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.totals) && window._noteLiveCartState.totals.length > 0) {
+      liveTotals = window._noteLiveCartState.totals;
+      const subObj = liveTotals.find(t => t.code === 'sub_totals');
+      if (subObj && Number.isFinite(Number(subObj.value)) && Number(subObj.value) > 0) {
+        amount = Number(subObj.value);
+      }
+      const discObj = liveTotals.find(t => t.code === 'products_discount');
+      if (discObj && Number.isFinite(Number(discObj.value))) {
+        bundleDiscount = Math.abs(Number(discObj.value));
+      }
+    }
+
+    if (bundleDiscount === 0 && typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) {
+      bundleDiscount = CartManager.getLiveBundleDiscount();
+    }
+
     const bundleOffers = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleOffers) ? CartManager.getLiveBundleOffers() : [];
     const bundleRow = document.getElementById('bundle-discount-row');
     const bundleTitle = document.getElementById('page-bundle-discount-title');
@@ -5694,7 +5985,16 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       if (bundleDiscount > 0) {
         bundleRow.classList.remove('hidden');
         if (bundleTitle) {
-          const offerNames = bundleOffers.map(b => b.name).filter(Boolean).join(' + ');
+          let offerNames = '';
+          if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.bundle_offers)) {
+            const activeZid = window._noteLiveCartState.bundle_offers.filter(b => b.usage_count > 0 || Number(b.discount_total) > 0);
+            if (activeZid.length > 0) {
+              offerNames = activeZid.map(b => b.name).filter(Boolean).join(' + ');
+            }
+          }
+          if (!offerNames) {
+            offerNames = bundleOffers.map(b => b.name).filter(Boolean).join(' + ');
+          }
           bundleTitle.textContent = offerNames ? `وفّرت مع العرض (${offerNames}):` : 'وفّرت مع العرض:';
         }
         if (bundleVal) bundleVal.textContent = `-${bundleDiscount.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س`;
@@ -5703,21 +6003,32 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       }
     }
 
+    for(const id of ['page-subtotal','page-grand-total']) {
+      const el=document.getElementById(id);
+      if(el) el.textContent=amount.toLocaleString('en-US',{maximumFractionDigits:2})+' ر.س';
+    }
+    document.getElementById('discount-row')?.classList.add('hidden');
+    const shipping=document.getElementById('page-shipping');
+    if(shipping) shipping.textContent='يُحسب عند الدفع';
+
     const appliedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
-    const baseAfterBundle = Math.max(0, amount - bundleDiscount);
-    if (bundleDiscount > 0) {
-      const grandEl = document.getElementById('page-grand-total');
-      if (grandEl) {
-        grandEl.innerHTML = `<span class="note-cart-total-old line-through text-stone-400 font-semibold text-sm sm:text-base ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:15px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(amount)}</span><span class="note-cart-total-new text-rose-600 font-black text-xl sm:text-2xl" style="color:#ef4444!important;font-size:22px!important;font-weight:900!important;">${formatPrice(baseAfterBundle)}</span>`;
+    let finalAmount = Math.max(0, amount - bundleDiscount);
+    if (liveTotals) {
+      const totObj = liveTotals.find(t => t.code === 'total');
+      if (totObj && Number.isFinite(Number(totObj.value))) {
+        finalAmount = Number(totObj.value);
       }
-    } else if (appliedCoupon && amount > 0) {
+    } else if (appliedCoupon && amount > 0 && bundleDiscount === 0) {
       const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : 5;
-      const discount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
-      const finalAmount = Math.max(0, Math.round((baseAfterBundle - discount) * 100) / 100);
-      const grandEl = document.getElementById('page-grand-total');
-      if (grandEl) {
-        grandEl.innerHTML = `<span class="note-cart-total-old line-through text-stone-400 font-semibold text-sm sm:text-base ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:15px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(amount)}</span><span class="note-cart-total-new text-rose-600 font-black text-xl sm:text-2xl" style="color:#ef4444!important;font-size:22px!important;font-weight:900!important;">${formatPrice(finalAmount)}</span>`;
-      }
+      const discount = Math.round(((amount * pct) / 100) * 100) / 100;
+      finalAmount = Math.max(0, Math.round((amount - discount) * 100) / 100);
+    }
+
+    const grandEl = document.getElementById('page-grand-total');
+    if (grandEl && (bundleDiscount > 0 || (appliedCoupon && finalAmount < amount))) {
+      const formattedOld = (typeof formatPrice === 'function') ? formatPrice(amount) : (amount.toLocaleString('en-US',{maximumFractionDigits:2})+' ر.س');
+      const formattedNew = (typeof formatPrice === 'function') ? formatPrice(finalAmount) : (finalAmount.toLocaleString('en-US',{maximumFractionDigits:2})+' ر.س');
+      grandEl.innerHTML = `<span class="note-cart-total-old line-through text-stone-400 font-semibold text-sm sm:text-base ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:15px!important;font-weight:600!important;margin-left:8px!important;">${formattedOld}</span><span class="note-cart-total-new text-rose-600 font-black text-xl sm:text-2xl" style="color:#ef4444!important;font-size:22px!important;font-weight:900!important;">${formattedNew}</span>`;
     }
 
     const summary = document.getElementById('cart-page-summary-wrapper');
