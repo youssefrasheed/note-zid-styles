@@ -1622,6 +1622,35 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 }}
 #white-friday-popup .later:hover {{ color: #5a5347 !important; }}
 
+/* Unified Luxury Gold Offer Category Buttons */
+.note-offer-btn {{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  padding: 13px 14px !important;
+  background: linear-gradient(135deg, #faefd4 0%, #dfc485 50%, #c9a85c 100%) !important;
+  color: #111111 !important;
+  font-weight: 800 !important;
+  font-size: 13.5px !important;
+  border: 1px solid rgba(195, 160, 85, 0.6) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 8px rgba(223, 196, 133, 0.3) !important;
+  transition: all 0.25s ease !important;
+  text-decoration: none !important;
+  min-height: 48px !important;
+  box-sizing: border-box !important;
+}}
+.note-offer-btn:hover, .note-offer-btn:focus-visible {{
+  background: linear-gradient(135deg, #fdf5e2 0%, #e6cd90 50%, #d8b76c 100%) !important;
+  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.5) !important;
+  transform: translateY(-1px) !important;
+}}
+.note-offer-btn:active {{
+  transform: scale(0.97) !important;
+}}
+
+
 """
 
 suppression_css = fix_startup_css(suppression_css)
