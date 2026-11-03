@@ -1454,19 +1454,19 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   font-weight: 800 !important;
 }
 
-/* Luxury Soft Champagne Gold ONLY when coupon discount is actually applied */
+/* Luxury Radiant Gold ONLY when coupon discount is active / applied */
 #drawer-coupon-btn.note-btn-gold,
 #coupon-apply-btn.note-btn-gold {
-  background: linear-gradient(135deg, #f5e9c9 0%, #dfc485 100%) !important;
+  background: linear-gradient(135deg, #faefd4 0%, #dfc485 50%, #c9a85c 100%) !important;
   color: #111111 !important;
-  border: 1px solid rgba(195, 160, 85, 0.5) !important;
-  box-shadow: 0 2px 8px rgba(223, 196, 133, 0.35) !important;
+  border: 1px solid rgba(195, 160, 85, 0.6) !important;
+  box-shadow: 0 2px 10px rgba(223, 196, 133, 0.4) !important;
 }
 
 #drawer-coupon-btn.note-btn-gold:hover,
 #coupon-apply-btn.note-btn-gold:hover {
-  background: linear-gradient(135deg, #faefd4 0%, #e6cd90 100%) !important;
-  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.45) !important;
+  background: linear-gradient(135deg, #fdf5e2 0%, #e6cd90 50%, #d8b76c 100%) !important;
+  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.5) !important;
   transform: translateY(-1px);
 }
 
@@ -1476,6 +1476,12 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 #coupon-apply-btn.note-btn-gold bdi {
   color: #111111 !important;
   font-weight: 800 !important;
+}
+
+#drawer-coupon-btn.note-btn-gold svg,
+#coupon-apply-btn.note-btn-gold svg {
+  stroke: #111111 !important;
+  color: #111111 !important;
 }
 
 /* Grouped Offer Bundle Cards in /cart Page */

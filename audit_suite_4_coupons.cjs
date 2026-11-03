@@ -33,9 +33,9 @@ assert.strictEqual(getNoteCouponPercent(''), 0, 'Empty coupon must give 0%');
 
 console.log('PASS: Coupon percentage calculation verified for all formats.');
 
-// Verify bundle vs coupon conflict resolution
-assert(appJs.includes('liveBundleDisc > 0'), 'Must check liveBundleDisc > 0 before turning button gold');
-assert(appJs.includes('applyBtn.classList.remove(\'note-btn-gold\')'), 'Must remove gold class when bundle offer active');
-assert(appJs.includes('applyBtn.classList.add(\'note-btn-gold\')'), 'Must add gold class when no bundle offer');
+// Verify active gold vs inactive black coupon button behavior
+assert(appJs.includes('applyBtn.classList.add(\'note-btn-gold\')'), 'Must add gold class when coupon is active');
+assert(appJs.includes('applyBtn.classList.remove(\'note-btn-gold\')'), 'Must remove gold class when coupon is cleared');
+assert(appJs.includes('drawerCouponBtn.classList.add(\'note-btn-gold\')'), 'Must add gold class to drawer coupon button when active');
 
-console.log('PASS: Bundle vs coupon conflict resolution logic verified.');
+console.log('PASS: Active gold vs inactive black coupon button logic verified.');

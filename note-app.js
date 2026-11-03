@@ -1279,19 +1279,19 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   font-weight: 800 !important;
 }
 
-/* Luxury Soft Champagne Gold ONLY when coupon discount is actually applied */
+/* Luxury Radiant Gold ONLY when coupon discount is active / applied */
 #drawer-coupon-btn.note-btn-gold,
 #coupon-apply-btn.note-btn-gold {
-  background: linear-gradient(135deg, #f5e9c9 0%, #dfc485 100%) !important;
+  background: linear-gradient(135deg, #faefd4 0%, #dfc485 50%, #c9a85c 100%) !important;
   color: #111111 !important;
-  border: 1px solid rgba(195, 160, 85, 0.5) !important;
-  box-shadow: 0 2px 8px rgba(223, 196, 133, 0.35) !important;
+  border: 1px solid rgba(195, 160, 85, 0.6) !important;
+  box-shadow: 0 2px 10px rgba(223, 196, 133, 0.4) !important;
 }
 
 #drawer-coupon-btn.note-btn-gold:hover,
 #coupon-apply-btn.note-btn-gold:hover {
-  background: linear-gradient(135deg, #faefd4 0%, #e6cd90 100%) !important;
-  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.45) !important;
+  background: linear-gradient(135deg, #fdf5e2 0%, #e6cd90 50%, #d8b76c 100%) !important;
+  box-shadow: 0 4px 14px rgba(223, 196, 133, 0.5) !important;
   transform: translateY(-1px);
 }
 
@@ -1301,6 +1301,12 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 #coupon-apply-btn.note-btn-gold bdi {
   color: #111111 !important;
   font-weight: 800 !important;
+}
+
+#drawer-coupon-btn.note-btn-gold svg,
+#coupon-apply-btn.note-btn-gold svg {
+  stroke: #111111 !important;
+  color: #111111 !important;
 }
 
 /* Grouped Offer Bundle Cards in /cart Page */
@@ -3778,6 +3784,21 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                 }
               }
               const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
+              const drawerCouponBtn = document.getElementById('drawer-coupon-btn');
+              if (drawerCouponBtn) {
+                const isCouponActive = !!savedCoupon || (liveTotals && liveTotals.some(t => t.code === 'coupon'));
+                if (isCouponActive) {
+                  drawerCouponBtn.style.backgroundColor = '';
+                  drawerCouponBtn.style.borderColor = '';
+                  drawerCouponBtn.classList.add('note-btn-gold');
+                  drawerCouponBtn.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
+                } else {
+                  drawerCouponBtn.style.backgroundColor = '';
+                  drawerCouponBtn.style.borderColor = '';
+                  drawerCouponBtn.classList.remove('note-btn-gold');
+                  drawerCouponBtn.textContent = 'تطبيق';
+                }
+              }
               let finalDrawerTotal = Math.max(0, total - bundleDiscount);
               if (liveTotals) {
                 const totObj = liveTotals.find(t => t.code === 'total');
@@ -3965,13 +3986,55 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       const drawerCouponInput = document.getElementById('drawer-coupon-input');
       const drawerCouponTag = document.getElementById('drawer-coupon-applied-tag');
       const drawerCouponMsg = document.getElementById('drawer-coupon-msg');
+      const drawerCouponBtn = document.getElementById('drawer-coupon-btn');
       if (drawerCouponInput && savedCoupon) {
         if (!drawerCouponInput.value) drawerCouponInput.value = savedCoupon;
         if (drawerCouponTag) drawerCouponTag.classList.remove('hidden');
+        if (drawerCouponBtn) {
+          drawerCouponBtn.style.backgroundColor = '';
+          drawerCouponBtn.style.borderColor = '';
+          drawerCouponBtn.classList.add('note-btn-gold');
+          drawerCouponBtn.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
+        }
         if (drawerCouponMsg && drawerCouponMsg.classList.contains('hidden')) {
           drawerCouponMsg.textContent = `كود الخصم (${savedCoupon}) مفعّل لطلبك.`;
           drawerCouponMsg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5';
         }
+      } else if (drawerCouponBtn && !savedCoupon) {
+        drawerCouponBtn.style.backgroundColor = '';
+        drawerCouponBtn.style.borderColor = '';
+        drawerCouponBtn.classList.remove('note-btn-gold');
+        drawerCouponBtn.textContent = 'تطبيق';
+        if (drawerCouponTag) drawerCouponTag.classList.add('hidden');
+      }
+
+      if (drawerCouponInput && !drawerCouponInput._hasNoteInputListener) {
+        drawerCouponInput._hasNoteInputListener = true;
+        drawerCouponInput.addEventListener('input', () => {
+          const currentVal = drawerCouponInput.value.trim().toUpperCase();
+          const saved = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
+          if (saved && currentVal !== saved) {
+            if (drawerCouponBtn) {
+              drawerCouponBtn.style.backgroundColor = '';
+              drawerCouponBtn.style.borderColor = '';
+              drawerCouponBtn.classList.remove('note-btn-gold');
+              drawerCouponBtn.textContent = 'تطبيق';
+            }
+            if (drawerCouponTag) drawerCouponTag.classList.add('hidden');
+            if (!currentVal) {
+              localStorage.removeItem('note_applied_coupon');
+              if (drawerCouponMsg) drawerCouponMsg.classList.add('hidden');
+              if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
+            }
+          } else if (!saved) {
+            if (drawerCouponBtn) {
+              drawerCouponBtn.style.backgroundColor = '';
+              drawerCouponBtn.style.borderColor = '';
+              drawerCouponBtn.classList.remove('note-btn-gold');
+              drawerCouponBtn.textContent = 'تطبيق';
+            }
+          }
+        });
       }
 
       // Render Laverne-style 2-tier item cards
@@ -4128,17 +4191,14 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         tag.classList.add('note-coupon-tag-anim');
       }
 
-      // 4. Button temporary success feedback
+      // 4. Button success feedback: Permanently active Luxury Gold with checkmark
       if (btn) {
-        const origBg = btn.style.backgroundColor;
-        btn.style.backgroundColor = '#10b981';
-        btn.style.borderColor = '#10b981';
-        btn.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-white"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
-        setTimeout(() => {
-          btn.textContent = 'تطبيق';
-          btn.style.backgroundColor = origBg || '';
-          btn.style.borderColor = '';
-        }, 1800);
+        btn.style.backgroundColor = '';
+        btn.style.borderColor = '';
+        btn.classList.add('note-btn-gold');
+        btn.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
+        btn.classList.add('note-coupon-tag-anim');
+        setTimeout(() => btn.classList.remove('note-coupon-tag-anim'), 1200);
       }
 
       // 5. Total Price highlight
@@ -4261,22 +4321,20 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
 
         if (tag) tag.classList.remove('hidden');
-        const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
-        if (liveBundleDisc > 0) {
-          if (btn) btn.classList.remove('note-btn-gold');
-          msg.textContent = `تم حفظ كود الخصم (${code}). سلتك مؤهلة لعرض الحزم التلقائي (الأكبر توفيراً)، والخصم مطبق بالكامل.`;
-          msg.className = 'text-[11px] font-bold text-amber-600 block mt-1.5 note-msg-anim';
-        } else {
-          if (btn) btn.classList.add('note-btn-gold');
-          msg.textContent = alreadyApplied
-            ? `كود الخصم (${code}) مفعّل بالفعل لطلبك! 🎉`
-            : `تم تفعيل كود الخصم (${code}) بنجاح! سيتم احتسابه عند الدفع.`;
-          msg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5 note-msg-anim';
-
-          const container = input.closest('.rounded-2xl') || input.parentElement?.parentElement || document.getElementById('cart-drawer-coupon-box');
-          const totalEl = document.getElementById('cart-drawer-total');
-          triggerCouponCelebration(container, tag, btn, totalEl);
+        if (btn) {
+          btn.style.backgroundColor = '';
+          btn.style.borderColor = '';
+          btn.classList.add('note-btn-gold');
+          btn.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
         }
+        msg.textContent = alreadyApplied
+          ? `كود الخصم (${code}) مفعّل بالفعل لطلبك! 🎉`
+          : `تم تفعيل كود الخصم (${code}) بنجاح! سيتم احتسابه عند الدفع.`;
+        msg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5 note-msg-anim';
+
+        const container = input.closest('.rounded-2xl') || input.parentElement?.parentElement || document.getElementById('cart-drawer-coupon-box');
+        const totalEl = document.getElementById('cart-drawer-total');
+        triggerCouponCelebration(container, tag, btn, totalEl);
         msg.classList.remove('hidden');
       }
     } catch (e) {
@@ -4287,6 +4345,9 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       if (btn) {
         btn.disabled = false;
         if (!applied) {
+          btn.style.backgroundColor = '';
+          btn.style.borderColor = '';
+          btn.classList.remove('note-btn-gold');
           btn.textContent = 'تطبيق';
         }
       }
@@ -5717,22 +5778,20 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
       } else if (applied) {
         localStorage.setItem('note_applied_coupon', code);
-        const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
-        if (liveBundleDisc > 0) {
-          if (applyBtn) applyBtn.classList.remove('note-btn-gold');
-          msg.textContent = `تم حفظ كود الخصم (${code}). سلتك مؤهلة لعرض الحزم التلقائي (الأكبر توفيراً)، والخصم مطبق بالكامل.`;
-          msg.className = 'text-[11px] font-bold text-amber-600 block note-msg-anim';
-        } else {
-          if (applyBtn) applyBtn.classList.add('note-btn-gold');
-          msg.textContent = alreadyApplied
-            ? `كود الخصم (${code}) مفعّل بالفعل لطلبك! 🎉`
-            : `تم تفعيل كود الخصم (${code}) بنجاح! سيتم تطبيقه لطلبك عند الدفع.`;
-          msg.className = 'text-[11px] font-bold text-emerald-600 block note-msg-anim';
-
-          const container = document.getElementById('note-cart-coupon-section') || input.closest('.rounded-2xl');
-          const totalEl = document.getElementById('page-grand-total');
-          triggerCouponCelebration(container, tag, applyBtn, totalEl);
+        if (applyBtn) {
+          applyBtn.style.backgroundColor = '';
+          applyBtn.style.borderColor = '';
+          applyBtn.classList.add('note-btn-gold');
+          if (btnText) btnText.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
         }
+        msg.textContent = alreadyApplied
+          ? `كود الخصم (${code}) مفعّل بالفعل لطلبك! 🎉`
+          : `تم تفعيل كود الخصم (${code}) بنجاح! سيتم تطبيقه لطلبك عند الدفع.`;
+        msg.className = 'text-[11px] font-bold text-emerald-600 block note-msg-anim';
+
+        const container = document.getElementById('note-cart-coupon-section') || input.closest('.rounded-2xl');
+        const totalEl = document.getElementById('page-grand-total');
+        triggerCouponCelebration(container, tag, applyBtn, totalEl);
         if (tag) tag.classList.remove('hidden');
         if (clearBtn) clearBtn.classList.remove('hidden');
         if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
@@ -5742,7 +5801,14 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       msg.className = 'text-[11px] font-bold text-rose-600 block';
     } finally {
       if (applyBtn) applyBtn.disabled = false;
-      if (btnText) btnText.textContent = 'تطبيق';
+      if (!applied) {
+        if (applyBtn) {
+          applyBtn.style.backgroundColor = '';
+          applyBtn.style.borderColor = '';
+          applyBtn.classList.remove('note-btn-gold');
+        }
+        if (btnText) btnText.textContent = 'تطبيق';
+      }
     }
   }
 
@@ -5753,8 +5819,14 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     const tag = document.getElementById('coupon-applied-tag');
     const clearBtn = document.getElementById('coupon-clear-btn');
     const applyBtn = document.getElementById('coupon-apply-btn');
+    const btnText = document.getElementById('coupon-btn-text');
 
-    if (applyBtn) applyBtn.classList.remove('note-btn-gold');
+    if (applyBtn) {
+      applyBtn.style.backgroundColor = '';
+      applyBtn.style.borderColor = '';
+      applyBtn.classList.remove('note-btn-gold');
+    }
+    if (btnText) btnText.textContent = 'تطبيق';
     if (input) input.value = '';
     if (tag) tag.classList.add('hidden');
     if (clearBtn) clearBtn.classList.add('hidden');
@@ -5773,10 +5845,15 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   function restoreSavedCartCoupon() {
     const saved = localStorage.getItem('note_applied_coupon');
     const applyBtn = document.getElementById('coupon-apply-btn');
-    const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
+    const btnText = document.getElementById('coupon-btn-text');
 
     if (!saved) {
-      if (applyBtn) applyBtn.classList.remove('note-btn-gold');
+      if (applyBtn) {
+        applyBtn.style.backgroundColor = '';
+        applyBtn.style.borderColor = '';
+        applyBtn.classList.remove('note-btn-gold');
+      }
+      if (btnText) btnText.textContent = 'تطبيق';
       return;
     }
     const input = document.getElementById('coupon-code-input');
@@ -5785,23 +5862,17 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     const msg = document.getElementById('coupon-msg');
 
     if (applyBtn) {
-      if (liveBundleDisc === 0) {
-        applyBtn.classList.add('note-btn-gold');
-      } else {
-        applyBtn.classList.remove('note-btn-gold');
-      }
+      applyBtn.style.backgroundColor = '';
+      applyBtn.style.borderColor = '';
+      applyBtn.classList.add('note-btn-gold');
+      if (btnText) btnText.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
     }
     if (input && !input.value) input.value = saved;
     if (tag) tag.classList.remove('hidden');
     if (clearBtn) clearBtn.classList.remove('hidden');
     if (msg && msg.classList.contains('hidden')) {
-      if (liveBundleDisc > 0) {
-        msg.textContent = `كود الخصم (${saved}) محفوظ. (سلتك تستفيد حالياً من عرض الحزم التلقائي الأكبر توفيراً).`;
-        msg.className = 'text-[11px] font-bold text-amber-600 block';
-      } else {
-        msg.textContent = `كود الخصم (${saved}) مفعّل لطلبك.`;
-        msg.className = 'text-[11px] font-bold text-emerald-600 block';
-      }
+      msg.textContent = `كود الخصم (${saved}) مفعّل لطلبك.`;
+      msg.className = 'text-[11px] font-bold text-emerald-600 block';
     }
     if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
   }

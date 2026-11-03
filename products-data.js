@@ -1801,10 +1801,18 @@ window.applyDrawerCoupon = async function() {
       msg.className = 'text-[11px] font-bold text-rose-600 block mt-1.5';
       msg.classList.remove('hidden');
       if (tag) tag.classList.add('hidden');
+      if (btn) {
+        btn.classList.remove('note-btn-gold');
+        btn.textContent = 'تطبيق';
+      }
       localStorage.removeItem('note_applied_coupon');
       if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
     } else if (applied) {
       localStorage.setItem('note_applied_coupon', code);
+      if (btn) {
+        btn.classList.add('note-btn-gold');
+        btn.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
+      }
       msg.textContent = alreadyApplied
         ? `كود الخصم (${code}) مفعّل بالفعل لطلبك! 🎉`
         : `تم تفعيل كود الخصم (${code}) بنجاح! سيتم احتسابه عند الدفع.`;
@@ -1820,7 +1828,10 @@ window.applyDrawerCoupon = async function() {
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = 'تطبيق';
+      if (!applied) {
+        btn.classList.remove('note-btn-gold');
+        btn.textContent = 'تطبيق';
+      }
     }
   }
 };
