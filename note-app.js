@@ -5792,7 +5792,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       bundleDiscount = CartManager.getLiveBundleDiscount();
     }
 
-    if (typeof CartManager !== 'undefined' && CartManager.hasConflictingBundleUsage?.()) {
+    if (typeof CartManager !== 'undefined' && (!liveTotals || CartManager.hasConflictingBundleUsage?.())) {
       document.getElementById('bundle-discount-row')?.classList.add('hidden');
       document.getElementById('discount-row')?.classList.add('hidden');
       const subtotalEl = document.getElementById('page-subtotal');
@@ -5857,7 +5857,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     }
 
     const grandEl = document.getElementById('page-grand-total');
-    if (grandEl && (bundleDiscount > 0 || (appliedCoupon && finalAmount < amount))) {
+    if (grandEl && finalAmount !== amount) {
       const formattedOld = (typeof formatPrice === 'function') ? formatPrice(amount) : (amount.toLocaleString('en-US',{maximumFractionDigits:2})+' ر.س');
       const formattedNew = (typeof formatPrice === 'function') ? formatPrice(finalAmount) : (finalAmount.toLocaleString('en-US',{maximumFractionDigits:2})+' ر.س');
       grandEl.innerHTML = `<span class="note-cart-total-old line-through text-stone-400 font-semibold text-sm sm:text-base ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:15px!important;font-weight:600!important;margin-left:8px!important;">${formattedOld}</span><span class="note-cart-total-new text-rose-600 font-black text-xl sm:text-2xl" style="color:#ef4444!important;font-size:22px!important;font-weight:900!important;">${formattedNew}</span>`;
