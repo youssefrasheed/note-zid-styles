@@ -1128,12 +1128,14 @@
       };
       const expected = signature(payloads);
       if (signature(nativeCartItems(nativeCart)) !== expected) {
-        if (typeof api.empty === 'function') {
-          assertCartResponse(await api.empty());
-        } else {
-          for (const item of nativeCartItems(nativeCart)) {
-            assertCartResponse(await api.removeProduct({product_id: item.id}));
-          }
+        // Read back the cleared basket: the SDK may report success while
+        // discounted lines remain. Never append to a nonempty basket.
+        for (const item of nativeCartItems(nativeCart)) {
+          assertCartResponse(await api.removeProduct({product_id: item.id}));
+        }
+        nativeCart = await readNativeCart();
+        if (nativeCartItems(nativeCart).length) {
+          throw Error('تعذر إعادة مزامنة السلة. حدّث الصفحة ثم أعد المحاولة.');
         }
         for (const payload of payloads) {
           assertCartResponse(await api.addProduct(payload));
