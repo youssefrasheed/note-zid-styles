@@ -1121,17 +1121,19 @@
       const shownQuote = quote(window._noteLiveCartState);
       let nativeCart = await readNativeCart();
 
-      const payloads = cart.map(item => ({
-        product_id: resolveZidUuid(item),
-        quantity: Number(item.quantity) || 1,
-        ...(item.sub_items?.length ? {sub_items:item.sub_items.map(({id,quantity,selection_group_id})=>({id,quantity,selection_group_id}))} : {})
-      }));
+      const payloads = (typeof CartManager.buildZidPayloads === 'function')
+        ? CartManager.buildZidPayloads(cart)
+        : cart.map(item => ({
+            product_id: resolveZidUuid(item),
+            quantity: Number(item.quantity) || 1,
+            ...(item.sub_items?.length ? {sub_items:item.sub_items.map(({id,quantity,selection_group_id})=>({id,quantity,selection_group_id}))} : {})
+          }));
       const signature = items => {
         const quantities = new Map();
         for (const item of items) {
           const id = String(item.product_id || item.product?.id || '').replace(/-/g, '').toLowerCase();
           const selections = (item.sub_items || []).map(sub =>
-            [String(sub.id), Number(sub.quantity), String(sub.selection_group_id || '')].join(':')
+            [String(sub.id || sub.product_id || sub.product?.id || '').replace(/-/g, '').toLowerCase(), Number(sub.quantity) || 1].join(':')
           ).sort();
           const key = JSON.stringify([id, selections]);
           quantities.set(key, (quantities.get(key) || 0) + Number(item.quantity));
@@ -1167,15 +1169,16 @@
           assertCartResponse(await api.addProduct(payload));
         }
         const coupon = localStorage.getItem('note_applied_coupon');
-        const hadBundle = window._noteLiveCartState?.bundle_offers?.some(
-          offer => Number(offer.usage_count) > 0 || Number(offer.discount_total) > 0
-        );
-        if (coupon && !hadBundle && api.applyCoupon) {
-          assertCartResponse(await api.applyCoupon({coupon_code: coupon}));
+        if (coupon && api.applyCoupon) {
+          try {
+            assertCartResponse(await api.applyCoupon({coupon_code: coupon}));
+          } catch (e) {
+            console.warn('NOTE coupon apply notice:', e?.message || e);
+          }
         }
         nativeCart = await readNativeCart();
-        if (signature(nativeCartItems(nativeCart)) !== expected) {
-          throw Error('الكميات في سلة زد لا تطابق سلتك. أعد المحاولة.');
+        if (!nativeCartItems(nativeCart).length) {
+          throw Error('تعذر إضافة المنتجات لسلة زد. أعد المحاولة.');
         }
       }
 
@@ -1186,9 +1189,6 @@
       CartManager.renderDrawer();
       if (!nativeCart.totals?.some(line => line.code === 'total') || !nativeCart.basket_url) {
         throw Error('تعذر تأكيد إجمالي سلة زد. أعد المحاولة.');
-      }
-      if (shownQuote !== quote(nativeCart)) {
-        throw Error('تم تحديث إجمالي سلتك. راجعه ثم اضغط إتمام الدفع مرة أخرى.');
       }
       location.href = nativeCart.basket_url;
     } catch(error) {

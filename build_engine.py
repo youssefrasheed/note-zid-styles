@@ -2439,46 +2439,234 @@ app_js_code = f"""/**
 
       return (title.includes('معطر') && title.includes('جسم')) || title === 'رويال بودر' || title.includes('عسل');
     }},
-    getLiveBundleOffers: function() {{
-      const cart = this.getCart();
-      if (!cart || cart.length === 0) return [];
-      
-      let perfume100Count = 0;
-      let bodySprayCount = 0;
-      let tolaCount = 0;
-      for (let i = 0; i < cart.length; i++) {{
-        if (this._isQualifying100mlPerfume(cart[i])) {{
-          perfume100Count += (Number(cart[i].quantity) || 1);
-        }} else if (this._isQualifyingBodySpray && this._isQualifyingBodySpray(cart[i])) {{
-          bodySprayCount += (Number(cart[i].quantity) || 1);
-        }} else if (this._isQualifyingTola(cart[i])) {{
-          tolaCount += (Number(cart[i].quantity) || 1);
+    partitionCart: function(customCart = null) {{
+      const cart = customCart || this.getCart() || [];
+      const units = [];
+      for (let ci = 0; ci < cart.length; ci++) {{
+        const item = cart[ci];
+        const qty = Math.max(1, parseInt(item && item.quantity, 10) || 1);
+        const p = Number(item.price ?? item.sale_price ?? 0) || 0;
+        const isPerfume = this._isQualifying100mlPerfume(item);
+        const isSpray = this._isQualifyingBodySpray ? this._isQualifyingBodySpray(item) : false;
+        const isTola = this._isQualifyingTola(item);
+        for (let q = 0; q < qty; q++) {{
+          units.push({{
+            item,
+            unitIndex: q,
+            price: p,
+            isPerfume,
+            isSpray,
+            isTola,
+            consumed: false
+          }});
         }}
       }}
-      
-      const offers = [];
-      // Offer 2: "عطرك بـ 1 ريال (2+1)" -> Strict sets of 3 qualifying 100ml perfumes or body sprays
-      const totalQualifying2Plus1 = perfume100Count + bodySprayCount;
-      const offer2Count = Math.floor(totalQualifying2Plus1 / 3);
-      if (offer2Count > 0) {{
-        offers.push({{
+
+      const groups = {{
+        tier1_spray_bundles: [],
+        tier2_trios: [],
+        tier3_pairs: [],
+        tier4_standalone: []
+      }};
+
+      // TIER 1: Every 3 qualifying body sprays -> Body Spray Bundle @ 249 SAR
+      const sprays = units.filter(u => u.isSpray && !u.consumed);
+      const sprayBundleCount = Math.floor(sprays.length / 3);
+      for (let b = 0; b < sprayBundleCount; b++) {{
+        const trio = sprays.slice(b * 3, b * 3 + 3);
+        trio.forEach(u => {{ u.consumed = true; }});
+        const origSum = trio.reduce((acc, u) => acc + u.price, 0);
+        groups.tier1_spray_bundles.push({{
+          type: 'body_spray_bundle',
+          name: 'باقة معطرات الجسم الثلاثية',
+          price: 249,
+          originalPrice: origSum,
+          discount: Math.max(0, origSum - 249),
+          units: trio
+        }});
+      }}
+
+      // TIER 2: Groups of 3 from remaining perfumes + remaining sprays
+      // Customer pays 2 highest + 1 SAR for 3rd (cheapest, matching Zid engine)
+      const trioEligible = units.filter(u => (u.isPerfume || u.isSpray) && !u.consumed);
+      trioEligible.sort((a, b) => b.price - a.price);
+      const trioCount = Math.floor(trioEligible.length / 3);
+      for (let t = 0; t < trioCount; t++) {{
+        const item1 = trioEligible[t * 2];
+        const item2 = trioEligible[t * 2 + 1];
+        const item3 = trioEligible[trioEligible.length - 1 - t];
+        item1.consumed = true;
+        item2.consumed = true;
+        item3.consumed = true;
+        const discount = Math.max(0, item3.price - 1);
+        groups.tier2_trios.push({{
+          type: 'trio_offer',
+          name: 'عطرك بـ 1 ريال (2+1)',
+          units: [item1, item2, item3],
+          discountedUnit: item3,
+          price: item1.price + item2.price + 1,
+          discount: discount
+        }});
+      }}
+
+      // TIER 3: Remaining perfumes/sprays paired with qualifying tolas
+      const pairBases = units.filter(u => (u.isPerfume || u.isSpray) && !u.consumed);
+      const tolaUnits = units.filter(u => u.isTola && !u.consumed);
+      tolaUnits.sort((a, b) => b.price - a.price);
+      const pairCount = Math.min(pairBases.length, tolaUnits.length);
+      for (let p = 0; p < pairCount; p++) {{
+        const base = pairBases[p];
+        const tola = tolaUnits[p];
+        base.consumed = true;
+        tola.consumed = true;
+        const discount = Math.max(0, tola.price - 1);
+        groups.tier3_pairs.push({{
+          type: 'pair_offer',
+          name: 'تولة بـ 1 ريال (1+تولة)',
+          baseUnit: base,
+          tolaUnit: tola,
+          price: base.price + 1,
+          discount: discount
+        }});
+      }}
+
+      // TIER 4: Standalone items
+      groups.tier4_standalone = units.filter(u => !u.consumed);
+
+      const totalDiscount =
+        groups.tier1_spray_bundles.reduce((s, b) => s + b.discount, 0) +
+        groups.tier2_trios.reduce((s, t) => s + t.discount, 0) +
+        groups.tier3_pairs.reduce((s, p) => s + p.discount, 0);
+
+      const activeOffers = [];
+      if (groups.tier1_spray_bundles.length > 0) {{
+        activeOffers.push({{
+          id: 'tier1-body-spray-bundle',
+          name: 'باقة معطرات الجسم الثلاثية',
+          usage_count: groups.tier1_spray_bundles.length,
+          discount_total: groups.tier1_spray_bundles.reduce((s, b) => s + b.discount, 0)
+        }});
+      }}
+      if (groups.tier2_trios.length > 0) {{
+        activeOffers.push({{
           id: 'a31fcdea-5aac-447f-a220-0ef1d60bb0a6',
           name: 'عطرك بـ 1 ريال (2+1)',
-          usage_count: offer2Count,
-          discount_total: 0
+          usage_count: groups.tier2_trios.length,
+          discount_total: groups.tier2_trios.reduce((s, t) => s + t.discount, 0)
         }});
       }}
-      // Offer 1: "تولة بـ 1 ريال (1+تولة)" -> Requires 1 qualifying perfume or body spray and 1 tola
-      const remainingEligibleForTola = totalQualifying2Plus1 - (offer2Count * 3);
-      if (remainingEligibleForTola >= 1 && tolaCount >= 1) {{
-        offers.push({{
+      if (groups.tier3_pairs.length > 0) {{
+        activeOffers.push({{
           id: 'a31e7108-b61d-4611-a968-9cdf0eca636f',
           name: 'تولة بـ 1 ريال (1+تولة)',
-          usage_count: Math.min(remainingEligibleForTola, tolaCount),
-          discount_total: 0
+          usage_count: groups.tier3_pairs.length,
+          discount_total: groups.tier3_pairs.reduce((s, p) => s + p.discount, 0)
         }});
       }}
-      return offers;
+
+      return {{
+        groups,
+        totalDiscount: Math.round(totalDiscount * 100) / 100,
+        activeOffers
+      }};
+    }},
+    buildZidPayloads: function(customCart = null) {{
+      const cart = customCart || this.getCart() || [];
+      const partition = this.partitionCart(cart);
+      const payloads = [];
+
+      const isUuid = (s) => typeof s === 'string' && /^[0-9a-f]{{8}}-[0-9a-f]{{4}}-[0-9a-f]{{4}}-[0-9a-f]{{4}}-[0-9a-f]{{12}}$/i.test(s);
+      const resolveId = (item) => {{
+        if (!item) return null;
+        const rawKey = item.id || item.product_id;
+        const p = (typeof noteProductsCatalog !== 'undefined') ? noteProductsCatalog.find(cp => cp.id === rawKey || cp.id === item.product_id || cp.slug === rawKey || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[rawKey] === cp.id)) : null;
+        if (p && isUuid(p.zid_id)) return p.zid_id;
+        if (typeof ZID_PRODUCT_MAP !== 'undefined') {{
+          if (ZID_PRODUCT_MAP[rawKey]) return ZID_PRODUCT_MAP[rawKey];
+          if (p && ZID_PRODUCT_MAP[p.id]) return ZID_PRODUCT_MAP[p.id];
+        }}
+        if (isUuid(item.product_id)) return item.product_id;
+        if (isUuid(item.id)) return item.id;
+        if (p && isUuid(p.id)) return p.id;
+        return (p && p.zid_id) || item.product_id || item.id;
+      }};
+
+      // Tier 1: Dynamic Body Spray Bundles (pkg-all-over-collection)
+      const SPRAY_BUNDLE_UUID = '4e22b431-43a0-4cd8-9e45-f6a671f2620c';
+      const GROUP_IDS = [
+        '80e97d07-5d7f-4fda-ab07-92a7c29a9728',
+        '588a75fb-2d8d-4740-865a-b6ba5e91a8d9',
+        '47b1a0b5-293d-4dd8-89e6-9f51ef47a7fb'
+      ];
+
+      if (partition.groups.tier1_spray_bundles && partition.groups.tier1_spray_bundles.length > 0) {{
+        partition.groups.tier1_spray_bundles.forEach(bundle => {{
+          const sub_items = bundle.units.map((u, idx) => ({{
+            id: resolveId(u.item),
+            quantity: 1,
+            selection_group_id: GROUP_IDS[idx % 3]
+          }}));
+          payloads.push({{
+            product_id: SPRAY_BUNDLE_UUID,
+            quantity: 1,
+            sub_items: sub_items
+          }});
+        }});
+      }}
+
+      // Remaining units from Tier 2, Tier 3, and Tier 4
+      const remainingUnits = [];
+      if (partition.groups.tier2_trios) {{
+        partition.groups.tier2_trios.forEach(t => remainingUnits.push(...t.units));
+      }}
+      if (partition.groups.tier3_pairs) {{
+        partition.groups.tier3_pairs.forEach(p => {{
+          remainingUnits.push(p.baseUnit);
+          remainingUnits.push(p.tolaUnit);
+        }});
+      }}
+      if (partition.groups.tier4_standalone) {{
+        remainingUnits.push(...partition.groups.tier4_standalone);
+      }}
+
+      const unitMap = new Map();
+      remainingUnits.forEach(u => {{
+        const item = u.item;
+        const zidUuid = resolveId(item);
+        if (!zidUuid) return;
+        if (item.sub_items && item.sub_items.length > 0) {{
+          payloads.push({{
+            product_id: zidUuid,
+            quantity: 1,
+            sub_items: item.sub_items.map(({{id, quantity, selection_group_id}}) => ({{id, quantity, selection_group_id}}))
+          }});
+        }} else {{
+          unitMap.set(zidUuid, (unitMap.get(zidUuid) || 0) + 1);
+        }}
+      }});
+
+      unitMap.forEach((qty, zidUuid) => {{
+        payloads.push({{
+          product_id: zidUuid,
+          quantity: qty
+        }});
+      }});
+
+      return payloads;
+    }},
+    getLiveBundleOffers: function() {{
+      const state = this.getLiveCartState();
+      const localTotal = this.getTotal();
+      if (state && Array.isArray(state.bundle_offers) && Array.isArray(state.totals)) {{
+        const subObj = state.totals.find(t => t.code === 'sub_totals');
+        const serverSub = (subObj && Number.isFinite(Number(subObj.value))) ? Number(subObj.value) : null;
+        if (serverSub !== null && Math.abs(serverSub - localTotal) <= 1) {{
+          const activeZid = state.bundle_offers.filter(b => b.usage_count > 0 || Number(b.discount_total) > 0);
+          if (activeZid.length > 0) return activeZid;
+        }}
+      }}
+      const partition = this.partitionCart();
+      return partition.activeOffers;
     }},
     hasConflictingBundleUsage: function(state = this.getLiveCartState()) {{
       const offers = state?.bundle_offers;
@@ -2507,7 +2695,6 @@ app_js_code = f"""/**
       const state = this.getLiveCartState();
       const localTotal = this.getTotal();
       
-      // If live state from Zid is valid and in sync with local cart:
       if (state && Array.isArray(state.totals)) {{
         const subObj = state.totals.find(t => t.code === 'sub_totals');
         const serverSub = (subObj && Number.isFinite(Number(subObj.value))) ? Number(subObj.value) : null;
@@ -2519,55 +2706,8 @@ app_js_code = f"""/**
         }}
       }}
 
-      // Authoritative local bundle calculation:
-      const cart = this.getCart();
-      if (!cart || cart.length === 0) return 0;
-      const bundles = this.getLiveBundleOffers();
-      if (!bundles || bundles.length === 0) return 0;
-
-      let totalDiscount = 0;
-      for (let bi = 0; bi < bundles.length; bi++) {{
-        const b = bundles[bi];
-        const name = ((b.name || '') + ' ' + (b.description || '')).toLowerCase();
-        const usageCount = Number(b.usage_count) || 0;
-        if (usageCount <= 0) continue;
-
-        if (name.includes('2+1') || name.includes('1+2')) {{
-          const eligiblePrices = [];
-          for (let ci = 0; ci < cart.length; ci++) {{
-            if (this._isQualifying100mlPerfume(cart[ci]) || (this._isQualifyingBodySpray && this._isQualifyingBodySpray(cart[ci]))) {{
-              const qty = Number(cart[ci].quantity) || 1;
-              const p = Number(cart[ci].price) || 0;
-              for (let q = 0; q < qty; q++) {{
-                eligiblePrices.push(p);
-              }}
-            }}
-          }}
-          if (eligiblePrices.length >= 3) {{
-            eligiblePrices.sort((a, b) => a - b);
-            const maxSets = Math.min(usageCount, Math.floor(eligiblePrices.length / 3));
-            for (let i = 0; i < maxSets; i++) {{
-              totalDiscount += Math.max(0, eligiblePrices[i] - 1);
-            }}
-          }}
-        }} else if (name.includes('تولة') || name.includes('توله')) {{
-          const tolaPrices = [];
-          for (let ci = 0; ci < cart.length; ci++) {{
-            if (this._isQualifyingTola(cart[ci])) {{
-              const qty = Number(cart[ci].quantity) || 1;
-              const p = Number(cart[ci].price) || 0;
-              for (let q = 0; q < qty; q++) {{
-                tolaPrices.push(p);
-              }}
-            }}
-          }}
-          tolaPrices.sort((a, b) => a - b);
-          for (let i = 0; i < usageCount && i < tolaPrices.length; i++) {{
-            totalDiscount += Math.max(0, tolaPrices[i] - 1);
-          }}
-        }}
-      }}
-      return Math.round(totalDiscount * 100) / 100;
+      const partition = this.partitionCart();
+      return partition.totalDiscount;
     }},
     syncLiveCart: async function() {{
       if (typeof window === 'undefined' || typeof fetch !== 'function') return null;
@@ -2826,8 +2966,7 @@ app_js_code = f"""/**
       const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
       if (totalEl) {{
         const baseAfterBundle = Math.max(0, total - bundleDiscount);
-        const isEligibleForCoupon = (bundleDiscount === 0);
-        const pct = (savedCoupon && isEligibleForCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : ((savedCoupon && isEligibleForCoupon) ? 5 : 0);
+        const pct = (savedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : (savedCoupon ? (savedCoupon.toUpperCase() === 'NOTE5' ? 2 : 5) : 0);
         const couponDiscount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
         const finalDrawerTotal = Math.max(0, Math.round((baseAfterBundle - couponDiscount) * 100) / 100);
 
@@ -2851,19 +2990,11 @@ app_js_code = f"""/**
           drawerCouponBtn.classList.add('note-btn-gold');
           drawerCouponBtn.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
         }}
-        if (bundleDiscount > 0) {{
-          if (drawerCouponTag) drawerCouponTag.classList.add('hidden');
-          if (drawerCouponMsg) {{
-            drawerCouponMsg.textContent = 'تم تفعيل عروض جمعة نوت التلقائية (العرض الترويجي يعطيك أعلى خصم، ولا يقبل الجمع مع كوبونات إضافية).';
-            drawerCouponMsg.className = 'text-[11px] font-bold text-amber-700 block mt-1.5';
-            drawerCouponMsg.classList.remove('hidden');
-          }}
-        }} else {{
-          if (drawerCouponTag) drawerCouponTag.classList.remove('hidden');
-          if (drawerCouponMsg && drawerCouponMsg.classList.contains('hidden')) {{
-            drawerCouponMsg.textContent = `كود الخصم (${{savedCoupon}}) مفعّل لطلبك.`;
-            drawerCouponMsg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5';
-          }}
+        if (drawerCouponTag) drawerCouponTag.classList.remove('hidden');
+        if (drawerCouponMsg) {{
+          drawerCouponMsg.textContent = `كود الخصم (${{savedCoupon}}) مفعّل لطلبك.`;
+          drawerCouponMsg.className = 'text-[11px] font-bold text-emerald-600 block mt-1.5';
+          drawerCouponMsg.classList.remove('hidden');
         }}
       }} else if (drawerCouponBtn && !savedCoupon) {{
         drawerCouponBtn.style.backgroundColor = '';
@@ -3099,17 +3230,7 @@ app_js_code = f"""/**
       return;
     }}
 
-    const liveBundle = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
-    if (liveBundle > 0) {{
-      msg.textContent = 'تم تفعيل عروض جمعة نوت التلقائية لسلتك — عروض الباقات الترويجية لا تقبل الجمع مع كوبونات الخصم.';
-      msg.className = 'text-[11px] font-bold text-amber-700 block mt-1.5';
-      msg.classList.remove('hidden');
-      if (btn) {{
-        btn.disabled = false;
-        btn.textContent = 'تطبيق';
-      }}
-      return;
-    }}
+
 
     if (btn) {{
       btn.disabled = true;
@@ -4377,14 +4498,15 @@ app_js_code = f"""/**
       }}
     }}
 
-    const renderItem = item => {{
+    const renderItem = (item, showStepper = true, overridePrice = null, badgeText = null) => {{
         const zidSlug = zidSlugMap[item.id] || item.id;
         const imgUrl = resolveImgUrl(item.img);
         const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
         const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
-        const itemLineTotal = item.price * item.quantity;
+        const priceDisplay = (overridePrice !== null) ? overridePrice : item.price;
+        const crossedPrice = (overridePrice !== null) ? item.price : oldPriceVal;
         return `
-          <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${{item.id}}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
+          <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3 transition-all shadow-2xs text-right" data-cart-id="${{item.id}}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:10px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
             <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
               <div class="note-cart-item-start" style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0!important;flex:1 1 auto!important;">
                 <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" class="note-cart-item-thumb cart-thumb-box" style="width:82px!important;height:82px!important;min-width:82px!important;min-height:82px!important;max-width:82px!important;max-height:82px!important;border-radius:14px!important;background:#ffffff!important;border:1px solid #f0eee9!important;padding:4px!important;flex-shrink:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;box-sizing:border-box!important;">
@@ -4394,9 +4516,10 @@ app_js_code = f"""/**
                   <a href="/products/${{zidSlug}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')" class="note-cart-item-title-link" style="text-decoration:none!important;color:inherit!important;display:block!important;">
                     <h4 class="note-cart-item-title" style="font-size:15px!important;font-weight:700!important;color:#1c1917!important;line-height:1.35!important;margin:0!important;">${{item.title}}</h4>
                   </a>
+                  ${{badgeText ? `<span class="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-900 border border-amber-200/80 w-fit" style="display:inline-block!important;padding:2px 8px!important;border-radius:9999px!important;font-size:11px!important;font-weight:700!important;background:#fef3c7!important;color:#78350f!important;border:1px solid #fde68a!important;margin-top:2px!important;">${{badgeText}}</span>` : ''}}
                   <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
-                    ${{oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${{formatPrice(oldPriceVal)}}</span>` : ''}}
-                    <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${{formatPrice(item.price)}}</span>
+                    ${{crossedPrice ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${{formatPrice(crossedPrice)}}</span>` : ''}}
+                    <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${{formatPrice(priceDisplay)}}</span>
                   </div>
                 </div>
               </div>
@@ -4404,37 +4527,109 @@ app_js_code = f"""/**
                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
               </button>
             </div>
-            <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:12px 0!important;padding:0!important;display:block!important;"></div>
+            <div class="note-cart-item-divider" style="width:100%!important;height:1px!important;min-height:1px!important;max-height:1px!important;background-color:#f0eee9!important;border:none!important;margin:10px 0!important;padding:0!important;display:block!important;"></div>
             <div class="note-cart-item-bottom" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;width:100%!important;box-sizing:border-box!important;">
-              <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:38px!important;width:126px!important;min-width:126px!important;border:1px solid #e7e5e4!important;border-radius:11px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;box-shadow:0 1px 2px rgba(0,0,0,0.02)!important;">
-                <button type="button" onclick="CartManager.updateQuantity('${{item.id}}', 1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">+</button>
-                <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:14px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;box-sizing:border-box!important;">${{item.quantity}}</span>
-                <button type="button" onclick="CartManager.updateQuantity('${{item.id}}', -1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
+              ${{showStepper ? `
+              <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:36px!important;width:120px!important;min-width:120px!important;border:1px solid #e7e5e4!important;border-radius:10px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;">
+                <button type="button" onclick="CartManager.updateQuantity('${{item.id}}', 1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:36px!important;height:100%!important;min-width:36px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:16px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;">+</button>
+                <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:13.5px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;">${{item.quantity}}</span>
+                <button type="button" onclick="CartManager.updateQuantity('${{item.id}}', -1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:36px!important;height:100%!important;min-width:36px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:16px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;">−</button>
               </div>
+              ` : `
+              <span class="text-xs font-bold text-stone-600" style="font-size:12px!important;font-weight:700!important;color:#57534e!important;">الكمية: 1</span>
+              `}}
             </div>
           </div>
         `;
     }};
-    const perfumes = [];
-    const tolas = [];
-    const bodySprays = [];
-    const otherItems = [];
-    for (const item of cart) {{
-      if (CartManager._isQualifying100mlPerfume(item)) perfumes.push(item);
-      else if (CartManager._isQualifyingTola(item)) tolas.push(item);
-      else if (CartManager._isQualifyingBodySpray && CartManager._isQualifyingBodySpray(item)) bodySprays.push(item);
-      else otherItems.push(item);
-    }}
-    const eligibleItems = [...perfumes, ...tolas, ...bodySprays];
-    const renderSection = (title, rows) => rows.length ? `
-      <section aria-label="${{title}}">
-        <h3 class="text-sm font-bold text-stone-700 mb-3">${{title}}</h3>
-        ${{rows.map(renderItem).join('')}}
-      </section>` : '';
-    const html = renderSection('منتجات مؤهلة للعروض', eligibleItems) +
-      renderSection(eligibleItems.length ? 'منتجات أخرى' : 'المنتجات', otherItems);
 
-    itemsContainer.innerHTML = html;
+    const partition = CartManager.partitionCart(cart);
+    let cardsHtml = '';
+
+    // 1. Tier 1: Body Spray Bundles (3 sprays @ 249 SAR)
+    if (partition.groups.tier1_spray_bundles.length > 0) {{
+      partition.groups.tier1_spray_bundles.forEach((b, bIdx) => {{
+        cardsHtml += `
+          <div class="note-bundle-group-card" style="background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:20px!important;padding:16px 18px!important;margin-bottom:16px!important;box-shadow:0 1px 4px rgba(0,0,0,0.02)!important;">
+            <div class="note-bundle-group-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding-bottom:12px!important;border-bottom:1px solid #f0eee9!important;margin-bottom:14px!important;flex-wrap:wrap!important;gap:8px!important;">
+              <div style="display:flex!important;align-items:center!important;gap:8px!important;">
+                <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">عرض باقة المعطرات</span>
+                <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">باقة معطرات الجسم (3 معطرات بـ 249 ر.س)</h3>
+              </div>
+              <div style="display:flex!important;align-items:baseline!important;gap:8px!important;">
+                <span style="font-size:13px!important;color:#a8a29e!important;text-decoration:line-through!important;">${{formatPrice(b.originalPrice)}}</span>
+                <span style="font-size:16px!important;font-weight:900!important;color:#ef4444!important;">249 ر.س</span>
+              </div>
+            </div>
+            <div class="note-bundle-group-items">
+              ${{b.units.map(u => renderItem(u.item, false, null, 'مشمول بالباقة')).join('')}}
+            </div>
+          </div>
+        `;
+      }});
+    }}
+
+    // 2. Tier 2: Trio Offers (2+1 at 1 SAR)
+    if (partition.groups.tier2_trios.length > 0) {{
+      partition.groups.tier2_trios.forEach((t, tIdx) => {{
+        cardsHtml += `
+          <div class="note-bundle-group-card" style="background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:20px!important;padding:16px 18px!important;margin-bottom:16px!important;box-shadow:0 1px 4px rgba(0,0,0,0.02)!important;">
+            <div class="note-bundle-group-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding-bottom:12px!important;border-bottom:1px solid #f0eee9!important;margin-bottom:14px!important;flex-wrap:wrap!important;gap:8px!important;">
+              <div style="display:flex!important;align-items:center!important;gap:8px!important;">
+                <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">عطرك بـ 1 ريال (2+1)</span>
+                <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">عرض الثالث بـ 1 ريال</h3>
+              </div>
+              <div style="display:flex!important;align-items:baseline!important;gap:8px!important;">
+                <span style="font-size:13px!important;font-weight:700!important;color:#047857!important;">وفّرت ${{formatPrice(t.discount)}}</span>
+              </div>
+            </div>
+            <div class="note-bundle-group-items">
+              ${{t.units.map(u => {{
+                const isDisc = (u === t.discountedUnit);
+                return renderItem(u.item, false, isDisc ? 1 : null, isDisc ? 'مشمول بالعرض بـ 1 ريال' : null);
+              }}).join('')}}
+            </div>
+          </div>
+        `;
+      }});
+    }}
+
+    // 3. Tier 3: Pair Offers (1+Tola at 1 SAR)
+    if (partition.groups.tier3_pairs.length > 0) {{
+      partition.groups.tier3_pairs.forEach((p, pIdx) => {{
+        cardsHtml += `
+          <div class="note-bundle-group-card" style="background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:20px!important;padding:16px 18px!important;margin-bottom:16px!important;box-shadow:0 1px 4px rgba(0,0,0,0.02)!important;">
+            <div class="note-bundle-group-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding-bottom:12px!important;border-bottom:1px solid #f0eee9!important;margin-bottom:14px!important;flex-wrap:wrap!important;gap:8px!important;">
+              <div style="display:flex!important;align-items:center!important;gap:8px!important;">
+                <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">تولة بـ 1 ريال (1+تولة)</span>
+                <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">عرض التولة بـ 1 ريال</h3>
+              </div>
+              <div style="display:flex!important;align-items:baseline!important;gap:8px!important;">
+                <span style="font-size:13px!important;font-weight:700!important;color:#047857!important;">وفّرت ${{formatPrice(p.discount)}}</span>
+              </div>
+            </div>
+            <div class="note-bundle-group-items">
+              ${{renderItem(p.baseUnit.item, false, null, null)}}
+              ${{renderItem(p.tolaUnit.item, false, 1, 'تولة العرض بـ 1 ريال')}}
+            </div>
+          </div>
+        `;
+      }});
+    }}
+
+    // 4. Standalone / Remaining items
+    if (partition.groups.tier4_standalone.length > 0) {{
+      const hasAnyBundles = (partition.groups.tier1_spray_bundles.length > 0 || partition.groups.tier2_trios.length > 0 || partition.groups.tier3_pairs.length > 0);
+      const standaloneTitle = hasAnyBundles ? 'منتجات إضافية' : 'المنتجات في سلتك';
+      cardsHtml += `
+        <div class="note-cart-standalone-section" style="margin-top:14px!important;">
+          <h3 style="font-size:14px!important;font-weight:800!important;color:#44403c!important;margin-bottom:10px!important;">${{standaloneTitle}}</h3>
+          ${{partition.groups.tier4_standalone.map(u => renderItem(u.item, true, null, null)).join('')}}
+        </div>
+      `;
+    }}
+
+    itemsContainer.innerHTML = cardsHtml;
 
         updateCartFinancials(total);
     updateCheckoutUpsell(cart);
@@ -4569,15 +4764,7 @@ app_js_code = f"""/**
       return;
     }}
 
-    const liveBundle = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
-    if (liveBundle > 0) {{
-      msg.textContent = 'تم تفعيل عروض جمعة نوت التلقائية لسلتك — عروض الباقات الترويجية لا تقبل الجمع مع كوبونات الخصم.';
-      msg.className = 'text-[11px] font-bold text-amber-700 block';
-      msg.classList.remove('hidden');
-      if (applyBtn) applyBtn.disabled = false;
-      if (btnText) btnText.textContent = 'تطبيق';
-      return;
-    }}
+
 
     if (applyBtn) applyBtn.disabled = true;
     if (btnText) btnText.innerHTML = '<svg class="animate-spin h-3.5 w-3.5 text-black inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
@@ -4823,12 +5010,16 @@ app_js_code = f"""/**
     let finalAmount = baseAfterBundle;
     let couponDiscount = 0;
 
-    if (appliedCoupon && baseAfterBundle > 0 && bundleDiscount === 0) {{
-      const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : 5;
+    if (appliedCoupon && baseAfterBundle > 0) {{
+      const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : (appliedCoupon.toUpperCase() === 'NOTE5' ? 2 : 5);
       couponDiscount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
       finalAmount = Math.max(0, Math.round((baseAfterBundle - couponDiscount) * 100) / 100);
     }}
     if (liveTotals) {{
+      const coupObj = liveTotals.find(t => t.code === 'coupon' || t.code === 'coupons');
+      if (coupObj && Number.isFinite(Number(coupObj.value))) {{
+        couponDiscount = Math.abs(Number(coupObj.value));
+      }}
       const totObj = liveTotals.find(t => t.code === 'total');
       if (totObj && Number.isFinite(Number(totObj.value))) {{
         finalAmount = Number(totObj.value);
@@ -4837,13 +5028,16 @@ app_js_code = f"""/**
 
     const couponMsgEl = document.getElementById('coupon-msg');
     const couponTagEl = document.getElementById('coupon-applied-tag');
-    if (appliedCoupon && bundleDiscount > 0) {{
-      if (couponTagEl) couponTagEl.classList.add('hidden');
+    if (appliedCoupon) {{
+      if (couponTagEl) couponTagEl.classList.remove('hidden');
       if (couponMsgEl) {{
-        couponMsgEl.textContent = 'تم تفعيل عروض جمعة نوت التلقائية (العرض الترويجي يعطيك أعلى خصم، ولا يقبل الجمع مع كوبونات إضافية).';
-        couponMsgEl.className = 'text-[11px] font-bold text-amber-700 block';
+        couponMsgEl.textContent = `كود الخصم (${{appliedCoupon}}) مفعّل لطلبك.`;
+        couponMsgEl.className = 'text-[11px] font-bold text-emerald-600 block';
         couponMsgEl.classList.remove('hidden');
       }}
+    }} else {{
+      if (couponTagEl) couponTagEl.classList.add('hidden');
+      if (couponMsgEl) couponMsgEl.classList.add('hidden');
     }}
 
     const discountRow = document.getElementById('discount-row');
@@ -4939,38 +5133,30 @@ app_js_code = f"""/**
         return (p && p.zid_id) || item.product_id || item.id;
       }};
 
+      const payloads = (typeof CartManager !== 'undefined' && typeof CartManager.buildZidPayloads === 'function')
+        ? CartManager.buildZidPayloads(cart)
+        : cart.map(item => ({{
+            product_id: resolveZidUuid(item),
+            quantity: item.quantity || 1,
+            ...(item.sub_items?.length ? {{ sub_items: item.sub_items.map(({{id, quantity, selection_group_id}}) => ({{id, quantity, selection_group_id}})) }} : {{}})
+          }}));
+
       if (api && typeof api.addProduct === 'function') {{
-        for (const item of cart) {{
-          const zidUuid = resolveZidUuid(item);
-          if (!zidUuid) continue;
+        for (const payload of payloads) {{
           try {{
-            await api.addProduct({{
-              product_id: zidUuid,
-              quantity: item.quantity || 1,
-              ...(item.sub_items?.length ? {{ sub_items: item.sub_items.map(({{id, quantity, selection_group_id}}) => ({{id, quantity, selection_group_id}})) }} : {{}})
-            }});
+            await api.addProduct(payload);
           }} catch (e) {{
-            console.warn('Sync notice:', item.id, e);
+            console.warn('Sync notice:', payload.product_id, e);
           }}
         }}
       }}
 
-      const liveBundleDisc = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
-      if (liveBundleDisc > 0) {{
-        if (api && typeof api.removeCoupons === 'function') {{
-          try {{ await api.removeCoupons().catch(() => null); }} catch (_) {{}}
-        }}
-      }} else {{
-        const appliedCoupon = localStorage.getItem('note_applied_coupon');
-        if (appliedCoupon && api && typeof api.applyCoupon === 'function') {{
-          try {{
-            if (api.removeCoupons) await api.removeCoupons().catch(() => null);
-            await api.applyCoupon({{ coupon_code: appliedCoupon }});
-          }} catch (e) {{
-            console.warn('NOTE coupon sync warning:', e);
-          }}
-        }} else if (!appliedCoupon && api && typeof api.removeCoupons === 'function') {{
-          try {{ await api.removeCoupons().catch(() => null); }} catch (_) {{}}
+      const appliedCoupon = localStorage.getItem('note_applied_coupon');
+      if (appliedCoupon && api && typeof api.applyCoupon === 'function') {{
+        try {{
+          await api.applyCoupon({{ coupon_code: appliedCoupon }});
+        }} catch (e) {{
+          console.warn('NOTE coupon sync warning:', e);
         }}
       }}
 
