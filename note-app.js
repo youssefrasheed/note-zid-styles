@@ -3092,6 +3092,10 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     'for-her': '21b12ed7-3415-44d5-b135-4782b295d4b7',
     'royal-powder': '1c6e8d65-9c1e-42d8-a9c3-265e7daa1a81',
     'رويال-باودر': '1c6e8d65-9c1e-42d8-a9c3-265e7daa1a81',
+    'رويال بودر': '940195dc-fc3b-4180-b062-c1cd85809564',
+    'رويال-بودر': '940195dc-fc3b-4180-b062-c1cd85809564',
+    'all-over-royal-powder': '940195dc-fc3b-4180-b062-c1cd85809564',
+    'royal-powder-spray': '940195dc-fc3b-4180-b062-c1cd85809564',
     'attraction': 'fe61d38b-6088-46d8-a88c-f44e64e5991a',
     'niche-oud': '809c89af-6e6f-44fa-99a2-ac1f13418e0a',
     'niche-royal-leather': '620ef67b-39ba-41f0-a4f2-f9ce56cf3b1c',
@@ -3099,6 +3103,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     'niche-amber': '8c331e9f-18cf-46d8-81e1-94a80ed45224',
     'choconilla': '7a9286bf-4d38-447a-9b9f-fcd006e35e9b',
     'all-over-choconilla': '7a9286bf-4d38-447a-9b9f-fcd006e35e9b',
+    'شيكونيلا': '7a9286bf-4d38-447a-9b9f-fcd006e35e9b',
+    'شوكونيلا': '7a9286bf-4d38-447a-9b9f-fcd006e35e9b',
     'bahr': '7de839f3-86a9-4fac-ba15-fad102696e73',
     'بحر': '7de839f3-86a9-4fac-ba15-fad102696e73',
     'all-over-bahr': '7de839f3-86a9-4fac-ba15-fad102696e73',
@@ -3109,9 +3115,14 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     'powderose-all-over-soray': '8bdd1101-df55-4f0e-8645-f6c669932b69',
     'all-over-powderose': '8bdd1101-df55-4f0e-8645-f6c669932b69',
     'powderose-spray': '8bdd1101-df55-4f0e-8645-f6c669932b69',
+    'بودر روز': '8bdd1101-df55-4f0e-8645-f6c669932b69',
+    'باودر روز': '8bdd1101-df55-4f0e-8645-f6c669932b69',
+    'باودروز': '8bdd1101-df55-4f0e-8645-f6c669932b69',
     'all-over-spray-tuffi': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
     'all-over-note-tuffi': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
     'عطر-نوت-توفي': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
+    'نوت توفي': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
+    'نوت-توفي': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
     'tuffi-spray': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
     'all-over-spray-royal-tobacco': '5d373011-9e95-472c-bec6-51fd8ed457dc',
     'all-over-royal-tobacco': '5d373011-9e95-472c-bec6-51fd8ed457dc',
@@ -3865,6 +3876,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
           const sub_items = bundle.units.map((u, idx) => ({
             id: resolveId(u.item),
             product_id: resolveId(u.item),
+            product_name: u.item.title || u.item.name || '',
             quantity: 1,
             selection_group_id: GROUP_IDS[idx % 3]
           }));
@@ -3900,7 +3912,13 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
           payloads.push({
             product_id: zidUuid,
             quantity: 1,
-            sub_items: item.sub_items.map(({id, quantity, selection_group_id}) => ({id, quantity, selection_group_id}))
+            sub_items: item.sub_items.map(({id, product_id, quantity, selection_group_id, name, product_name}) => ({
+              id: id || product_id,
+              product_id: product_id || id,
+              product_name: product_name || name || '',
+              quantity: Number(quantity) || 1,
+              selection_group_id
+            }))
           });
         } else {
           unitMap.set(zidUuid, (unitMap.get(zidUuid) || 0) + 1);
@@ -6194,8 +6212,30 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       : { groups: { tier1_spray_bundles: [], tier2_trios: [], tier3_pairs: [], tier4_standalone: [] }, totalDiscount: 0, activeOffers: [] };
 
     const localTotal = (typeof CartManager !== 'undefined' && CartManager.getTotal) ? CartManager.getTotal() : (Number(subtotal) || 0);
-    const amount = localTotal;
-    const bundleDiscount = partition.totalDiscount;
+    let amount = localTotal;
+    let bundleDiscount = 0;
+    let liveTotals = null;
+
+    if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.totals) && window._noteLiveCartState.totals.length > 0) {
+      const serverTotals = window._noteLiveCartState.totals;
+      const subObj = serverTotals.find(t => t.code === 'sub_totals');
+      const serverSub = (subObj && Number.isFinite(Number(subObj.value))) ? Number(subObj.value) : null;
+      if (serverSub !== null && Math.abs(serverSub - localTotal) <= 1) {
+        liveTotals = serverTotals;
+        amount = serverSub;
+        const discObj = liveTotals.find(t => t.code === 'products_discount');
+        if (discObj && Number.isFinite(Number(discObj.value))) {
+          bundleDiscount = Math.abs(Number(discObj.value));
+        }
+      }
+    }
+
+    if (bundleDiscount === 0 && typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) {
+      bundleDiscount = CartManager.getLiveBundleDiscount();
+    }
+    if (bundleDiscount === 0) {
+      bundleDiscount = partition.totalDiscount;
+    }
 
     const bundleRow = document.getElementById('bundle-discount-row');
     const bundleTitle = document.getElementById('page-bundle-discount-title');
@@ -6241,17 +6281,11 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       const serverTotals = window._noteLiveCartState.totals;
       const totObj = serverTotals.find(t => t.code === 'total');
       if (totObj && Number.isFinite(Number(totObj.value))) {
-        const serverTot = Number(totObj.value);
-        if (Math.abs(serverTot - finalAmount) <= 1) {
-          finalAmount = serverTot;
-        }
+        finalAmount = Number(totObj.value);
       }
       const coupObj = serverTotals.find(t => t.code === 'coupon' || t.code === 'coupons');
       if (coupObj && Number.isFinite(Number(coupObj.value))) {
-        const serverCoup = Math.abs(Number(coupObj.value));
-        if (Math.abs(serverCoup - couponDiscount) <= 1) {
-          couponDiscount = serverCoup;
-        }
+        couponDiscount = Math.abs(Number(coupObj.value));
       }
     }
 
@@ -7004,7 +7038,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       const fallbackImgBox = null;
       const img = liveImage(z.images?.[0], z.id) || fallbackImg || '';
       const img_box = null;
-      const entry = {...prior, id:z.id, zid_id:z.id, slug, title:cleanSpelling(z.name || ''), title_en:z.name_en || '', price: sale ?? price, old_price:old,
+      const rawName = String(z.name || '').trim();
+      const entry = {...prior, id:z.id, zid_id:z.id, slug, name:rawName, raw_name:rawName, zid_name:rawName, title:cleanSpelling(z.name || ''), title_en:z.name_en || '', price: sale ?? price, old_price:old,
         discount:old ? Number(((old-sale)/old*100).toFixed(1))+'%' : null,
         img: img, img_box: img_box,
         cat:category, cat_ar:cleanSpelling(categories.find(c => String(c.id) === catUrlMap[category]?.split('/')[2])?.name || categories[0]?.name || prior.cat_ar || ''),
@@ -7240,7 +7275,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         this.lastSuccess = Date.now();
         return all;
       } catch (error) {
-        console.warn('NOTE: تعذر تحديث المنتجات من زد', error.message);
+        console.warn('NOTE: تعذر تحديث المنتجات', error.message);
         if (!liveCatalogReady && !noteProductsCatalog.length) {
           document.querySelectorAll('#catalog-products-grid,#slider-bestsellers').forEach(el => {el.textContent='تعذر تحميل المنتجات. أعد المحاولة بعد قليل.';});
         }
@@ -7566,9 +7601,9 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   }
 
   function assertCartResponse(response) {
-    if(!response) throw Error('استجابة غير صالحة من سلة زد');
+    if(!response) throw Error('استجابة غير صالحة من سلة المشتريات');
     if(response?.status==='error' || response?.status==='failed' || response?.success===false || response?.data?.status==='error') {
-      throw Error(response?.message || response?.data?.message || 'تعذر تحديث السلة في زد');
+      throw Error(response?.message || response?.data?.message || 'تعذر تحديث سلة المشتريات');
     }
     return response;
   }
@@ -7579,25 +7614,82 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   function nativeCartItems(response) {
     const data = extractCartData(response);
     const items = data?.products || data?.items;
-    if(!Array.isArray(items)) throw Error('تعذر قراءة منتجات السلة من زد. أعد المحاولة.');
+    if(!Array.isArray(items)) throw Error('تعذر قراءة منتجات السلة. أعد المحاولة.');
     return items;
   }
-  const signature = items => {
+  const normalizeCartId = value => String(value || '').replace(/-/g, '').toLowerCase();
+  const bodySprayBundleId = '4e22b43143a04cd89e45f6a671f2620c';
+
+  const QUALIFIED_BODY_SPRAYS = new Set([
+    '940195dc-fc3b-4180-b062-c1cd85809564', '7de839f3-86a9-4fac-ba15-fad102696e73',
+    '7a9286bf-4d38-447a-9b9f-fcd006e35e9b', '5d373011-9e95-472c-bec6-51fd8ed457dc',
+    '5ab145fc-2c1c-4a17-9e1e-926c863b0934', '8bdd1101-df55-4f0e-8645-f6c669932b69',
+    'fe2daa2f-28ca-4342-8c7e-2b8e8dbbc95a',
+    'all-over-royal-tobacco', 'all-over-choconilla', 'all-over-asal', 'all-over-bahr', 'all-over-note-tuffi', 'all-over-powderose',
+    'asal', 'choconilla', 'bahr', 'note-tuffi'
+  ].map(normalizeCartId));
+
+  function isBodySprayBundleOption(product) {
+    if (!product) return false;
+    if (typeof CartManager !== 'undefined' && typeof CartManager._isQualifyingBodySpray === 'function') {
+      return CartManager._isQualifyingBodySpray(product);
+    }
+    const id = normalizeCartId(product.zid_id || product.id);
+    const cat = String(product.cat || '').toLowerCase();
+    const catIds = Array.isArray(product.category_ids) ? product.category_ids.map(String) : [];
+    const title = String(product.name || product.title || '').toLowerCase();
+    if (catIds.includes('1752110') || cat === 'packages' || id.startsWith('pkg-')) return false;
+    if (catIds.includes('1759044') || cat === 'linen' || title.includes('مفارش')) return false;
+    if (catIds.includes('1759042') || cat === 'all-over') return true;
+    if (QUALIFIED_BODY_SPRAYS.has(id)) return true;
+    return (title.includes('معطر') && title.includes('جسم')) || title === 'رويال بودر' || title.includes('عسل');
+  }
+
+  const signature = (items, bodySprayNames = null) => {
     const quantities = new Map();
     for (const item of (items || [])) {
-      const id = String(item.product_id || item.product?.id || item.id || '').replace(/-/g, '').toLowerCase();
-      const selections = (item.sub_items || []).map(sub =>
-        [
-          String(sub.product_id || sub.product?.id || sub.id || '').replace(/-/g, '').toLowerCase(),
-          Number(sub.quantity) || 1,
-          String(sub.selection_group_id || '').replace(/-/g, '').toLowerCase()
-        ].join(':')
-      ).sort();
+      const id = normalizeCartId(item.product_id || item.product?.id || item.id);
+      const selections = (item.sub_items || []).map(sub => {
+        const productId = normalizeCartId(sub.product_id || sub.product?.id || sub.id);
+        if (id === bodySprayBundleId && bodySprayNames) {
+          const name = productId ? bodySprayNames.get(productId) : String(sub.product_name || '').trim();
+          if (!name || !bodySprayNames.unique.has(name)) return null;
+          return JSON.stringify([name, Number(sub.quantity) || 1]);
+        }
+        return JSON.stringify([productId, Number(sub.quantity) || 1, normalizeCartId(sub.selection_group_id)]);
+      }).sort();
+      if (selections.includes(null)) return null;
       const key = JSON.stringify([id, selections]);
       quantities.set(key, (quantities.get(key) || 0) + (Number(item.quantity) || 1));
     }
     return JSON.stringify([...quantities].sort(([left], [right]) => left.localeCompare(right)));
   };
+
+  function matchingCartPayloads(payloads, rows) {
+    const hasNameOnlyBundle = rows.some(row =>
+      normalizeCartId(row.product_id || row.product?.id) === bodySprayBundleId &&
+      row.sub_items?.some(sub => !sub.product_id && !sub.product?.id && !sub.id && sub.product_name)
+    );
+    if (!hasNameOnlyBundle) return signature(payloads) === signature(rows);
+
+    const names = new Map();
+    const nameIds = new Map();
+    for (const product of noteProductsCatalog) {
+      if (!isBodySprayBundleOption(product)) continue;
+      const id = normalizeCartId(resolveZidUuid(product));
+      const rawName = String(product.name || product.raw_name || product.zid_name || product.title || '').trim();
+      if (!id || !rawName) continue;
+      names.set(id, rawName);
+      if (product.id) names.set(normalizeCartId(product.id), rawName);
+      if (product.zid_id) names.set(normalizeCartId(product.zid_id), rawName);
+      if (!nameIds.has(rawName)) nameIds.set(rawName, new Set());
+      nameIds.get(rawName).add(id);
+    }
+    names.unique = new Set([...nameIds].filter(([, ids]) => ids.size === 1).map(([name]) => name));
+    const expected = signature(payloads, names);
+    const actual = signature(rows, names);
+    return expected !== null && expected === actual;
+  }
 
   async function syncNativeCartWithPayloads(api) {
     if (!api?.get || !api?.addProduct) return null;
@@ -7610,11 +7702,10 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
           ...(item.sub_items?.length ? {sub_items:item.sub_items.map(({id,product_id,quantity,selection_group_id})=>({id:id||product_id,product_id:product_id||id,quantity,selection_group_id}))} : {})
         }));
 
-    const expected = signature(payloads);
     let res = assertCartResponse(await api.get());
     let nativeCart = extractCartData(res);
 
-    if (signature(nativeCartItems(nativeCart)) !== expected) {
+    if (!matchingCartPayloads(payloads, nativeCartItems(nativeCart))) {
       if (typeof api.empty === 'function') {
         try {
           assertCartResponse(await api.empty());
@@ -7640,7 +7731,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 
       // Refuse re-adding if rows remain after emptying attempts
       if (nativeCartItems(nativeCart).length > 0) {
-        throw Error('تعذر تفريغ سلة زد بالكامل قبل المزامنة. يرجى إعادة المحاولة.');
+        throw Error('تعذر تفريغ سلة المشتريات بالكامل قبل المزامنة. يرجى إعادة المحاولة.');
       }
 
       // Add each payload without swallowing failures
@@ -7662,22 +7753,25 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 
     // Strict signature verification: do NOT adopt _noteLiveCartState unless matched!
     const finalItems = nativeCartItems(nativeCart);
-    const actualSig = signature(finalItems);
-    if (actualSig !== expected) {
-      throw Error('عدم تطابق سلة زد مع السلة المطلوبة بعد المزامنة.');
+    if (!matchingCartPayloads(payloads, finalItems)) {
+      throw Error('تعذر تأكيد سلة المشتريات بعد المزامنة.');
     }
 
     window._noteLiveCartState = nativeCart;
-    if (typeof updateCartFinancials === 'function' && document.getElementById('cart-page-items')) {
-      updateCartFinancials(CartManager.getTotal());
+    if (typeof updateCartFinancials === 'function') {
+      updateCartFinancials(CartManager.getTotal ? CartManager.getTotal() : 0);
     }
     if (typeof CartManager.renderDrawer === 'function') {
       CartManager.renderDrawer();
     }
     return nativeCart;
   }
+  window.syncNativeCartWithPayloads = syncNativeCartWithPayloads;
+  window.matchingCartPayloads = matchingCartPayloads;
+  window.signature = signature;
 
   let _nativeCartSyncQueue = Promise.resolve();
+  CartManager._nativeQueue = _nativeCartSyncQueue;
   function enqueueNativeCartSync() {
     const task = _nativeCartSyncQueue.then(async () => {
       if (!window.zid?.cart) {
@@ -7692,15 +7786,16 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       }
       return null;
     });
-    _nativeCartSyncQueue = task.catch(err => {
+    CartManager._nativeQueue = task.catch(err => {
       console.warn('NOTE: cart sync queue notice:', err?.message || err);
     });
+    _nativeCartSyncQueue = CartManager._nativeQueue;
     return task;
   }
 
   CartManager.addItem=function(id,quantity=1,selections,triggerBtn) {
     const p=noteProductsCatalog.find(p=>p.id===id);
-    if(!p || !liveCatalogReady) {this.showToast('انتظر تحميل المنتجات من زد');return false;}
+    if(!p || !liveCatalogReady) {this.showToast('جاري تحديث قائمة المنتجات، أعد المحاولة');return false;}
     if(!p.in_stock) {this.showToast('هذا المنتج غير متاح حاليًا');return false;}
     if(p.has_options || p.has_fields) {this.showToast('يرجى اختيار تفاصيل المنتج من صفحته الأصلية');location.href='/products/'+encodeURIComponent(p.slug)+'?native=1';return false;}
     if(p.product_class==='dynamic_bundle' && !selections) {NoteRouter.navigate('/products/'+p.slug);return false;}
@@ -7747,9 +7842,9 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     }
     this.showToast('تمت إضافة '+escapeHTML(p.title)+' إلى سلتك');
 
-    // Background live sync with Zid's native cart API via unified queue
+    // Background live sync with native cart API via unified queue
     if (typeof window !== 'undefined') {
-      enqueueNativeCartSync();
+      this._nativeQueue = (this._nativeQueue || Promise.resolve()).then(() => enqueueNativeCartSync());
     }
     return true;
   };
@@ -7899,14 +7994,14 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   document.addEventListener('visibilitychange',()=>{if(!document.hidden && Date.now()-(ZidSyncManager.lastSuccess || 0)>30000) ZidSyncManager.fetchLiveCatalog().then(()=>ZidSyncManager.refreshDomPrices());});
   setInterval(()=>{if(!document.hidden) ZidSyncManager.fetchLiveCatalog().then(()=>ZidSyncManager.refreshDomPrices());},60000);
   function assertCartResponse(response) {
-    if(response?.status==='error' || response?.status==='failed' || response?.success===false || response?.data?.status==='error') throw Error(response?.message || response?.data?.message || 'تعذر تحديث السلة في زد');
+    if(response?.status==='error' || response?.status==='failed' || response?.success===false || response?.data?.status==='error') throw Error(response?.message || response?.data?.message || 'تعذر تحديث سلة المشتريات');
     return response;
   }
   function nativeCartItems(response) {
     assertCartResponse(response);
     const data=response?.data || response;
     const items=data?.cart?.products || data?.cart?.items || data?.products || data?.items;
-    if(!Array.isArray(items)) throw Error('تعذر قراءة السلة من زد. أعد المحاولة.');
+    if(!Array.isArray(items)) throw Error('تعذر قراءة منتجات السلة. أعد المحاولة.');
     return items;
   }
   let checkoutBusy=false;
@@ -7933,19 +8028,46 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         } catch (_) {}
       }
       const api=window.zid?.cart;
-      if (!api?.get || !api?.addProduct) throw Error('تعذر الاتصال بسلة زد. أعد المحاولة.');
+      if (!api?.get || !api?.addProduct) throw Error('تعذر الاتصال بسلة المشتريات. أعد المحاولة.');
 
       // Wait for any queued sync to finish first
       await _nativeCartSyncQueue;
 
+      // Capture pre-sync displayed total text
+      const grandEl = document.getElementById('page-grand-total');
+      const prevTotalText = grandEl ? (grandEl.innerText || grandEl.textContent || '').trim() : '';
+
       // Execute verified sync with signature checking
       const nativeCart = await syncNativeCartWithPayloads(api);
-      if (!nativeCart) throw Error('تعذر تأكيد سلة زد. أعد المحاولة.');
+      if (!nativeCart) throw Error('تعذر تأكيد سلة المشتريات. أعد المحاولة.');
+
+      // Extract confirmed total from nativeCart
+      const serverTotals = nativeCart.totals || nativeCart.cart?.totals || [];
+      const totObj = Array.isArray(serverTotals) ? serverTotals.find(t => t.code === 'total') : null;
+      const confirmedTotal = (totObj && Number.isFinite(Number(totObj.value))) ? Number(totObj.value) : null;
+
+      // Always refresh DOM with confirmed financials
+      if (typeof updateCartFinancials === 'function') {
+        updateCartFinancials(CartManager.getTotal ? CartManager.getTotal() : 0);
+      }
+
+      // Check if displayed total changed
+      const currentTotalText = grandEl ? (grandEl.innerText || grandEl.textContent || '').trim() : '';
+      const totalChanged = prevTotalText && currentTotalText && (prevTotalText !== currentTotalText);
+
+      if (totalChanged) {
+        // Re-display updated confirmed total before navigating
+        if (typeof CartManager.showToast === 'function') {
+          CartManager.showToast('تم تأكيد إجمالي السلة: ' + (confirmedTotal !== null ? (confirmedTotal + ' ر.س') : currentTotalText));
+        }
+        await new Promise(resolve => setTimeout(resolve, 800));
+      }
 
       const checkoutUrl = nativeCart.basket_url || nativeCart.checkout_url || '/checkout';
       location.href = checkoutUrl;
     } catch(error) {
-      CartManager.showToast(escapeHTML(error.message));
+      console.warn('NOTE checkout verification:', error);
+      CartManager.showToast('تعذّر تأكيد سلتك. جرّب مرة أخرى.');
       checkoutBtns.forEach((b, idx) => {
         b.innerHTML = originalBtnTexts[idx] || 'إتمام الطلب';
         b.style.pointerEvents = '';
@@ -7955,15 +8077,34 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     finally {checkoutBusy=false;}
   };
   const originalRemove=CartManager.removeItem, originalUpdateQuantity=CartManager.updateQuantity;
-  CartManager.removeItem=function(key) {
+  CartManager.removeItem=async function(key) {
+    try {
+      await this._nativeQueue;
+      const item=this.getCart().find(i=>i.id===key);
+      if(item?.native_line_id && window.zid?.cart?.removeProduct) {
+        try {
+          const res = await window.zid.cart.removeProduct({product_id:item.native_line_id});
+          if (res?.data?.cart || res?.cart) window._noteLiveCartState = res.data?.cart || res.cart;
+        } catch(_) {}
+      }
+    } catch(_) {}
     originalRemove.call(this,key);
     enqueueNativeCartSync();
   };
-  CartManager.updateQuantity=function(key,delta) {
+  CartManager.updateQuantity=async function(key,delta) {
     const item=this.getCart().find(i=>i.id===key);if(!item)return;
     if(item.quantity+delta<=0) return this.removeItem(key);
     const p=noteProductsCatalog.find(cp=>cp.id===(item.product_id||item.id) || cp.slug===item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[item.id]===cp.id));
     if(delta>0 && p && (!p.in_stock || (p.stock && item.quantity+delta>p.stock))) {this.showToast('الكمية المطلوبة غير متاحة');return;}
+    try {
+      await this._nativeQueue;
+      if(item.native_line_id && window.zid?.cart?.updateProduct) {
+        try {
+          const res = await window.zid.cart.updateProduct({product_id:item.native_line_id,quantity:item.quantity+delta});
+          if (res?.data?.cart || res?.cart) window._noteLiveCartState = res.data?.cart || res.cart;
+        } catch(_) {}
+      }
+    } catch(_) {}
     originalUpdateQuantity.call(this,key,delta);
     enqueueNativeCartSync();
   };

@@ -1834,6 +1834,10 @@ app_js_code = f"""/**
     'for-her': '21b12ed7-3415-44d5-b135-4782b295d4b7',
     'royal-powder': '1c6e8d65-9c1e-42d8-a9c3-265e7daa1a81',
     'رويال-باودر': '1c6e8d65-9c1e-42d8-a9c3-265e7daa1a81',
+    'رويال بودر': '940195dc-fc3b-4180-b062-c1cd85809564',
+    'رويال-بودر': '940195dc-fc3b-4180-b062-c1cd85809564',
+    'all-over-royal-powder': '940195dc-fc3b-4180-b062-c1cd85809564',
+    'royal-powder-spray': '940195dc-fc3b-4180-b062-c1cd85809564',
     'attraction': 'fe61d38b-6088-46d8-a88c-f44e64e5991a',
     'niche-oud': '809c89af-6e6f-44fa-99a2-ac1f13418e0a',
     'niche-royal-leather': '620ef67b-39ba-41f0-a4f2-f9ce56cf3b1c',
@@ -1841,6 +1845,8 @@ app_js_code = f"""/**
     'niche-amber': '8c331e9f-18cf-46d8-81e1-94a80ed45224',
     'choconilla': '7a9286bf-4d38-447a-9b9f-fcd006e35e9b',
     'all-over-choconilla': '7a9286bf-4d38-447a-9b9f-fcd006e35e9b',
+    'شيكونيلا': '7a9286bf-4d38-447a-9b9f-fcd006e35e9b',
+    'شوكونيلا': '7a9286bf-4d38-447a-9b9f-fcd006e35e9b',
     'bahr': '7de839f3-86a9-4fac-ba15-fad102696e73',
     'بحر': '7de839f3-86a9-4fac-ba15-fad102696e73',
     'all-over-bahr': '7de839f3-86a9-4fac-ba15-fad102696e73',
@@ -1851,9 +1857,14 @@ app_js_code = f"""/**
     'powderose-all-over-soray': '8bdd1101-df55-4f0e-8645-f6c669932b69',
     'all-over-powderose': '8bdd1101-df55-4f0e-8645-f6c669932b69',
     'powderose-spray': '8bdd1101-df55-4f0e-8645-f6c669932b69',
+    'بودر روز': '8bdd1101-df55-4f0e-8645-f6c669932b69',
+    'باودر روز': '8bdd1101-df55-4f0e-8645-f6c669932b69',
+    'باودروز': '8bdd1101-df55-4f0e-8645-f6c669932b69',
     'all-over-spray-tuffi': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
     'all-over-note-tuffi': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
     'عطر-نوت-توفي': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
+    'نوت توفي': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
+    'نوت-توفي': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
     'tuffi-spray': '5ab145fc-2c1c-4a17-9e1e-926c863b0934',
     'all-over-spray-royal-tobacco': '5d373011-9e95-472c-bec6-51fd8ed457dc',
     'all-over-royal-tobacco': '5d373011-9e95-472c-bec6-51fd8ed457dc',
@@ -2607,6 +2618,7 @@ app_js_code = f"""/**
           const sub_items = bundle.units.map((u, idx) => ({{
             id: resolveId(u.item),
             product_id: resolveId(u.item),
+            product_name: u.item.title || u.item.name || '',
             quantity: 1,
             selection_group_id: GROUP_IDS[idx % 3]
           }}));
@@ -2642,7 +2654,13 @@ app_js_code = f"""/**
           payloads.push({{
             product_id: zidUuid,
             quantity: 1,
-            sub_items: item.sub_items.map(({{id, quantity, selection_group_id}}) => ({{id, quantity, selection_group_id}}))
+            sub_items: item.sub_items.map(({{id, product_id, quantity, selection_group_id, name, product_name}}) => ({{
+              id: id || product_id,
+              product_id: product_id || id,
+              product_name: product_name || name || '',
+              quantity: Number(quantity) || 1,
+              selection_group_id
+            }}))
           }});
         }} else {{
           unitMap.set(zidUuid, (unitMap.get(zidUuid) || 0) + 1);
@@ -4936,8 +4954,30 @@ app_js_code = f"""/**
       : {{ groups: {{ tier1_spray_bundles: [], tier2_trios: [], tier3_pairs: [], tier4_standalone: [] }}, totalDiscount: 0, activeOffers: [] }};
 
     const localTotal = (typeof CartManager !== 'undefined' && CartManager.getTotal) ? CartManager.getTotal() : (Number(subtotal) || 0);
-    const amount = localTotal;
-    const bundleDiscount = partition.totalDiscount;
+    let amount = localTotal;
+    let bundleDiscount = 0;
+    let liveTotals = null;
+
+    if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.totals) && window._noteLiveCartState.totals.length > 0) {{
+      const serverTotals = window._noteLiveCartState.totals;
+      const subObj = serverTotals.find(t => t.code === 'sub_totals');
+      const serverSub = (subObj && Number.isFinite(Number(subObj.value))) ? Number(subObj.value) : null;
+      if (serverSub !== null && Math.abs(serverSub - localTotal) <= 1) {{
+        liveTotals = serverTotals;
+        amount = serverSub;
+        const discObj = liveTotals.find(t => t.code === 'products_discount');
+        if (discObj && Number.isFinite(Number(discObj.value))) {{
+          bundleDiscount = Math.abs(Number(discObj.value));
+        }}
+      }}
+    }}
+
+    if (bundleDiscount === 0 && typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) {{
+      bundleDiscount = CartManager.getLiveBundleDiscount();
+    }}
+    if (bundleDiscount === 0) {{
+      bundleDiscount = partition.totalDiscount;
+    }}
 
     const bundleRow = document.getElementById('bundle-discount-row');
     const bundleTitle = document.getElementById('page-bundle-discount-title');
@@ -4983,17 +5023,11 @@ app_js_code = f"""/**
       const serverTotals = window._noteLiveCartState.totals;
       const totObj = serverTotals.find(t => t.code === 'total');
       if (totObj && Number.isFinite(Number(totObj.value))) {{
-        const serverTot = Number(totObj.value);
-        if (Math.abs(serverTot - finalAmount) <= 1) {{
-          finalAmount = serverTot;
-        }}
+        finalAmount = Number(totObj.value);
       }}
       const coupObj = serverTotals.find(t => t.code === 'coupon' || t.code === 'coupons');
       if (coupObj && Number.isFinite(Number(coupObj.value))) {{
-        const serverCoup = Math.abs(Number(coupObj.value));
-        if (Math.abs(serverCoup - couponDiscount) <= 1) {{
-          couponDiscount = serverCoup;
-        }}
+        couponDiscount = Math.abs(Number(coupObj.value));
       }}
     }}
 
