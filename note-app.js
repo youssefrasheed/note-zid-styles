@@ -3471,7 +3471,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       this.updateBadge();
       this.renderDrawer();
       if (typeof window.renderCartPage === 'function' && document.getElementById('cart-page-items')) {
-        window.renderCartPage();
+        window.renderCartPage(typeof window.noteConfirmCartPricing === 'function');
       }
     },
     findTriggerButton: function(id, explicitBtn) {
@@ -5825,7 +5825,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                   </div>
                 </div>
               </div>
-              <button type="button" onclick="CartManager.removeItem('${item.id}'); renderCartPage();" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+              <button type="button" onclick="CartManager.removeItem('${item.id}');" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
               </button>
             </div>
@@ -7866,7 +7866,10 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 
   let _nativeCartSyncQueue = Promise.resolve();
   CartManager._nativeQueue = _nativeCartSyncQueue;
-  function enqueueNativeCartSync() {
+  let pendingNativeSync;
+  function enqueueNativeCartSync(beforeSync) {
+    const key = JSON.stringify([CartManager.getCart(), localStorage.getItem('note_applied_coupon')]);
+    if (!beforeSync && pendingNativeSync?.key === key) return pendingNativeSync.task;
     const task = _nativeCartSyncQueue.then(async () => {
       if (!window.zid?.cart) {
         try {
@@ -7876,14 +7879,18 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       }
       const api = window.zid?.cart;
       if (api) {
+        if (beforeSync) await beforeSync(api);
         return await syncNativeCartWithPayloads(api);
       }
       return null;
     });
+    pendingNativeSync = { key, task };
     CartManager._nativeQueue = task.catch(err => {
       console.warn('NOTE: cart sync queue notice:', err?.message || err);
     });
-    _nativeCartSyncQueue = CartManager._nativeQueue;
+    _nativeCartSyncQueue = CartManager._nativeQueue.then(() => {
+      if (pendingNativeSync?.task === task) pendingNativeSync = null;
+    });
     return task;
   }
 
@@ -7942,7 +7949,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 
     // Background live sync with native cart API via unified queue
     if (typeof window !== 'undefined') {
-      this._nativeQueue = (this._nativeQueue || Promise.resolve()).then(() => enqueueNativeCartSync());
+      enqueueNativeCartSync();
     }
     return true;
   };
@@ -8176,19 +8183,18 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     }
   };
   const originalRemove=CartManager.removeItem, originalUpdateQuantity=CartManager.updateQuantity;
-  CartManager.removeItem=async function(key) {
-    try {
-      await this._nativeQueue;
-      const item=this.getCart().find(i=>i.id===key);
-      if(item?.native_line_id && window.zid?.cart?.removeProduct) {
-        try {
-          const res = await window.zid.cart.removeProduct({product_id:item.native_line_id});
-          if (res?.data?.cart || res?.cart) window._noteLiveCartState = res.data?.cart || res.cart;
-        } catch(_) {}
-      }
-    } catch(_) {}
+  CartManager.removeItem=function(key) {
+    const item = this.getCart().find(entry => entry.id === key);
+    if (!item) return;
     originalRemove.call(this,key);
-    enqueueNativeCartSync();
+    const removeNativeRow = item.native_line_id ? async api => {
+      try {
+        if (api.removeProduct) assertCartResponse(await api.removeProduct({product_id:item.native_line_id}));
+      } catch (error) {
+        console.warn('NOTE: cart row removal notice:', error.message);
+      }
+    } : null;
+    return enqueueNativeCartSync(removeNativeRow);
   };
   CartManager.updateQuantity=async function(key,delta) {
     const item=this.getCart().find(i=>i.id===key);if(!item)return;

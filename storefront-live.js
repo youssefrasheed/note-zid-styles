@@ -1020,7 +1020,10 @@
 
   let _nativeCartSyncQueue = Promise.resolve();
   CartManager._nativeQueue = _nativeCartSyncQueue;
-  function enqueueNativeCartSync() {
+  let pendingNativeSync;
+  function enqueueNativeCartSync(beforeSync) {
+    const key = JSON.stringify([CartManager.getCart(), localStorage.getItem('note_applied_coupon')]);
+    if (!beforeSync && pendingNativeSync?.key === key) return pendingNativeSync.task;
     const task = _nativeCartSyncQueue.then(async () => {
       if (!window.zid?.cart) {
         try {
@@ -1030,14 +1033,18 @@
       }
       const api = window.zid?.cart;
       if (api) {
+        if (beforeSync) await beforeSync(api);
         return await syncNativeCartWithPayloads(api);
       }
       return null;
     });
+    pendingNativeSync = { key, task };
     CartManager._nativeQueue = task.catch(err => {
       console.warn('NOTE: cart sync queue notice:', err?.message || err);
     });
-    _nativeCartSyncQueue = CartManager._nativeQueue;
+    _nativeCartSyncQueue = CartManager._nativeQueue.then(() => {
+      if (pendingNativeSync?.task === task) pendingNativeSync = null;
+    });
     return task;
   }
 
@@ -1096,7 +1103,7 @@
 
     // Background live sync with native cart API via unified queue
     if (typeof window !== 'undefined') {
-      this._nativeQueue = (this._nativeQueue || Promise.resolve()).then(() => enqueueNativeCartSync());
+      enqueueNativeCartSync();
     }
     return true;
   };
@@ -1330,19 +1337,18 @@
     }
   };
   const originalRemove=CartManager.removeItem, originalUpdateQuantity=CartManager.updateQuantity;
-  CartManager.removeItem=async function(key) {
-    try {
-      await this._nativeQueue;
-      const item=this.getCart().find(i=>i.id===key);
-      if(item?.native_line_id && window.zid?.cart?.removeProduct) {
-        try {
-          const res = await window.zid.cart.removeProduct({product_id:item.native_line_id});
-          if (res?.data?.cart || res?.cart) window._noteLiveCartState = res.data?.cart || res.cart;
-        } catch(_) {}
-      }
-    } catch(_) {}
+  CartManager.removeItem=function(key) {
+    const item = this.getCart().find(entry => entry.id === key);
+    if (!item) return;
     originalRemove.call(this,key);
-    enqueueNativeCartSync();
+    const removeNativeRow = item.native_line_id ? async api => {
+      try {
+        if (api.removeProduct) assertCartResponse(await api.removeProduct({product_id:item.native_line_id}));
+      } catch (error) {
+        console.warn('NOTE: cart row removal notice:', error.message);
+      }
+    } : null;
+    return enqueueNativeCartSync(removeNativeRow);
   };
   CartManager.updateQuantity=async function(key,delta) {
     const item=this.getCart().find(i=>i.id===key);if(!item)return;
