@@ -4640,7 +4640,8 @@ app_js_code = f"""/**
     updateCheckoutUpsell(cart);
     renderCartPageRecommendations(cart);
     restoreSavedCartCoupon();
-    if (!skipSync && typeof CartManager !== 'undefined' && CartManager.syncLiveCart) CartManager.syncLiveCart();
+    if (!skipSync && typeof window.noteConfirmCartPricing === 'function') window.noteConfirmCartPricing();
+    else if (!skipSync && CartManager.syncLiveCart) CartManager.syncLiveCart();
   }}
 
   function updateCheckoutUpsell(cart) {{
@@ -4958,26 +4959,19 @@ app_js_code = f"""/**
     let bundleDiscount = 0;
     let liveTotals = null;
 
-    if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.totals) && window._noteLiveCartState.totals.length > 0) {{
-      const serverTotals = window._noteLiveCartState.totals;
-      const subObj = serverTotals.find(t => t.code === 'sub_totals' || t.code === 'sub_totals_before_vat');
-      const serverSub = (subObj && Number.isFinite(Number(subObj.value))) ? Number(subObj.value) : null;
-      const retailSub = (subObj && subObj.code === 'sub_totals_before_vat') ? Math.round(serverSub * 1.15 * 100) / 100 : serverSub;
-      if (retailSub !== null && Math.abs(retailSub - localTotal) <= 2) {{
-        liveTotals = serverTotals;
-        amount = retailSub;
-      }}
-      const discObj = serverTotals.find(t => t.code === 'products_discount');
-      if (discObj && Number.isFinite(Number(discObj.value))) {{
-        bundleDiscount = Math.round(Math.abs(Number(discObj.value)) * 1.15 * 100) / 100;
-      }}
-    }}
-
-    if (bundleDiscount === 0 && typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) {{
+    const verified = window._noteVerifiedCart;
+    const nativePricing = typeof window.noteConfirmCartPricing === 'function';
+    const serverTotals = nativePricing
+      ? (verified?.snapshot === JSON.stringify(CartManager.getCart() || []) ? verified.totals : null)
+      : window._noteLiveCartState?.totals;
+    if (Array.isArray(serverTotals) && serverTotals.some(t => t.code === 'total' && t.value != null && Number.isFinite(Number(t.value)))) {{
+      liveTotals = serverTotals;
+      const subObj = liveTotals.find(t => t.code === 'sub_totals' || t.code === 'sub_totals_before_vat');
+      if (subObj?.value != null && Number.isFinite(Number(subObj.value))) amount = Number(subObj.value);
+      const discObj = liveTotals.find(t => t.code === 'products_discount');
+      if (discObj?.value != null && Number.isFinite(Number(discObj.value))) bundleDiscount = Math.abs(Number(discObj.value));
+    }} else if (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) {{
       bundleDiscount = CartManager.getLiveBundleDiscount();
-    }}
-    if (bundleDiscount === 0) {{
-      bundleDiscount = partition.totalDiscount;
     }}
 
     const bundleRow = document.getElementById('bundle-discount-row');
@@ -5020,25 +5014,10 @@ app_js_code = f"""/**
       finalAmount = Math.max(0, Math.round((baseAfterBundle - couponDiscount) * 100) / 100);
     }}
 
-    if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.totals)) {{
-      const serverTotals = window._noteLiveCartState.totals;
-      const totObj = serverTotals.find(t => t.code === 'total');
-      const vatObj = serverTotals.find(t => t.code === 'vat');
-      if (totObj && Number.isFinite(Number(totObj.value))) {{
-        const rawTot = Number(totObj.value);
-        if (vatObj && Number(vatObj.value) > 0) {{
-          finalAmount = rawTot;
-        }} else if (rawTot > 0) {{
-          finalAmount = Math.round(rawTot * 1.15 * 100) / 100;
-        }} else {{
-          finalAmount = rawTot;
-        }}
-      }}
-      const coupObj = serverTotals.find(t => t.code === 'coupon' || t.code === 'coupons');
-      if (coupObj && Number.isFinite(Number(coupObj.value))) {{
-        const rawCoup = Math.abs(Number(coupObj.value));
-        couponDiscount = (vatObj && Number(vatObj.value) > 0) ? rawCoup : Math.round(rawCoup * 1.15 * 100) / 100;
-      }}
+    if (liveTotals) {{
+      finalAmount = Number(liveTotals.find(t => t.code === 'total').value);
+      const couponValue = liveTotals.find(t => t.code === 'coupon' || t.code === 'coupons')?.value;
+      couponDiscount = Number.isFinite(Number(couponValue)) ? Math.abs(Number(couponValue)) : 0;
     }}
 
     const couponMsgEl = document.getElementById('coupon-msg');
@@ -5073,6 +5052,10 @@ app_js_code = f"""/**
 
     const grandEl = document.getElementById('page-grand-total');
     if (grandEl) {{
+      if (nativePricing && !liveTotals && CartManager.getCart().length) {{
+        grandEl.textContent = 'جارٍ تأكيد أسعار سلتك…';
+        return;
+      }}
       if (finalAmount !== amount) {{
         const formattedOld = (typeof formatPrice === 'function') ? formatPrice(amount) : (amount.toLocaleString('en-US', {{maximumFractionDigits: 2}}) + ' ر.س');
         const formattedNew = (typeof formatPrice === 'function') ? formatPrice(finalAmount) : (finalAmount.toLocaleString('en-US', {{maximumFractionDigits: 2}}) + ' ر.س');

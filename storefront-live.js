@@ -935,6 +935,7 @@
     if (typeof window !== 'undefined' && !window.zidStoreRegion) window.zidStoreRegion = { location_selection: false };
     if (!api?.get || !api?.addProduct) return null;
     const cart = CartManager.getCart() || [];
+    const cartSnapshot = JSON.stringify(cart);
     const payloads = (typeof CartManager.buildZidPayloads === 'function')
       ? CartManager.buildZidPayloads(cart)
       : cart.map(item => ({
@@ -998,7 +999,11 @@
       throw Error('تعذر تأكيد سلة المشتريات بعد المزامنة.');
     }
 
+    if (cartSnapshot !== JSON.stringify(CartManager.getCart() || [])) {
+      throw Error('تغيّرت محتويات السلة أثناء التحقق.');
+    }
     window._noteLiveCartState = nativeCart;
+    window._noteVerifiedCart = { snapshot: cartSnapshot, totals: nativeCart.totals };
     if (typeof updateCartFinancials === 'function') {
       updateCartFinancials(CartManager.getTotal ? CartManager.getTotal() : 0);
     }
@@ -1033,6 +1038,10 @@
     _nativeCartSyncQueue = CartManager._nativeQueue;
     return task;
   }
+
+  window.noteConfirmCartPricing = function() {
+    return enqueueNativeCartSync().catch(() => null);
+  };
 
   CartManager.addItem=function(id,quantity=1,selections,triggerBtn) {
     const p=noteProductsCatalog.find(p=>p.id===id);
@@ -1285,11 +1294,8 @@
       // Extract confirmed total from nativeCart
       const serverTotals = nativeCart.totals || nativeCart.cart?.totals || [];
       const totObj = Array.isArray(serverTotals) ? serverTotals.find(t => t.code === 'total') : null;
-      const vatObj = Array.isArray(serverTotals) ? serverTotals.find(t => t.code === 'vat') : null;
-      let confirmedTotal = (totObj && Number.isFinite(Number(totObj.value))) ? Number(totObj.value) : null;
-      if (confirmedTotal !== null && (!vatObj || Number(vatObj.value) <= 0)) {
-        confirmedTotal = Math.round(confirmedTotal * 1.15 * 100) / 100;
-      }
+      const confirmedTotal = totObj?.value != null ? Number(totObj.value) : NaN;
+      if (!Number.isFinite(confirmedTotal)) throw Error('تعذّر تأكيد إجمالي الطلب.');
 
       // Always refresh DOM with confirmed financials
       if (typeof updateCartFinancials === 'function') {
@@ -1302,11 +1308,8 @@
       const totalChanged = prevTotalText && currentTotalText && (prevTotalText !== currentTotalText);
 
       if (totalChanged) {
-        // Re-display updated confirmed total before navigating
-        if (typeof CartManager.showToast === 'function') {
-          CartManager.showToast('تم تأكيد إجمالي السلة: ' + (confirmedTotal !== null ? (confirmedTotal + ' ر.س') : currentTotalText));
-        }
-        await new Promise(resolve => setTimeout(resolve, 800));
+        CartManager.showToast('اتحدّث إجمالي سلتك. راجعه واضغط إتمام الدفع مرة أخرى.');
+        return;
       }
 
       const checkoutUrl = nativeCart.basket_url || nativeCart.checkout_url || '/checkout';
@@ -1320,7 +1323,14 @@
         b.style.opacity = '';
       });
     }
-    finally {checkoutBusy=false;}
+    finally {
+      checkoutBusy = false;
+      checkoutBtns.forEach((button, index) => {
+        button.innerHTML = originalBtnTexts[index] || 'إتمام الطلب';
+        button.style.pointerEvents = '';
+        button.style.opacity = '';
+      });
+    }
   };
   const originalRemove=CartManager.removeItem, originalUpdateQuantity=CartManager.updateQuantity;
   CartManager.removeItem=async function(key) {
