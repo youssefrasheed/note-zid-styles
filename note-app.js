@@ -3705,7 +3705,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         '5ab145fc-2c1c-4a17-9e1e-926c863b0934', '8bdd1101-df55-4f0e-8645-f6c669932b69',
         'fe2daa2f-28ca-4342-8c7e-2b8e8dbbc95a',
         'all-over-royal-tobacco', 'all-over-choconilla', 'all-over-asal', 'all-over-bahr', 'all-over-note-tuffi', 'all-over-powderose',
-        'asal', 'choconilla', 'bahr', 'note-tuffi'
+        'all-over-royal-powder', 'royal-powder-spray', 'asal', 'choconilla', 'bahr', 'note-tuffi', 'tuffi', 'toffee'
       ];
       if (QUALIFIED_BODY_SPRAYS.includes(id) || QUALIFIED_BODY_SPRAYS.includes(zidId)) return true;
 
@@ -7637,7 +7637,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     '5ab145fc-2c1c-4a17-9e1e-926c863b0934', '8bdd1101-df55-4f0e-8645-f6c669932b69',
     'fe2daa2f-28ca-4342-8c7e-2b8e8dbbc95a',
     'all-over-royal-tobacco', 'all-over-choconilla', 'all-over-asal', 'all-over-bahr', 'all-over-note-tuffi', 'all-over-powderose',
-    'asal', 'choconilla', 'bahr', 'note-tuffi'
+    'all-over-royal-powder', 'royal-powder-spray', 'asal', 'choconilla', 'bahr', 'note-tuffi', 'tuffi', 'toffee'
   ].map(normalizeCartId));
 
   function isBodySprayBundleOption(product) {
