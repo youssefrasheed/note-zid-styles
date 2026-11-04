@@ -2934,14 +2934,21 @@ app_js_code = f"""/**
 
       // Sync bundle offers in drawer from live Zid state
       const bundleOffers = (typeof this.getLiveBundleOffers === 'function') ? this.getLiveBundleOffers() : [];
-      const bundleDiscount = (typeof this.getLiveBundleDiscount === 'function') ? this.getLiveBundleDiscount() : 0;
+      const nativePricing = typeof window.noteConfirmCartPricing === 'function';
+      const verified = window._noteVerifiedCart;
+      const totals = nativePricing && verified?.snapshot === JSON.stringify(cart) ? verified.totals : null;
+      const discount = totals?.find(line => line.code === 'products_discount')?.value;
+      const bundleDiscount = nativePricing ? Math.abs(Number(discount) || 0)
+        : (typeof this.getLiveBundleDiscount === 'function' ? this.getLiveBundleDiscount() : 0);
       const drawerBundleRow = document.getElementById('drawer-bundle-discount-row');
       const drawerBundleTitle = document.getElementById('drawer-bundle-discount-title');
       const drawerBundleVal = document.getElementById('drawer-bundle-discount-val');
       if (drawerBundleRow) {{
         if (bundleDiscount > 0) {{
           drawerBundleRow.classList.remove('hidden');
-          if (drawerBundleTitle) {{
+          if (drawerBundleTitle && nativePricing) {{
+            drawerBundleTitle.textContent = 'خصم العروض';
+          }} else if (drawerBundleTitle) {{
             const cleanNames = new Set();
             if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.bundle_offers)) {{
               const activeZid = window._noteLiveCartState.bundle_offers.filter(b => b.usage_count > 0 || Number(b.discount_total) > 0);
@@ -2969,7 +2976,13 @@ app_js_code = f"""/**
 
       // Sync coupon input in drawer with localStorage & display strikethrough total if applied
       const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
-      if (totalEl) {{
+      if (totalEl && nativePricing) {{
+        const confirmed = totals?.find(line => line.code === 'total')?.value;
+        totalEl.textContent = confirmed != null && Number.isFinite(Number(confirmed))
+          ? formatPrice(Number(confirmed)) : 'جارٍ تأكيد أسعار سلتك…';
+        const subtotal = totals?.find(line => line.code === 'sub_totals' || line.code === 'sub_totals_before_vat')?.value;
+        if (subtotalEl) subtotalEl.textContent = subtotal != null ? formatPrice(Number(subtotal)) : '—';
+      }} else if (totalEl) {{
         const baseAfterBundle = Math.max(0, total - bundleDiscount);
         const pct = (savedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : (savedCoupon ? (savedCoupon.toUpperCase() === 'NOTE5' ? 2 : 5) : 0);
         const couponDiscount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
@@ -2981,7 +2994,7 @@ app_js_code = f"""/**
           totalEl.textContent = formatPrice(total);
         }}
       }}
-      if (typeof this.syncLiveCart === 'function') this.syncLiveCart();
+      if (!nativePricing && typeof this.syncLiveCart === 'function') this.syncLiveCart();
       
       const drawerCouponInput = document.getElementById('drawer-coupon-input');
       const drawerCouponTag = document.getElementById('drawer-coupon-applied-tag');
@@ -5107,7 +5120,9 @@ app_js_code = f"""/**
       if (typeof grandEl.setAttribute === 'function') {{
         grandEl.setAttribute('data-note-total', liveTotals ? finalAmount.toFixed(2) : '');
       }}
-      if (finalAmount !== amount) {{
+      if (nativePricing) {{
+        grandEl.textContent = formatPrice(finalAmount);
+      }} else if (finalAmount !== amount) {{
         const formattedOld = (typeof formatPrice === 'function') ? formatPrice(amount) : (amount.toLocaleString('en-US', {{maximumFractionDigits: 2}}) + ' ر.س');
         const formattedNew = (typeof formatPrice === 'function') ? formatPrice(finalAmount) : (finalAmount.toLocaleString('en-US', {{maximumFractionDigits: 2}}) + ' ر.س');
         grandEl.innerHTML = `<span class="note-cart-total-old line-through text-stone-400 font-semibold text-sm sm:text-base ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:15px!important;font-weight:600!important;margin-left:8px!important;">${{formattedOld}}</span><span class="note-cart-total-new text-rose-600 font-black text-xl sm:text-2xl" style="color:#ef4444!important;font-size:22px!important;font-weight:900!important;">${{formattedNew}}</span>`;

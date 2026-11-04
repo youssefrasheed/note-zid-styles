@@ -1227,6 +1227,7 @@
     drawer.classList.remove('hidden');overlay.classList.remove('hidden');
     document.body.style.overflow='hidden';
     this.renderDrawer();
+    window.noteConfirmCartPricing();
     requestAnimationFrame(()=>{if(!this._drawerOpen)return;overlay.classList.add('opacity-100');drawer.classList.remove('-translate-x-full');drawer.classList.add('translate-x-0');});
   };
   CartManager.closeDrawer=function() {
