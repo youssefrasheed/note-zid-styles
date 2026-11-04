@@ -73,20 +73,6 @@
         <p class="text-xs text-stone-500 mt-1">راجع المنتجات والكميات قبل استكمال عملية الدفع</p>
       </div>
 
-      <!-- Free Shipping Meter -->
-      <div class="p-4 sm:p-5 rounded-2xl bg-stone-50 border border-stone-200/80 mb-8 text-right">
-        <div class="flex items-center justify-between mb-2">
-          <p id="page-free-shipping-text" class="text-xs sm:text-sm font-bold text-stone-700"></p>
-          <span class="text-xs text-emerald-600 font-extrabold flex items-center gap-1">
-            <i class="sicon-shipping-fast"></i>
-            <span>شحن مجاني لكافة مدن المملكة</span>
-          </span>
-        </div>
-        <div class="w-full bg-stone-200 h-2 rounded-full overflow-hidden">
-          <div id="page-free-shipping-bar" class="bg-black h-full transition-all duration-500" style="width: 0%"></div>
-        </div>
-      </div>
-
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
         
         <!-- RIGHT: Items Table / List (8 cols) -->
@@ -196,7 +182,7 @@
               </div>
               <div class="flex items-center justify-between">
                 <span>الشحن والتوصيل:</span>
-                <span id="page-shipping" class="font-bold text-black">مجاني</span>
+                <span id="page-shipping" class="font-bold text-black">يُحسب عند الدفع</span>
               </div>
               <div class="flex items-center justify-between text-stone-400 text-[11px]">
                 <span>ضريبة القيمة المضافة (<bdi class="note-vat-rate" dir="ltr">15%</bdi>):</span>
@@ -365,37 +351,20 @@
       const itemsContainer = document.getElementById('cart-page-items');
       const emptyState = document.getElementById('cart-page-empty');
       const summaryWrapper = document.getElementById('cart-page-summary-wrapper');
-      const shippingBar = document.getElementById('page-free-shipping-bar');
-      const shippingText = document.getElementById('page-free-shipping-text');
 
       if (!itemsContainer) return;
 
       const total = CartManager.getTotal();
-      const freeShippingThreshold = 300;
 
       if (cart.length === 0) {
         itemsContainer.innerHTML = '';
         emptyState.classList.remove('hidden');
         summaryWrapper.classList.add('hidden');
-        if (shippingBar) shippingBar.style.width = '0%';
-        if (shippingText) shippingText.textContent = 'أضف منتجات بقيمة 300 ر.س لتحصل على شحن مجاني';
         return;
       }
 
       emptyState.classList.add('hidden');
       summaryWrapper.classList.remove('hidden');
-
-      // Free shipping progress
-      const percentage = Math.min(100, Math.round((total / freeShippingThreshold) * 100));
-      if (shippingBar) shippingBar.style.width = percentage + '%';
-      if (shippingText) {
-        if (total >= freeShippingThreshold) {
-          shippingText.innerHTML = '🎉 <span class="text-emerald-700">لقد حصلت على شحن مجاني لكافة مناطق المملكة!</span>';
-        } else {
-          const remaining = freeShippingThreshold - total;
-          shippingText.innerHTML = `متبقي <strong class="text-black">${remaining} ر.س</strong> للحصول على شحن مجاني`;
-        }
-      }
 
       // Render Items (Laverne-style clean luxury card)
       itemsContainer.innerHTML = cart.map(item => `

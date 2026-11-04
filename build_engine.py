@@ -2181,7 +2181,7 @@ app_js_code = f"""/**
 
   function confirmedCartRows(cart) {{
     const quote = window._noteVerifiedCart;
-    return quote?.snapshot === JSON.stringify(cart) ? quote.products || [] : [];
+    return quote && quote.snapshot === window.noteCartPricingKey?.(cart) ? quote.products || [] : [];
   }}
 
   function confirmedItemPrice(cart, item) {{
@@ -2801,7 +2801,10 @@ app_js_code = f"""/**
                     const offerLabel = cleanNames.size > 0 ? Array.from(cleanNames).join(' + ') : 'عطرك بـ 1 ريال';
                     drawerBundleTitle.textContent = `وفّرت مع العرض (${{offerLabel}}):`;
                   }}
-                  if (drawerBundleVal) drawerBundleVal.textContent = `-${{bundleDiscount.toLocaleString('en-US', {{maximumFractionDigits: 2}})}} ر.س`;
+                  if (drawerBundleVal) {{
+                    drawerBundleVal.dir = 'ltr';
+                    drawerBundleVal.textContent = `−${{bundleDiscount.toLocaleString('en-US', {{minimumFractionDigits: 2, maximumFractionDigits: 2}})}} ر.س`;
+                  }}
                 }} else {{
                   drawerBundleRow.classList.add('hidden');
                 }}
@@ -2908,8 +2911,6 @@ app_js_code = f"""/**
       const itemsContainer = document.getElementById('cart-drawer-items');
       const subtotalEl = document.getElementById('cart-drawer-subtotal');
       const totalEl = document.getElementById('cart-drawer-total');
-      const shippingProgress = document.getElementById('cart-free-shipping-progress');
-      const shippingText = document.getElementById('cart-free-shipping-text');
       const emptyState = document.getElementById('cart-drawer-empty');
       const footerEl = document.getElementById('cart-drawer-footer');
       const scrollArea = document.getElementById('cart-drawer-scroll-area');
@@ -2920,7 +2921,6 @@ app_js_code = f"""/**
       
       const cart = this.getCart();
       const total = this.getTotal();
-      const freeShippingThreshold = 300;
       
       if (cart.length === 0) {{
         itemsContainer.innerHTML = '';
@@ -2929,8 +2929,6 @@ app_js_code = f"""/**
         if (footerEl) footerEl.classList.add('hidden');
         if (recsContainer) recsContainer.classList.add('hidden');
         if (couponBox) couponBox.classList.add('hidden');
-        if (shippingProgress) shippingProgress.style.width = '0%';
-        if (shippingText) shippingText.textContent = 'أضف منتجات بقيمة 300 ر.س لتحصل على شحن مجاني';
         return;
       }}
       
@@ -2939,16 +2937,7 @@ app_js_code = f"""/**
       if (footerEl) footerEl.classList.remove('hidden');
       if (couponBox) couponBox.classList.remove('hidden');
       
-      if (shippingProgress && shippingText) {{
-        const percentage = Math.min(100, Math.round((total / freeShippingThreshold) * 100));
-        shippingProgress.style.width = percentage + '%';
-        if (total >= freeShippingThreshold) {{
-          shippingText.innerHTML = '<span class="text-emerald-600 font-bold">🎉 تهانينا! لقد حصلت على شحن مجاني لكافة مدن المملكة</span>';
-        }} else {{
-          const remaining = freeShippingThreshold - total;
-          shippingText.innerHTML = `متبقي <strong class="text-black font-extrabold">${{remaining}} ر.س</strong> للحصول على <span class="font-bold text-emerald-600">شحن مجاني</span>`;
-        }}
-      }}
+
       
       if (subtotalEl) subtotalEl.textContent = formatPrice(total);
 
@@ -2956,7 +2945,7 @@ app_js_code = f"""/**
       const bundleOffers = (typeof this.getLiveBundleOffers === 'function') ? this.getLiveBundleOffers() : [];
       const nativePricing = typeof window.noteConfirmCartPricing === 'function';
       const verified = window._noteVerifiedCart;
-      const totals = nativePricing && verified?.snapshot === JSON.stringify(cart) ? verified.totals : null;
+      const totals = nativePricing && verified && verified.snapshot === window.noteCartPricingKey?.(cart) ? verified.totals : null;
       const discount = totals?.find(line => line.code === 'products_discount')?.value;
       const bundleDiscount = nativePricing ? Math.abs(Number(discount) || 0)
         : (typeof this.getLiveBundleDiscount === 'function' ? this.getLiveBundleDiscount() : 0);
@@ -2967,7 +2956,7 @@ app_js_code = f"""/**
         if (bundleDiscount > 0) {{
           drawerBundleRow.classList.remove('hidden');
           if (drawerBundleTitle && nativePricing) {{
-            drawerBundleTitle.textContent = 'خصم العروض';
+            drawerBundleTitle.textContent = 'خصم المنتجات';
           }} else if (drawerBundleTitle) {{
             const cleanNames = new Set();
             if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.bundle_offers)) {{
@@ -2998,8 +2987,10 @@ app_js_code = f"""/**
       const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
       if (totalEl && nativePricing) {{
         const confirmed = totals?.find(line => line.code === 'total')?.value;
-        totalEl.textContent = confirmed != null && Number.isFinite(Number(confirmed))
-          ? formatPrice(Number(confirmed)) : 'جارٍ تأكيد أسعار سلتك…';
+        const hasConfirmedTotal = confirmed != null && Number.isFinite(Number(confirmed));
+        totalEl.textContent = hasConfirmedTotal ? formatPrice(Number(confirmed)) : 'جارٍ تأكيد أسعار سلتك…';
+        if (hasConfirmedTotal) totalEl.setAttribute('data-note-total', Number(confirmed).toFixed(2));
+        else totalEl.removeAttribute('data-note-total');
         const subtotal = totals?.find(line => line.code === 'sub_totals' || line.code === 'sub_totals_before_vat')?.value;
         if (subtotalEl) subtotalEl.textContent = subtotal != null ? formatPrice(Number(subtotal)) : '—';
       }} else if (totalEl) {{
@@ -3056,6 +3047,13 @@ app_js_code = f"""/**
             }}
             if (drawerCouponTag) drawerCouponTag.classList.add('hidden');
             if (!currentVal) {{
+              if (window.noteChangeCartCoupon) {{
+                window.noteChangeCartCoupon(null).catch(() => {{
+                  CartManager.renderDrawer();
+                  CartManager.showToast('تعذّر إزالة كود الخصم. حاول مرة أخرى.');
+                }});
+                return;
+              }}
               localStorage.removeItem('note_applied_coupon');
               if (drawerCouponMsg) drawerCouponMsg.classList.add('hidden');
               if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
@@ -3288,7 +3286,14 @@ app_js_code = f"""/**
         }} catch (_) {{}}
       }}
 
-      if (window.zid && window.zid.cart && typeof window.zid.cart.applyCoupon === 'function') {{
+      if (typeof window.noteChangeCartCoupon === 'function') {{
+        try {{
+          await window.noteChangeCartCoupon(code);
+          applied = true;
+        }} catch (_) {{
+          zidError = 'تعذّر تطبيق كود الخصم. تأكد من الكود وحاول مرة أخرى.';
+        }}
+      }} else if (window.zid && window.zid.cart && typeof window.zid.cart.applyCoupon === 'function') {{
         try {{
           if (typeof CartManager !== 'undefined' && CartManager._nativeQueue) {{
             try {{ await CartManager._nativeQueue; }} catch (_) {{}}
@@ -3347,10 +3352,10 @@ app_js_code = f"""/**
         msg.className = 'text-[11px] font-bold text-rose-600 block mt-1.5';
         msg.classList.remove('hidden');
         if (tag) tag.classList.add('hidden');
-        localStorage.removeItem('note_applied_coupon');
+        if (!window.noteChangeCartCoupon) localStorage.removeItem('note_applied_coupon');
         if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
       }} else if (applied) {{
-        localStorage.setItem('note_applied_coupon', code);
+        if (!window.noteChangeCartCoupon) localStorage.setItem('note_applied_coupon', code);
         if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
 
         if (tag) tag.classList.remove('hidden');
@@ -4505,37 +4510,21 @@ app_js_code = f"""/**
     const itemsContainer = document.getElementById('cart-page-items');
     const emptyState = document.getElementById('cart-page-empty');
     const summaryWrapper = document.getElementById('cart-page-summary-wrapper');
-    const freeShippingText = document.getElementById('page-free-shipping-text');
-    const freeShippingBar = document.getElementById('page-free-shipping-bar');
 
     if (!itemsContainer) return;
 
     const cart = CartManager.getCart();
     const total = CartManager.getTotal();
-    const freeShippingThreshold = 300;
 
     if (cart.length === 0) {{
       itemsContainer.innerHTML = '';
       if (emptyState) emptyState.classList.remove('hidden');
       if (summaryWrapper) summaryWrapper.classList.add('hidden');
-      if (freeShippingBar) freeShippingBar.style.width = '0%';
-      if (freeShippingText) freeShippingText.textContent = 'أضف منتجات بقيمة 300 ر.س لتحصل على شحن مجاني';
       return;
     }}
 
     if (emptyState) emptyState.classList.add('hidden');
     if (summaryWrapper) summaryWrapper.classList.remove('hidden');
-
-    if (freeShippingBar && freeShippingText) {{
-      const percentage = Math.min(100, Math.round((total / freeShippingThreshold) * 100));
-      freeShippingBar.style.width = percentage + '%';
-      if (total >= freeShippingThreshold) {{
-        freeShippingText.innerHTML = '<span class="text-emerald-600 font-bold">🎉 تهانينا! لقد حصلت على شحن مجاني لكافة مدن المملكة</span>';
-      }} else {{
-        const remaining = freeShippingThreshold - total;
-        freeShippingText.innerHTML = `متبقي <strong class="text-black font-extrabold">${{remaining}} ر.س</strong> للحصول على <span class="font-bold text-emerald-600">شحن مجاني</span>`;
-      }}
-    }}
 
     const nativePricing = typeof window.noteConfirmCartPricing === 'function';
 
@@ -4592,7 +4581,7 @@ app_js_code = f"""/**
       const rows = confirmedCartRows(cart);
       const groups = partition.groups;
       const hasExpectedOffers = groups.tier1_spray_bundles.length || groups.tier2_trios.length || groups.tier3_pairs.length;
-      if (!rows.length && hasExpectedOffers) {{
+      if (!rows.length && hasExpectedOffers && window._noteFailedCartPricing !== window.noteCartPricingKey?.(cart)) {{
         itemsContainer.innerHTML = '<div role="status" class="rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center text-sm text-stone-700">جارٍ ترتيب منتجات سلتك…</div>';
         updateCartFinancials(total);
         if (!skipSync) window.noteConfirmCartPricing();
@@ -4724,7 +4713,9 @@ app_js_code = f"""/**
       `;
     }}
 
-    itemsContainer.innerHTML = cardsHtml;
+    const pricingFailed = nativePricing && window._noteFailedCartPricing === window.noteCartPricingKey?.(cart);
+    const retry = pricingFailed ? '<div role="status" class="rounded-2xl border border-stone-200 p-4 mb-4">تعذّر تأكيد أسعار السلة. يمكنك تعديل المنتجات أو <button type="button" class="underline" onclick="window.noteConfirmCartPricing()">إعادة المحاولة</button>.</div>' : '';
+    itemsContainer.innerHTML = retry + cardsHtml;
 
         updateCartFinancials(total);
     updateCheckoutUpsell(cart);
@@ -4877,7 +4868,14 @@ app_js_code = f"""/**
         }} catch (_) {{}}
       }}
 
-      if (window.zid && window.zid.cart && typeof window.zid.cart.applyCoupon === 'function') {{
+      if (typeof window.noteChangeCartCoupon === 'function') {{
+        try {{
+          await window.noteChangeCartCoupon(code);
+          applied = true;
+        }} catch (_) {{
+          zidError = 'تعذّر تطبيق كود الخصم. تأكد من الكود وحاول مرة أخرى.';
+        }}
+      }} else if (window.zid && window.zid.cart && typeof window.zid.cart.applyCoupon === 'function') {{
         try {{
           if (typeof CartManager !== 'undefined' && CartManager._nativeQueue) {{
             try {{ await CartManager._nativeQueue; }} catch (_) {{}}
@@ -4936,10 +4934,10 @@ app_js_code = f"""/**
         msg.className = 'text-[11px] font-bold text-rose-600 block';
         if (tag) tag.classList.add('hidden');
         if (clearBtn) clearBtn.classList.add('hidden');
-        localStorage.removeItem('note_applied_coupon');
+        if (!window.noteChangeCartCoupon) localStorage.removeItem('note_applied_coupon');
         if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
       }} else if (applied) {{
-        localStorage.setItem('note_applied_coupon', code);
+        if (!window.noteChangeCartCoupon) localStorage.setItem('note_applied_coupon', code);
         if (applyBtn) {{
           applyBtn.style.backgroundColor = '';
           applyBtn.style.borderColor = '';
@@ -4974,8 +4972,17 @@ app_js_code = f"""/**
     }}
   }}
 
-  function clearCartCoupon() {{
-    localStorage.removeItem('note_applied_coupon');
+  async function clearCartCoupon() {{
+    if (typeof window.noteChangeCartCoupon === 'function') {{
+      try {{
+        await window.noteChangeCartCoupon(null);
+      }} catch (_) {{
+        CartManager.showToast('تعذّر إزالة كود الخصم. حاول مرة أخرى.');
+        return;
+      }}
+    }} else {{
+      localStorage.removeItem('note_applied_coupon');
+    }}
     const input = document.getElementById('coupon-code-input');
     const msg = document.getElementById('coupon-msg');
     const tag = document.getElementById('coupon-applied-tag');
@@ -4999,7 +5006,7 @@ app_js_code = f"""/**
     }}
     if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
 
-    if (window.zid && window.zid.cart && typeof window.zid.cart.removeCoupons === 'function') {{
+    if (!window.noteChangeCartCoupon && window.zid && window.zid.cart && typeof window.zid.cart.removeCoupons === 'function') {{
       window.zid.cart.removeCoupons().catch(() => null);
     }}
   }}
@@ -5053,7 +5060,7 @@ app_js_code = f"""/**
     const verified = win ? win._noteVerifiedCart : null;
     const nativePricing = win && typeof win.noteConfirmCartPricing === 'function';
     const serverTotals = nativePricing
-      ? (verified?.snapshot === (typeof CartManager !== 'undefined' && CartManager.getCart ? JSON.stringify(CartManager.getCart() || []) : '') ? verified.totals : null)
+      ? (verified && verified.snapshot === win.noteCartPricingKey?.() ? verified.totals : null)
       : (win ? win._noteLiveCartState?.totals : null);
     if (Array.isArray(serverTotals) && serverTotals.some(t => t.code === 'total' && t.value != null && Number.isFinite(Number(t.value)))) {{
       liveTotals = serverTotals;
@@ -5072,7 +5079,7 @@ app_js_code = f"""/**
       if (bundleDiscount > 0) {{
         bundleRow.classList.remove('hidden');
         if (bundleTitle && nativePricing) {{
-          bundleTitle.textContent = 'خصم العروض';
+          bundleTitle.textContent = 'خصم المنتجات';
         }} else if (bundleTitle) {{
           const cleanNames = [];
           if (partition.groups.tier1_spray_bundles && partition.groups.tier1_spray_bundles.length > 0) {{
@@ -5087,7 +5094,10 @@ app_js_code = f"""/**
           const offerLabel = cleanNames.length > 0 ? cleanNames.join(' + ') : 'عروض جمعة نوت';
           bundleTitle.textContent = `وفّرت مع العرض (${{offerLabel}}):`;
         }}
-        if (bundleVal) bundleVal.textContent = `-${{bundleDiscount.toLocaleString('en-US', {{maximumFractionDigits: 2}})}} ر.س`;
+        if (bundleVal) {{
+          bundleVal.dir = 'ltr';
+          bundleVal.textContent = `−${{bundleDiscount.toLocaleString('en-US', {{minimumFractionDigits: 2, maximumFractionDigits: 2}})}} ر.س`;
+        }}
       }} else {{
         bundleRow.classList.add('hidden');
       }}
@@ -5134,14 +5144,21 @@ app_js_code = f"""/**
       if (couponDiscount > 0) {{
         discountRow.classList.remove('hidden');
         if (discountTitle) discountTitle.textContent = `كود الخصم (${{appliedCoupon}}):`;
-        if (discountVal) discountVal.textContent = `-${{couponDiscount.toLocaleString('en-US', {{maximumFractionDigits: 2}})}} ر.س`;
+        if (discountVal) {{
+          discountVal.dir = 'ltr';
+          discountVal.textContent = `−${{couponDiscount.toLocaleString('en-US', {{minimumFractionDigits: 2, maximumFractionDigits: 2}})}} ر.س`;
+        }}
       }} else {{
         discountRow.classList.add('hidden');
       }}
     }}
 
     const shipping = document.getElementById('page-shipping');
-    if (shipping) shipping.textContent = 'يُحسب عند الدفع';
+    if (shipping) {{
+      const shippingValue = liveTotals?.find(line => line.code === 'shipping')?.value;
+      shipping.textContent = shippingValue != null && Number(shippingValue) > 0
+        ? formatPrice(Number(shippingValue)) : 'يُحسب عند الدفع';
+    }}
 
     const grandEl = document.getElementById('page-grand-total');
     if (grandEl) {{

@@ -9,9 +9,12 @@ assert(css.includes('#note-luxury-storefront #cart-drawer.hidden'));
 assert(css.includes('.sm\\:block'));assert(css.includes('.hidden{display:none}'));
 const live=fs.readFileSync(__dirname+'/storefront-live.js','utf8');
 assert(live.includes("querySelectorAll('#note-bundle-options').forEach(box=>box.remove())"));
-assert(live.includes(fs.readFileSync(__dirname+'/drawer-state.js','utf8').trim()));
-assert(live.includes('await CartManager._nativeQueue'));
-assert(live.includes('await this._nativeQueue'));
+const drawerSource=fs.readFileSync(__dirname+'/drawer-state.js','utf8');
+const pricingHook='    window.noteConfirmCartPricing();\n';
+assert(live.includes(pricingHook));
+assert(live.replace(pricingHook,'').includes(drawerSource.trim()));
+assert(live.includes('const nativeCart = await enqueueNativeCartSync()'));
+assert(live.includes('return enqueueNativeCartSync(item.native_line_id'));
 function panel(){const names=new Set(['hidden','-translate-x-full']);return {hidden:true,setAttribute(k,v){this[k]=v},classList:{add(...xs){xs.forEach(x=>names.add(x))},remove(...xs){xs.forEach(x=>names.delete(x))},contains:x=>names.has(x)}}}
 const drawer=panel(),overlay=panel(),manager={renderDrawer(){}};
 const context={CartManager:manager,document:{body:{style:{}},getElementById:id=>id==='cart-drawer'?drawer:overlay},clearTimeout,setTimeout,requestAnimationFrame:fn=>fn()};

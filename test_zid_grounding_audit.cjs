@@ -104,7 +104,7 @@ updateCartFinancials(816);
 const titleEl = dom.getElementById('page-bundle-discount-title');
 const valEl = dom.getElementById('page-bundle-discount');
 assert.strictEqual(titleEl.textContent, 'وفّرت مع العرض (عطرك بـ 1 ريال):', 'Offer title MUST be clean customer name, never 189!');
-assert(valEl.textContent.includes('-188'), 'Discount must be -188 SAR');
+assert(valEl.textContent.includes('−188.00'), 'Discount must be -188 SAR');
 console.log('PASS: Title cleanup successfully converts "الثالث بريال 189" -> "وفّرت مع العرض (عطرك بـ 1 ريال):".');
 
 window._noteLiveCartState.bundle_offers[0].usage_count = 2;
@@ -112,3 +112,24 @@ updateCartFinancials(816);
 assert.notStrictEqual(dom.getElementById('page-grand-total').textContent, 'يُؤكّد الإجمالي عند الدفع', 'Must NEVER display text placeholder for total');
 assert(dom.getElementById('page-grand-total').innerHTML.includes('628'), 'Must display exact grounded Zid server total');
 console.log('PASS: Exact numerical total is always preserved without text placeholders.');
+
+// Native cart prices and arbitrary coupon amounts must come from the same confirmed quote.
+window.noteConfirmCartPricing = () => {};
+window.noteCartPricingKey = () => JSON.stringify([CartManager.getCart(), localStorage.getItem('note_applied_coupon')]);
+localStorage.setItem('note_applied_coupon', 'CUSTOM90');
+window._noteVerifiedCart = {
+  snapshot: window.noteCartPricingKey(),
+  totals: [
+    { code: 'sub_totals', value: 816 },
+    { code: 'products_discount', value: -188 },
+    { code: 'coupon', value: -7.43 },
+    { code: 'total', value: 620.57 }
+  ]
+};
+updateCartFinancials(816);
+assert.equal(dom.getElementById('page-discount').textContent, '−7.43 ر.س');
+assert.equal(dom.getElementById('page-shipping').textContent, 'يُحسب عند الدفع');
+localStorage.removeItem('note_applied_coupon');
+updateCartFinancials(816);
+assert.equal(dom.getElementById('page-grand-total').textContent, 'جارٍ تأكيد أسعار سلتك…');
+console.log('PASS: Custom coupon uses exact Zid amount, stale coupon quote is rejected, and shipping remains unconfirmed.');

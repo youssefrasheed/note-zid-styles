@@ -21,7 +21,7 @@ assert(appJs.includes('function restoreSavedCartCoupon'), 'restoreSavedCartCoupo
 
 // Test coupon percentage calculator
 const fnStart = appJs.indexOf('window.getNoteCouponPercent = function(code) {');
-const fnEnd = appJs.indexOf('// 7. Cart Manager', fnStart);
+const fnEnd = appJs.indexOf('\n  };', fnStart) + '\n  }'.length;
 const getNoteCouponPercent = eval('(' + appJs.slice(fnStart + 'window.getNoteCouponPercent = '.length, fnEnd).trim().replace(/;$/, '') + ')');
 
 assert.strictEqual(getNoteCouponPercent('NOTE10'), 10, 'NOTE10 must give 10%');
