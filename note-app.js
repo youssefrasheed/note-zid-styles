@@ -5788,16 +5788,17 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 
     const nativePricing = typeof window.noteConfirmCartPricing === 'function';
 
-    const renderItem = (item, showStepper = true, overridePrice = null, badgeText = null) => {
+    const renderItem = (item, showStepper = true, overridePrice = null, badgeText = null, quantity = item.quantity) => {
         const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
         const imgUrl = resolveImgUrl(item.img);
         const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
         const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
         const priceDisplay = (overridePrice !== null) ? overridePrice : item.price;
         const crossedPrice = nativePricing ? null : (overridePrice !== null) ? item.price : oldPriceVal;
-        const removeAction = showStepper ? 'removeItem(this.dataset.key)' : 'updateQuantity(this.dataset.key, -1)';
+        const removeAction = showStepper && quantity === item.quantity
+          ? 'removeItem(this.dataset.key)' : 'updateQuantity(this.dataset.key, -Number(this.dataset.quantity))';
         const shownPrice = nativePricing
-          ? (showStepper ? confirmedItemPrice(cart, item) : overridePrice !== null ? formatPrice(overridePrice) : '')
+          ? (showStepper ? (quantity === item.quantity ? confirmedItemPrice(cart, item) : '') : overridePrice !== null ? formatPrice(overridePrice) : '')
           : formatPrice(priceDisplay);
         return `
           <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:10px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
@@ -5817,7 +5818,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                   </div>
                 </div>
               </div>
-              <button type="button" data-key="${escapeHTML(item.id)}" onclick="CartManager.${removeAction};" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+              <button type="button" data-key="${escapeHTML(item.id)}" data-quantity="${showStepper ? quantity : 1}" onclick="CartManager.${removeAction};" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
               </button>
             </div>
@@ -5826,7 +5827,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
               ${showStepper ? `
               <div class="note-cart-item-stepper" style="display:inline-flex!important;flex-direction:row!important;align-items:center!important;height:36px!important;width:120px!important;min-width:120px!important;border:1px solid #e7e5e4!important;border-radius:10px!important;background:#ffffff!important;overflow:hidden!important;box-sizing:border-box!important;">
                 <button type="button" onclick="CartManager.updateQuantity('${item.id}', 1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="زيادة الكمية" style="width:36px!important;height:100%!important;min-width:36px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:16px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;">+</button>
-                <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:13.5px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;">${item.quantity}</span>
+                <span class="note-cart-item-stepper-val" style="flex:1 1 auto!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;border-left:1px solid #e7e5e4!important;border-right:1px solid #e7e5e4!important;background:#fafaf9!important;font-size:13.5px!important;font-weight:700!important;color:#1c1917!important;user-select:none!important;">${quantity}</span>
                 <button type="button" onclick="CartManager.updateQuantity('${item.id}', -1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:36px!important;height:100%!important;min-width:36px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:16px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;">−</button>
               </div>
               ` : `
@@ -5885,7 +5886,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         partition.groups.tier4_standalone = cart.map(item => {
           const rewards = actualRewards.get(itemId(item)) || [];
           const badge = rewards.map(reward => `${reward.quantity} × ${reward.price.toFixed(2)} ر.س بعد خصم العرض`).join('، ');
-          return { item, badge };
+          return { item, badge, quantity: item.quantity };
         });
       }
     }
@@ -5966,10 +5967,16 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     if (partition.groups.tier4_standalone.length > 0) {
       const hasAnyBundles = (partition.groups.tier1_spray_bundles.length > 0 || partition.groups.tier2_trios.length > 0 || partition.groups.tier3_pairs.length > 0);
       const standaloneTitle = hasAnyBundles ? 'منتجات إضافية' : 'المنتجات في سلتك';
+      const standaloneRows = new Map();
+      for (const unit of partition.groups.tier4_standalone) {
+        const key = unit.item.id;
+        const previous = standaloneRows.get(key);
+        standaloneRows.set(key, { ...unit, quantity: (previous?.quantity || 0) + (unit.quantity ?? 1) });
+      }
       cardsHtml += `
         <div class="note-cart-standalone-section" style="margin-top:14px!important;">
           <h3 style="font-size:14px!important;font-weight:800!important;color:#44403c!important;margin-bottom:10px!important;">${standaloneTitle}</h3>
-          ${partition.groups.tier4_standalone.map(u => renderItem(u.item, true, null, u.badge || null)).join('')}
+          ${[...standaloneRows.values()].map(u => renderItem(u.item, true, null, u.badge || null, u.quantity)).join('')}
         </div>
       `;
     }
