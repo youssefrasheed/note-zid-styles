@@ -12,6 +12,7 @@ console.log('================================================================');
 const domElements = {};
 function getMockElement(id) {
   if (!domElements[id]) {
+    let _text = '', _html = '';
     domElements[id] = {
       id,
       classList: {
@@ -20,8 +21,10 @@ function getMockElement(id) {
         remove: function(c) { this.classes.delete(c); },
         contains: function(c) { return this.classes.has(c); }
       },
-      textContent: '',
-      innerHTML: '',
+      get textContent() { return _text || _html; },
+      set textContent(v) { _text = v; _html = v; },
+      get innerHTML() { return _html || _text; },
+      set innerHTML(v) { _html = v; _text = v; },
       style: {},
       disabled: false,
       value: '',
@@ -116,9 +119,11 @@ console.log('  -> PASS: All products strictly and mutually classified.');
 // ----------------------------------------------------------------
 console.log('\n[TEST 2] Deterministic User Scenarios Verification:');
 
-const perfumeMusk = catalog.find(p => p.id === 'note-musk'); // Musk 239
 const perfumeTobacco = catalog.find(p => p.id === 'roayal-tobacco'); // Tobacco 229
 const perfumeRosewood = catalog.find(p => p.id === 'oud-rosewood'); // Rosewood 189
+const perfumePhantom = catalog.find(p => p.id === 'note-phantom'); // Phantom 189
+const perfumeGold = catalog.find(p => p.id === 'note-gold'); // Gold 179
+const perfumeNiche = catalog.find(p => p.id === 'note-musk'); // Niche Royal Musk 239 (EXCLUDED from offers)
 const sprayAsal = catalog.find(p => p.id === 'all-over-asal'); // Asal Spray 99
 const sprayChoco = catalog.find(p => p.id === 'all-over-choconilla'); // Choconilla 99
 const sprayPowderose = catalog.find(p => p.id === 'all-over-powderose'); // Powderose 99
@@ -145,36 +150,36 @@ const scenarios = [
     expectedTotal: 515 - 166 // 349
   },
   {
-    name: 'Scenario 3: 3 Perfumes of different prices + 1 Tola = 588 SAR',
-    // 3 perfumes (239 + 229 + 189) form Tier 2 trio: customer pays 239 + 229 + 1 = 469 SAR.
+    name: 'Scenario 3: 3 Qualifying Perfumes of different prices + 1 Tola = 538 SAR',
+    // 3 perfumes (229 + 189 + 179) form Tier 2 trio: customer pays 229 + 189 + 1 = 419 SAR (178 discount).
     // Leftover perfumes/sprays = 0. Tola cannot pair.
-    // Tola goes to Tier 4 standalone @ 119 SAR. Total = 469 + 119 = 588 SAR.
-    cart: [perfumeMusk, perfumeTobacco, perfumeRosewood, tolaMusk],
-    expectedSubtotal: 239 + 229 + 189 + 119, // 776
-    expectedDiscount: 189 - 1, // 188
-    expectedTotal: 588
+    // Tola goes to Tier 4 standalone @ 119 SAR. Total = 419 + 119 = 538 SAR.
+    cart: [perfumeTobacco, perfumeRosewood, perfumeGold, tolaMusk],
+    expectedSubtotal: 229 + 189 + 179 + 119, // 716
+    expectedDiscount: 179 - 1, // 178
+    expectedTotal: 538
   },
   {
     name: 'Scenario 4: 4 Perfumes + 2 Body Sprays + 1 Tola (2 Trios, Tola full price)',
     // 4 perfumes + 2 sprays = 6 items = 2 trios (Tier 2).
-    // Customer pays 4 most expensive (239, 239, 229, 229) + 1 + 1 for the 2 cheapest (99, 99).
+    // Customer pays 4 most expensive (229, 229, 189, 189) + 1 + 1 for the 2 cheapest (99, 99).
     // Leftover perfumes/sprays = 0. Tola cannot pair, stays full price (119 SAR).
     cart: [
-      { ...perfumeMusk, quantity: 2 }, // 2x 239
       { ...perfumeTobacco, quantity: 2 }, // 2x 229
+      { ...perfumeRosewood, quantity: 2 }, // 2x 189
       sprayAsal, // 99
       sprayChoco, // 99
       tolaMusk // 119
     ],
-    expectedSubtotal: (239 * 2) + (229 * 2) + 99 + 99 + 119, // 1253
+    expectedSubtotal: (229 * 2) + (189 * 2) + 99 + 99 + 119, // 1153
     expectedDiscount: (99 - 1) + (99 - 1), // 98 + 98 = 196
-    expectedTotal: 1253 - 196 // 1057
+    expectedTotal: 1153 - 196 // 957
   },
   {
     name: 'Scenario 5A: 2x Trio + 2x Pair WITHOUT NOTE5',
     cart: [
-      { ...perfumeMusk, quantity: 2 }, // 2x 239
       { ...perfumeTobacco, quantity: 2 }, // 2x 229
+      { ...perfumePhantom, quantity: 2 }, // 2x 189
       { ...perfumeRosewood, quantity: 2 }, // 2x 189
       sprayAsal, // 1x 99
       sprayChoco, // 1x 99
@@ -183,18 +188,49 @@ const scenarios = [
     // 8 base items: 2 trios take 6 items. 2 cheapest items (99, 99) in trios discounted by 98 each (196).
     // 2 remaining items (189, 189) pair with 2 tolas. Both tolas discounted by 118 each (236).
     // Total discount = 196 + 236 = 432 SAR.
-    expectedSubtotal: 1750,
-    expectedDiscount: (99 - 1) * 2 + (119 - 1) * 2, // 196 + 236 = 432
-    expectedTotal: 1318
+    expectedSubtotal: (229 * 2) + (189 * 4) + (99 * 2) + (119 * 2), // 1650
+    expectedDiscount: 196 + 236, // 432
+    expectedTotal: 1650 - 432 // 1218
+  },
+  {
+    name: 'Scenario 5B: 2x Trio + 2x Pair WITH NOTE5 (2% off total after bundle discounts)',
+    cart: [
+      { ...perfumeTobacco, quantity: 2 },
+      { ...perfumePhantom, quantity: 2 },
+      { ...perfumeRosewood, quantity: 2 },
+      sprayAsal,
+      sprayChoco,
+      { ...tolaMusk, quantity: 2 }
+    ],
+    coupon: 'NOTE5',
+    expectedSubtotal: 1650,
+    expectedDiscount: 432,
+    expectedCouponDiscount: +(1218 * 0.02).toFixed(2), // 24.36
+    expectedTotal: +(1218 * 0.98).toFixed(2) // 1193.64
+  },
+  {
+    name: 'Scenario 6: 1 Niche Perfume + 2 Qualifying Perfumes -> Niche DOES NOT complete trio',
+    // Niche (239) is excluded. Only 2 qualifying perfumes (229, 189) present -> No trio formed!
+    // Total discount = 0. All 3 items full price.
+    cart: [perfumeNiche, perfumeTobacco, perfumeRosewood],
+    expectedSubtotal: 239 + 229 + 189, // 657
+    expectedDiscount: 0,
+    expectedTotal: 657
   }
 ];
 
 for (const sc of scenarios) {
   mockLocalStorage.setItem('note_cart', JSON.stringify(sc.cart));
+  if (sc.coupon) {
+    mockLocalStorage.setItem('note_applied_coupon', sc.coupon);
+  } else {
+    mockLocalStorage.removeItem('note_applied_coupon');
+  }
   const partition = CartManager.partitionCart();
   const subtotal = CartManager.getTotal();
   const discount = CartManager.getLiveBundleDiscount();
-  const finalTotal = subtotal - discount;
+  const couponDiscount = sc.coupon ? +( (subtotal - discount) * 0.02 ).toFixed(2) : 0;
+  const finalTotal = +( (subtotal - discount) - couponDiscount ).toFixed(2);
 
   assert.strictEqual(subtotal, sc.expectedSubtotal, `[${sc.name}] Subtotal mismatch! Expected ${sc.expectedSubtotal}, got ${subtotal}`);
   assert.strictEqual(discount, sc.expectedDiscount, `[${sc.name}] Discount mismatch! Expected ${sc.expectedDiscount}, got ${discount}`);
@@ -220,7 +256,7 @@ console.log('\n[TEST 3] NOTE5 Coupon Applied Alongside Bundle Offers:');
 // Scenario 5B: Scenario 5 WITH NOTE5 (2% off total after bundles)
 mockLocalStorage.setItem('note_applied_coupon', 'NOTE5');
 mockLocalStorage.setItem('note_cart', JSON.stringify([
-  { ...perfumeMusk, quantity: 2 },
+  { ...perfumePhantom, quantity: 2 },
   { ...perfumeTobacco, quantity: 2 },
   { ...perfumeRosewood, quantity: 2 },
   sprayAsal,
@@ -228,12 +264,12 @@ mockLocalStorage.setItem('note_cart', JSON.stringify([
   { ...tolaMusk, quantity: 2 }
 ]));
 {
-  const sub = CartManager.getTotal(); // 1750
+  const sub = CartManager.getTotal(); // 1650
   const disc = CartManager.getLiveBundleDiscount(); // 432
-  const baseAfterBundle = sub - disc; // 1318
-  // NOTE5 is 2% in Zid: 2% of 1332 = 26.64 SAR
-  const expectedCouponDisc = Math.round((baseAfterBundle * 0.02) * 100) / 100; // 26.36
-  const expectedFinalWithCoupon = Math.round((baseAfterBundle - expectedCouponDisc) * 100) / 100; // 1291.64
+  const baseAfterBundle = sub - disc; // 1218
+  // NOTE5 is 2% in Zid: 2% of 1218 = 24.36 SAR
+  const expectedCouponDisc = Math.round((baseAfterBundle * 0.02) * 100) / 100; // 24.36
+  const expectedFinalWithCoupon = Math.round((baseAfterBundle - expectedCouponDisc) * 100) / 100; // 1193.64
 
   updateCartFinancials(sub);
   const discountRow = mockDocument.getElementById('discount-row');
@@ -242,10 +278,10 @@ mockLocalStorage.setItem('note_cart', JSON.stringify([
   const couponMsg = mockDocument.getElementById('coupon-msg');
 
   assert(!discountRow.classList.contains('hidden'), 'Coupon discount row MUST BE VISIBLE when coupon is active');
-  assert(discountVal.textContent.includes('26.36'), `Coupon discount must be 26.64 SAR. Found: ${discountVal.textContent}`);
-  assert(grandEl.innerHTML.includes('1,291.64') || grandEl.innerHTML.includes('1291.64'), `Grand total must be 1305.36 SAR. Found: ${grandEl.innerHTML}`);
+  assert(discountVal.textContent.includes('24.36'), `Coupon discount must be 24.36 SAR. Found: ${discountVal.textContent}`);
+  assert(grandEl.innerHTML.includes('1,193.64') || grandEl.innerHTML.includes('1193.64'), `Grand total must be 1193.64 SAR. Found: ${grandEl.innerHTML}`);
   assert(couponMsg.textContent.includes('مفعّل لطلبك'), 'Coupon message must confirm activation');
-  console.log(`  ✓ NOTE5 (2%) combined with bundles: Base ${baseAfterBundle} SAR - 26.36 = ${expectedFinalWithCoupon} SAR.`);
+  console.log(`  ✓ NOTE5 (2%) combined with bundles: Base ${baseAfterBundle} SAR - 24.36 = ${expectedFinalWithCoupon} SAR.`);
 }
 
 mockLocalStorage.removeItem('note_applied_coupon');

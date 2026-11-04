@@ -838,6 +838,139 @@
       .catch(() => null);
   }
 
+  function assertCartResponse(response) {
+    if(!response) throw Error('استجابة غير صالحة من سلة زد');
+    if(response?.status==='error' || response?.status==='failed' || response?.success===false || response?.data?.status==='error') {
+      throw Error(response?.message || response?.data?.message || 'تعذر تحديث السلة في زد');
+    }
+    return response;
+  }
+  function extractCartData(response) {
+    assertCartResponse(response);
+    return response?.data?.cart || response?.cart || response?.data || response;
+  }
+  function nativeCartItems(response) {
+    const data = extractCartData(response);
+    const items = data?.products || data?.items;
+    if(!Array.isArray(items)) throw Error('تعذر قراءة منتجات السلة من زد. أعد المحاولة.');
+    return items;
+  }
+  const signature = items => {
+    const quantities = new Map();
+    for (const item of (items || [])) {
+      const id = String(item.product_id || item.product?.id || item.id || '').replace(/-/g, '').toLowerCase();
+      const selections = (item.sub_items || []).map(sub =>
+        [
+          String(sub.product_id || sub.product?.id || sub.id || '').replace(/-/g, '').toLowerCase(),
+          Number(sub.quantity) || 1,
+          String(sub.selection_group_id || '').replace(/-/g, '').toLowerCase()
+        ].join(':')
+      ).sort();
+      const key = JSON.stringify([id, selections]);
+      quantities.set(key, (quantities.get(key) || 0) + (Number(item.quantity) || 1));
+    }
+    return JSON.stringify([...quantities].sort(([left], [right]) => left.localeCompare(right)));
+  };
+
+  async function syncNativeCartWithPayloads(api) {
+    if (!api?.get || !api?.addProduct) return null;
+    const cart = CartManager.getCart() || [];
+    const payloads = (typeof CartManager.buildZidPayloads === 'function')
+      ? CartManager.buildZidPayloads(cart)
+      : cart.map(item => ({
+          product_id: resolveZidUuid(item),
+          quantity: Number(item.quantity) || 1,
+          ...(item.sub_items?.length ? {sub_items:item.sub_items.map(({id,product_id,quantity,selection_group_id})=>({id:id||product_id,product_id:product_id||id,quantity,selection_group_id}))} : {})
+        }));
+
+    const expected = signature(payloads);
+    let res = assertCartResponse(await api.get());
+    let nativeCart = extractCartData(res);
+
+    if (signature(nativeCartItems(nativeCart)) !== expected) {
+      if (typeof api.empty === 'function') {
+        try {
+          assertCartResponse(await api.empty());
+        } catch (error) {
+          console.warn('NOTE: bulk cart reset notice:', error.message);
+        }
+        res = assertCartResponse(await api.get());
+        nativeCart = extractCartData(res);
+      }
+      for (let pass = 0; pass < 3 && nativeCartItems(nativeCart).length > 0; pass++) {
+        for (const item of nativeCartItems(nativeCart)) {
+          if (item?.id) {
+            try {
+              assertCartResponse(await api.removeProduct({product_id: item.id}));
+            } catch (error) {
+              console.warn('NOTE: cart row removal notice:', error.message);
+            }
+          }
+        }
+        res = assertCartResponse(await api.get());
+        nativeCart = extractCartData(res);
+      }
+
+      // Refuse re-adding if rows remain after emptying attempts
+      if (nativeCartItems(nativeCart).length > 0) {
+        throw Error('تعذر تفريغ سلة زد بالكامل قبل المزامنة. يرجى إعادة المحاولة.');
+      }
+
+      // Add each payload without swallowing failures
+      for (const payload of payloads) {
+        const addRes = await api.addProduct(payload);
+        assertCartResponse(addRes);
+      }
+
+      // Apply coupon without swallowing failures
+      const coupon = localStorage.getItem('note_applied_coupon');
+      if (coupon && typeof api.applyCoupon === 'function') {
+        const coupRes = await api.applyCoupon({coupon_code: coupon});
+        assertCartResponse(coupRes);
+      }
+
+      res = assertCartResponse(await api.get());
+      nativeCart = extractCartData(res);
+    }
+
+    // Strict signature verification: do NOT adopt _noteLiveCartState unless matched!
+    const finalItems = nativeCartItems(nativeCart);
+    const actualSig = signature(finalItems);
+    if (actualSig !== expected) {
+      throw Error('عدم تطابق سلة زد مع السلة المطلوبة بعد المزامنة.');
+    }
+
+    window._noteLiveCartState = nativeCart;
+    if (typeof updateCartFinancials === 'function' && document.getElementById('cart-page-items')) {
+      updateCartFinancials(CartManager.getTotal());
+    }
+    if (typeof CartManager.renderDrawer === 'function') {
+      CartManager.renderDrawer();
+    }
+    return nativeCart;
+  }
+
+  let _nativeCartSyncQueue = Promise.resolve();
+  function enqueueNativeCartSync() {
+    const task = _nativeCartSyncQueue.then(async () => {
+      if (!window.zid?.cart) {
+        try {
+          const mod = await import('https://static.zid.store/sdk/v3.30.4/theme-service/vitrin-theme-service.es.js');
+          window.zid = mod.default || mod;
+        } catch (_) {}
+      }
+      const api = window.zid?.cart;
+      if (api) {
+        return await syncNativeCartWithPayloads(api);
+      }
+      return null;
+    });
+    _nativeCartSyncQueue = task.catch(err => {
+      console.warn('NOTE: cart sync queue notice:', err?.message || err);
+    });
+    return task;
+  }
+
   CartManager.addItem=function(id,quantity=1,selections,triggerBtn) {
     const p=noteProductsCatalog.find(p=>p.id===id);
     if(!p || !liveCatalogReady) {this.showToast('انتظر تحميل المنتجات من زد');return false;}
@@ -887,46 +1020,9 @@
     }
     this.showToast('تمت إضافة '+escapeHTML(p.title)+' إلى سلتك');
 
-    // Background live sync with Zid's native cart API
+    // Background live sync with Zid's native cart API via unified queue
     if (typeof window !== 'undefined') {
-      const zidUuid = resolveZidUuid(p) || p.zid_id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[p.id]) || p.id;
-      this._nativeQueue=(this._nativeQueue || Promise.resolve()).then(async () => {
-        try {
-          if (!window.zid?.cart?.addProduct) {
-            try {
-              const mod = await import('https://static.zid.store/sdk/v3.30.4/theme-service/vitrin-theme-service.es.js');
-              window.zid = mod.default || mod;
-            } catch (_) {}
-          }
-          if (window.zid?.cart?.addProduct && zidUuid) {
-            const payload = {
-              product_id: zidUuid,
-              quantity: quantity,
-              ...(sub.length ? { sub_items: sub.map(({id, quantity, selection_group_id}) => ({id, quantity, selection_group_id})) } : {})
-            };
-            const res = assertCartResponse(await window.zid.cart.addProduct(payload));
-            const lineId = res?.data?.item?.id || res?.item?.id;
-            if (lineId) {
-              const currentCart = CartManager.getCart();
-              const it = currentCart.find(i => i.id === key);
-              if (it) {
-                it.native_line_id = lineId;
-                CartManager.saveCart(currentCart);
-              }
-            }
-            if (res?.data?.cart || res?.cart) {
-              window._noteLiveCartState = res.data?.cart || res.cart;
-              if (typeof updateCartFinancials === 'function' && document.getElementById('cart-page-items')) {
-                updateCartFinancials(CartManager.getTotal());
-              }
-            } else if (typeof CartManager.syncLiveCart === 'function') {
-              CartManager.syncLiveCart();
-            }
-          }
-        } catch(e) {
-          console.warn('NOTE: background Zid cart sync note:', e?.message || e);
-        }
-      });
+      enqueueNativeCartSync();
     }
     return true;
   };
@@ -1111,86 +1207,16 @@
       }
       const api=window.zid?.cart;
       if (!api?.get || !api?.addProduct) throw Error('تعذر الاتصال بسلة زد. أعد المحاولة.');
-      const readNativeCart = async () => {
-        const response = assertCartResponse(await api.get());
-        return response?.data?.cart || response?.cart || response?.data || response;
-      };
-      const quote = cartState => JSON.stringify(
-        (cartState?.totals || []).map(({code, value}) => [code, Number(value)]).sort()
-      );
-      const shownQuote = quote(window._noteLiveCartState);
-      let nativeCart = await readNativeCart();
 
-      const payloads = (typeof CartManager.buildZidPayloads === 'function')
-        ? CartManager.buildZidPayloads(cart)
-        : cart.map(item => ({
-            product_id: resolveZidUuid(item),
-            quantity: Number(item.quantity) || 1,
-            ...(item.sub_items?.length ? {sub_items:item.sub_items.map(({id,quantity,selection_group_id})=>({id,quantity,selection_group_id}))} : {})
-          }));
-      const signature = items => {
-        const quantities = new Map();
-        for (const item of items) {
-          const id = String(item.product_id || item.product?.id || '').replace(/-/g, '').toLowerCase();
-          const selections = (item.sub_items || []).map(sub =>
-            [String(sub.id || sub.product_id || sub.product?.id || '').replace(/-/g, '').toLowerCase(), Number(sub.quantity) || 1].join(':')
-          ).sort();
-          const key = JSON.stringify([id, selections]);
-          quantities.set(key, (quantities.get(key) || 0) + Number(item.quantity));
-        }
-        return JSON.stringify([...quantities].sort(([left], [right]) => left.localeCompare(right)));
-      };
-      const expected = signature(payloads);
-      if (signature(nativeCartItems(nativeCart)) !== expected) {
-        if (typeof api.empty === 'function') {
-          try {
-            assertCartResponse(await api.empty());
-          } catch (error) {
-            console.warn('NOTE: bulk cart reset failed:', error.message);
-          }
-          nativeCart = await readNativeCart();
-        }
-        // Zid can split a discounted row again after a removal. Read the
-        // current row IDs on each pass and only rebuild once confirmed empty.
-        for (let pass = 0; pass < 3 && nativeCartItems(nativeCart).length; pass++) {
-          for (const item of nativeCartItems(nativeCart)) {
-            try {
-              assertCartResponse(await api.removeProduct({product_id: item.id}));
-            } catch (error) {
-              console.warn('NOTE: cart row removal failed:', error.message);
-            }
-          }
-          nativeCart = await readNativeCart();
-        }
-        if (nativeCartItems(nativeCart).length) {
-          throw Error('تعذر إعادة مزامنة السلة. حدّث الصفحة ثم أعد المحاولة.');
-        }
-        for (const payload of payloads) {
-          assertCartResponse(await api.addProduct(payload));
-        }
-        const coupon = localStorage.getItem('note_applied_coupon');
-        if (coupon && api.applyCoupon) {
-          try {
-            assertCartResponse(await api.applyCoupon({coupon_code: coupon}));
-          } catch (e) {
-            console.warn('NOTE coupon apply notice:', e?.message || e);
-          }
-        }
-        nativeCart = await readNativeCart();
-        if (!nativeCartItems(nativeCart).length) {
-          throw Error('تعذر إضافة المنتجات لسلة زد. أعد المحاولة.');
-        }
-      }
+      // Wait for any queued sync to finish first
+      await _nativeCartSyncQueue;
 
-      window._noteLiveCartState = nativeCart;
-      if (typeof updateCartFinancials === 'function' && document.getElementById('cart-page-items')) {
-        updateCartFinancials(CartManager.getTotal());
-      }
-      CartManager.renderDrawer();
-      if (!nativeCart.totals?.some(line => line.code === 'total') || !nativeCart.basket_url) {
-        throw Error('تعذر تأكيد إجمالي سلة زد. أعد المحاولة.');
-      }
-      location.href = nativeCart.basket_url;
+      // Execute verified sync with signature checking
+      const nativeCart = await syncNativeCartWithPayloads(api);
+      if (!nativeCart) throw Error('تعذر تأكيد سلة زد. أعد المحاولة.');
+
+      const checkoutUrl = nativeCart.basket_url || nativeCart.checkout_url || '/checkout';
+      location.href = checkoutUrl;
     } catch(error) {
       CartManager.showToast(escapeHTML(error.message));
       checkoutBtns.forEach((b, idx) => {
@@ -1202,36 +1228,17 @@
     finally {checkoutBusy=false;}
   };
   const originalRemove=CartManager.removeItem, originalUpdateQuantity=CartManager.updateQuantity;
-  CartManager.removeItem=async function(key) {
-    try {
-      await this._nativeQueue;
-      const item=this.getCart().find(i=>i.id===key);
-      if(item?.native_line_id && window.zid?.cart?.removeProduct) {
-        try {
-          const res = await window.zid.cart.removeProduct({product_id:item.native_line_id});
-          if (res?.data?.cart || res?.cart) window._noteLiveCartState = res.data?.cart || res.cart;
-        } catch(_) {}
-      }
-    } catch(_) {}
+  CartManager.removeItem=function(key) {
     originalRemove.call(this,key);
-    if (typeof CartManager.syncLiveCart === 'function') CartManager.syncLiveCart();
+    enqueueNativeCartSync();
   };
-  CartManager.updateQuantity=async function(key,delta) {
+  CartManager.updateQuantity=function(key,delta) {
     const item=this.getCart().find(i=>i.id===key);if(!item)return;
     if(item.quantity+delta<=0) return this.removeItem(key);
     const p=noteProductsCatalog.find(cp=>cp.id===(item.product_id||item.id) || cp.slug===item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[item.id]===cp.id));
     if(delta>0 && p && (!p.in_stock || (p.stock && item.quantity+delta>p.stock))) {this.showToast('الكمية المطلوبة غير متاحة');return;}
-    try {
-      await this._nativeQueue;
-      if(item.native_line_id && window.zid?.cart?.updateProduct) {
-        try {
-          const res = await window.zid.cart.updateProduct({product_id:item.native_line_id,quantity:item.quantity+delta});
-          if (res?.data?.cart || res?.cart) window._noteLiveCartState = res.data?.cart || res.cart;
-        } catch(_) {}
-      }
-    } catch(_) {}
     originalUpdateQuantity.call(this,key,delta);
-    if (typeof CartManager.syncLiveCart === 'function') CartManager.syncLiveCart();
+    enqueueNativeCartSync();
   };
 
   if (typeof document !== 'undefined') {

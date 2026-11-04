@@ -2354,9 +2354,13 @@ app_js_code = f"""/**
       const zidId = String((p && p.zid_id) || item.zid_id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[id]) || '').toLowerCase();
       const title = String((p && p.title) || item.title || item.name || '').toLowerCase();
       const cat = String((p && p.cat) || item.cat || item.category || '').toLowerCase();
+      const catAr = String((p && p.cat_ar) || item.cat_ar || '').toLowerCase();
       const catIds = Array.isArray(p?.category_ids) ? p.category_ids.map(String) : (Array.isArray(item.category_ids) ? item.category_ids.map(String) : []);
 
-      // 1. Strictly exclude non-perfumes: All-Over Sprays (1759042), Travel (1759043), Linen (1759044), Tolas (1421002), Packages (1752110), Body Care (1759046)
+      // 1. Strictly exclude Niche Perfumes (Category 1759040) from offers entirely
+      if (catIds.includes('1759040') || cat === 'niche' || catAr.includes('نيش') || title.includes('نيش') || id.startsWith('niche-') || id === 'note-musk' || id === 'musk') return false;
+
+      // 2. Strictly exclude non-perfumes: All-Over Sprays (1759042), Travel (1759043), Linen (1759044), Tolas (1421002), Packages (1752110), Body Care (1759046)
       if (catIds.includes('1759042') || cat === 'all-over' || cat.includes('spray') || cat.includes('body')) return false;
       if (catIds.includes('1759043') || cat === 'travel' || title.includes('30 مل') || title.includes('30مل') || (item.size && String(item.size).includes('30'))) return false;
       if (catIds.includes('1759044') || cat === 'linen' || title.includes('مفارش')) return false;
@@ -2367,8 +2371,8 @@ app_js_code = f"""/**
       // Explicitly reject known non-perfume products like Royal Powder All-Over Spray
       if (id === '940195dc-fc3b-4180-b062-c1cd85809564' || zidId === '940195dc-fc3b-4180-b062-c1cd85809564' || title === 'رويال بودر') return false;
 
-      // 2. Strict Qualification: Must belong to Zid's official 100ml / Niche Perfume categories (1748533 or 1759040)
-      if (catIds.includes('1748533') || catIds.includes('1759040')) return true;
+      // 3. Strict Qualification: Must belong to Zid's official 100ml Perfume category (1748533)
+      if (catIds.includes('1748533')) return true;
 
       const QUALIFIED_PERFUMES = [
         '9ba63129-20bc-4a0f-b49f-17d06e130ad9', '764d587d-7cba-46b3-8d34-265ee4bc4b6a', '7a28376c-3973-4822-b6b2-b3a6a4e7013e',
@@ -2377,13 +2381,12 @@ app_js_code = f"""/**
         'b99d66f3-f6c6-4354-94cb-fa225e0bc08e', '21b12ed7-e9a6-4a49-8ef2-dc18d6e326c9', '1c6e8d65-9c1e-42d8-a9c3-265e7daa1a81',
         'fe61d38b-aa5a-493d-9db2-7f7ea4cb72e7', '809c89af-801a-464a-a035-7c093ca5165a', '620ef67b-39ba-41f0-a4f2-f9ce56cf3b1c',
         'c6380d1f-8255-4d3a-b5e5-f5b2b2b1a1c9', '8c331e9f-9721-4f11-9a70-761e0bb4dc0b',
-        'roayal-tobacco', 'royal-tobacco', 'oud-rosewood', 'musk', 'note-musk', 'aura', 'bn', 'gold',
-        'musk-bakhur', 'phantom', 'note-for-him', 'powderose', 'note-for-her', 'royal-powder', 'attraction',
-        'niche-oud', 'niche-royal-leather', 'niche-blue', 'niche-amber'
+        'roayal-tobacco', 'royal-tobacco', 'oud-rosewood', 'aura', 'bn', 'gold',
+        'musk-bakhur', 'phantom', 'note-for-him', 'powderose', 'note-for-her', 'royal-powder', 'attraction'
       ];
       if (QUALIFIED_PERFUMES.includes(id) || QUALIFIED_PERFUMES.includes(zidId)) return true;
 
-      return (cat === 'perfumes' || cat === 'niche') && Number(item.price) >= 165;
+      return cat === 'perfumes' && Number(item.price) >= 165;
     }},
     _isQualifyingTola: function(item) {{
       if (!item) return false;
@@ -2603,6 +2606,7 @@ app_js_code = f"""/**
         partition.groups.tier1_spray_bundles.forEach(bundle => {{
           const sub_items = bundle.units.map((u, idx) => ({{
             id: resolveId(u.item),
+            product_id: resolveId(u.item),
             quantity: 1,
             selection_group_id: GROUP_IDS[idx % 3]
           }}));
@@ -2692,20 +2696,6 @@ app_js_code = f"""/**
       return bundleUnitsNeeded > totalEligible || tolasNeeded > available(this._isQualifyingTola);
     }},
     getLiveBundleDiscount: function() {{
-      const state = this.getLiveCartState();
-      const localTotal = this.getTotal();
-      
-      if (state && Array.isArray(state.totals)) {{
-        const subObj = state.totals.find(t => t.code === 'sub_totals');
-        const serverSub = (subObj && Number.isFinite(Number(subObj.value))) ? Number(subObj.value) : null;
-        if (serverSub !== null && Math.abs(serverSub - localTotal) <= 1) {{
-          const discount = state.totals.find(line => line.code === 'products_discount');
-          if (discount && Number.isFinite(Number(discount.value)) && Number(discount.value) < 0) {{
-            return Math.abs(Number(discount.value));
-          }}
-        }}
-      }}
-
       const partition = this.partitionCart();
       return partition.totalDiscount;
     }},
@@ -2744,9 +2734,6 @@ app_js_code = f"""/**
                 const serverSub = (subObj && Number.isFinite(Number(subObj.value))) ? Number(subObj.value) : null;
                 if (serverSub !== null && Math.abs(serverSub - total) <= 1) {{
                   liveTotals = data.totals;
-                  total = serverSub;
-                  const discObj = liveTotals.find(t => t.code === 'products_discount');
-                  if (discObj && Number.isFinite(Number(discObj.value))) bundleDiscount = Math.abs(Number(discObj.value));
                 }}
               }}
               const bundleOffers = this.getLiveBundleOffers();
@@ -4944,28 +4931,13 @@ app_js_code = f"""/**
   }}
 
   function updateCartFinancials(subtotal) {{
+    const partition = (typeof CartManager !== 'undefined' && CartManager.partitionCart)
+      ? CartManager.partitionCart()
+      : {{ groups: {{ tier1_spray_bundles: [], tier2_trios: [], tier3_pairs: [], tier4_standalone: [] }}, totalDiscount: 0, activeOffers: [] }};
+
     const localTotal = (typeof CartManager !== 'undefined' && CartManager.getTotal) ? CartManager.getTotal() : (Number(subtotal) || 0);
-    let amount = localTotal;
-    let bundleDiscount = 0;
-    let liveTotals = null;
-
-    if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.totals) && window._noteLiveCartState.totals.length > 0) {{
-      const serverTotals = window._noteLiveCartState.totals;
-      const subObj = serverTotals.find(t => t.code === 'sub_totals');
-      const serverSub = (subObj && Number.isFinite(Number(subObj.value))) ? Number(subObj.value) : null;
-      if (serverSub !== null && Math.abs(serverSub - localTotal) <= 1) {{
-        liveTotals = serverTotals;
-        amount = serverSub;
-        const discObj = liveTotals.find(t => t.code === 'products_discount');
-        if (discObj && Number.isFinite(Number(discObj.value))) {{
-          bundleDiscount = Math.abs(Number(discObj.value));
-        }}
-      }}
-    }}
-
-    if (bundleDiscount === 0 && typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) {{
-      bundleDiscount = CartManager.getLiveBundleDiscount();
-    }}
+    const amount = localTotal;
+    const bundleDiscount = partition.totalDiscount;
 
     const bundleRow = document.getElementById('bundle-discount-row');
     const bundleTitle = document.getElementById('page-bundle-discount-title');
@@ -4974,26 +4946,17 @@ app_js_code = f"""/**
       if (bundleDiscount > 0) {{
         bundleRow.classList.remove('hidden');
         if (bundleTitle) {{
-          const cleanNames = new Set();
-          if (liveTotals && typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.bundle_offers)) {{
-            const activeZid = window._noteLiveCartState.bundle_offers.filter(b => b.usage_count > 0 || Number(b.discount_total) > 0);
-            activeZid.forEach(b => {{
-              const n = String(b.name || '');
-              if (n.includes('تولة') || n.includes('توله') || n.includes('1+تولة')) cleanNames.add('تولة بـ 1 ريال');
-              else if (n.includes('معطر')) cleanNames.add('معطر بـ 1 ريال');
-              else cleanNames.add('عطرك بـ 1 ريال');
-            }});
+          const cleanNames = [];
+          if (partition.groups.tier1_spray_bundles && partition.groups.tier1_spray_bundles.length > 0) {{
+            cleanNames.push('باقة معطرات الجسم');
           }}
-          if (cleanNames.size === 0 && typeof CartManager !== 'undefined' && CartManager.getLiveBundleOffers) {{
-            const localOffers = CartManager.getLiveBundleOffers();
-            localOffers.forEach(b => {{
-              const n = String(b.name || '');
-              if (n.includes('تولة') || n.includes('توله')) cleanNames.add('تولة بـ 1 ريال');
-              else if (n.includes('معطر')) cleanNames.add('معطر بـ 1 ريال');
-              else cleanNames.add('عطرك بـ 1 ريال');
-            }});
+          if (partition.groups.tier2_trios && partition.groups.tier2_trios.length > 0) {{
+            cleanNames.push('عطرك بـ 1 ريال');
           }}
-          const offerLabel = cleanNames.size > 0 ? Array.from(cleanNames).join(' + ') : 'عطرك بـ 1 ريال';
+          if (partition.groups.tier3_pairs && partition.groups.tier3_pairs.length > 0) {{
+            cleanNames.push('تولة بـ 1 ريال');
+          }}
+          const offerLabel = cleanNames.length > 0 ? cleanNames.join(' + ') : 'عروض جمعة نوت';
           bundleTitle.textContent = `وفّرت مع العرض (${{offerLabel}}):`;
         }}
         if (bundleVal) bundleVal.textContent = `-${{bundleDiscount.toLocaleString('en-US', {{maximumFractionDigits: 2}})}} ر.س`;
@@ -5015,14 +4978,22 @@ app_js_code = f"""/**
       couponDiscount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
       finalAmount = Math.max(0, Math.round((baseAfterBundle - couponDiscount) * 100) / 100);
     }}
-    if (liveTotals) {{
-      const coupObj = liveTotals.find(t => t.code === 'coupon' || t.code === 'coupons');
-      if (coupObj && Number.isFinite(Number(coupObj.value))) {{
-        couponDiscount = Math.abs(Number(coupObj.value));
-      }}
-      const totObj = liveTotals.find(t => t.code === 'total');
+
+    if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.totals)) {{
+      const serverTotals = window._noteLiveCartState.totals;
+      const totObj = serverTotals.find(t => t.code === 'total');
       if (totObj && Number.isFinite(Number(totObj.value))) {{
-        finalAmount = Number(totObj.value);
+        const serverTot = Number(totObj.value);
+        if (Math.abs(serverTot - finalAmount) <= 1) {{
+          finalAmount = serverTot;
+        }}
+      }}
+      const coupObj = serverTotals.find(t => t.code === 'coupon' || t.code === 'coupons');
+      if (coupObj && Number.isFinite(Number(coupObj.value))) {{
+        const serverCoup = Math.abs(Number(coupObj.value));
+        if (Math.abs(serverCoup - couponDiscount) <= 1) {{
+          couponDiscount = serverCoup;
+        }}
       }}
     }}
 
@@ -5594,7 +5565,7 @@ app_js_code = f"""/**
     localStorage.removeItem('note_cart');
     NoteRouter.navigate('/');
   }};
-  window.proceedToCheckout = proceedToCheckout;
+  window.proceedToCheckout = window.proceedToCheckout || proceedToCheckout;
   window.handleContactSubmit = handleContactSubmit;
 
   if (document.readyState === 'loading') {{
