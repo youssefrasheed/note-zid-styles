@@ -4960,15 +4960,16 @@ app_js_code = f"""/**
 
     if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.totals) && window._noteLiveCartState.totals.length > 0) {{
       const serverTotals = window._noteLiveCartState.totals;
-      const subObj = serverTotals.find(t => t.code === 'sub_totals');
+      const subObj = serverTotals.find(t => t.code === 'sub_totals' || t.code === 'sub_totals_before_vat');
       const serverSub = (subObj && Number.isFinite(Number(subObj.value))) ? Number(subObj.value) : null;
-      if (serverSub !== null && Math.abs(serverSub - localTotal) <= 1) {{
+      const retailSub = (subObj && subObj.code === 'sub_totals_before_vat') ? Math.round(serverSub * 1.15 * 100) / 100 : serverSub;
+      if (retailSub !== null && Math.abs(retailSub - localTotal) <= 2) {{
         liveTotals = serverTotals;
-        amount = serverSub;
-        const discObj = liveTotals.find(t => t.code === 'products_discount');
-        if (discObj && Number.isFinite(Number(discObj.value))) {{
-          bundleDiscount = Math.abs(Number(discObj.value));
-        }}
+        amount = retailSub;
+      }}
+      const discObj = serverTotals.find(t => t.code === 'products_discount');
+      if (discObj && Number.isFinite(Number(discObj.value))) {{
+        bundleDiscount = Math.round(Math.abs(Number(discObj.value)) * 1.15 * 100) / 100;
       }}
     }}
 
@@ -5022,12 +5023,21 @@ app_js_code = f"""/**
     if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.totals)) {{
       const serverTotals = window._noteLiveCartState.totals;
       const totObj = serverTotals.find(t => t.code === 'total');
+      const vatObj = serverTotals.find(t => t.code === 'vat');
       if (totObj && Number.isFinite(Number(totObj.value))) {{
-        finalAmount = Number(totObj.value);
+        const rawTot = Number(totObj.value);
+        if (vatObj && Number(vatObj.value) > 0) {{
+          finalAmount = rawTot;
+        }} else if (rawTot > 0) {{
+          finalAmount = Math.round(rawTot * 1.15 * 100) / 100;
+        }} else {{
+          finalAmount = rawTot;
+        }}
       }}
       const coupObj = serverTotals.find(t => t.code === 'coupon' || t.code === 'coupons');
       if (coupObj && Number.isFinite(Number(coupObj.value))) {{
-        couponDiscount = Math.abs(Number(coupObj.value));
+        const rawCoup = Math.abs(Number(coupObj.value));
+        couponDiscount = (vatObj && Number(vatObj.value) > 0) ? rawCoup : Math.round(rawCoup * 1.15 * 100) / 100;
       }}
     }}
 

@@ -1,3 +1,4 @@
+  if (typeof window !== 'undefined' && !window.zidStoreRegion) window.zidStoreRegion = { location_selection: false };
   try {
     if (typeof document !== 'undefined') {
       document.documentElement?.setAttribute?.('translate', 'no');
@@ -931,6 +932,7 @@
   }
 
   async function syncNativeCartWithPayloads(api) {
+    if (typeof window !== 'undefined' && !window.zidStoreRegion) window.zidStoreRegion = { location_selection: false };
     if (!api?.get || !api?.addProduct) return null;
     const cart = CartManager.getCart() || [];
     const payloads = (typeof CartManager.buildZidPayloads === 'function')
@@ -1283,7 +1285,11 @@
       // Extract confirmed total from nativeCart
       const serverTotals = nativeCart.totals || nativeCart.cart?.totals || [];
       const totObj = Array.isArray(serverTotals) ? serverTotals.find(t => t.code === 'total') : null;
-      const confirmedTotal = (totObj && Number.isFinite(Number(totObj.value))) ? Number(totObj.value) : null;
+      const vatObj = Array.isArray(serverTotals) ? serverTotals.find(t => t.code === 'vat') : null;
+      let confirmedTotal = (totObj && Number.isFinite(Number(totObj.value))) ? Number(totObj.value) : null;
+      if (confirmedTotal !== null && (!vatObj || Number(vatObj.value) <= 0)) {
+        confirmedTotal = Math.round(confirmedTotal * 1.15 * 100) / 100;
+      }
 
       // Always refresh DOM with confirmed financials
       if (typeof updateCartFinancials === 'function') {
@@ -1291,7 +1297,8 @@
       }
 
       // Check if displayed total changed
-      const currentTotalText = grandEl ? (grandEl.innerText || grandEl.textContent || '').trim() : '';
+      const activeTotalEl = grandEl ? (grandEl.querySelector('.note-cart-total-new') || grandEl) : null;
+      const currentTotalText = activeTotalEl ? (activeTotalEl.innerText || activeTotalEl.textContent || '').trim() : '';
       const totalChanged = prevTotalText && currentTotalText && (prevTotalText !== currentTotalText);
 
       if (totalChanged) {

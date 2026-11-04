@@ -6218,15 +6218,16 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 
     if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.totals) && window._noteLiveCartState.totals.length > 0) {
       const serverTotals = window._noteLiveCartState.totals;
-      const subObj = serverTotals.find(t => t.code === 'sub_totals');
+      const subObj = serverTotals.find(t => t.code === 'sub_totals' || t.code === 'sub_totals_before_vat');
       const serverSub = (subObj && Number.isFinite(Number(subObj.value))) ? Number(subObj.value) : null;
-      if (serverSub !== null && Math.abs(serverSub - localTotal) <= 1) {
+      const retailSub = (subObj && subObj.code === 'sub_totals_before_vat') ? Math.round(serverSub * 1.15 * 100) / 100 : serverSub;
+      if (retailSub !== null && Math.abs(retailSub - localTotal) <= 2) {
         liveTotals = serverTotals;
-        amount = serverSub;
-        const discObj = liveTotals.find(t => t.code === 'products_discount');
-        if (discObj && Number.isFinite(Number(discObj.value))) {
-          bundleDiscount = Math.abs(Number(discObj.value));
-        }
+        amount = retailSub;
+      }
+      const discObj = serverTotals.find(t => t.code === 'products_discount');
+      if (discObj && Number.isFinite(Number(discObj.value))) {
+        bundleDiscount = Math.round(Math.abs(Number(discObj.value)) * 1.15 * 100) / 100;
       }
     }
 
@@ -6280,12 +6281,21 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.totals)) {
       const serverTotals = window._noteLiveCartState.totals;
       const totObj = serverTotals.find(t => t.code === 'total');
+      const vatObj = serverTotals.find(t => t.code === 'vat');
       if (totObj && Number.isFinite(Number(totObj.value))) {
-        finalAmount = Number(totObj.value);
+        const rawTot = Number(totObj.value);
+        if (vatObj && Number(vatObj.value) > 0) {
+          finalAmount = rawTot;
+        } else if (rawTot > 0) {
+          finalAmount = Math.round(rawTot * 1.15 * 100) / 100;
+        } else {
+          finalAmount = rawTot;
+        }
       }
       const coupObj = serverTotals.find(t => t.code === 'coupon' || t.code === 'coupons');
       if (coupObj && Number.isFinite(Number(coupObj.value))) {
-        couponDiscount = Math.abs(Number(coupObj.value));
+        const rawCoup = Math.abs(Number(coupObj.value));
+        couponDiscount = (vatObj && Number(vatObj.value) > 0) ? rawCoup : Math.round(rawCoup * 1.15 * 100) / 100;
       }
     }
 
@@ -6759,6 +6769,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     }
   });
 
+  if (typeof window !== 'undefined' && !window.zidStoreRegion) window.zidStoreRegion = { location_selection: false };
   try {
     if (typeof document !== 'undefined') {
       document.documentElement?.setAttribute?.('translate', 'no');
@@ -7692,6 +7703,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   }
 
   async function syncNativeCartWithPayloads(api) {
+    if (typeof window !== 'undefined' && !window.zidStoreRegion) window.zidStoreRegion = { location_selection: false };
     if (!api?.get || !api?.addProduct) return null;
     const cart = CartManager.getCart() || [];
     const payloads = (typeof CartManager.buildZidPayloads === 'function')
@@ -8044,7 +8056,11 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       // Extract confirmed total from nativeCart
       const serverTotals = nativeCart.totals || nativeCart.cart?.totals || [];
       const totObj = Array.isArray(serverTotals) ? serverTotals.find(t => t.code === 'total') : null;
-      const confirmedTotal = (totObj && Number.isFinite(Number(totObj.value))) ? Number(totObj.value) : null;
+      const vatObj = Array.isArray(serverTotals) ? serverTotals.find(t => t.code === 'vat') : null;
+      let confirmedTotal = (totObj && Number.isFinite(Number(totObj.value))) ? Number(totObj.value) : null;
+      if (confirmedTotal !== null && (!vatObj || Number(vatObj.value) <= 0)) {
+        confirmedTotal = Math.round(confirmedTotal * 1.15 * 100) / 100;
+      }
 
       // Always refresh DOM with confirmed financials
       if (typeof updateCartFinancials === 'function') {
@@ -8052,7 +8068,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       }
 
       // Check if displayed total changed
-      const currentTotalText = grandEl ? (grandEl.innerText || grandEl.textContent || '').trim() : '';
+      const activeTotalEl = grandEl ? (grandEl.querySelector('.note-cart-total-new') || grandEl) : null;
+      const currentTotalText = activeTotalEl ? (activeTotalEl.innerText || activeTotalEl.textContent || '').trim() : '';
       const totalChanged = prevTotalText && currentTotalText && (prevTotalText !== currentTotalText);
 
       if (totalChanged) {
