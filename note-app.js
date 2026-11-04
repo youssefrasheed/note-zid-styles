@@ -3437,6 +3437,26 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     return 5;
   };
 
+  function confirmedCartRows(cart) {
+    const quote = window._noteVerifiedCart;
+    return quote?.snapshot === JSON.stringify(cart) ? quote.products || [] : [];
+  }
+
+  function confirmedItemPrice(cart, item) {
+    const normalize = value => String(value || '').replace(/-/g, '').toLowerCase();
+    const idOf = entry => {
+      const product = CartManager._findCatalogProduct(entry);
+      return normalize(product?.zid_id || product?.id || entry.product_id || entry.id);
+    };
+    const id = idOf(item);
+    if (!id || cart.filter(entry => idOf(entry) === id).length !== 1) return '';
+    const rows = confirmedCartRows(cart).filter(row => normalize(row.product_id) === id);
+    if (!rows.length || rows.some(row => row.price == null || !Number.isFinite(Number(row.price)))) return '';
+    if (rows.reduce((sum, row) => sum + Number(row.quantity), 0) !== Number(item.quantity)) return '';
+    if (rows.every(row => Number(row.price) === Number(rows[0].price))) return formatPrice(Number(rows[0].price));
+    return rows.map(row => `${Number(row.quantity)} × ${formatPrice(Number(row.price))}`).join('، ');
+  }
+
   // 7. Cart Manager (Global localStorage Architecture)
   const CartManager = {
     getCart: function() {
@@ -4314,8 +4334,9 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
         const imgUrl = resolveImgUrl(item.img);
         const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
-        const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
+        const oldPriceVal = nativePricing ? null : item.old_price || (catalogItem && catalogItem.old_price);
         const itemLineTotal = item.price * item.quantity;
+        const itemPrice = nativePricing ? confirmedItemPrice(cart, item) : formatPrice(item.price);
         
         return `
           <div class="note-cart-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
@@ -4331,7 +4352,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                   </a>
                   <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
                     ${oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${formatPrice(oldPriceVal)}</span>` : ''}
-                    <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${formatPrice(item.price)}</span>
+                    <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${itemPrice}</span>
                   </div>
                 </div>
               </div>
@@ -5774,13 +5795,18 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       }
     }
 
+    const nativePricing = typeof window.noteConfirmCartPricing === 'function';
+
     const renderItem = (item, showStepper = true, overridePrice = null, badgeText = null) => {
         const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
         const imgUrl = resolveImgUrl(item.img);
         const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
         const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
         const priceDisplay = (overridePrice !== null) ? overridePrice : item.price;
-        const crossedPrice = (overridePrice !== null) ? item.price : oldPriceVal;
+        const crossedPrice = nativePricing ? null : (overridePrice !== null) ? item.price : oldPriceVal;
+        const shownPrice = nativePricing
+          ? (showStepper ? confirmedItemPrice(cart, item) : overridePrice !== null ? formatPrice(overridePrice) : '')
+          : formatPrice(priceDisplay);
         return `
           <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:10px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
             <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
@@ -5795,7 +5821,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                   ${badgeText ? `<span class="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-900 border border-amber-200/80 w-fit" style="display:inline-block!important;padding:2px 8px!important;border-radius:9999px!important;font-size:11px!important;font-weight:700!important;background:#fef3c7!important;color:#78350f!important;border:1px solid #fde68a!important;margin-top:2px!important;">${badgeText}</span>` : ''}
                   <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
                     ${crossedPrice ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${formatPrice(crossedPrice)}</span>` : ''}
-                    <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${formatPrice(priceDisplay)}</span>
+                    <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${shownPrice}</span>
                   </div>
                 </div>
               </div>
@@ -5877,8 +5903,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                 <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">باقة معطرات الجسم (3 معطرات بـ 249 ر.س)</h3>
               </div>
               <div style="display:flex!important;align-items:baseline!important;gap:8px!important;">
-                <span style="font-size:13px!important;color:#a8a29e!important;text-decoration:line-through!important;">${formatPrice(b.originalPrice)}</span>
-                <span style="font-size:16px!important;font-weight:900!important;color:#ef4444!important;">249 ر.س</span>
+                <span style="font-size:13px!important;color:#a8a29e!important;text-decoration:line-through!important;">${nativePricing ? '' : formatPrice(b.originalPrice)}</span>
+                <span style="font-size:16px!important;font-weight:900!important;color:#ef4444!important;">${nativePricing ? '' : '249 ر.س'}</span>
               </div>
             </div>
             <div class="note-bundle-group-items">
@@ -5900,7 +5926,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                 <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">عرض الثالث بـ 1 ريال</h3>
               </div>
               <div style="display:flex!important;align-items:baseline!important;gap:8px!important;">
-                <span style="font-size:13px!important;font-weight:700!important;color:#047857!important;">وفّرت ${formatPrice(t.discount)}</span>
+                <span style="font-size:13px!important;font-weight:700!important;color:#047857!important;">${nativePricing ? '' : 'وفّرت ' + formatPrice(t.discount)}</span>
               </div>
             </div>
             <div class="note-bundle-group-items">
@@ -5925,7 +5951,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                 <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">عرض التولة بـ 1 ريال</h3>
               </div>
               <div style="display:flex!important;align-items:baseline!important;gap:8px!important;">
-                <span style="font-size:13px!important;font-weight:700!important;color:#047857!important;">وفّرت ${formatPrice(p.discount)}</span>
+                <span style="font-size:13px!important;font-weight:700!important;color:#047857!important;">${nativePricing ? '' : 'وفّرت ' + formatPrice(p.discount)}</span>
               </div>
             </div>
             <div class="note-bundle-group-items">
@@ -6319,7 +6345,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     }
 
     const subtotalEl = document.getElementById('page-subtotal');
-    if (subtotalEl) subtotalEl.textContent = (typeof formatPrice === 'function' ? formatPrice(amount) : (amount.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' ر.س'));
+    if (subtotalEl) subtotalEl.textContent = nativePricing && !liveTotals ? '—' : (typeof formatPrice === 'function' ? formatPrice(amount) : (amount.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' ر.س'));
 
     const appliedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
     const baseAfterBundle = Math.max(0, amount - bundleDiscount);
