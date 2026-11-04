@@ -7880,27 +7880,67 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     const activeCoupon = nativeCart.coupon?.code;
     const initialRows = nativeCartItems(nativeCart);
     if (!matchingCartPayloads(payloads, initialRows)) {
-      const { additions } = cartReconciliationPlan(payloads, initialRows);
-      // Keep existing products until all additions have been accepted.
-      for (const payload of additions) {
-        assertCartResponse(await api.addProduct(payload));
-      }
-      if (additions.length) nativeCart = await readCart();
+      const groups = CartManager.partitionCart?.(cart)?.groups;
+      const requiresZidOfferRebuild = activeCoupon || localStorage.getItem('note_applied_coupon')
+        || groups?.tier1_spray_bundles?.length || groups?.tier2_trios?.length || groups?.tier3_pairs?.length
+        || initialRows.some(row => row.sub_items?.length || row.meta?.bundle_offer || row.is_discounted)
+        || nativeCart.bundle_offers?.some?.(offer => Number(offer.usage_count) > 0);
+      if (requiresZidOfferRebuild) {
+        if (typeof api.empty === 'function') {
+          try {
+            assertCartResponse(await api.empty());
+          } catch (error) {
+            console.warn('NOTE: bulk cart reset notice:', error.message);
+          }
+          nativeCart = await readCart();
+        }
+        for (let pass = 0; pass < 3 && nativeCartItems(nativeCart).length > 0; pass++) {
+          for (const item of nativeCartItems(nativeCart)) {
+            if (item?.id) {
+              try {
+                assertCartResponse(await api.removeProduct({product_id: item.id}));
+              } catch (error) {
+                console.warn('NOTE: cart row removal notice:', error.message);
+              }
+            }
+          }
+          nativeCart = await readCart();
+        }
 
-      // Zid can regroup discounted rows after a mutation, so plan from fresh IDs.
-      const maxReductions = nativeCartItems(nativeCart).length + payloads.length;
-      for (let attempt = 0; attempt < maxReductions; attempt++) {
-        const plan = cartReconciliationPlan(payloads, nativeCartItems(nativeCart));
-        if (plan.additions.length) throw Error('تغيّرت محتويات السلة أثناء المزامنة.');
-        const next = plan.reductions[0];
-        if (!next) break;
-        if (!next.row.id) throw Error('تعذر تعديل أحد منتجات السلة.');
-        if (next.quantity === 0) {
-          assertCartResponse(await api.removeProduct({product_id: next.row.id}));
-        } else {
-          assertCartResponse(await api.updateProduct({product_id: next.row.id, quantity: next.quantity}));
+        // Refuse re-adding if rows remain after emptying attempts
+        if (nativeCartItems(nativeCart).length > 0) {
+          throw Error('تعذر تفريغ سلة المشتريات بالكامل قبل المزامنة. يرجى إعادة المحاولة.');
+        }
+
+        // Add each payload without swallowing failures
+        for (const payload of payloads) {
+          const addRes = await api.addProduct(payload);
+          assertCartResponse(addRes);
         }
         nativeCart = await readCart();
+      } else {
+        const { additions } = cartReconciliationPlan(payloads, initialRows);
+        // Keep existing products until all additions have been accepted.
+        for (const payload of additions) {
+          assertCartResponse(await api.addProduct(payload));
+        }
+        if (additions.length) nativeCart = await readCart();
+
+        // Zid can regroup discounted rows after a mutation, so plan from fresh IDs.
+        const maxReductions = nativeCartItems(nativeCart).length + payloads.length;
+        for (let attempt = 0; attempt < maxReductions; attempt++) {
+          const plan = cartReconciliationPlan(payloads, nativeCartItems(nativeCart));
+          if (plan.additions.length) throw Error('تغيّرت محتويات السلة أثناء المزامنة.');
+          const next = plan.reductions[0];
+          if (!next) break;
+          if (!next.row.id) throw Error('تعذر تعديل أحد منتجات السلة.');
+          if (next.quantity === 0) {
+            assertCartResponse(await api.removeProduct({product_id: next.row.id}));
+          } else {
+            assertCartResponse(await api.updateProduct({product_id: next.row.id, quantity: next.quantity}));
+          }
+          nativeCart = await readCart();
+        }
       }
 
       if (activeCoupon && !nativeCart.coupon?.code && matchingCartPayloads(payloads, nativeCartItems(nativeCart))) {
