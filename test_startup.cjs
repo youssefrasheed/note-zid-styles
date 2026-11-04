@@ -14,7 +14,7 @@ const pricingHook='    window.noteConfirmCartPricing();\n';
 assert(live.includes(pricingHook));
 assert(live.replace(pricingHook,'').includes(drawerSource.trim()));
 assert(live.includes('const nativeCart = await enqueueNativeCartSync()'));
-assert(live.includes('return enqueueNativeCartSync(item.native_line_id'));
+assert(live.includes('return window.noteConfirmCartPricing()'));
 function panel(){const names=new Set(['hidden','-translate-x-full']);return {hidden:true,setAttribute(k,v){this[k]=v},classList:{add(...xs){xs.forEach(x=>names.add(x))},remove(...xs){xs.forEach(x=>names.delete(x))},contains:x=>names.has(x)}}}
 const drawer=panel(),overlay=panel(),manager={renderDrawer(){}};
 const context={CartManager:manager,document:{body:{style:{}},getElementById:id=>id==='cart-drawer'?drawer:overlay},clearTimeout,setTimeout,requestAnimationFrame:fn=>fn()};

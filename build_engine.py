@@ -2984,7 +2984,8 @@ app_js_code = f"""/**
       }}
 
       // Sync coupon input in drawer with localStorage & display strikethrough total if applied
-      const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
+      const savedCoupon = nativePricing ? (totals ? verified.couponCode : null)
+        : ((typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null);
       if (totalEl && nativePricing) {{
         const confirmed = totals?.find(line => line.code === 'total')?.value;
         const hasConfirmedTotal = confirmed != null && Number.isFinite(Number(confirmed));
@@ -3031,6 +3032,7 @@ app_js_code = f"""/**
         drawerCouponBtn.classList.remove('note-btn-gold');
         drawerCouponBtn.textContent = 'تطبيق';
         if (drawerCouponTag) drawerCouponTag.classList.add('hidden');
+        if (drawerCouponMsg?.classList.contains('text-emerald-600')) drawerCouponMsg.classList.add('hidden');
       }}
 
       if (drawerCouponInput && !drawerCouponInput._hasNoteInputListener) {{
@@ -4535,6 +4537,7 @@ app_js_code = f"""/**
         const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
         const priceDisplay = (overridePrice !== null) ? overridePrice : item.price;
         const crossedPrice = nativePricing ? null : (overridePrice !== null) ? item.price : oldPriceVal;
+        const removeAction = showStepper ? 'removeItem(this.dataset.key)' : 'updateQuantity(this.dataset.key, -1)';
         const shownPrice = nativePricing
           ? (showStepper ? confirmedItemPrice(cart, item) : overridePrice !== null ? formatPrice(overridePrice) : '')
           : formatPrice(priceDisplay);
@@ -4556,7 +4559,7 @@ app_js_code = f"""/**
                   </div>
                 </div>
               </div>
-              <button type="button" onclick="CartManager.removeItem('${{item.id}}');" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" title="حذف" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+              <button type="button" data-key="${{escapeHTML(item.id)}}" onclick="CartManager.${{removeAction}};" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" title="حذف" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
               </button>
             </div>
@@ -5014,7 +5017,10 @@ app_js_code = f"""/**
   }}
 
   function restoreSavedCartCoupon() {{
-    const saved = localStorage.getItem('note_applied_coupon');
+    const quote = window._noteVerifiedCart;
+    const saved = window.noteCartPricingKey
+      ? (quote?.snapshot === window.noteCartPricingKey() ? quote.couponCode : null)
+      : localStorage.getItem('note_applied_coupon');
     const applyBtn = document.getElementById('coupon-apply-btn');
     const btnText = document.getElementById('coupon-btn-text');
 
@@ -5108,7 +5114,8 @@ app_js_code = f"""/**
     const subtotalEl = document.getElementById('page-subtotal');
     if (subtotalEl) subtotalEl.textContent = nativePricing && !liveTotals ? '—' : (typeof formatPrice === 'function' ? formatPrice(amount) : (amount.toLocaleString('en-US', {{maximumFractionDigits: 2}}) + ' ر.س'));
 
-    const appliedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
+    const appliedCoupon = nativePricing ? (liveTotals ? verified.couponCode : null)
+      : ((typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null);
     const baseAfterBundle = Math.max(0, amount - bundleDiscount);
     let finalAmount = baseAfterBundle;
     let couponDiscount = 0;
@@ -5127,6 +5134,11 @@ app_js_code = f"""/**
 
     const couponMsgEl = document.getElementById('coupon-msg');
     const couponTagEl = document.getElementById('coupon-applied-tag');
+    if (nativePricing) {{
+      const clearBtn = document.getElementById('coupon-clear-btn');
+      if (appliedCoupon) clearBtn?.classList.remove('hidden');
+      else clearBtn?.classList.add('hidden');
+    }}
     if (appliedCoupon) {{
       if (couponTagEl) couponTagEl.classList.remove('hidden');
       if (couponMsgEl) {{
@@ -5145,7 +5157,7 @@ app_js_code = f"""/**
     if (discountRow) {{
       if (couponDiscount > 0) {{
         discountRow.classList.remove('hidden');
-        if (discountTitle) discountTitle.textContent = `كود الخصم (${{appliedCoupon}}):`;
+        if (discountTitle) discountTitle.textContent = appliedCoupon ? `كود الخصم (${{appliedCoupon}}):` : 'خصم الكوبون';
         if (discountVal) {{
           discountVal.dir = 'ltr';
           discountVal.textContent = `−${{couponDiscount.toLocaleString('en-US', {{minimumFractionDigits: 2, maximumFractionDigits: 2}})}} ر.س`;

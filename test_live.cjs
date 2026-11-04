@@ -48,3 +48,49 @@ assert(testButton.innerHTML.includes('تمت الإضافة'));
 assert.equal(testButton.style.width, '120px');
 
 (async()=>{responsePages=[{results:[product],next:'next',pages_count:2},{results:[product,{...product,id:'uuid-2'}],next:null,pages_count:2},[]];await ctx.testAPI.sync.fetchLiveCatalog();assert.equal(ctx.noteProductsCatalog.length,2);assert(calls.some(url=>url.includes('page=2')));console.log('PASS: authoritative catalog, rename/image/price refresh, zero prices, real sales, bundle line isolation, removal, pagination and cart rejection');})().catch(e=>{console.error(e);process.exitCode=1});
+
+
+(async () => {
+  await ctx.CartManager._nativeQueue;
+  ctx.CartManager.buildZidPayloads = entries => entries.map(({product_id, quantity}) => ({product_id, quantity}));
+  const cart = [{ id: 'a', product_id: 'a', quantity: 1 }, { id: 'b', product_id: 'b', quantity: 1 }];
+  stored = cart;
+  let rows = [{ id: 'row-a', product_id: 'a', quantity: 2 }];
+  let rejectAddition = true;
+  const mutations = [];
+  const api = {
+    get: async () => ({ products: rows, totals: [] }),
+    addProduct: async payload => {
+      mutations.push(['add', payload.product_id]);
+      if (rejectAddition) return { status: 'error', message: 'Rejected' };
+      rows = [...rows, { ...payload, id: 'row-b' }];
+      return { status: 'success' };
+    },
+    updateProduct: async ({ product_id, quantity }) => {
+      mutations.push(['update', product_id, quantity]);
+      rows = rows.map(row => row.id === product_id ? { ...row, quantity } : row);
+      return { status: 'success' };
+    },
+    removeProduct: async ({ product_id }) => {
+      mutations.push(['remove', product_id]);
+      rows = rows.filter(row => row.id !== product_id);
+      return { status: 'success' };
+    },
+    empty: async () => { throw new Error('Must never empty the cart'); }
+  };
+  await assert.rejects(ctx.window.syncNativeCartWithPayloads(api), /Rejected/);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].quantity, 2);
+  assert.deepEqual(mutations, [['add', 'b']]);
+  rejectAddition = false;
+  await ctx.window.syncNativeCartWithPayloads(api);
+  assert.deepEqual(mutations.slice(1), [['add', 'b'], ['update', 'row-a', 1]]);
+  assert.equal(rows[0].id, 'row-a');
+
+  stored = [{ id: 'b', product_id: 'b', quantity: 1 }];
+  await ctx.window.syncNativeCartWithPayloads(api);
+  assert.deepEqual(mutations.at(-1), ['remove', 'row-a']);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].id, 'row-b');
+  console.log('PASS: failed additions preserve existing rows, and retries apply only the required changes');
+})().catch(error => { console.error(error); process.exitCode = 1; });

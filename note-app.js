@@ -4242,7 +4242,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       }
 
       // Sync coupon input in drawer with localStorage & display strikethrough total if applied
-      const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
+      const savedCoupon = nativePricing ? (totals ? verified.couponCode : null)
+        : ((typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null);
       if (totalEl && nativePricing) {
         const confirmed = totals?.find(line => line.code === 'total')?.value;
         const hasConfirmedTotal = confirmed != null && Number.isFinite(Number(confirmed));
@@ -4289,6 +4290,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         drawerCouponBtn.classList.remove('note-btn-gold');
         drawerCouponBtn.textContent = 'تطبيق';
         if (drawerCouponTag) drawerCouponTag.classList.add('hidden');
+        if (drawerCouponMsg?.classList.contains('text-emerald-600')) drawerCouponMsg.classList.add('hidden');
       }
 
       if (drawerCouponInput && !drawerCouponInput._hasNoteInputListener) {
@@ -5793,6 +5795,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
         const priceDisplay = (overridePrice !== null) ? overridePrice : item.price;
         const crossedPrice = nativePricing ? null : (overridePrice !== null) ? item.price : oldPriceVal;
+        const removeAction = showStepper ? 'removeItem(this.dataset.key)' : 'updateQuantity(this.dataset.key, -1)';
         const shownPrice = nativePricing
           ? (showStepper ? confirmedItemPrice(cart, item) : overridePrice !== null ? formatPrice(overridePrice) : '')
           : formatPrice(priceDisplay);
@@ -5814,7 +5817,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                   </div>
                 </div>
               </div>
-              <button type="button" onclick="CartManager.removeItem('${item.id}');" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+              <button type="button" data-key="${escapeHTML(item.id)}" onclick="CartManager.${removeAction};" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
               </button>
             </div>
@@ -6272,7 +6275,10 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   }
 
   function restoreSavedCartCoupon() {
-    const saved = localStorage.getItem('note_applied_coupon');
+    const quote = window._noteVerifiedCart;
+    const saved = window.noteCartPricingKey
+      ? (quote?.snapshot === window.noteCartPricingKey() ? quote.couponCode : null)
+      : localStorage.getItem('note_applied_coupon');
     const applyBtn = document.getElementById('coupon-apply-btn');
     const btnText = document.getElementById('coupon-btn-text');
 
@@ -6366,7 +6372,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     const subtotalEl = document.getElementById('page-subtotal');
     if (subtotalEl) subtotalEl.textContent = nativePricing && !liveTotals ? '—' : (typeof formatPrice === 'function' ? formatPrice(amount) : (amount.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' ر.س'));
 
-    const appliedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
+    const appliedCoupon = nativePricing ? (liveTotals ? verified.couponCode : null)
+      : ((typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null);
     const baseAfterBundle = Math.max(0, amount - bundleDiscount);
     let finalAmount = baseAfterBundle;
     let couponDiscount = 0;
@@ -6385,6 +6392,11 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 
     const couponMsgEl = document.getElementById('coupon-msg');
     const couponTagEl = document.getElementById('coupon-applied-tag');
+    if (nativePricing) {
+      const clearBtn = document.getElementById('coupon-clear-btn');
+      if (appliedCoupon) clearBtn?.classList.remove('hidden');
+      else clearBtn?.classList.add('hidden');
+    }
     if (appliedCoupon) {
       if (couponTagEl) couponTagEl.classList.remove('hidden');
       if (couponMsgEl) {
@@ -6403,7 +6415,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     if (discountRow) {
       if (couponDiscount > 0) {
         discountRow.classList.remove('hidden');
-        if (discountTitle) discountTitle.textContent = `كود الخصم (${appliedCoupon}):`;
+        if (discountTitle) discountTitle.textContent = appliedCoupon ? `كود الخصم (${appliedCoupon}):` : 'خصم الكوبون';
         if (discountVal) {
           discountVal.dir = 'ltr';
           discountVal.textContent = `−${couponDiscount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ر.س`;
@@ -7803,6 +7815,41 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     return expected !== null && expected === actual;
   }
 
+  function cartReconciliationPlan(payloads, rows) {
+    const groups = [];
+    const sameProduct = (payload, row) => matchingCartPayloads(
+      [{ ...payload, quantity: 1 }], [{ ...row, quantity: 1 }]
+    );
+    for (const payload of payloads) {
+      let group = groups.find(entry => sameProduct(entry.payload, payload));
+      if (!group) {
+        group = { payload, wanted: 0, rows: [] };
+        groups.push(group);
+      }
+      group.wanted += Number(payload.quantity) || 1;
+    }
+    const reductions = [];
+    for (const row of rows) {
+      const group = groups.find(entry => sameProduct(entry.payload, row));
+      if (group) group.rows.push(row);
+      else reductions.push({ row, quantity: 0 });
+    }
+    const additions = [];
+    for (const { payload, wanted, rows } of groups) {
+      const current = rows.reduce((sum, row) => sum + (Number(row.quantity) || 1), 0);
+      if (wanted > current) additions.push({ ...payload, quantity: wanted - current });
+      let excess = current - wanted;
+      for (const row of [...rows].reverse()) {
+        if (excess <= 0) break;
+        const quantity = Number(row.quantity) || 1;
+        const reduction = Math.min(quantity, excess);
+        reductions.push({ row, quantity: quantity - reduction });
+        excess -= reduction;
+      }
+    }
+    return { additions, reductions };
+  }
+
   function cartPricingKey(cart = CartManager.getCart() || []) {
     return JSON.stringify([cart, localStorage.getItem('note_applied_coupon')]);
   }
@@ -7821,54 +7868,41 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
           ...(item.sub_items?.length ? {sub_items:item.sub_items.map(({id,product_id,quantity,selection_group_id})=>({id:id||product_id,product_id:product_id||id,quantity,selection_group_id}))} : {})
         }));
 
-    let res = assertCartResponse(await api.get());
-    let nativeCart = extractCartData(res);
+    const readCart = async () => extractCartData(assertCartResponse(await api.get()));
+    let nativeCart = await readCart();
+    const activeCoupon = nativeCart.coupon?.code;
+    const initialRows = nativeCartItems(nativeCart);
+    if (!matchingCartPayloads(payloads, initialRows)) {
+      const { additions } = cartReconciliationPlan(payloads, initialRows);
+      // Keep existing products until all additions have been accepted.
+      for (const payload of additions) {
+        assertCartResponse(await api.addProduct(payload));
+      }
+      if (additions.length) nativeCart = await readCart();
 
-    if (!matchingCartPayloads(payloads, nativeCartItems(nativeCart))) {
-      if (typeof api.empty === 'function') {
+      // Zid can regroup discounted rows after a mutation, so plan from fresh IDs.
+      const maxReductions = nativeCartItems(nativeCart).length + payloads.length;
+      for (let attempt = 0; attempt < maxReductions; attempt++) {
+        const plan = cartReconciliationPlan(payloads, nativeCartItems(nativeCart));
+        if (plan.additions.length) throw Error('تغيّرت محتويات السلة أثناء المزامنة.');
+        const next = plan.reductions[0];
+        if (!next) break;
+        if (!next.row.id) throw Error('تعذر تعديل أحد منتجات السلة.');
+        if (next.quantity === 0) {
+          assertCartResponse(await api.removeProduct({product_id: next.row.id}));
+        } else {
+          assertCartResponse(await api.updateProduct({product_id: next.row.id, quantity: next.quantity}));
+        }
+        nativeCart = await readCart();
+      }
+
+      if (activeCoupon && !nativeCart.coupon?.code && matchingCartPayloads(payloads, nativeCartItems(nativeCart))) {
         try {
-          assertCartResponse(await api.empty());
+          assertCartResponse(await api.applyCoupon({coupon_code: activeCoupon}));
         } catch (error) {
-          console.warn('NOTE: bulk cart reset notice:', error.message);
+          console.warn('NOTE: coupon no longer confirmed:', error.message);
         }
-        res = assertCartResponse(await api.get());
-        nativeCart = extractCartData(res);
-      }
-      for (let pass = 0; pass < 3 && nativeCartItems(nativeCart).length > 0; pass++) {
-        for (const item of nativeCartItems(nativeCart)) {
-          if (item?.id) {
-            try {
-              assertCartResponse(await api.removeProduct({product_id: item.id}));
-            } catch (error) {
-              console.warn('NOTE: cart row removal notice:', error.message);
-            }
-          }
-        }
-        res = assertCartResponse(await api.get());
-        nativeCart = extractCartData(res);
-      }
-
-      // Refuse re-adding if rows remain after emptying attempts
-      if (nativeCartItems(nativeCart).length > 0) {
-        throw Error('تعذر تفريغ سلة المشتريات بالكامل قبل المزامنة. يرجى إعادة المحاولة.');
-      }
-
-      // Add each payload without swallowing failures
-      for (const payload of payloads) {
-        const addRes = await api.addProduct(payload);
-        assertCartResponse(addRes);
-      }
-
-      nativeCart = extractCartData(assertCartResponse(await api.get()));
-      const coupon = localStorage.getItem('note_applied_coupon');
-      if (coupon && String(nativeCart.coupon?.code || '').toUpperCase() !== coupon.toUpperCase()) {
-        try {
-          assertCartResponse(await api.applyCoupon({coupon_code: coupon}));
-        } catch (error) {
-          nativeCart = extractCartData(assertCartResponse(await api.get()));
-          if (String(nativeCart.coupon?.code || '').toUpperCase() !== coupon.toUpperCase()) throw error;
-        }
-        nativeCart = extractCartData(assertCartResponse(await api.get()));
+        nativeCart = await readCart();
       }
     }
 
@@ -7883,7 +7917,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     }
     window._noteFailedCartPricing = null;
     window._noteLiveCartState = nativeCart;
-    window._noteVerifiedCart = { snapshot: cartSnapshot, totals: nativeCart.totals, products: finalItems };
+    window._noteVerifiedCart = { snapshot: cartSnapshot, totals: nativeCart.totals, products: finalItems, couponCode: nativeCart.coupon?.code || null };
     if (document.getElementById('cart-page-items') && typeof renderCartPage === 'function') {
       renderCartPage(true);
     } else if (typeof updateCartFinancials === 'function') {
@@ -7948,6 +7982,11 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         assertCartResponse(await api.removeCoupons());
         localStorage.removeItem('note_applied_coupon');
       }
+    }).then(cart => {
+      if (String(cart.coupon?.code || '').toUpperCase() !== String(code || '').toUpperCase()) {
+        throw Error('تعذر تأكيد حالة كود الخصم.');
+      }
+      return cart;
     });
   };
 
@@ -8223,32 +8262,17 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   };
   const originalRemove=CartManager.removeItem, originalUpdateQuantity=CartManager.updateQuantity;
   CartManager.removeItem=function(key) {
-    const item = this.getCart().find(entry => entry.id === key);
-    if (!item) return;
+    if (!this.getCart().some(item => item.id === key)) return;
     originalRemove.call(this,key);
-    const removeNativeRow = item.native_line_id ? async api => {
-      try {
-        if (api.removeProduct) assertCartResponse(await api.removeProduct({product_id:item.native_line_id}));
-      } catch (error) {
-        console.warn('NOTE: cart row removal notice:', error.message);
-      }
-    } : null;
-    return enqueueNativeCartSync(removeNativeRow);
+    return window.noteConfirmCartPricing();
   };
-  CartManager.updateQuantity=async function(key,delta) {
+  CartManager.updateQuantity=function(key,delta) {
     const item=this.getCart().find(i=>i.id===key);if(!item)return;
     if(item.quantity+delta<=0) return this.removeItem(key);
     const p=noteProductsCatalog.find(cp=>cp.id===(item.product_id||item.id) || cp.slug===item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[item.id]===cp.id));
     if(delta>0 && p && (!p.in_stock || (p.stock && item.quantity+delta>p.stock))) {this.showToast('الكمية المطلوبة غير متاحة');return;}
     originalUpdateQuantity.call(this,key,delta);
-    return enqueueNativeCartSync(item.native_line_id ? async api => {
-      if (!api.updateProduct) return;
-      try {
-        assertCartResponse(await api.updateProduct({product_id:item.native_line_id,quantity:item.quantity+delta}));
-      } catch (error) {
-        console.warn('NOTE: cart quantity update notice:', error.message);
-      }
-    } : null);
+    return window.noteConfirmCartPricing();
   };
 
   if (typeof document !== 'undefined') {

@@ -119,6 +119,7 @@ window.noteCartPricingKey = () => JSON.stringify([CartManager.getCart(), localSt
 localStorage.setItem('note_applied_coupon', 'CUSTOM90');
 window._noteVerifiedCart = {
   snapshot: window.noteCartPricingKey(),
+  couponCode: 'CUSTOM90',
   totals: [
     { code: 'sub_totals', value: 816 },
     { code: 'products_discount', value: -188 },
@@ -129,6 +130,11 @@ window._noteVerifiedCart = {
 updateCartFinancials(816);
 assert.equal(dom.getElementById('page-discount').textContent, '−7.43 ر.س');
 assert.equal(dom.getElementById('page-shipping').textContent, 'يُحسب عند الدفع');
+window._noteVerifiedCart.couponCode = null;
+window._noteVerifiedCart.totals = [{ code: 'total', value: 628 }];
+updateCartFinancials(816);
+assert(dom.getElementById('coupon-applied-tag').classList.contains('hidden'));
+assert(dom.getElementById('discount-row').classList.contains('hidden'));
 localStorage.removeItem('note_applied_coupon');
 updateCartFinancials(816);
 assert.equal(dom.getElementById('page-grand-total').textContent, 'جارٍ تأكيد أسعار سلتك…');
