@@ -4959,11 +4959,12 @@ app_js_code = f"""/**
     let bundleDiscount = 0;
     let liveTotals = null;
 
-    const verified = window._noteVerifiedCart;
-    const nativePricing = typeof window.noteConfirmCartPricing === 'function';
+    const win = typeof window !== 'undefined' ? window : null;
+    const verified = win ? win._noteVerifiedCart : null;
+    const nativePricing = win && typeof win.noteConfirmCartPricing === 'function';
     const serverTotals = nativePricing
-      ? (verified?.snapshot === JSON.stringify(CartManager.getCart() || []) ? verified.totals : null)
-      : window._noteLiveCartState?.totals;
+      ? (verified?.snapshot === (typeof CartManager !== 'undefined' && CartManager.getCart ? JSON.stringify(CartManager.getCart() || []) : '') ? verified.totals : null)
+      : (win ? win._noteLiveCartState?.totals : null);
     if (Array.isArray(serverTotals) && serverTotals.some(t => t.code === 'total' && t.value != null && Number.isFinite(Number(t.value)))) {{
       liveTotals = serverTotals;
       const subObj = liveTotals.find(t => t.code === 'sub_totals' || t.code === 'sub_totals_before_vat');
@@ -5052,12 +5053,14 @@ app_js_code = f"""/**
 
     const grandEl = document.getElementById('page-grand-total');
     if (grandEl) {{
-      if (nativePricing && !liveTotals && CartManager.getCart().length) {{
-        grandEl.removeAttribute('data-note-total');
+      if (nativePricing && !liveTotals && (typeof CartManager !== 'undefined' && CartManager.getCart) && CartManager.getCart().length) {{
+        if (typeof grandEl.removeAttribute === 'function') grandEl.removeAttribute('data-note-total');
         grandEl.textContent = 'جارٍ تأكيد أسعار سلتك…';
         return;
       }}
-      grandEl.setAttribute('data-note-total', liveTotals ? finalAmount.toFixed(2) : '');
+      if (typeof grandEl.setAttribute === 'function') {{
+        grandEl.setAttribute('data-note-total', liveTotals ? finalAmount.toFixed(2) : '');
+      }}
       if (finalAmount !== amount) {{
         const formattedOld = (typeof formatPrice === 'function') ? formatPrice(amount) : (amount.toLocaleString('en-US', {{maximumFractionDigits: 2}}) + ' ر.س');
         const formattedNew = (typeof formatPrice === 'function') ? formatPrice(finalAmount) : (finalAmount.toLocaleString('en-US', {{maximumFractionDigits: 2}}) + ' ر.س');
