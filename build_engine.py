@@ -4827,7 +4827,8 @@ app_js_code = f"""/**
       const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : 5;
       couponDiscount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
       finalAmount = Math.max(0, Math.round((baseAfterBundle - couponDiscount) * 100) / 100);
-    }} else if (liveTotals && bundleDiscount === 0) {{
+    }}
+    if (liveTotals) {{
       const totObj = liveTotals.find(t => t.code === 'total');
       if (totObj && Number.isFinite(Number(totObj.value))) {{
         finalAmount = Number(totObj.value);

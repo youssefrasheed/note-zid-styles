@@ -6085,7 +6085,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : 5;
       couponDiscount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
       finalAmount = Math.max(0, Math.round((baseAfterBundle - couponDiscount) * 100) / 100);
-    } else if (liveTotals && bundleDiscount === 0) {
+    }
+    if (liveTotals) {
       const totObj = liveTotals.find(t => t.code === 'total');
       if (totObj && Number.isFinite(Number(totObj.value))) {
         finalAmount = Number(totObj.value);
@@ -7679,14 +7680,15 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         } catch (_) {}
       }
       const api=window.zid?.cart;
-      if (!api?.get || !api?.addProduct) {
-        location.href = '/checkout';
-        return;
-      }
+      if (!api?.get || !api?.addProduct) throw Error('تعذر الاتصال بسلة زد. أعد المحاولة.');
       const readNativeCart = async () => {
         const response = assertCartResponse(await api.get());
         return response?.data?.cart || response?.cart || response?.data || response;
       };
+      const quote = cartState => JSON.stringify(
+        (cartState?.totals || []).map(({code, value}) => [code, Number(value)]).sort()
+      );
+      const shownQuote = quote(window._noteLiveCartState);
       let nativeCart = await readNativeCart();
 
       const payloads = cart.map(item => ({
@@ -7708,30 +7710,29 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       };
       const expected = signature(payloads);
       if (signature(nativeCartItems(nativeCart)) !== expected) {
-        const existing = nativeCartItems(nativeCart);
-        if (typeof api.empty === 'function') {
-          try { await api.empty(); } catch (_) {}
-        } else if (existing.length) {
-          await Promise.all(existing.map(item => api.removeProduct({product_id: item.id}).catch(() => null)));
+        // Read back the cleared basket: the SDK may report success while
+        // discounted lines remain. Never append to a nonempty basket.
+        for (const item of nativeCartItems(nativeCart)) {
+          assertCartResponse(await api.removeProduct({product_id: item.id}));
         }
         nativeCart = await readNativeCart();
         if (nativeCartItems(nativeCart).length) {
-          for (const item of nativeCartItems(nativeCart)) {
-            try { await api.removeProduct({product_id: item.id}); } catch (_) {}
-          }
-          nativeCart = await readNativeCart();
+          throw Error('تعذر إعادة مزامنة السلة. حدّث الصفحة ثم أعد المحاولة.');
         }
-        await Promise.all(payloads.map(payload => api.addProduct(payload).catch(e => {
-          return api.addProduct(payload);
-        })));
+        for (const payload of payloads) {
+          assertCartResponse(await api.addProduct(payload));
+        }
         const coupon = localStorage.getItem('note_applied_coupon');
         const hadBundle = window._noteLiveCartState?.bundle_offers?.some(
           offer => Number(offer.usage_count) > 0 || Number(offer.discount_total) > 0
         );
         if (coupon && !hadBundle && api.applyCoupon) {
-          await api.applyCoupon({coupon_code: coupon}).catch(() => null);
+          assertCartResponse(await api.applyCoupon({coupon_code: coupon}));
         }
         nativeCart = await readNativeCart();
+        if (signature(nativeCartItems(nativeCart)) !== expected) {
+          throw Error('الكميات في سلة زد لا تطابق سلتك. أعد المحاولة.');
+        }
       }
 
       window._noteLiveCartState = nativeCart;
@@ -7739,8 +7740,13 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         updateCartFinancials(CartManager.getTotal());
       }
       CartManager.renderDrawer();
-      const targetUrl = nativeCart.basket_url || '/checkout';
-      location.href = targetUrl;
+      if (!nativeCart.totals?.some(line => line.code === 'total') || !nativeCart.basket_url) {
+        throw Error('تعذر تأكيد إجمالي سلة زد. أعد المحاولة.');
+      }
+      if (shownQuote !== quote(nativeCart)) {
+        throw Error('تم تحديث إجمالي سلتك. راجعه ثم اضغط إتمام الدفع مرة أخرى.');
+      }
+      location.href = nativeCart.basket_url;
     } catch(error) {
       CartManager.showToast(escapeHTML(error.message));
       checkoutBtns.forEach((b, idx) => {
