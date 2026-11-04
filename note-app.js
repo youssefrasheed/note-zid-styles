@@ -6273,7 +6273,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       if (subObj?.value != null && Number.isFinite(Number(subObj.value))) amount = Number(subObj.value);
       const discObj = liveTotals.find(t => t.code === 'products_discount');
       if (discObj?.value != null && Number.isFinite(Number(discObj.value))) bundleDiscount = Math.abs(Number(discObj.value));
-    } else if (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) {
+    } else if (!nativePricing && typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) {
       bundleDiscount = CartManager.getLiveBundleDiscount();
     }
 
@@ -6283,7 +6283,9 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     if (bundleRow) {
       if (bundleDiscount > 0) {
         bundleRow.classList.remove('hidden');
-        if (bundleTitle) {
+        if (bundleTitle && nativePricing) {
+          bundleTitle.textContent = 'خصم العروض';
+        } else if (bundleTitle) {
           const cleanNames = [];
           if (partition.groups.tier1_spray_bundles && partition.groups.tier1_spray_bundles.length > 0) {
             cleanNames.push('باقة معطرات الجسم');
@@ -6311,7 +6313,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     let finalAmount = baseAfterBundle;
     let couponDiscount = 0;
 
-    if (appliedCoupon && baseAfterBundle > 0) {
+    if (!nativePricing && appliedCoupon && baseAfterBundle > 0) {
       const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : (appliedCoupon.toUpperCase() === 'NOTE5' ? 2 : 5);
       couponDiscount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
       finalAmount = Math.max(0, Math.round((baseAfterBundle - couponDiscount) * 100) / 100);
