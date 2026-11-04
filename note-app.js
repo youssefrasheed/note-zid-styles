@@ -7710,12 +7710,26 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       };
       const expected = signature(payloads);
       if (signature(nativeCartItems(nativeCart)) !== expected) {
-        // Read back the cleared basket: the SDK may report success while
-        // discounted lines remain. Never append to a nonempty basket.
-        for (const item of nativeCartItems(nativeCart)) {
-          assertCartResponse(await api.removeProduct({product_id: item.id}));
+        if (typeof api.empty === 'function') {
+          try {
+            assertCartResponse(await api.empty());
+          } catch (error) {
+            console.warn('NOTE: bulk cart reset failed:', error.message);
+          }
+          nativeCart = await readNativeCart();
         }
-        nativeCart = await readNativeCart();
+        // Zid can split a discounted row again after a removal. Read the
+        // current row IDs on each pass and only rebuild once confirmed empty.
+        for (let pass = 0; pass < 3 && nativeCartItems(nativeCart).length; pass++) {
+          for (const item of nativeCartItems(nativeCart)) {
+            try {
+              assertCartResponse(await api.removeProduct({product_id: item.id}));
+            } catch (error) {
+              console.warn('NOTE: cart row removal failed:', error.message);
+            }
+          }
+          nativeCart = await readNativeCart();
+        }
         if (nativeCartItems(nativeCart).length) {
           throw Error('تعذر إعادة مزامنة السلة. حدّث الصفحة ثم أعد المحاولة.');
         }
