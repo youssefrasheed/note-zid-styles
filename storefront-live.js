@@ -1003,8 +1003,10 @@
       throw Error('تغيّرت محتويات السلة أثناء التحقق.');
     }
     window._noteLiveCartState = nativeCart;
-    window._noteVerifiedCart = { snapshot: cartSnapshot, totals: nativeCart.totals };
-    if (typeof updateCartFinancials === 'function') {
+    window._noteVerifiedCart = { snapshot: cartSnapshot, totals: nativeCart.totals, products: finalItems };
+    if (document.getElementById('cart-page-items') && typeof renderCartPage === 'function') {
+      renderCartPage(true);
+    } else if (typeof updateCartFinancials === 'function') {
       updateCartFinancials(CartManager.getTotal ? CartManager.getTotal() : 0);
     }
     if (typeof CartManager.renderDrawer === 'function') {

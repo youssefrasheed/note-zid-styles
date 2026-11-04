@@ -4549,6 +4549,50 @@ app_js_code = f"""/**
     }};
 
     const partition = CartManager.partitionCart(cart);
+    if (typeof window.noteConfirmCartPricing === 'function') {{
+      const verified = window._noteVerifiedCart;
+      const rows = verified?.snapshot === JSON.stringify(cart) ? verified.products || [] : [];
+      const normalizeId = id => String(id || '').replace(/-/g, '').toLowerCase();
+      const itemId = item => {{
+        const product = CartManager._findCatalogProduct(item);
+        return normalizeId(product?.zid_id || product?.id || item.product_id || item.id);
+      }};
+      const actualRewards = new Map();
+      for (const row of rows) {{
+        const offer = row.meta?.bundle_offer?.name || '';
+        if (!offer || !row.is_discounted || row.price == null || !Number.isFinite(Number(row.price))) continue;
+        const id = normalizeId(row.product_id);
+        const kind = /تولة|توله/.test(offer) ? 'pair' : 'trio';
+        const rewards = actualRewards.get(id) || [];
+        rewards.push({{ kind, quantity: Number(row.quantity), price: Number(row.price) }});
+        actualRewards.set(id, rewards);
+      }}
+      const rewardCounts = new Map();
+      for (const [id, rewards] of actualRewards) {{
+        for (const reward of rewards) {{
+          const key = JSON.stringify([reward.kind, id, reward.price.toFixed(2)]);
+          rewardCounts.set(key, (rewardCounts.get(key) || 0) + reward.quantity);
+        }}
+      }}
+      const expectedRewards = [
+        ...partition.groups.tier2_trios.map(group => ['trio', group.discountedUnit.item]),
+        ...partition.groups.tier3_pairs.map(group => ['pair', group.tolaUnit.item])
+      ];
+      for (const [kind, item] of expectedRewards) {{
+        const key = JSON.stringify([kind, itemId(item), '1.00']);
+        rewardCounts.set(key, (rewardCounts.get(key) || 0) - 1);
+      }}
+      if (!rows.length || [...rewardCounts.values()].some(count => count !== 0)) {{
+        partition.groups.tier1_spray_bundles = [];
+        partition.groups.tier2_trios = [];
+        partition.groups.tier3_pairs = [];
+        partition.groups.tier4_standalone = cart.map(item => {{
+          const rewards = actualRewards.get(itemId(item)) || [];
+          const badge = rewards.map(reward => `${{reward.quantity}} × ${{reward.price.toFixed(2)}} ر.س بعد خصم العرض`).join('، ');
+          return {{ item, badge }};
+        }});
+      }}
+    }}
     let cardsHtml = '';
 
     // 1. Tier 1: Body Spray Bundles (3 sprays @ 249 SAR)
@@ -4629,7 +4673,7 @@ app_js_code = f"""/**
       cardsHtml += `
         <div class="note-cart-standalone-section" style="margin-top:14px!important;">
           <h3 style="font-size:14px!important;font-weight:800!important;color:#44403c!important;margin-bottom:10px!important;">${{standaloneTitle}}</h3>
-          ${{partition.groups.tier4_standalone.map(u => renderItem(u.item, true, null, null)).join('')}}
+          ${{partition.groups.tier4_standalone.map(u => renderItem(u.item, true, null, u.badge || null)).join('')}}
         </div>
       `;
     }}
