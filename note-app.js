@@ -5846,9 +5846,16 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     };
 
     const partition = CartManager.partitionCart(cart);
-    if (typeof window.noteConfirmCartPricing === 'function') {
-      const verified = window._noteVerifiedCart;
-      const rows = verified?.snapshot === JSON.stringify(cart) ? verified.products || [] : [];
+    if (nativePricing) {
+      const rows = confirmedCartRows(cart);
+      const groups = partition.groups;
+      const hasExpectedOffers = groups.tier1_spray_bundles.length || groups.tier2_trios.length || groups.tier3_pairs.length;
+      if (!rows.length && hasExpectedOffers) {
+        itemsContainer.innerHTML = '<div role="status" class="rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center text-sm text-stone-700">جارٍ ترتيب منتجات سلتك…</div>';
+        updateCartFinancials(total);
+        if (!skipSync) window.noteConfirmCartPricing();
+        return;
+      }
       const normalizeId = id => String(id || '').replace(/-/g, '').toLowerCase();
       const itemId = item => {
         const product = CartManager._findCatalogProduct(item);
