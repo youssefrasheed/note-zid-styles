@@ -4930,12 +4930,14 @@ app_js_code = f"""/**
       }}
 
       if (zidError) {{
-        msg.textContent = zidError;
-        msg.className = 'text-[11px] font-bold text-rose-600 block';
-        if (tag) tag.classList.add('hidden');
-        if (clearBtn) clearBtn.classList.add('hidden');
         if (!window.noteChangeCartCoupon) localStorage.removeItem('note_applied_coupon');
         if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
+        msg.textContent = zidError;
+        msg.className = 'text-[11px] font-bold text-rose-600 block';
+        if (!localStorage.getItem('note_applied_coupon')) {{
+          if (tag) tag.classList.add('hidden');
+          if (clearBtn) clearBtn.classList.add('hidden');
+        }}
       }} else if (applied) {{
         if (!window.noteChangeCartCoupon) localStorage.setItem('note_applied_coupon', code);
         if (applyBtn) {{

@@ -987,15 +987,17 @@
         assertCartResponse(addRes);
       }
 
-      // Apply coupon without swallowing failures
+      nativeCart = extractCartData(assertCartResponse(await api.get()));
       const coupon = localStorage.getItem('note_applied_coupon');
-      if (coupon && typeof api.applyCoupon === 'function') {
-        const coupRes = await api.applyCoupon({coupon_code: coupon});
-        assertCartResponse(coupRes);
+      if (coupon && String(nativeCart.coupon?.code || '').toUpperCase() !== coupon.toUpperCase()) {
+        try {
+          assertCartResponse(await api.applyCoupon({coupon_code: coupon}));
+        } catch (error) {
+          nativeCart = extractCartData(assertCartResponse(await api.get()));
+          if (String(nativeCart.coupon?.code || '').toUpperCase() !== coupon.toUpperCase()) throw error;
+        }
+        nativeCart = extractCartData(assertCartResponse(await api.get()));
       }
-
-      res = assertCartResponse(await api.get());
-      nativeCart = extractCartData(res);
     }
 
     // Strict signature verification: do NOT adopt _noteLiveCartState unless matched!
