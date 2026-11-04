@@ -2149,7 +2149,7 @@ app_js_code = f"""/**
     const clean = String(code).trim().toUpperCase();
     const KNOWN = {{
       'HN': 7,
-      'NOTE5': 5,
+      'NOTE5': 2,
       'OLA': 8,
       'AN': 8,
       'NADA': 8,
