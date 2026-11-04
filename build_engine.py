@@ -5053,9 +5053,11 @@ app_js_code = f"""/**
     const grandEl = document.getElementById('page-grand-total');
     if (grandEl) {{
       if (nativePricing && !liveTotals && CartManager.getCart().length) {{
+        grandEl.removeAttribute('data-note-total');
         grandEl.textContent = 'جارٍ تأكيد أسعار سلتك…';
         return;
       }}
+      grandEl.setAttribute('data-note-total', liveTotals ? finalAmount.toFixed(2) : '');
       if (finalAmount !== amount) {{
         const formattedOld = (typeof formatPrice === 'function') ? formatPrice(amount) : (amount.toLocaleString('en-US', {{maximumFractionDigits: 2}}) + ' ر.س');
         const formattedNew = (typeof formatPrice === 'function') ? formatPrice(finalAmount) : (finalAmount.toLocaleString('en-US', {{maximumFractionDigits: 2}}) + ' ر.س');

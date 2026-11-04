@@ -6311,9 +6311,11 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     const grandEl = document.getElementById('page-grand-total');
     if (grandEl) {
       if (nativePricing && !liveTotals && CartManager.getCart().length) {
+        grandEl.removeAttribute('data-note-total');
         grandEl.textContent = 'جارٍ تأكيد أسعار سلتك…';
         return;
       }
+      grandEl.setAttribute('data-note-total', liveTotals ? finalAmount.toFixed(2) : '');
       if (finalAmount !== amount) {
         const formattedOld = (typeof formatPrice === 'function') ? formatPrice(amount) : (amount.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' ر.س');
         const formattedNew = (typeof formatPrice === 'function') ? formatPrice(finalAmount) : (finalAmount.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' ر.س');
@@ -8037,9 +8039,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       // Wait for any queued sync to finish first
       await _nativeCartSyncQueue;
 
-      // Capture pre-sync displayed total text
       const grandEl = document.getElementById('page-grand-total');
-      const prevTotalText = grandEl ? (grandEl.innerText || grandEl.textContent || '').trim() : '';
+      const shownTotal = grandEl?.getAttribute('data-note-total');
 
       // Execute verified sync with signature checking
       const nativeCart = await syncNativeCartWithPayloads(api);
@@ -8056,12 +8057,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         updateCartFinancials(CartManager.getTotal ? CartManager.getTotal() : 0);
       }
 
-      // Check if displayed total changed
-      const activeTotalEl = grandEl ? (grandEl.querySelector('.note-cart-total-new') || grandEl) : null;
-      const currentTotalText = activeTotalEl ? (activeTotalEl.innerText || activeTotalEl.textContent || '').trim() : '';
-      const totalChanged = prevTotalText && currentTotalText && (prevTotalText !== currentTotalText);
-
-      if (totalChanged) {
+      if (grandEl && shownTotal !== confirmedTotal.toFixed(2)) {
         CartManager.showToast('اتحدّث إجمالي سلتك. راجعه واضغط إتمام الدفع مرة أخرى.');
         return;
       }
