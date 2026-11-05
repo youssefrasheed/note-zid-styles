@@ -1548,8 +1548,15 @@
   const originalRemove=CartManager.removeItem, originalUpdateQuantity=CartManager.updateQuantity;
   CartManager.removeItem=function(key) {
     if (!this.getCart().some(item => item.id === key)) return;
-    originalRemove.call(this,key);
-    return enqueueNativeCartSync().catch(() => null);
+    // Show feedback before saveCart synchronously rebuilds either cart view.
+    startCartLoading();
+    try {
+      originalRemove.call(this,key);
+      return enqueueNativeCartSync().catch(() => null).finally(finishCartLoading);
+    } catch (error) {
+      finishCartLoading();
+      throw error;
+    }
   };
   CartManager.updateQuantity=function(key,delta) {
     const item=this.getCart().find(i=>i.id===key);if(!item)return;

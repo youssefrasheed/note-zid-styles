@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 
 const source = fs.readFileSync(__dirname + '/storefront-live.js', 'utf8');
 
-function fixture({pauseFirstRead = false} = {}) {
+function fixture({pauseFirstRead = false, failRemoval = false} = {}) {
   let now = 0;
   let nextTimer = 0;
   const timers = new Map();
@@ -13,6 +13,10 @@ function fixture({pauseFirstRead = false} = {}) {
   let rows = [{ id: 'row', product_id: 'product', quantity: 1 }];
   let coupon = null;
   const changes = [];
+  const status = {hidden:true};
+  const busy = {value:'false',setAttribute(name,value){this.value=value;}};
+  let feedbackAtRemoval;
+
   const response = () => ({
     products: rows.map(row => ({ ...row })),
     totals: [{ code: 'total', value: rows.reduce((sum, row) => sum + row.quantity * 100, 0) }],
@@ -39,14 +43,14 @@ function fixture({pauseFirstRead = false} = {}) {
       rows[0].quantity = quantity;
       return { status: 'success' };
     },
-    removeProduct: async () => { changes.push(['remove']); rows = []; return { status: 'success' }; },
+    removeProduct: async () => { changes.push(['remove']); if(failRemoval) throw Error('offline'); rows = []; return { status: 'success' }; },
     applyCoupon: async ({coupon_code}) => { changes.push(['coupon', coupon_code]); coupon=coupon_code; return { status: 'success' }; }
   };
   const manager = {
     getCart: () => cart.map(item => ({ ...item })),
     buildZidPayloads: entries => entries.map(({product_id, quantity}) => ({product_id, quantity})),
     updateQuantity: (key, delta) => { cart[0].quantity += delta; },
-    removeItem: () => { cart = []; },
+    removeItem: () => { feedbackAtRemoval = {visible:!status.hidden,busy:busy.value}; cart = []; },
     renderDrawer() {},
     showToast() {}
   };
@@ -57,7 +61,7 @@ function fixture({pauseFirstRead = false} = {}) {
       setItem: (key,value) => storage.set(key,value),
       removeItem: key => storage.delete(key)
     },
-    document: { getElementById: () => null },
+    document: { getElementById: id => id==='note-page-cart-loading' ? status : id==='cart-page-items' ? busy : null },
     Date: { now: () => now },
     setTimeout: (fn, delay) => { timers.set(++nextTimer, {fn, at:now+delay}); return nextTimer; },
     clearTimeout: id => timers.delete(id),
@@ -81,7 +85,7 @@ function fixture({pauseFirstRead = false} = {}) {
   vm.runInContext(source.slice(actionsStart, actionsEnd), sandbox);
   vm.runInContext('this.confirmForCheckout = () => enqueueNativeCartSync();', sandbox);
   return {
-    sandbox, changes, releaseRead, reads: () => readCalls,
+    sandbox, changes, releaseRead, reads: () => readCalls, status, busy, feedbackAtRemoval:()=>feedbackAtRemoval,
     advance: milliseconds => {
       now += milliseconds;
       for(const [id,timer] of [...timers]) {
@@ -155,6 +159,18 @@ function fixture({pauseFirstRead = false} = {}) {
   await quantity;
   assert.deepEqual(coupon.changes, [['add',1], ['coupon','HN']]);
   assert.equal(coupon.sandbox.window._noteVerifiedCart.couponCode, 'HN');
+
+  for (const failRemoval of [false,true]) {
+    const removing = fixture({pauseFirstRead:true,failRemoval});
+    const removed = removing.sandbox.CartManager.removeItem('product');
+    assert.deepEqual(removing.feedbackAtRemoval(),{visible:true,busy:'true'},'feedback must precede local removal/render');
+    assert.equal(removing.busy.value,'true');
+    removing.releaseRead();await removed;
+    removing.advance(1000);
+    assert.equal(removing.busy.value,'false','success and network failure both release the loading jobs');
+    assert.equal(removing.status.hidden,true);
+    assert.equal(removing.sandbox.CartManager.getCart().length,0);
+  }
 
   const deletion = fixture();
   const increment = deletion.sandbox.CartManager.updateQuantity('product', 1);

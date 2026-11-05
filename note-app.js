@@ -4371,6 +4371,14 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         });
       }
 
+      // Keep item rows and their prices together until the same Zid quote is ready.
+      if (nativePricing && !totals && window._noteFailedCartPricing !== window.noteCartPricingKey?.(cart)) {
+        const pendingMarkup = '<div role="status" class="note-cart-pending-status rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center text-sm text-stone-700">جارٍ تحديث منتجات سلتك…</div>';
+        if (window.noteReplaceCartItems) window.noteReplaceCartItems(itemsContainer, pendingMarkup, true);
+        else itemsContainer.innerHTML = pendingMarkup;
+        return;
+      }
+
       // Render Laverne-style 2-tier item cards
       const itemsMarkup = cart.map(item => {
         const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
@@ -5887,9 +5895,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     const partition = CartManager.partitionCart(cart);
     if (nativePricing) {
       const rows = confirmedCartRows(cart);
-      const groups = partition.groups;
-      const hasExpectedOffers = groups.tier1_spray_bundles.length || groups.tier2_trios.length || groups.tier3_pairs.length;
-      if (!rows.length && hasExpectedOffers && window._noteFailedCartPricing !== window.noteCartPricingKey?.(cart)) {
+      if (!rows.length && window._noteFailedCartPricing !== window.noteCartPricingKey?.(cart)) {
         const pendingMarkup = '<div role="status" class="note-cart-pending-status rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center text-sm text-stone-700">جارٍ ترتيب منتجات سلتك…</div>';
         if (window.noteReplaceCartItems) window.noteReplaceCartItems(itemsContainer, pendingMarkup, true);
         else itemsContainer.innerHTML = pendingMarkup;
@@ -8478,8 +8484,15 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   const originalRemove=CartManager.removeItem, originalUpdateQuantity=CartManager.updateQuantity;
   CartManager.removeItem=function(key) {
     if (!this.getCart().some(item => item.id === key)) return;
-    originalRemove.call(this,key);
-    return enqueueNativeCartSync().catch(() => null);
+    // Show feedback before saveCart synchronously rebuilds either cart view.
+    startCartLoading();
+    try {
+      originalRemove.call(this,key);
+      return enqueueNativeCartSync().catch(() => null).finally(finishCartLoading);
+    } catch (error) {
+      finishCartLoading();
+      throw error;
+    }
   };
   CartManager.updateQuantity=function(key,delta) {
     const item=this.getCart().find(i=>i.id===key);if(!item)return;
