@@ -579,6 +579,10 @@ body.note-ready::after {
   }
 }
 
+#note-luxury-storefront .note-cart-pending-status {
+  position: sticky;
+  top: 110px;
+}
 /* Cart updates use a single calm status while native pricing is pending. */
 #note-luxury-storefront #bundle-discount-row,
 #note-luxury-storefront #drawer-bundle-discount-row {
@@ -4218,7 +4222,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       const total = this.getTotal();
       
       if (cart.length === 0) {
-        itemsContainer.innerHTML = '';
+        if (window.noteReplaceCartItems) window.noteReplaceCartItems(itemsContainer, '');
+        else itemsContainer.innerHTML = '';
         if (scrollArea) scrollArea.classList.add('hidden');
         if (emptyState) emptyState.classList.remove('hidden');
         if (footerEl) footerEl.classList.add('hidden');
@@ -4367,7 +4372,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       }
 
       // Render Laverne-style 2-tier item cards
-      itemsContainer.innerHTML = cart.map(item => {
+      const itemsMarkup = cart.map(item => {
         const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
         const imgUrl = resolveImgUrl(item.img);
         const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
@@ -4412,6 +4417,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
           </div>
         `;
       }).join('');
+      if (window.noteReplaceCartItems) window.noteReplaceCartItems(itemsContainer, itemsMarkup);
+      else itemsContainer.innerHTML = itemsMarkup;
 
       // Render Drawer Recommendations
       const recsList = document.getElementById('cart-drawer-recs-list');
@@ -5815,7 +5822,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     const total = CartManager.getTotal();
 
     if (cart.length === 0) {
-      itemsContainer.innerHTML = '';
+      if (window.noteReplaceCartItems) window.noteReplaceCartItems(itemsContainer, '');
+      else itemsContainer.innerHTML = '';
       if (emptyState) emptyState.classList.remove('hidden');
       if (summaryWrapper) summaryWrapper.classList.add('hidden');
       return;
@@ -5882,7 +5890,9 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       const groups = partition.groups;
       const hasExpectedOffers = groups.tier1_spray_bundles.length || groups.tier2_trios.length || groups.tier3_pairs.length;
       if (!rows.length && hasExpectedOffers && window._noteFailedCartPricing !== window.noteCartPricingKey?.(cart)) {
-        itemsContainer.innerHTML = '<div role="status" class="rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center text-sm text-stone-700">جارٍ ترتيب منتجات سلتك…</div>';
+        const pendingMarkup = '<div role="status" class="note-cart-pending-status rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center text-sm text-stone-700">جارٍ ترتيب منتجات سلتك…</div>';
+        if (window.noteReplaceCartItems) window.noteReplaceCartItems(itemsContainer, pendingMarkup, true);
+        else itemsContainer.innerHTML = pendingMarkup;
         updateCartFinancials(total);
         if (!skipSync) window.noteConfirmCartPricing();
         return;
@@ -6021,7 +6031,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 
     const pricingFailed = nativePricing && window._noteFailedCartPricing === window.noteCartPricingKey?.(cart);
     const retry = pricingFailed ? '<div role="status" class="rounded-2xl border border-stone-200 p-4 mb-4">تعذّر تأكيد أسعار السلة. يمكنك تعديل المنتجات أو <button type="button" class="underline" onclick="window.noteConfirmCartPricing()">إعادة المحاولة</button>.</div>' : '';
-    itemsContainer.innerHTML = retry + cardsHtml;
+    if (window.noteReplaceCartItems) window.noteReplaceCartItems(itemsContainer, retry + cardsHtml);
+    else itemsContainer.innerHTML = retry + cardsHtml;
 
         updateCartFinancials(total);
     updateCheckoutUpsell(cart);
@@ -7994,6 +8005,39 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   window.syncNativeCartWithPayloads = syncNativeCartWithPayloads;
   window.matchingCartPayloads = matchingCartPayloads;
   window.signature = signature;
+
+  function replaceCartItems(container, markup, pending = false) {
+    const scroller = container.id === 'cart-drawer-items'
+      ? document.getElementById('cart-drawer-scroll-area') : document.scrollingElement;
+    const scrollTop = scroller?.scrollTop || 0;
+    const active = document.activeElement;
+    const previous = container._notePendingView;
+    const row = container.contains(active) ? active?.closest('[data-cart-id]') : null;
+    let focus = null;
+    if (row && active.tagName === 'BUTTON' && active.getAttribute('aria-label') !== 'حذف المنتج من السلة') {
+      const rows = [...container.querySelectorAll('[data-cart-id]')].filter(item => item.dataset.cartId === row.dataset.cartId);
+      focus = { key: row.dataset.cartId, occurrence: rows.indexOf(row), label: active.getAttribute('aria-label') };
+    } else if (previous && (!active || active === document.body)) {
+      focus = previous.focus;
+    }
+    if (pending) {
+      const height = Math.max(previous?.height || 0, container.getBoundingClientRect().height);
+      container.style.minHeight = height + 'px';
+      container._notePendingView = { focus, height };
+    } else {
+      container.style.minHeight = '';
+      delete container._notePendingView;
+    }
+    container.innerHTML = markup;
+    if (!pending && focus?.label) {
+      const rows = [...container.querySelectorAll('[data-cart-id]')].filter(item => item.dataset.cartId === focus.key);
+      const target = rows[focus.occurrence] || rows[0];
+      const button = target && [...target.querySelectorAll('button')].find(item => item.getAttribute('aria-label') === focus.label);
+      button?.focus({ preventScroll: true });
+    }
+    if (scroller) scroller.scrollTop = scrollTop;
+  }
+  window.noteReplaceCartItems = replaceCartItems;
 
   let cartLoadingJobs = 0;
   let cartLoadingStartedAt = 0;

@@ -617,6 +617,10 @@ body.note-ready::after {{
   }}
 }}
 
+#note-luxury-storefront .note-cart-pending-status {{
+  position: sticky;
+  top: 110px;
+}}
 /* Cart updates use a single calm status while native pricing is pending. */
 #note-luxury-storefront #bundle-discount-row,
 #note-luxury-storefront #drawer-bundle-discount-row {{
@@ -2960,7 +2964,8 @@ app_js_code = f"""/**
       const total = this.getTotal();
       
       if (cart.length === 0) {{
-        itemsContainer.innerHTML = '';
+        if (window.noteReplaceCartItems) window.noteReplaceCartItems(itemsContainer, '');
+        else itemsContainer.innerHTML = '';
         if (scrollArea) scrollArea.classList.add('hidden');
         if (emptyState) emptyState.classList.remove('hidden');
         if (footerEl) footerEl.classList.add('hidden');
@@ -3109,7 +3114,7 @@ app_js_code = f"""/**
       }}
 
       // Render Laverne-style 2-tier item cards
-      itemsContainer.innerHTML = cart.map(item => {{
+      const itemsMarkup = cart.map(item => {{
         const zidSlug = zidSlugMap[item.id] || item.id;
         const imgUrl = resolveImgUrl(item.img);
         const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
@@ -3154,6 +3159,8 @@ app_js_code = f"""/**
           </div>
         `;
       }}).join('');
+      if (window.noteReplaceCartItems) window.noteReplaceCartItems(itemsContainer, itemsMarkup);
+      else itemsContainer.innerHTML = itemsMarkup;
 
       // Render Drawer Recommendations
       const recsList = document.getElementById('cart-drawer-recs-list');
@@ -4557,7 +4564,8 @@ app_js_code = f"""/**
     const total = CartManager.getTotal();
 
     if (cart.length === 0) {{
-      itemsContainer.innerHTML = '';
+      if (window.noteReplaceCartItems) window.noteReplaceCartItems(itemsContainer, '');
+      else itemsContainer.innerHTML = '';
       if (emptyState) emptyState.classList.remove('hidden');
       if (summaryWrapper) summaryWrapper.classList.add('hidden');
       return;
@@ -4624,7 +4632,9 @@ app_js_code = f"""/**
       const groups = partition.groups;
       const hasExpectedOffers = groups.tier1_spray_bundles.length || groups.tier2_trios.length || groups.tier3_pairs.length;
       if (!rows.length && hasExpectedOffers && window._noteFailedCartPricing !== window.noteCartPricingKey?.(cart)) {{
-        itemsContainer.innerHTML = '<div role="status" class="rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center text-sm text-stone-700">جارٍ ترتيب منتجات سلتك…</div>';
+        const pendingMarkup = '<div role="status" class="note-cart-pending-status rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center text-sm text-stone-700">جارٍ ترتيب منتجات سلتك…</div>';
+        if (window.noteReplaceCartItems) window.noteReplaceCartItems(itemsContainer, pendingMarkup, true);
+        else itemsContainer.innerHTML = pendingMarkup;
         updateCartFinancials(total);
         if (!skipSync) window.noteConfirmCartPricing();
         return;
@@ -4763,7 +4773,8 @@ app_js_code = f"""/**
 
     const pricingFailed = nativePricing && window._noteFailedCartPricing === window.noteCartPricingKey?.(cart);
     const retry = pricingFailed ? '<div role="status" class="rounded-2xl border border-stone-200 p-4 mb-4">تعذّر تأكيد أسعار السلة. يمكنك تعديل المنتجات أو <button type="button" class="underline" onclick="window.noteConfirmCartPricing()">إعادة المحاولة</button>.</div>' : '';
-    itemsContainer.innerHTML = retry + cardsHtml;
+    if (window.noteReplaceCartItems) window.noteReplaceCartItems(itemsContainer, retry + cardsHtml);
+    else itemsContainer.innerHTML = retry + cardsHtml;
 
         updateCartFinancials(total);
     updateCheckoutUpsell(cart);

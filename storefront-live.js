@@ -1076,6 +1076,39 @@
   window.matchingCartPayloads = matchingCartPayloads;
   window.signature = signature;
 
+  function replaceCartItems(container, markup, pending = false) {
+    const scroller = container.id === 'cart-drawer-items'
+      ? document.getElementById('cart-drawer-scroll-area') : document.scrollingElement;
+    const scrollTop = scroller?.scrollTop || 0;
+    const active = document.activeElement;
+    const previous = container._notePendingView;
+    const row = container.contains(active) ? active?.closest('[data-cart-id]') : null;
+    let focus = null;
+    if (row && active.tagName === 'BUTTON' && active.getAttribute('aria-label') !== 'حذف المنتج من السلة') {
+      const rows = [...container.querySelectorAll('[data-cart-id]')].filter(item => item.dataset.cartId === row.dataset.cartId);
+      focus = { key: row.dataset.cartId, occurrence: rows.indexOf(row), label: active.getAttribute('aria-label') };
+    } else if (previous && (!active || active === document.body)) {
+      focus = previous.focus;
+    }
+    if (pending) {
+      const height = Math.max(previous?.height || 0, container.getBoundingClientRect().height);
+      container.style.minHeight = height + 'px';
+      container._notePendingView = { focus, height };
+    } else {
+      container.style.minHeight = '';
+      delete container._notePendingView;
+    }
+    container.innerHTML = markup;
+    if (!pending && focus?.label) {
+      const rows = [...container.querySelectorAll('[data-cart-id]')].filter(item => item.dataset.cartId === focus.key);
+      const target = rows[focus.occurrence] || rows[0];
+      const button = target && [...target.querySelectorAll('button')].find(item => item.getAttribute('aria-label') === focus.label);
+      button?.focus({ preventScroll: true });
+    }
+    if (scroller) scroller.scrollTop = scrollTop;
+  }
+  window.noteReplaceCartItems = replaceCartItems;
+
   let cartLoadingJobs = 0;
   let cartLoadingStartedAt = 0;
   let cartLoadingTimer;

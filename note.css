@@ -754,6 +754,10 @@ body.note-ready::after {
   }
 }
 
+#note-luxury-storefront .note-cart-pending-status {
+  position: sticky;
+  top: 110px;
+}
 /* Cart updates use a single calm status while native pricing is pending. */
 #note-luxury-storefront #bundle-discount-row,
 #note-luxury-storefront #drawer-bundle-discount-row {
