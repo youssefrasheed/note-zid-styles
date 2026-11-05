@@ -3482,7 +3482,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     return quote && quote.snapshot === window.noteCartPricingKey?.(cart) ? quote.products || [] : [];
   }
 
-  function confirmedItemPrice(cart, item) {
+  function confirmedItemPrice(cart, item, rewardOnly) {
     const normalize = value => String(value || '').replace(/-/g, '').toLowerCase();
     const idOf = entry => {
       const product = CartManager._findCatalogProduct(entry);
@@ -3490,9 +3490,11 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     };
     const id = idOf(item);
     if (!id || cart.filter(entry => idOf(entry) === id).length !== 1) return '';
-    const rows = confirmedCartRows(cart).filter(row => normalize(row.product_id) === id);
+    let rows = confirmedCartRows(cart).filter(row => normalize(row.product_id) === id);
     if (!rows.length || rows.some(row => row.price == null || !Number.isFinite(Number(row.price)))) return '';
     if (rows.reduce((sum, row) => sum + Number(row.quantity), 0) !== Number(item.quantity)) return '';
+    if (rewardOnly !== undefined) rows = rows.filter(row => Boolean(row.is_discounted && row.meta?.bundle_offer) === rewardOnly);
+    if (!rows.length) return '';
     if (rows.every(row => Number(row.price) === Number(rows[0].price))) return formatPrice(Number(rows[0].price));
     return rows.map(row => `${Number(row.quantity)} × ${formatPrice(Number(row.price))}`).join('، ');
   }
@@ -5783,7 +5785,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         const removeAction = showStepper && quantity === item.quantity
           ? 'removeItem(this.dataset.key)' : 'updateQuantity(this.dataset.key, -Number(this.dataset.quantity))';
         const shownPrice = nativePricing
-          ? (showStepper ? (quantity === item.quantity ? confirmedItemPrice(cart, item) : '') : overridePrice !== null ? formatPrice(overridePrice) : '')
+          ? confirmedItemPrice(cart, item, showStepper ? undefined : overridePrice !== null)
           : formatPrice(priceDisplay);
         return `
           <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:10px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">

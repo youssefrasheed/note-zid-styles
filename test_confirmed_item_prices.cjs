@@ -1,0 +1,11 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const app=fs.readFileSync(__dirname+'/note-app.js','utf8');
+const item={id:'product',quantity:3};const cart=[item];
+const ctx={window:{noteCartPricingKey:()=> 'current',_noteVerifiedCart:{snapshot:'current',products:[{product_id:'product',quantity:2,price:199},{product_id:'product',quantity:1,price:1,is_discounted:true,meta:{bundle_offer:{name:'trio'}}}]}},CartManager:{_findCatalogProduct:()=>null},formatPrice:x=>String(x)};
+vm.createContext(ctx);vm.runInContext(app.slice(app.indexOf('  function confirmedCartRows('),app.indexOf('  // 7. Cart Manager')),ctx);
+assert.equal(ctx.confirmedItemPrice(cart,item,false),'199');
+assert.equal(ctx.confirmedItemPrice(cart,item,true),'1');
+assert.equal(ctx.confirmedItemPrice(cart,item),'2 × 199، 1 × 1');
+ctx.window._noteVerifiedCart.snapshot='stale';assert.equal(ctx.confirmedItemPrice(cart,item,false),'');
+ctx.window._noteVerifiedCart.snapshot='current';ctx.window._noteVerifiedCart.products[0].quantity=1;assert.equal(ctx.confirmedItemPrice(cart,item,false),'');
+console.log('PASS: paid and discounted units show their own confirmed Zid prices; mixed quantities, stale and incomplete quotes are handled');
