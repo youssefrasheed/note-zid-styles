@@ -1061,7 +1061,7 @@
     }
     window._noteFailedCartPricing = null;
     window._noteLiveCartState = nativeCart;
-    window._noteVerifiedCart = { snapshot: cartSnapshot, totals: nativeCart.totals, products: finalItems, couponCode: nativeCart.coupon?.code || null };
+    window._noteVerifiedCart = { snapshot: cartSnapshot, totals: nativeCart.totals, products: finalItems, couponCode: nativeCart.coupon?.code || null, confirmedAt: Date.now() };
     if (document.getElementById('cart-page-items') && typeof renderCartPage === 'function') {
       renderCartPage(true);
     } else if (typeof updateCartFinancials === 'function') {
@@ -1182,6 +1182,20 @@
   window.noteConfirmCartPricing = function() {
     if (scheduledQuantitySync) return scheduledQuantitySync.promise;
     return enqueueNativeCartSync().catch(() => null);
+  };
+
+  window.noteConfirmCartOnOpen = function() {
+    const quote = window._noteVerifiedCart;
+    const age = Date.now() - quote?.confirmedAt;
+    const confirmedTotal = Array.isArray(quote?.totals)
+      ? quote.totals.find(line => line.code === 'total')?.value : null;
+    const fresh = quote?.snapshot === cartPricingKey()
+      && Number.isFinite(quote?.confirmedAt) && age >= 0 && age < 10000
+      && confirmedTotal != null && Number.isFinite(Number(confirmedTotal));
+    if (fresh && !pendingNativeSync && !scheduledQuantitySync && !window._noteFailedCartPricing) {
+      return Promise.resolve(window._noteLiveCartState);
+    }
+    return window.noteConfirmCartPricing();
   };
 
   window.noteChangeCartCoupon = function(code) {
@@ -1401,7 +1415,7 @@
     drawer.classList.remove('hidden');overlay.classList.remove('hidden');
     document.body.style.overflow='hidden';
     this.renderDrawer();
-    window.noteConfirmCartPricing();
+    window.noteConfirmCartOnOpen();
     requestAnimationFrame(()=>{if(!this._drawerOpen)return;overlay.classList.add('opacity-100');drawer.classList.remove('-translate-x-full');drawer.classList.add('translate-x-0');});
   };
   CartManager.closeDrawer=function() {

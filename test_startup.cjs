@@ -10,7 +10,7 @@ assert(css.includes('.sm\\:block'));assert(css.includes('.hidden{display:none}')
 const live=fs.readFileSync(__dirname+'/storefront-live.js','utf8');
 assert(live.includes("querySelectorAll('#note-bundle-options').forEach(box=>box.remove())"));
 const drawerSource=fs.readFileSync(__dirname+'/drawer-state.js','utf8');
-const pricingHook='    window.noteConfirmCartPricing();\n';
+const pricingHook='    window.noteConfirmCartOnOpen();\n';
 assert(live.includes(pricingHook));
 assert(live.replace(pricingHook,'').includes(drawerSource.trim()));
 assert(live.includes('const nativeCart = await enqueueNativeCartSync()'));

@@ -21,8 +21,10 @@ function fixture({pauseFirstRead = false} = {}) {
   let releaseRead;
   const readGate = new Promise(resolve => { releaseRead = resolve; });
   let readCount = 0;
+  let readCalls = 0;
   const api = {
     get: async () => {
+      readCalls++;
       const cartResponse = response();
       if (pauseFirstRead && readCount++ === 0) await readGate;
       return cartResponse;
@@ -79,7 +81,7 @@ function fixture({pauseFirstRead = false} = {}) {
   vm.runInContext(source.slice(actionsStart, actionsEnd), sandbox);
   vm.runInContext('this.confirmForCheckout = () => enqueueNativeCartSync();', sandbox);
   return {
-    sandbox, changes, releaseRead,
+    sandbox, changes, releaseRead, reads: () => readCalls,
     advance: milliseconds => {
       now += milliseconds;
       for(const [id,timer] of [...timers]) {
@@ -90,6 +92,39 @@ function fixture({pauseFirstRead = false} = {}) {
 }
 
 (async () => {
+  const reopening = fixture();
+  await reopening.sandbox.confirmForCheckout();
+  assert.equal(reopening.reads(), 1);
+  await reopening.sandbox.window.noteConfirmCartOnOpen();
+  await reopening.sandbox.window.noteConfirmCartOnOpen();
+  assert.equal(reopening.reads(), 1);
+  reopening.advance(9999);
+  await reopening.sandbox.window.noteConfirmCartOnOpen();
+  assert.equal(reopening.reads(), 1);
+  reopening.advance(1);
+  await reopening.sandbox.window.noteConfirmCartOnOpen();
+  assert.equal(reopening.reads(), 2);
+  await reopening.sandbox.confirmForCheckout();
+  assert.equal(reopening.reads(), 3);
+  reopening.sandbox.localStorage.setItem('note_applied_coupon','HN');
+  await reopening.sandbox.window.noteConfirmCartOnOpen();
+  assert.equal(reopening.reads(), 4);
+  delete reopening.sandbox.window._noteVerifiedCart.confirmedAt;
+  await reopening.sandbox.window.noteConfirmCartOnOpen();
+  assert.equal(reopening.reads(), 5);
+  reopening.sandbox.window._noteVerifiedCart.totals = {};
+  await reopening.sandbox.window.noteConfirmCartOnOpen();
+  assert.equal(reopening.reads(), 6);
+  reopening.sandbox.localStorage.removeItem('note_applied_coupon');
+  await reopening.sandbox.confirmForCheckout();
+  const quantityChange = reopening.sandbox.CartManager.updateQuantity('product', 1);
+  const reopeningDuringChange = reopening.sandbox.window.noteConfirmCartOnOpen();
+  reopening.advance(250);
+  await quantityChange;
+  await reopeningDuringChange;
+  assert.equal(reopening.sandbox.window._noteVerifiedCart.products[0].quantity, 2);
+  console.log('PASS: reopening reuses a confirmed quote for less than 10 seconds; expired, changed, undated and checkout requests fetch fresh prices');
+
   const rapid = fixture();
   const first = rapid.sandbox.CartManager.updateQuantity('product', 1);
   const second = rapid.sandbox.CartManager.updateQuantity('product', 1);
