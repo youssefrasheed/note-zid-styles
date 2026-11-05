@@ -1,0 +1,10 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync(__dirname+'/storefront-live.js','utf8');
+const groups={tier2_trios:[{discountedUnit:{item:{id:'base'}}}],tier3_pairs:[{tolaUnit:{item:{id:'tola'}}}]};
+const ctx={CartManager:{partitionCart:()=>({groups})},resolveZidUuid:p=>p.id,nativeCartItems:c=>c.products};vm.createContext(ctx);
+vm.runInContext(source.slice(source.indexOf('  function matchingOfferAllocation('),source.indexOf('  async function syncNativeCartWithPayloads(')),ctx);
+const gift=(id,kind='trio',quantity=1,price=1)=>({product_id:id,quantity,price,is_discounted:true,meta:{bundle_offer:{name:kind==='pair'?'تولة بريال':'الثالث بريال'}}});
+const valid=[gift('base'),gift('tola','pair')];
+assert(ctx.matchingOfferAllocation([], {products:valid}));
+for(const products of [[gift('base')],[gift('base'),gift('tola','pair',2)],[gift('base','trio',1,0),gift('tola','pair')],[gift('other'),gift('tola','pair')]])assert.equal(ctx.matchingOfferAllocation([],{products}),false);
+console.log('PASS: allocation verification rejects missing, duplicated, zero-priced and incorrectly assigned rewards');

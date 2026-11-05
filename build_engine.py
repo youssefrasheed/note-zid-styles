@@ -2543,32 +2543,19 @@ app_js_code = f"""/**
         tier4_standalone: []
       }};
 
-      // TIER 1: Every 3 qualifying body sprays -> Body Spray Bundle @ 249 SAR
-      const sprays = units.filter(u => u.isSpray && !u.consumed);
-      const sprayBundleCount = Math.floor(sprays.length / 3);
-      for (let b = 0; b < sprayBundleCount; b++) {{
-        const trio = sprays.slice(b * 3, b * 3 + 3);
-        trio.forEach(u => {{ u.consumed = true; }});
-        const origSum = trio.reduce((acc, u) => acc + u.price, 0);
-        groups.tier1_spray_bundles.push({{
-          type: 'body_spray_bundle',
-          name: 'باقة معطرات الجسم الثلاثية',
-          price: 249,
-          originalPrice: origSum,
-          discount: Math.max(0, origSum - 249),
-          units: trio
-        }});
-      }}
+      // The 249 SAR bundle is an explicit product with selections, never
+      // inferred from three independently chosen body sprays.
 
       // TIER 2: Groups of 3 from remaining perfumes + remaining sprays
       // Customer pays 2 highest + 1 SAR for 3rd (cheapest, matching Zid engine)
       const trioEligible = units.filter(u => (u.isPerfume || u.isSpray) && !u.consumed);
-      trioEligible.sort((a, b) => b.price - a.price);
+      const unitKey = u => String(u.item.product_id || u.item.id || '');
+      trioEligible.sort((a, b) => b.price - a.price || unitKey(a).localeCompare(unitKey(b)));
       const trioCount = Math.floor(trioEligible.length / 3);
       for (let t = 0; t < trioCount; t++) {{
-        const item1 = trioEligible[t * 2];
-        const item2 = trioEligible[t * 2 + 1];
-        const item3 = trioEligible[trioEligible.length - 1 - t];
+        const item1 = trioEligible[t * 3];
+        const item2 = trioEligible[t * 3 + 1];
+        const item3 = trioEligible[t * 3 + 2];
         item1.consumed = true;
         item2.consumed = true;
         item3.consumed = true;
@@ -2584,9 +2571,9 @@ app_js_code = f"""/**
       }}
 
       // TIER 3: Remaining perfumes/sprays paired with qualifying tolas
-      const pairBases = units.filter(u => (u.isPerfume || u.isSpray) && !u.consumed);
+      const pairBases = trioEligible.filter(u => !u.consumed);
       const tolaUnits = units.filter(u => u.isTola && !u.consumed);
-      tolaUnits.sort((a, b) => b.price - a.price);
+      tolaUnits.sort((a, b) => b.price - a.price || unitKey(a).localeCompare(unitKey(b)));
       const pairCount = Math.min(pairBases.length, tolaUnits.length);
       for (let p = 0; p < pairCount; p++) {{
         const base = pairBases[p];
@@ -2646,9 +2633,6 @@ app_js_code = f"""/**
     }},
     buildZidPayloads: function(customCart = null) {{
       const cart = customCart || this.getCart() || [];
-      const partition = this.partitionCart(cart);
-      const payloads = [];
-
       const isUuid = (s) => typeof s === 'string' && /^[0-9a-f]{{8}}-[0-9a-f]{{4}}-[0-9a-f]{{4}}-[0-9a-f]{{4}}-[0-9a-f]{{12}}$/i.test(s);
       const resolveId = (item) => {{
         if (!item) return null;
@@ -2665,76 +2649,23 @@ app_js_code = f"""/**
         return (p && p.zid_id) || item.product_id || item.id;
       }};
 
-      // Tier 1: Dynamic Body Spray Bundles (pkg-all-over-collection)
-      const SPRAY_BUNDLE_UUID = '4e22b431-43a0-4cd8-9e45-f6a671f2620c';
-      const GROUP_IDS = [
-        '80e97d07-5d7f-4fda-ab07-92a7c29a9728',
-        '588a75fb-2d8d-4740-865a-b6ba5e91a8d9',
-        '47b1a0b5-293d-4dd8-89e6-9f51ef47a7fb'
-      ];
-
-      if (partition.groups.tier1_spray_bundles && partition.groups.tier1_spray_bundles.length > 0) {{
-        partition.groups.tier1_spray_bundles.forEach(bundle => {{
-          const sub_items = bundle.units.map((u, idx) => ({{
-            id: resolveId(u.item),
-            product_id: resolveId(u.item),
-            product_name: u.item.title || u.item.name || '',
-            quantity: 1,
-            selection_group_id: GROUP_IDS[idx % 3]
-          }}));
-          payloads.push({{
-            product_id: SPRAY_BUNDLE_UUID,
-            quantity: 1,
-            sub_items: sub_items
-          }});
-        }});
-      }}
-
-      // Remaining units from Tier 2, Tier 3, and Tier 4
-      const remainingUnits = [];
-      if (partition.groups.tier2_trios) {{
-        partition.groups.tier2_trios.forEach(t => remainingUnits.push(...t.units));
-      }}
-      if (partition.groups.tier3_pairs) {{
-        partition.groups.tier3_pairs.forEach(p => {{
-          remainingUnits.push(p.baseUnit);
-          remainingUnits.push(p.tolaUnit);
-        }});
-      }}
-      if (partition.groups.tier4_standalone) {{
-        remainingUnits.push(...partition.groups.tier4_standalone);
-      }}
-
-      const unitMap = new Map();
-      remainingUnits.forEach(u => {{
-        const item = u.item;
-        const zidUuid = resolveId(item);
-        if (!zidUuid) return;
-        if (item.sub_items && item.sub_items.length > 0) {{
-          payloads.push({{
-            product_id: zidUuid,
-            quantity: 1,
-            sub_items: item.sub_items.map(({{id, product_id, quantity, selection_group_id, name, product_name}}) => ({{
-              id: id || product_id,
-              product_id: product_id || id,
-              product_name: product_name || name || '',
-              quantity: Number(quantity) || 1,
-              selection_group_id
-            }}))
-          }});
-        }} else {{
-          unitMap.set(zidUuid, (unitMap.get(zidUuid) || 0) + 1);
-        }}
-      }});
-
-      unitMap.forEach((qty, zidUuid) => {{
-        payloads.push({{
-          product_id: zidUuid,
-          quantity: qty
-        }});
-      }});
-
-      return payloads;
+      const rank = item => item.sub_items?.length ? 3
+        : (this._isQualifying100mlPerfume(item) || this._isQualifyingBodySpray(item)) ? 0
+        : this._isQualifyingTola(item) ? 1 : 2;
+      // All qualifying bases first, highest price first, then tolas. Zid owns
+      // the final discounts and prices; this only fixes allocation order.
+      const ordered = [...cart].sort((a, b) => rank(a) - rank(b)
+        || ((rank(a) < 2) ? Number(b.price || 0) - Number(a.price || 0) : 0)
+        || String(resolveId(a)).localeCompare(String(resolveId(b)))
+        || JSON.stringify(a.sub_items || []).localeCompare(JSON.stringify(b.sub_items || [])));
+      return ordered.map(item => ({{
+        product_id: resolveId(item),
+        quantity: Math.max(1, parseInt(item.quantity, 10) || 1),
+        ...(item.sub_items?.length ? {{sub_items:item.sub_items.map(({{id,product_id,quantity,selection_group_id,name,product_name}}) => ({{
+          id:id || product_id, product_id:product_id || id,
+          product_name:product_name || name || '', quantity:Number(quantity) || 1, selection_group_id
+        }}))}} : {{}})
+      }}));
     }},
     getLiveBundleOffers: function() {{
       const state = this.getLiveCartState();

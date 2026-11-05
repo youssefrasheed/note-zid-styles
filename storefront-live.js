@@ -959,6 +959,25 @@
   }
   window.noteCartPricingKey = cartPricingKey;
 
+  function matchingOfferAllocation(cart, nativeCart) {
+    if (!CartManager.partitionCart) return true;
+    const groups = CartManager.partitionCart(cart).groups;
+    const expected = new Map(), actual = new Map();
+    const add = (map, kind, id, quantity) => {
+      const key = kind + ':' + String(id).replace(/-/g, '').toLowerCase();
+      map.set(key, (map.get(key) || 0) + quantity);
+    };
+    for (const group of groups.tier2_trios || []) add(expected, 'trio', resolveZidUuid(group.discountedUnit.item), 1);
+    for (const group of groups.tier3_pairs || []) add(expected, 'pair', resolveZidUuid(group.tolaUnit.item), 1);
+    for (const row of nativeCartItems(nativeCart)) {
+      const name = row.meta?.bundle_offer?.name;
+      if (!name || !row.is_discounted || row.sub_items?.length) continue;
+      if (Math.abs(Number(row.price) - 1) > 0.02) return false;
+      add(actual, /تولة|توله/.test(name) ? 'pair' : 'trio', row.product_id, Number(row.quantity) || 1);
+    }
+    return expected.size === actual.size && [...expected].every(([key, value]) => actual.get(key) === value);
+  }
+
   async function syncNativeCartWithPayloads(api) {
     if (typeof window !== 'undefined' && !window.zidStoreRegion) window.zidStoreRegion = { location_selection: false };
     if (!api?.get || !api?.addProduct) return null;
@@ -976,9 +995,10 @@
     let nativeCart = await readCart();
     const activeCoupon = nativeCart.coupon?.code;
     const initialRows = nativeCartItems(nativeCart);
-    if (!matchingCartPayloads(payloads, initialRows)) {
+    const allocationMatches = matchingOfferAllocation(cart, nativeCart);
+    if (!matchingCartPayloads(payloads, initialRows) || !allocationMatches) {
       const groups = CartManager.partitionCart?.(cart)?.groups;
-      const requiresZidOfferRebuild = activeCoupon || localStorage.getItem('note_applied_coupon')
+      const requiresZidOfferRebuild = !allocationMatches || activeCoupon || localStorage.getItem('note_applied_coupon')
         || groups?.tier1_spray_bundles?.length || groups?.tier2_trios?.length || groups?.tier3_pairs?.length
         || initialRows.some(row => row.sub_items?.length || row.meta?.bundle_offer || row.is_discounted)
         || nativeCart.bundle_offers?.some?.(offer => Number(offer.usage_count) > 0);
@@ -991,16 +1011,13 @@
           }
           nativeCart = await readCart();
         }
-        for (let pass = 0; pass < 3 && nativeCartItems(nativeCart).length > 0; pass++) {
-          for (const item of nativeCartItems(nativeCart)) {
-            if (item?.id) {
-              try {
-                assertCartResponse(await api.removeProduct({product_id: item.id}));
-              } catch (error) {
-                console.warn('NOTE: cart row removal notice:', error.message);
-              }
-            }
-          }
+        // A removal may replace the IDs of other discounted rows. Read again
+        // after each removal so no stale IDs or duplicate quantities survive.
+        const removalLimit = nativeCartItems(nativeCart).reduce((sum, row) => sum + (Number(row.quantity) || 1), 0) + 5;
+        for (let pass = 0; pass < removalLimit && nativeCartItems(nativeCart).length > 0; pass++) {
+          const item = nativeCartItems(nativeCart)[0];
+          if (!item?.id) throw Error('تعذر قراءة أحد منتجات السلة.');
+          assertCartResponse(await api.removeProduct({product_id: item.id}));
           nativeCart = await readCart();
         }
 
@@ -1056,6 +1073,9 @@
       throw Error('تعذر تأكيد سلة المشتريات بعد المزامنة.');
     }
 
+    if (!matchingOfferAllocation(cart, nativeCart)) {
+      throw Error('تعذر تأكيد توزيع العروض. أعد المحاولة.');
+    }
     if (cartSnapshot !== cartPricingKey()) {
       throw Error('تغيّرت محتويات السلة أثناء التحقق.');
     }
