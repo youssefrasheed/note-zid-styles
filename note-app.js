@@ -8030,10 +8030,41 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     window.noteRenderCartLoading();
   }
 
+  let scheduledQuantitySync;
+
+  function flushQuantitySync() {
+    const scheduled = scheduledQuantitySync;
+    if (!scheduled) return null;
+    scheduledQuantitySync = null;
+    clearTimeout(scheduled.timer);
+    // An earlier task may already have captured a different cart snapshot.
+    pendingNativeSync = null;
+    const task = enqueueNativeCartSync();
+    finishCartLoading();
+    task.then(scheduled.resolve, () => scheduled.resolve(null));
+    return task;
+  }
+
+  function scheduleQuantitySync() {
+    if (!scheduledQuantitySync) {
+      let resolve;
+      const promise = new Promise(done => { resolve = done; });
+      scheduledQuantitySync = { promise, resolve, timer: null };
+      startCartLoading();
+    }
+    clearTimeout(scheduledQuantitySync.timer);
+    scheduledQuantitySync.timer = setTimeout(flushQuantitySync, 250);
+    return scheduledQuantitySync.promise;
+  }
+
   let _nativeCartSyncQueue = Promise.resolve();
   CartManager._nativeQueue = _nativeCartSyncQueue;
   let pendingNativeSync;
   function enqueueNativeCartSync(beforeSync) {
+    if (scheduledQuantitySync) {
+      const scheduledTask = flushQuantitySync();
+      if (!beforeSync) return scheduledTask;
+    }
     const key = cartPricingKey();
     if (!beforeSync && pendingNativeSync?.key === key) return pendingNativeSync.task;
     startCartLoading();
@@ -8068,6 +8099,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   }
 
   window.noteConfirmCartPricing = function() {
+    if (scheduledQuantitySync) return scheduledQuantitySync.promise;
     return enqueueNativeCartSync().catch(() => null);
   };
 
@@ -8380,15 +8412,17 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   CartManager.removeItem=function(key) {
     if (!this.getCart().some(item => item.id === key)) return;
     originalRemove.call(this,key);
-    return window.noteConfirmCartPricing();
+    return enqueueNativeCartSync().catch(() => null);
   };
   CartManager.updateQuantity=function(key,delta) {
     const item=this.getCart().find(i=>i.id===key);if(!item)return;
     if(item.quantity+delta<=0) return this.removeItem(key);
     const p=noteProductsCatalog.find(cp=>cp.id===(item.product_id||item.id) || cp.slug===item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[item.id]===cp.id));
     if(delta>0 && p && (!p.in_stock || (p.stock && item.quantity+delta>p.stock))) {this.showToast('الكمية المطلوبة غير متاحة');return;}
+    const confirmation = scheduleQuantitySync();
     originalUpdateQuantity.call(this,key,delta);
-    return window.noteConfirmCartPricing();
+    window.noteRenderCartLoading();
+    return confirmation;
   };
 
   if (typeof document !== 'undefined') {
