@@ -5240,16 +5240,6 @@ app_js_code = f"""/**
       }}
     }}
 
-    const summary = document.getElementById('cart-page-summary-wrapper');
-    if (summary) {{
-      const spans = summary.querySelectorAll('span');
-      for (let i = 0; i < spans.length; i++) {{
-        const el = spans[i];
-        if (el.children.length === 0 && el.textContent.includes('ضريبة القيمة المضافة') && !el.querySelector?.('.note-vat-rate')) {{
-          el.innerHTML = el.textContent.replace(/ضريبة القيمة المضافة(\s*\([^)]*\))?/g, 'ضريبة القيمة المضافة (<bdi class="note-vat-rate" dir="ltr">15%</bdi>):');
-        }}
-      }}
-    }}
   }}
 
   async function proceedToCheckout() {{
