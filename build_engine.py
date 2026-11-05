@@ -3164,7 +3164,7 @@ app_js_code = f"""/**
 
       // Render Drawer Recommendations
       const recsList = document.getElementById('cart-drawer-recs-list');
-      if (recsContainer && recsList) {{
+      if (!nativePricing && recsContainer && recsList) {{
         const inCartIds = new Set(cart.map(i => i.id));
         const pool = [
           'for-him-30ml',

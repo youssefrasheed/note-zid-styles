@@ -1340,9 +1340,7 @@
     const grid=document.getElementById(target),box=document.getElementById(section); if(!grid || !box) return;
     const recs=recommendationProducts(cart);
     box.classList.toggle('hidden',!cart.length || !recs.length);
-    grid.className='note-compact-recs';
-    grid.dir='ltr';
-    grid.innerHTML=recs.map(p=>`
+    const markup=recs.map(p=>`
       <article dir="rtl" class="note-mini-card">
         <a href="/products/${encodeURIComponent(p.slug)}" onclick="NoteRouter.navigate('/products/${encodeURIComponent(p.slug)}'); CartManager.closeDrawer();">
           <img src="${escapeHTML(p.img)}" alt="${escapeHTML(p.title)}" loading="lazy">
@@ -1354,6 +1352,13 @@
         <button type="button" data-product="${p.id}" aria-label="أضف ${escapeHTML(p.title)} للسلة">${p.product_class==='dynamic_bundle' ? 'اختار' : 'أضف'}</button>
       </article>
     `).join('');
+    if (grid._noteRecommendationMarkup === markup) return;
+    const scrollLeft = grid.scrollLeft;
+    grid.className='note-compact-recs';
+    grid.dir='ltr';
+    grid.innerHTML=markup;
+    grid._noteRecommendationMarkup=markup;
+    grid.scrollLeft=scrollLeft;
     grid.querySelectorAll('button').forEach(b=>b.onclick=(e)=>{
       e.stopPropagation();
       CartManager.addItem(b.dataset.product, 1, null, b);
