@@ -1516,7 +1516,11 @@
         updateCartFinancials(CartManager.getTotal ? CartManager.getTotal() : 0);
       }
 
-      if (shownKey !== cartPricingKey() || (grandEl && shownTotal !== confirmedTotal.toFixed(2))) {
+      // A pending quantity update deliberately removes the displayed quote.
+      // Wait for Zid in that case; only require review when an actual displayed
+      // price changes, or the customer changes the cart during verification.
+      const hadShownTotal = shownTotal != null && shownTotal.trim() !== '' && Number.isFinite(Number(shownTotal));
+      if (shownKey !== cartPricingKey() || (hadShownTotal && Math.abs(Number(shownTotal) - confirmedTotal) >= 0.005)) {
         CartManager.showToast('اتحدّث إجمالي سلتك. راجعه واضغط إتمام الدفع مرة أخرى.');
         return;
       }
