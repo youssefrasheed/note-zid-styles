@@ -1088,12 +1088,48 @@
   window.matchingCartPayloads = matchingCartPayloads;
   window.signature = signature;
 
+  let cartLoadingJobs = 0;
+  let cartLoadingStartedAt = 0;
+  let cartLoadingTimer;
+  let cartLoadingVisible = false;
+
+  window.noteRenderCartLoading = function() {
+    const hasItems = (CartManager.getCart() || []).length > 0;
+    for (const id of ['note-page-cart-loading', 'note-drawer-cart-loading']) {
+      const status = document.getElementById(id);
+      if (status) status.hidden = !cartLoadingVisible || !hasItems;
+    }
+    for (const id of ['cart-page-items', 'cart-drawer-items']) {
+      document.getElementById(id)?.setAttribute('aria-busy', String(cartLoadingJobs > 0));
+    }
+  };
+
+  function startCartLoading() {
+    clearTimeout(cartLoadingTimer);
+    if (!cartLoadingVisible) cartLoadingStartedAt = Date.now();
+    cartLoadingVisible = true;
+    cartLoadingJobs++;
+    window.noteRenderCartLoading();
+  }
+
+  function finishCartLoading() {
+    cartLoadingJobs--;
+    if (cartLoadingJobs > 0) return;
+    const remaining = Math.max(0, 1000 - (Date.now() - cartLoadingStartedAt));
+    cartLoadingTimer = setTimeout(() => {
+      cartLoadingVisible = false;
+      window.noteRenderCartLoading();
+    }, remaining);
+    window.noteRenderCartLoading();
+  }
+
   let _nativeCartSyncQueue = Promise.resolve();
   CartManager._nativeQueue = _nativeCartSyncQueue;
   let pendingNativeSync;
   function enqueueNativeCartSync(beforeSync) {
     const key = cartPricingKey();
     if (!beforeSync && pendingNativeSync?.key === key) return pendingNativeSync.task;
+    startCartLoading();
     const task = _nativeCartSyncQueue.then(async () => {
       if (!window.zid?.cart) {
         try {
@@ -1108,7 +1144,7 @@
         if (cart) return cart;
       }
       throw Error('تعذر الاتصال بسلة المشتريات.');
-    });
+    }).finally(finishCartLoading);
     pendingNativeSync = { key, task };
     CartManager._nativeQueue = task.catch(err => {
       console.warn('NOTE: cart sync queue notice:', err?.message || err);

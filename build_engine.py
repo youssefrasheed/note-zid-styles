@@ -617,6 +617,42 @@ body.note-ready::after {{
   }}
 }}
 
+/* Cart updates use a single calm status while native pricing is pending. */
+#note-luxury-storefront #bundle-discount-row,
+#note-luxury-storefront #drawer-bundle-discount-row {{
+  display: none !important;
+}}
+#note-luxury-storefront .note-cart-loading {{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border: 1px solid #e8e1d4;
+  border-radius: 14px;
+  background: #faf8f3;
+  color: #574c38;
+  font-size: 13px;
+  font-weight: 600;
+}}
+#note-luxury-storefront .note-cart-loading[hidden] {{
+  display: none !important;
+}}
+.note-cart-loading-spinner {{
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border: 2px solid #e7dfcf;
+  border-top-color: #a58b52;
+  border-radius: 50%;
+  animation: noteSpinRing 0.8s linear infinite;
+}}
+@media (prefers-reduced-motion: reduce) {{
+  .note-cart-loading-spinner {{ animation: none; }}
+}}
+
 @keyframes noteSpinRing {{
   to {{ transform: rotate(360deg); }}
 }}
@@ -2918,6 +2954,7 @@ app_js_code = f"""/**
       const recsContainer = document.getElementById('cart-drawer-recommendations');
       
       if (!itemsContainer) return;
+      window.noteRenderCartLoading?.();
       
       const cart = this.getCart();
       const total = this.getTotal();
@@ -4514,6 +4551,7 @@ app_js_code = f"""/**
     const summaryWrapper = document.getElementById('cart-page-summary-wrapper');
 
     if (!itemsContainer) return;
+    window.noteRenderCartLoading?.();
 
     const cart = CartManager.getCart();
     const total = CartManager.getTotal();
