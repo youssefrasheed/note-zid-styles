@@ -39,3 +39,49 @@ assert(appJs.includes('applyBtn.classList.remove(\'note-btn-gold\')'), 'Must rem
 assert(appJs.includes('drawerCouponBtn.classList.add(\'note-btn-gold\')'), 'Must add gold class to drawer coupon button when active');
 
 console.log('PASS: Active gold vs inactive black coupon button logic verified.');
+
+// Exercise coupon replacement against a cart API that rejects overlapping coupons.
+(async () => {
+  const vm = require('node:vm');
+  const live = fs.readFileSync(path.join(baseDir, 'storefront-live.js'), 'utf8');
+  const start = live.indexOf('  function cartPricingKey(');
+  const end = live.indexOf('  CartManager.addItem=function', start);
+  const values = new Map([['note_applied_coupon', 'NOTE5']]);
+  let coupon = 'NOTE5';
+  const changes = [];
+  const rows = [{id:'row',product_id:'product',quantity:1}];
+  const cartApi = {
+    get: async () => ({products:rows,totals:[{code:'total',value:100}],coupon:coupon ? {code:coupon} : null}),
+    addProduct: async () => { throw Error('Cart contents must remain unchanged'); },
+    removeCoupons: async () => { changes.push('remove'); coupon=null; return {status:'success'}; },
+    applyCoupon: async ({coupon_code}) => {
+      changes.push('apply:'+coupon_code);
+      if (coupon || coupon_code === 'INVALID') return {status:'error',message:'Rejected coupon'};
+      coupon=coupon_code;
+      return {status:'success'};
+    }
+  };
+  const sandbox = {
+    window:{zid:{cart:cartApi}}, console:{warn(){}},setTimeout,clearTimeout,
+    localStorage:{getItem:key=>values.get(key)||null,setItem:(key,value)=>values.set(key,value),removeItem:key=>values.delete(key)},
+    document:{getElementById:()=>null},
+    CartManager:{getCart:()=>[{id:'product',quantity:1}],buildZidPayloads:()=>[{product_id:'product',quantity:1}],renderDrawer(){}},
+    matchingCartPayloads:()=>true,nativeCartItems:cart=>cart.products,extractCartData:response=>response,
+    assertCartResponse:response=>{if(response.status==='error')throw Error(response.message);return response;},
+    signature:()=>'',renderCartPage(){},updateCartFinancials(){}
+  };
+  vm.createContext(sandbox);
+  vm.runInContext(live.slice(start,end),sandbox);
+  await sandbox.window.noteChangeCartCoupon('HN');
+  assert.equal(coupon,'HN');
+  assert.deepEqual(changes,['remove','apply:HN']);
+  assert.equal(sandbox.window._noteVerifiedCart.couponCode,'HN');
+  await assert.rejects(sandbox.window.noteChangeCartCoupon('INVALID'),/Rejected coupon/);
+  assert.equal(coupon,'HN');
+  assert.equal(values.get('note_applied_coupon'),'HN');
+  assert.equal(sandbox.window._noteVerifiedCart.couponCode,'HN');
+  await sandbox.window.noteChangeCartCoupon(null);
+  assert.equal(coupon,null);
+  assert.equal(sandbox.window._noteVerifiedCart.couponCode,null);
+  console.log('PASS: switching coupons removes the previous coupon, and a rejected code restores the confirmed previous coupon');
+})().catch(error=>{console.error(error);process.exitCode=1;});

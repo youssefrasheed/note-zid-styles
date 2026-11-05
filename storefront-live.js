@@ -1154,9 +1154,26 @@
 
   window.noteChangeCartCoupon = function(code) {
     return enqueueNativeCartSync(async api => {
-      await syncNativeCartWithPayloads(api);
+      const currentCart = await syncNativeCartWithPayloads(api);
+      const previousCoupon = currentCart.coupon?.code;
       if (code) {
-        assertCartResponse(await api.applyCoupon({coupon_code: code}));
+        if (String(previousCoupon || '').toUpperCase() !== code.toUpperCase()) {
+          window._noteVerifiedCart = null;
+          if (previousCoupon) assertCartResponse(await api.removeCoupons());
+          try {
+            assertCartResponse(await api.applyCoupon({coupon_code: code}));
+          } catch (error) {
+            if (previousCoupon) {
+              try {
+                assertCartResponse(await api.applyCoupon({coupon_code: previousCoupon}));
+              } catch (restoreError) {
+                console.warn('NOTE: coupon restoration notice:', restoreError.message);
+              }
+            }
+            await syncNativeCartWithPayloads(api);
+            throw error;
+          }
+        }
         localStorage.setItem('note_applied_coupon', code);
       } else {
         assertCartResponse(await api.removeCoupons());
