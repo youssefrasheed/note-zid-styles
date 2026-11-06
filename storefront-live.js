@@ -1003,6 +1003,17 @@
     // Keep the existing allocation only if Zid confirms the desired policy;
     // otherwise the deterministic rebuild below remains the fallback.
     const deletionPlan = cartReconciliationPlan(payloads, initialRows);
+    const hasExistingRewards = initialRows.some(row => row.is_discounted && row.meta?.bundle_offer);
+    const canPreserveRewards = !hasExistingRewards || matchingOfferAllocation(cart, nativeCart);
+    if (deletionPlan.additions.length && !deletionPlan.reductions.length && canPreserveRewards) {
+      // Preserve existing products and coupon when only adding missing units.
+      // The allocation check below still rebuilds if Zid keeps an older offer.
+      for (const payload of deletionPlan.additions) {
+        assertCartResponse(await api.addProduct(payload));
+      }
+      nativeCart = await readCart();
+      initialRows = nativeCartItems(nativeCart);
+    }
     if (!deletionPlan.additions.length && deletionPlan.reductions.length) {
       const limit = initialRows.length + payloads.length + 5;
       for (let attempt = 0; attempt < limit; attempt++) {

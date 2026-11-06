@@ -172,6 +172,17 @@ function fixture({pauseFirstRead = false, failRemoval = false} = {}) {
     assert.equal(removing.sandbox.CartManager.getCart().length,0);
   }
 
+  const couponAddition = fixture();
+  await couponAddition.sandbox.window.noteChangeCartCoupon('HN');
+  const readsBeforeAdd = couponAddition.reads();
+  const addedQuantity = couponAddition.sandbox.CartManager.updateQuantity('product', 1);
+  couponAddition.advance(250);
+  await addedQuantity;
+  assert.deepEqual(couponAddition.changes, [['coupon','HN'], ['add',1]]);
+  assert.equal(couponAddition.reads()-readsBeforeAdd, 2, 'addition needs only the initial and final reads');
+  assert.equal(couponAddition.sandbox.window._noteVerifiedCart.couponCode, 'HN');
+  assert.equal(couponAddition.sandbox.window._noteVerifiedCart.products[0].quantity, 2);
+
   const couponDeletion = fixture();
   await couponDeletion.sandbox.window.noteChangeCartCoupon('HN');
   const readsBeforeDelete = couponDeletion.reads();
