@@ -333,7 +333,8 @@ for (let iter = 1; iter <= 500; iter++) {
   // Verify payloads are always valid and non-empty
   const payloads = CartManager.buildZidPayloads(testCart);
   assert(Array.isArray(payloads) && payloads.length > 0, `[Iter ${iter}] Payloads must be non-empty`);
-  assert.deepStrictEqual(CartManager.buildZidPayloads([...testCart].reverse()), payloads, 'Payload order must not depend on customer insertion order');
+  const signature = rows => JSON.stringify(rows.map(p=>[p.product_id,p.quantity]).sort());
+  assert.equal(signature(CartManager.buildZidPayloads([...testCart].reverse())), signature(payloads), 'Insertion order changes must preserve every product and quantity');
 
   // Financials & DOM update
   updateCartFinancials(actualSubtotal);

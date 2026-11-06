@@ -963,23 +963,14 @@
   }
   window.noteCartPricingKey = cartPricingKey;
 
-  function matchingOfferAllocation(cart, nativeCart) {
-    if (!CartManager.partitionCart) return true;
-    const groups = CartManager.partitionCart(cart).groups;
-    const expected = new Map(), actual = new Map();
-    const add = (map, kind, id, quantity) => {
-      const key = kind + ':' + String(id).replace(/-/g, '').toLowerCase();
-      map.set(key, (map.get(key) || 0) + quantity);
-    };
-    for (const group of groups.tier2_trios || []) add(expected, 'trio', resolveZidUuid(group.discountedUnit.item), 1);
-    for (const group of groups.tier3_pairs || []) add(expected, 'pair', resolveZidUuid(group.tolaUnit.item), 1);
+  function validateNativeOfferPrices(nativeCart) {
     for (const row of nativeCartItems(nativeCart)) {
-      const name = row.meta?.bundle_offer?.name;
-      if (!name || !row.is_discounted || row.sub_items?.length) continue;
-      if (Math.abs(Number(row.price) - 1) > 0.02) return false;
-      add(actual, /تولة|توله/.test(name) ? 'pair' : 'trio', row.product_id, Number(row.quantity) || 1);
+      const name=String(row.meta?.bundle_offer?.name || '');
+      // Validate our advertised one-riyal rewards, never choose their recipients.
+      if (!row.is_discounted || row.sub_items?.length || !/(الثالث بريال|عطرك بريال|تولة.*بريال|توله.*بريال)/.test(name)) continue;
+      const price=Number(row.price);
+      if (row.price == null || !Number.isFinite(price) || Math.abs(price-1)>0.02) throw Error('تعذر تأكيد سعر مكافأة العرض. أعد المحاولة.');
     }
-    return expected.size === actual.size && [...expected].every(([key, value]) => actual.get(key) === value);
   }
 
   async function syncNativeCartWithPayloads(api) {
@@ -998,117 +989,32 @@
     const readCart = async () => extractCartData(assertCartResponse(await api.get()));
     let nativeCart = await readCart();
     const activeCoupon = nativeCart.coupon?.code;
-    let initialRows = nativeCartItems(nativeCart);
-    // For deletion-only edits, let Zid remove just the excess units first.
-    // Keep the existing allocation only if Zid confirms the desired policy;
-    // otherwise the deterministic rebuild below remains the fallback.
-    const deletionPlan = cartReconciliationPlan(payloads, initialRows);
-    const hasExistingRewards = initialRows.some(row => row.is_discounted && row.meta?.bundle_offer);
-    const canPreserveRewards = !hasExistingRewards || matchingOfferAllocation(cart, nativeCart);
-    if (deletionPlan.additions.length && !deletionPlan.reductions.length && canPreserveRewards) {
-      // Preserve existing products and coupon when only adding missing units.
-      // The allocation check below still rebuilds if Zid keeps an older offer.
-      for (const payload of deletionPlan.additions) {
-        assertCartResponse(await api.addProduct(payload));
-      }
+    const firstPlan = cartReconciliationPlan(payloads, nativeCartItems(nativeCart));
+    for (const payload of firstPlan.additions) assertCartResponse(await api.addProduct(payload));
+    if (firstPlan.additions.length) nativeCart = await readCart();
+    const limit = nativeCartItems(nativeCart).length + payloads.length + 5;
+    for (let attempt = 0; attempt < limit; attempt++) {
+      const plan = cartReconciliationPlan(payloads, nativeCartItems(nativeCart));
+      if (plan.additions.length) throw Error('تغيّرت محتويات السلة أثناء المزامنة.');
+      const next = plan.reductions[0];
+      if (!next) break;
+      if (!next.row.id) throw Error('تعذر تعديل أحد منتجات السلة.');
+      if (next.quantity === 0) assertCartResponse(await api.removeProduct({product_id:next.row.id}));
+      else assertCartResponse(await api.updateProduct({product_id:next.row.id,quantity:next.quantity}));
       nativeCart = await readCart();
-      initialRows = nativeCartItems(nativeCart);
     }
-    if (!deletionPlan.additions.length && deletionPlan.reductions.length) {
-      const limit = initialRows.length + payloads.length + 5;
-      for (let attempt = 0; attempt < limit; attempt++) {
-        const plan = cartReconciliationPlan(payloads, nativeCartItems(nativeCart));
-        if (plan.additions.length) throw Error('تغيّرت محتويات السلة أثناء المزامنة.');
-        const next = plan.reductions[0];
-        if (!next) break;
-        if (!next.row.id) throw Error('تعذر تعديل أحد منتجات السلة.');
-        if (next.quantity === 0) assertCartResponse(await api.removeProduct({product_id: next.row.id}));
-        else assertCartResponse(await api.updateProduct({product_id: next.row.id, quantity: next.quantity}));
-        nativeCart = await readCart();
-      }
-      initialRows = nativeCartItems(nativeCart);
+    if (activeCoupon && !nativeCart.coupon?.code && matchingCartPayloads(payloads,nativeCartItems(nativeCart))) {
+      try {assertCartResponse(await api.applyCoupon({coupon_code:activeCoupon}));}
+      catch(error){console.warn('NOTE: coupon no longer confirmed:',error.message);}
+      nativeCart=await readCart();
     }
-    const allocationMatches = matchingOfferAllocation(cart, nativeCart);
-    if (!matchingCartPayloads(payloads, initialRows) || !allocationMatches) {
-      const groups = CartManager.partitionCart?.(cart)?.groups;
-      const requiresZidOfferRebuild = !allocationMatches || activeCoupon || localStorage.getItem('note_applied_coupon')
-        || groups?.tier1_spray_bundles?.length || groups?.tier2_trios?.length || groups?.tier3_pairs?.length
-        || initialRows.some(row => row.sub_items?.length || row.meta?.bundle_offer || row.is_discounted)
-        || nativeCart.bundle_offers?.some?.(offer => Number(offer.usage_count) > 0);
-      if (requiresZidOfferRebuild) {
-        if (typeof api.empty === 'function') {
-          try {
-            assertCartResponse(await api.empty());
-          } catch (error) {
-            console.warn('NOTE: bulk cart reset notice:', error.message);
-          }
-          nativeCart = await readCart();
-        }
-        // A removal may replace the IDs of other discounted rows. Read again
-        // after each removal so no stale IDs or duplicate quantities survive.
-        const removalLimit = nativeCartItems(nativeCart).reduce((sum, row) => sum + (Number(row.quantity) || 1), 0) + 5;
-        for (let pass = 0; pass < removalLimit && nativeCartItems(nativeCart).length > 0; pass++) {
-          const item = nativeCartItems(nativeCart)[0];
-          if (!item?.id) throw Error('تعذر قراءة أحد منتجات السلة.');
-          assertCartResponse(await api.removeProduct({product_id: item.id}));
-          nativeCart = await readCart();
-        }
-
-        // Refuse re-adding if rows remain after emptying attempts
-        if (nativeCartItems(nativeCart).length > 0) {
-          throw Error('تعذر تفريغ سلة المشتريات بالكامل قبل المزامنة. يرجى إعادة المحاولة.');
-        }
-
-        // Add each payload without swallowing failures
-        for (const payload of payloads) {
-          const addRes = await api.addProduct(payload);
-          assertCartResponse(addRes);
-        }
-        nativeCart = await readCart();
-      } else {
-        const { additions } = cartReconciliationPlan(payloads, initialRows);
-        // Keep existing products until all additions have been accepted.
-        for (const payload of additions) {
-          assertCartResponse(await api.addProduct(payload));
-        }
-        if (additions.length) nativeCart = await readCart();
-
-        // Zid can regroup discounted rows after a mutation, so plan from fresh IDs.
-        const maxReductions = nativeCartItems(nativeCart).length + payloads.length;
-        for (let attempt = 0; attempt < maxReductions; attempt++) {
-          const plan = cartReconciliationPlan(payloads, nativeCartItems(nativeCart));
-          if (plan.additions.length) throw Error('تغيّرت محتويات السلة أثناء المزامنة.');
-          const next = plan.reductions[0];
-          if (!next) break;
-          if (!next.row.id) throw Error('تعذر تعديل أحد منتجات السلة.');
-          if (next.quantity === 0) {
-            assertCartResponse(await api.removeProduct({product_id: next.row.id}));
-          } else {
-            assertCartResponse(await api.updateProduct({product_id: next.row.id, quantity: next.quantity}));
-          }
-          nativeCart = await readCart();
-        }
-      }
-
-      if (activeCoupon && !nativeCart.coupon?.code && matchingCartPayloads(payloads, nativeCartItems(nativeCart))) {
-        try {
-          assertCartResponse(await api.applyCoupon({coupon_code: activeCoupon}));
-        } catch (error) {
-          console.warn('NOTE: coupon no longer confirmed:', error.message);
-        }
-        nativeCart = await readCart();
-      }
-    }
-
     // Strict signature verification: do NOT adopt _noteLiveCartState unless matched!
     const finalItems = nativeCartItems(nativeCart);
     if (!matchingCartPayloads(payloads, finalItems)) {
       throw Error('تعذر تأكيد سلة المشتريات بعد المزامنة.');
     }
 
-    if (!matchingOfferAllocation(cart, nativeCart)) {
-      throw Error('تعذر تأكيد توزيع العروض. أعد المحاولة.');
-    }
+    validateNativeOfferPrices(nativeCart);
     if (cartSnapshot !== cartPricingKey()) {
       throw Error('تغيّرت محتويات السلة أثناء التحقق.');
     }
@@ -1162,6 +1068,22 @@
   }
   window.noteReplaceCartItems = replaceCartItems;
 
+  function renderOfferOrderNotice(hasItems) {
+    for (const [totalId,noticeId] of [['page-grand-total','note-page-offer-notice'],['cart-drawer-total','note-drawer-offer-notice']]) {
+      const host=document.getElementById(totalId)?.parentElement;
+      if (!host?.insertAdjacentElement) continue;
+      let notice=document.getElementById(noticeId);
+      if (!notice) {
+        notice=document.createElement('p');notice.id=noticeId;
+        notice.setAttribute('role','note');
+        notice.style.cssText='font-size:12px;line-height:1.8;color:#78716c;margin:10px 0;text-align:right;';
+        notice.textContent='العروض تُطبَّق تلقائيًا حسب ترتيب إضافة المنتجات، وقد تتغيّر عند تعديل السلة.';
+        host.insertAdjacentElement('afterend',notice);
+      }
+      notice.hidden=!hasItems;
+    }
+  }
+
   let cartLoadingJobs = 0;
   let cartLoadingStartedAt = 0;
   let cartLoadingTimer;
@@ -1169,6 +1091,7 @@
 
   window.noteRenderCartLoading = function() {
     const hasItems = (CartManager.getCart() || []).length > 0;
+    renderOfferOrderNotice(hasItems);
     for (const id of ['note-page-cart-loading', 'note-drawer-cart-loading']) {
       const status = document.getElementById(id);
       if (status) status.hidden = !cartLoadingVisible || !hasItems;

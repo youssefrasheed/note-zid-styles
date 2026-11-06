@@ -1,10 +1,8 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const source=fs.readFileSync(__dirname+'/storefront-live.js','utf8');
-const groups={tier2_trios:[{discountedUnit:{item:{id:'base'}}}],tier3_pairs:[{tolaUnit:{item:{id:'tola'}}}]};
-const ctx={CartManager:{partitionCart:()=>({groups})},resolveZidUuid:p=>p.id,nativeCartItems:c=>c.products};vm.createContext(ctx);
-vm.runInContext(source.slice(source.indexOf('  function matchingOfferAllocation('),source.indexOf('  async function syncNativeCartWithPayloads(')),ctx);
-const gift=(id,kind='trio',quantity=1,price=1)=>({product_id:id,quantity,price,is_discounted:true,meta:{bundle_offer:{name:kind==='pair'?'تولة بريال':'الثالث بريال'}}});
-const valid=[gift('base'),gift('tola','pair')];
-assert(ctx.matchingOfferAllocation([], {products:valid}));
-for(const products of [[gift('base')],[gift('base'),gift('tola','pair',2)],[gift('base','trio',1,0),gift('tola','pair')],[gift('other'),gift('tola','pair')]])assert.equal(ctx.matchingOfferAllocation([],{products}),false);
-console.log('PASS: allocation verification rejects missing, duplicated, zero-priced and incorrectly assigned rewards');
+const ctx={nativeCartItems:c=>c.products};vm.createContext(ctx);
+vm.runInContext(source.slice(source.indexOf('  function validateNativeOfferPrices('),source.indexOf('  async function syncNativeCartWithPayloads(')),ctx);
+const gift=(id,price=1,name='الثالث بريال 189')=>({product_id:id,quantity:1,price,is_discounted:true,meta:{bundle_offer:{name}}});
+for(const products of [[gift('any-product')],[gift('tola',1,'عطرك بريال (1+تولة)')],[gift('free',0,'هدية مجانية')]])assert.doesNotThrow(()=>ctx.validateNativeOfferPrices({products}));
+for(const price of [0,1.05,null,NaN])assert.throws(()=>ctx.validateNativeOfferPrices({products:[gift('any',price)]}));
+console.log('PASS: Zid chooses reward recipients; one-riyal promotions still reject zero, missing and incorrect reward prices');

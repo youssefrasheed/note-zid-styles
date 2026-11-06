@@ -4,7 +4,7 @@ function fixture(){
  let now=0,next=0;const timers=new Map();
  const status={hidden:true},items={setAttribute(k,v){this[k]=v}};
  const ctx={window:{},CartManager:{getCart:()=>[{}]},document:{getElementById:id=>id.includes('loading')?status:items},Date:{now:()=>now},clearTimeout:id=>timers.delete(id),setTimeout:(fn,delay)=>{timers.set(++next,{fn,at:now+delay});return next}};
- vm.createContext(ctx);vm.runInContext(source.slice(source.indexOf('  let cartLoadingJobs ='),source.indexOf('  let scheduledQuantitySync;')),ctx);
+ vm.createContext(ctx);vm.runInContext(source.slice(source.indexOf('  function renderOfferOrderNotice('),source.indexOf('  let cartLoadingJobs =')),ctx);vm.runInContext(source.slice(source.indexOf('  let cartLoadingJobs ='),source.indexOf('  let scheduledQuantitySync;')),ctx);
  return {ctx,status,items,advance(ms){now+=ms;for(const [id,t]of [...timers])if(t.at<=now){timers.delete(id);t.fn();}}};
 }
 for(const latency of [0,50,149,150,700,1800]){

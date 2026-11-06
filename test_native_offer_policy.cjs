@@ -1,0 +1,14 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync(__dirname+'/storefront-live.js','utf8');
+const cart=['perfume-a','tola','perfume-b','perfume-c'].map(id=>({id,product_id:id,quantity:1}));
+let rows=cart.map(item=>({...item,price:item.id==='tola'?1:219,...(item.id==='tola'?{is_discounted:true,meta:{bundle_offer:{name:'عطرك بريال (1+تولة)'}}}:{})}));
+let total=658,reads=0,writes=0;
+const manager={getCart:()=>cart,buildZidPayloads:items=>items.map(({product_id,quantity})=>({product_id,quantity})),partitionCart(){throw Error('Must not select a different offer')},renderDrawer(){}};
+const sig=items=>JSON.stringify(items.map(p=>[p.product_id,p.quantity]).sort());
+const ctx={CartManager:manager,window:{},document:{getElementById:()=>null},localStorage:{getItem:()=>null},cartPricingKey:()=>JSON.stringify(cart),nativeCartItems:r=>r.products,matchingCartPayloads:(a,b)=>sig(a)===sig(b),extractCartData:r=>r,assertCartResponse:r=>{if(r.status==='error')throw Error(r.message);return r},updateCartFinancials(){},console};
+vm.createContext(ctx);vm.runInContext(source.slice(source.indexOf('  function cartReconciliationPlan('),source.indexOf('  function cartPricingKey(')),ctx);vm.runInContext(source.slice(source.indexOf('  function validateNativeOfferPrices('),source.indexOf('  window.syncNativeCartWithPayloads =')),ctx);
+const api={get:async()=>{reads++;return {products:rows,totals:[{code:'total',value:total}],coupon:null}},empty(){throw Error('Must never empty')},addProduct:async p=>{writes++;rows.push({...p,id:p.product_id,price:50});total+=50;return {}},removeProduct(){throw Error('Unexpected removal')}};
+(async()=>{const quote=await ctx.syncNativeCartWithPayloads(api);assert.equal(quote.totals[0].value,658);assert.equal(reads,1);assert.equal(writes,0);assert.equal(ctx.window._noteVerifiedCart.products.find(p=>p.id==='tola').price,1);
+cart.push({id:'extra',product_id:'extra',quantity:1});const added=await ctx.syncNativeCartWithPayloads(api);assert.equal(writes,1);assert.equal(added.totals[0].value,708);
+const saved=ctx.window._noteVerifiedCart;rows[1]={...rows[1],price:0};await assert.rejects(ctx.syncNativeCartWithPayloads(api),/مكافأة/);assert.equal(ctx.window._noteVerifiedCart,saved);
+console.log('PASS: accept Zid offer recipients without rebuilding or choosing another offer; additions stay incremental and invalid reward quotes are not adopted');})().catch(e=>{console.error(e);process.exitCode=1});

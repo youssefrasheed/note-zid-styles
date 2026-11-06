@@ -2651,16 +2651,8 @@ app_js_code = f"""/**
         return (p && p.zid_id) || item.product_id || item.id;
       }};
 
-      const rank = item => item.sub_items?.length ? 3
-        : (this._isQualifying100mlPerfume(item) || this._isQualifyingBodySpray(item)) ? 0
-        : this._isQualifyingTola(item) ? 1 : 2;
-      // All qualifying bases first, highest price first, then tolas. Zid owns
-      // the final discounts and prices; this only fixes allocation order.
-      const ordered = [...cart].sort((a, b) => rank(a) - rank(b)
-        || ((rank(a) < 2) ? Number(b.price || 0) - Number(a.price || 0) : 0)
-        || String(resolveId(a)).localeCompare(String(resolveId(b)))
-        || JSON.stringify(a.sub_items || []).localeCompare(JSON.stringify(b.sub_items || [])));
-      return ordered.map(item => ({{
+      // Preserve the customer's insertion order. Zid alone allocates offers.
+      return cart.map(item => ({{
         product_id: resolveId(item),
         quantity: Math.max(1, parseInt(item.quantity, 10) || 1),
         ...(item.sub_items?.length ? {{sub_items:item.sub_items.map(({{id,product_id,quantity,selection_group_id,name,product_name}}) => ({{
