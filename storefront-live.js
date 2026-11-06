@@ -1156,7 +1156,7 @@
   function finishCartLoading() {
     cartLoadingJobs--;
     if (cartLoadingJobs > 0) return;
-    const remaining = Math.max(0, 1000 - (Date.now() - cartLoadingStartedAt));
+    const remaining = Math.max(0, 150 - (Date.now() - cartLoadingStartedAt));
     cartLoadingTimer = setTimeout(() => {
       cartLoadingVisible = false;
       window.noteRenderCartLoading();
