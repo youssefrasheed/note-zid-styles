@@ -7340,6 +7340,10 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   // Category visibility/order have a lightweight refresh independent of product cache.
   ZidSyncManager.fetchLiveCategories=function() {
     if(this.categoryPending)return this.categoryPending;
+    const age=Date.now()-this.categoryLastSuccess;
+    // Reuse only this page's successfully applied category list during rapid
+    // navigation. Never reuse a failed request or cache cart pricing here.
+    if(categoryListAuthoritative && Number.isFinite(this.categoryLastSuccess) && age>=0 && age<3000) return Promise.resolve(true);
     this.categoryPending=(async()=>{
       const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),7000);
       try {
