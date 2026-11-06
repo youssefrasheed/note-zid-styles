@@ -7867,7 +7867,25 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     const readCart = async () => extractCartData(assertCartResponse(await api.get()));
     let nativeCart = await readCart();
     const activeCoupon = nativeCart.coupon?.code;
-    const initialRows = nativeCartItems(nativeCart);
+    let initialRows = nativeCartItems(nativeCart);
+    // For deletion-only edits, let Zid remove just the excess units first.
+    // Keep the existing allocation only if Zid confirms the desired policy;
+    // otherwise the deterministic rebuild below remains the fallback.
+    const deletionPlan = cartReconciliationPlan(payloads, initialRows);
+    if (!deletionPlan.additions.length && deletionPlan.reductions.length) {
+      const limit = initialRows.length + payloads.length + 5;
+      for (let attempt = 0; attempt < limit; attempt++) {
+        const plan = cartReconciliationPlan(payloads, nativeCartItems(nativeCart));
+        if (plan.additions.length) throw Error('تغيّرت محتويات السلة أثناء المزامنة.');
+        const next = plan.reductions[0];
+        if (!next) break;
+        if (!next.row.id) throw Error('تعذر تعديل أحد منتجات السلة.');
+        if (next.quantity === 0) assertCartResponse(await api.removeProduct({product_id: next.row.id}));
+        else assertCartResponse(await api.updateProduct({product_id: next.row.id, quantity: next.quantity}));
+        nativeCart = await readCart();
+      }
+      initialRows = nativeCartItems(nativeCart);
+    }
     const allocationMatches = matchingOfferAllocation(cart, nativeCart);
     if (!matchingCartPayloads(payloads, initialRows) || !allocationMatches) {
       const groups = CartManager.partitionCart?.(cart)?.groups;
