@@ -305,13 +305,14 @@
   // Category membership is always Zid's ID, never a guess from product names.
   let zidCategories=[], categoryListAuthoritative=false;
   const hiddenCategoryIds=new Set();
-  const categoryKeys={perfumes:'1748533',niche:'1759040',travel:'1759043','all-over':'1759042',linen:'1759044','body-care':'1759046',tollah:'1421002',packages:'1752110'};
+  const categoryKeys={perfumes:'1748533',niche:'1759040',travel:'1759043','all-over':'1759042',linen:'1759044','body-care':'1759046',tollah:'1421002',packages:'1752110','offer-2plus1':'1777270','offer-1plus-tollah':'1777271'};
   function categoryKey(id) {return String(id)==='1697258'?'bestsellers':String(id)==='1327929'?'new':'zid-'+id;}
   function resolveCurrentCategoryId(key) {
     if(!key || key==='all') return null;
     if(key==='new') return '1327929';
     if(key==='bestsellers') return '1697258';
     if(key.startsWith('zid-')) return key.slice(4);
+    if(/^\d+$/.test(key)) return key;
     return categoryKeys[key] || null;
   }
   function getProductCategoryRank(p, targetCategoryId) {
@@ -363,7 +364,7 @@
     } else if (key === 'new' && (hiddenCategoryIds.has('1327929') || (categoryListAuthoritative && !zidCategories.some(c=>c.id==='1327929')))) {
       return [];
     } else {
-      const id = key === 'new' ? '1327929' : key === 'bestsellers' ? '1697258' : key.startsWith('zid-') ? key.slice(4) : categoryKeys[key];
+      const id = key === 'new' ? '1327929' : key === 'bestsellers' ? '1697258' : key.startsWith('zid-') ? key.slice(4) : (categoryKeys[key] || key);
       if (!id || hiddenCategoryIds.has(String(id)) || (categoryListAuthoritative && !zidCategories.some(c=>c.id===String(id)))) return [];
       targetCatId = String(id);
       const ids = new Set([targetCatId]);
@@ -553,19 +554,27 @@
   initSliders = function() {
     refreshCategoryUI();
     const groups = {
-      'slider-bestsellers':categoryProducts('bestsellers'),
-      'slider-niche':categoryProducts('niche'),
-      'slider-new':categoryProducts('new')
+      'slider-bestsellers': categoryProducts('1777270'),
+      'slider-niche': categoryProducts('1777271'),
+      'slider-new': categoryProducts('packages')
     };
-    Object.entries(groups).forEach(([id,products]) => {
-      const track=document.getElementById(id);
+    Object.entries(groups).forEach(([id, products]) => {
+      const track = document.getElementById(id);
       if (track) {
-        const idForSlider={'slider-bestsellers':'1697258','slider-new':'1327929','slider-niche':categoryKeys.niche}[id];
-        const section=track.closest?.('section');if(section)section.hidden=hiddenCategoryIds.has(idForSlider)||(categoryListAuthoritative&&!zidCategories.some(c=>c.id===idForSlider));
-        track.innerHTML=products.length ? products.slice(0,12).map(renderProductCard).join('') : '<p class="note-empty-products">'+(liveCatalogReady ? (id==='slider-bestsellers' ? 'لا تتوفر بيانات مبيعات لترتيب المنتجات حاليًا.' : 'لا توجد منتجات متاحة حاليًا.') : 'جاري تحميل المنتجات…')+'</p>';
+        const idForSlider = { 'slider-bestsellers': '1777270', 'slider-niche': '1777271', 'slider-new': '1752110' }[id];
+        const section = track.closest?.('section');
+        if (section) section.hidden = hiddenCategoryIds.has(idForSlider) || (categoryListAuthoritative && !zidCategories.some(c => c.id === idForSlider));
+        track.innerHTML = products.length ? products.slice(0, 12).map(renderProductCard).join('') : '<p class="note-empty-products">' + (liveCatalogReady ? 'لا توجد منتجات متاحة حاليًا في هذا القسم.' : 'جاري تحميل المنتجات…') + '</p>';
         if (typeof enableSliderDragAndWheel === 'function') enableSliderDragAndWheel(track);
       }
     });
+    // Dynamically wire 'عرض الكل' buttons to live category URLs
+    const btn1 = document.querySelector('#bestsellers a[href*="categor"]');
+    if (btn1 && catUrlMap['zid-1777270']) btn1.href = catUrlMap['zid-1777270'];
+    const btn2 = document.querySelector('#niche a[href*="categor"]');
+    if (btn2 && catUrlMap['zid-1777271']) btn2.href = catUrlMap['zid-1777271'];
+    const btn3 = document.querySelector('#new-releases a[href*="categor"]');
+    if (btn3 && (catUrlMap['packages'] || catUrlMap['zid-1752110'])) btn3.href = catUrlMap['packages'] || catUrlMap['zid-1752110'];
   };
   NoteRouter.resolveProductId = function(path, params) {
     const key=params.get('id') || decodeURIComponent(path).split('/').filter(Boolean).pop();
@@ -1474,7 +1483,7 @@
       .then(res => res.ok ? res.json() : null)
       .then(info => {
         if (!info || !info.version) return;
-        const currentVersion = '4.6.3';
+        const currentVersion = '4.6.4';
         if (info.version !== currentVersion) {
           console.log('NOTE: New storefront version deployed:', info.version);
           localStorage.removeItem('note_zid_catalog_v9');
