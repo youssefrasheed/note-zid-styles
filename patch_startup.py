@@ -7,7 +7,7 @@ def fix_startup_css(css):
     return css
 
 def fix_startup(app):
-    app=app.replace('4.3.0','4.5.8')
+    app=app.replace('4.3.0','4.6.0')
     start=app.find("  // Hook and preserve Zid's native loader")
     if start>=0:
         end=app.index('  console.log(',start)
@@ -17,7 +17,24 @@ def fix_startup(app):
     css=(Path(__file__).parent/'note-utilities.css').read_text()
     bootstrap='''  // Precompiled styles are installed before any storefront DOM is mounted.
   if (document.documentElement.dataset.noteEngineStarted) return;
-  document.documentElement.dataset.noteEngineStarted='4.5.8';
+  document.documentElement.dataset.noteEngineStarted='4.6.0';
+  try {
+    const STOREFRONT_VERSION = '4.6.0';
+    const lastVersion = localStorage.getItem('note_storefront_version');
+    if (lastVersion !== STOREFRONT_VERSION) {
+      console.log('NOTE Storefront: upgrading to version ' + STOREFRONT_VERSION + ', refreshing cache');
+      localStorage.removeItem('note_zid_catalog_v9');
+      localStorage.removeItem('note_zid_catalog_time_v9');
+      localStorage.removeItem('note_zid_categories_v1');
+      localStorage.removeItem('note_zid_categories_time_v1');
+      localStorage.removeItem('note_applied_coupon');
+      localStorage.setItem('note_storefront_version', STOREFRONT_VERSION);
+      if (typeof window !== 'undefined') {
+        window._noteVerifiedCart = null;
+        window._noteFailedCartPricing = null;
+      }
+    }
+  } catch (e) {}
   try {
     document.documentElement.setAttribute('translate', 'no');
     document.documentElement.classList.add('notranslate');

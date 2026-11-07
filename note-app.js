@@ -1,6 +1,6 @@
 /**
  * NOTE Perfumes Official Storefront Engine for Zid
- * Version: 4.5.8 - Full Multi-Page SPA Client Master Edition
+ * Version: 4.6.0 - Full Multi-Page SPA Client Master Edition
  * Authentic NOTE Perfumes Storefront Engine
  * Hosted via GitHub Pages CDN: https://youssefrasheed.github.io/note-zid-styles/
  */
@@ -11,7 +11,7 @@
     if(document.body) releaseNative(); else document.addEventListener('DOMContentLoaded',releaseNative,{once:true});
     return;
   }
-  console.log("NOTE Perfumes Master Engine v4.5.8 Starting...");
+  console.log("NOTE Perfumes Master Engine v4.6.0 Starting...");
 
   const ASSET_HOST = "https://youssefrasheed.github.io/note-zid-styles";
 
@@ -62,7 +62,24 @@
 
   // Precompiled styles are installed before any storefront DOM is mounted.
   if (document.documentElement.dataset.noteEngineStarted) return;
-  document.documentElement.dataset.noteEngineStarted='4.5.8';
+  document.documentElement.dataset.noteEngineStarted='4.6.0';
+  try {
+    const STOREFRONT_VERSION = '4.6.0';
+    const lastVersion = localStorage.getItem('note_storefront_version');
+    if (lastVersion !== STOREFRONT_VERSION) {
+      console.log('NOTE Storefront: upgrading to version ' + STOREFRONT_VERSION + ', refreshing cache');
+      localStorage.removeItem('note_zid_catalog_v9');
+      localStorage.removeItem('note_zid_catalog_time_v9');
+      localStorage.removeItem('note_zid_categories_v1');
+      localStorage.removeItem('note_zid_categories_time_v1');
+      localStorage.removeItem('note_applied_coupon');
+      localStorage.setItem('note_storefront_version', STOREFRONT_VERSION);
+      if (typeof window !== 'undefined') {
+        window._noteVerifiedCart = null;
+        window._noteFailedCartPricing = null;
+      }
+    }
+  } catch (e) {}
   try {
     document.documentElement.setAttribute('translate', 'no');
     document.documentElement.classList.add('notranslate');
@@ -8541,6 +8558,32 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   // Refresh on return to the tab and every minute, including name/image changes.
   document.addEventListener('visibilitychange',()=>{if(!document.hidden && Date.now()-(ZidSyncManager.lastSuccess || 0)>30000) ZidSyncManager.fetchLiveCatalog().then(()=>ZidSyncManager.refreshDomPrices());});
   setInterval(()=>{if(!document.hidden) ZidSyncManager.fetchLiveCatalog().then(()=>ZidSyncManager.refreshDomPrices());},60000);
+
+  // Background version detection & cache refresh (checks version.json every 5 minutes)
+  function checkStorefrontUpdate() {
+    if (typeof fetch !== 'function') return;
+    fetch('https://youssefrasheed.github.io/note-zid-styles/version.json?_=' + Date.now(), { cache: 'no-store' })
+      .then(res => res.ok ? res.json() : null)
+      .then(info => {
+        if (!info || !info.version) return;
+        const currentVersion = '4.6.0';
+        if (info.version !== currentVersion) {
+          console.log('NOTE: New storefront version deployed:', info.version);
+          localStorage.removeItem('note_zid_catalog_v9');
+          localStorage.removeItem('note_zid_catalog_time_v9');
+          localStorage.removeItem('note_zid_categories_v1');
+          localStorage.removeItem('note_zid_categories_time_v1');
+          localStorage.setItem('note_storefront_version', info.version);
+          if (typeof window !== 'undefined') {
+            window._noteVerifiedCart = null;
+            window._noteFailedCartPricing = null;
+          }
+        }
+      })
+      .catch(() => {});
+  }
+  setTimeout(checkStorefrontUpdate, 15000);
+  setInterval(checkStorefrontUpdate, 5 * 60 * 1000);
   function assertCartResponse(response) {
     if(response?.status==='error' || response?.status==='failed' || response?.success===false || response?.data?.status==='error') throw Error(response?.message || response?.data?.message || 'تعذر تحديث سلة المشتريات');
     return response;

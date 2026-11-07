@@ -2,6 +2,8 @@
 import os
 import re
 import json
+import time
+from pathlib import Path
 from apply_live_fixes import apply_live_fixes
 from patch_startup import fix_startup, fix_startup_css
 
@@ -5932,4 +5934,13 @@ app_js_code += "\n" + read_preview("welcome-popup.js")
 with open(OUT_JS, "w", encoding="utf-8") as f:
     f.write(app_js_code)
 print(f"Generated {OUT_JS} ({os.path.getsize(OUT_JS)} bytes)")
+
+VERSION_FILE = Path(PREVIEW_DIR) / "version.json"
+version_payload = {
+    "version": "4.6.0",
+    "build_time": int(time.time() * 1000),
+    "date": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
+}
+VERSION_FILE.write_text(json.dumps(version_payload, indent=2), encoding="utf-8")
+print(f"Generated {VERSION_FILE} (version {version_payload['version']})")
 

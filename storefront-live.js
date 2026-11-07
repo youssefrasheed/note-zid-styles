@@ -1467,6 +1467,32 @@
   // Refresh on return to the tab and every minute, including name/image changes.
   document.addEventListener('visibilitychange',()=>{if(!document.hidden && Date.now()-(ZidSyncManager.lastSuccess || 0)>30000) ZidSyncManager.fetchLiveCatalog().then(()=>ZidSyncManager.refreshDomPrices());});
   setInterval(()=>{if(!document.hidden) ZidSyncManager.fetchLiveCatalog().then(()=>ZidSyncManager.refreshDomPrices());},60000);
+
+  // Background version detection & cache refresh (checks version.json every 5 minutes)
+  function checkStorefrontUpdate() {
+    if (typeof fetch !== 'function') return;
+    fetch('https://youssefrasheed.github.io/note-zid-styles/version.json?_=' + Date.now(), { cache: 'no-store' })
+      .then(res => res.ok ? res.json() : null)
+      .then(info => {
+        if (!info || !info.version) return;
+        const currentVersion = '4.6.0';
+        if (info.version !== currentVersion) {
+          console.log('NOTE: New storefront version deployed:', info.version);
+          localStorage.removeItem('note_zid_catalog_v9');
+          localStorage.removeItem('note_zid_catalog_time_v9');
+          localStorage.removeItem('note_zid_categories_v1');
+          localStorage.removeItem('note_zid_categories_time_v1');
+          localStorage.setItem('note_storefront_version', info.version);
+          if (typeof window !== 'undefined') {
+            window._noteVerifiedCart = null;
+            window._noteFailedCartPricing = null;
+          }
+        }
+      })
+      .catch(() => {});
+  }
+  setTimeout(checkStorefrontUpdate, 15000);
+  setInterval(checkStorefrontUpdate, 5 * 60 * 1000);
   function assertCartResponse(response) {
     if(response?.status==='error' || response?.status==='failed' || response?.success===false || response?.data?.status==='error') throw Error(response?.message || response?.data?.message || 'تعذر تحديث سلة المشتريات');
     return response;
