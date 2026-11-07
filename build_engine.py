@@ -5953,7 +5953,7 @@ print(f"Generated {OUT_JS} ({os.path.getsize(OUT_JS)} bytes)")
 
 VERSION_FILE = Path(PREVIEW_DIR) / "version.json"
 version_payload = {
-    "version": "4.7.1",
+    "version": "4.7.2",
     "build_time": int(time.time() * 1000),
     "date": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
 }
