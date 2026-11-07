@@ -372,8 +372,8 @@
     <!-- Background Video Layer (Mobile & Web) -->
     <div class="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
       <video id="hero-background-video" class="w-full h-full object-cover object-center" autoplay loop muted playsinline webkit-playsinline poster="/assets/videos/hero_video_poster.webp">
-        <source src="/assets/videos/note_hero_video_mobile.mp4" type="video/mp4" media="(max-width: 768px)">
-        <source src="/assets/videos/note_hero_video.mp4" type="video/mp4">
+        <source src="/assets/videos/note_hero_video_mobile.mp4?v=4.6.9" type="video/mp4" media="(max-width: 768px)">
+        <source src="/assets/videos/note_hero_video.mp4?v=4.6.9" type="video/mp4">
       </video>
     </div>
 
@@ -1797,7 +1797,7 @@
       if (heroVideo) {
         heroVideo.muted = true;
         heroVideo.addEventListener('timeupdate', () => {
-          if (heroVideo.currentTime >= 13.0) {
+          if (heroVideo.currentTime >= 12.8) {
             heroVideo.currentTime = 0;
             heroVideo.play().catch(() => {});
           }
