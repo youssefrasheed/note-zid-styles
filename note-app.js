@@ -1,6 +1,6 @@
 /**
  * NOTE Perfumes Official Storefront Engine for Zid
- * Version: 4.6.7 - Full Multi-Page SPA Client Master Edition
+ * Version: 4.6.8 - Full Multi-Page SPA Client Master Edition
  * Authentic NOTE Perfumes Storefront Engine
  * Hosted via GitHub Pages CDN: https://youssefrasheed.github.io/note-zid-styles/
  */
@@ -11,7 +11,7 @@
     if(document.body) releaseNative(); else document.addEventListener('DOMContentLoaded',releaseNative,{once:true});
     return;
   }
-  console.log("NOTE Perfumes Master Engine v4.6.7 Starting...");
+  console.log("NOTE Perfumes Master Engine v4.6.8 Starting...");
 
   const ASSET_HOST = "https://youssefrasheed.github.io/note-zid-styles";
 
@@ -62,9 +62,9 @@
 
   // Precompiled styles are installed before any storefront DOM is mounted.
   if (document.documentElement.dataset.noteEngineStarted) return;
-  document.documentElement.dataset.noteEngineStarted='4.6.7';
+  document.documentElement.dataset.noteEngineStarted='4.6.8';
   try {
-    const STOREFRONT_VERSION = '4.6.7';
+    const STOREFRONT_VERSION = '4.6.8';
     const lastVersion = localStorage.getItem('note_storefront_version');
     if (lastVersion !== STOREFRONT_VERSION) {
       console.log('NOTE Storefront: upgrading to version ' + STOREFRONT_VERSION + ', refreshing cache');
@@ -5217,6 +5217,12 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     const heroVideo = document.getElementById('hero-background-video');
     if (heroVideo) {
       heroVideo.muted = true;
+      heroVideo.addEventListener('timeupdate', () => {
+        if (heroVideo.currentTime >= 13.0) {
+          heroVideo.currentTime = 0;
+          heroVideo.play().catch(() => {});
+        }
+      });
       const playPromise = heroVideo.play();
       if (playPromise !== undefined) {
         playPromise.catch(() => {});
@@ -8583,7 +8589,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       .then(res => res.ok ? res.json() : null)
       .then(info => {
         if (!info || !info.version) return;
-        const currentVersion = '4.6.7';
+        const currentVersion = '4.6.8';
         if (info.version !== currentVersion) {
           console.log('NOTE: New storefront version deployed:', info.version);
           localStorage.removeItem('note_zid_catalog_v9');

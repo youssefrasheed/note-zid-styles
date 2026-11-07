@@ -3945,6 +3945,12 @@ app_js_code = f"""/**
     const heroVideo = document.getElementById('hero-background-video');
     if (heroVideo) {{
       heroVideo.muted = true;
+      heroVideo.addEventListener('timeupdate', () => {{
+        if (heroVideo.currentTime >= 13.0) {{
+          heroVideo.currentTime = 0;
+          heroVideo.play().catch(() => {{}});
+        }}
+      }});
       const playPromise = heroVideo.play();
       if (playPromise !== undefined) {{
         playPromise.catch(() => {{}});
@@ -5947,7 +5953,7 @@ print(f"Generated {OUT_JS} ({os.path.getsize(OUT_JS)} bytes)")
 
 VERSION_FILE = Path(PREVIEW_DIR) / "version.json"
 version_payload = {
-    "version": "4.6.7",
+    "version": "4.6.8",
     "build_time": int(time.time() * 1000),
     "date": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
 }

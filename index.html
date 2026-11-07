@@ -1796,6 +1796,12 @@
       const heroVideo = document.getElementById('hero-background-video');
       if (heroVideo) {
         heroVideo.muted = true;
+        heroVideo.addEventListener('timeupdate', () => {
+          if (heroVideo.currentTime >= 13.0) {
+            heroVideo.currentTime = 0;
+            heroVideo.play().catch(() => {});
+          }
+        });
         const playPromise = heroVideo.play();
         if (playPromise !== undefined) {
           playPromise.catch(() => {});
