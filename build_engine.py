@@ -3614,11 +3614,7 @@ app_js_code = f"""/**
         const state = scrollY > 20 ? 'hero-dark-scrolled' : 'hero-dark-top';
         if (lastHeaderState !== state) {{
           lastHeaderState = state;
-          if (scrollY > 20) {{
-            header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 text-white backdrop-blur-md bg-black/40 shadow-xs border-none';
-          }} else {{
-            header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 text-white bg-transparent border-none shadow-none backdrop-blur-none';
-          }}
+          header.className = 'fixed top-0 right-0 left-0 z-50 w-full transition-all duration-300 text-white bg-black shadow-md border-b border-white/10';
           if (storeLogo && !storeLogo.src.endsWith('/logo_white_crisp.png')) {{
             storeLogo.src = ASSET_HOST + '/logo_white_crisp.png';
           }}
@@ -5947,7 +5943,7 @@ print(f"Generated {OUT_JS} ({os.path.getsize(OUT_JS)} bytes)")
 
 VERSION_FILE = Path(PREVIEW_DIR) / "version.json"
 version_payload = {
-    "version": "4.6.2",
+    "version": "4.6.3",
     "build_time": int(time.time() * 1000),
     "date": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
 }

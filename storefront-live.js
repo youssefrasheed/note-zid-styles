@@ -212,14 +212,13 @@
   });
   if (!window.escapeHTML) window.escapeHTML = escapeHTML;
   const cleanSpelling = str => String(str ?? '')
+    .replace(/چ/g, 'ج')
     .replace(/الباكدجات/g, 'الباكجات')
     .replace(/باكدجات/g, 'باكجات')
     .replace(/الباكدج/g, 'الباكج')
     .replace(/باكدج/g, 'باكج')
     .replace(/العروض\s*و\s*البكجات/g, 'العروض والباكجات')
-    .replace(/العروض\s*و\s*الباكجات/g, 'العروض والباكجات')
-    .replace(/البكجات/g, 'الباكجات')
-    .replace(/بكجات/g, 'باكجات');
+    .replace(/العروض\s*و\s*الباكجات/g, 'العروض والباكجات');
   const KNOWN_PRODUCT_FALLBACKS = {
     '83561f07-7f51-43a4-a632-2030d6b71bc1': '/products/09_Linen_Room_Spray_Brand_Box.webp',
     'مجموعة-معطرات-الجو-و-المفارش': '/products/09_Linen_Room_Spray_Brand_Box.webp',
@@ -1475,7 +1474,7 @@
       .then(res => res.ok ? res.json() : null)
       .then(info => {
         if (!info || !info.version) return;
-        const currentVersion = '4.6.2';
+        const currentVersion = '4.6.3';
         if (info.version !== currentVersion) {
           console.log('NOTE: New storefront version deployed:', info.version);
           localStorage.removeItem('note_zid_catalog_v9');
