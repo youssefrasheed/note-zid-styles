@@ -3807,7 +3807,7 @@ app_js_code = f"""/**
       resultsContainer.innerHTML = `
         <div class="py-10 text-center text-stone-400">
           <i class="sicon-search text-3xl mb-2 block opacity-40"></i>
-          <p class="text-sm font-bold text-black mb-1">لم نجد أي نتائج تطابق "${{rawTrimmed}}"</p>
+          <p class="text-sm font-bold text-black mb-1">لم نجد أي نتائج تطابق "${{escapeHTML(rawTrimmed)}}"</p>
           <p class="text-xs text-stone-400">جرب البحث بكلمات أخرى مثل: مسك، توباكو، عود، عنبر، باودر</p>
         </div>
       `;
@@ -3826,10 +3826,10 @@ app_js_code = f"""/**
             </div>
             <div class="min-w-0">
               <div class="flex items-center gap-1.5">
-                <h4 class="text-xs sm:text-sm font-bold text-black truncate">${{p.title}}</h4>
+                <h4 class="text-xs sm:text-sm font-bold text-black truncate">${{escapeHTML(p.title)}}</h4>
                 ${{isOutOfStock ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 shrink-0">غير متاح</span>' : ''}}
               </div>
-              <p class="text-[10px] sm:text-[11px] text-stone-400 font-normal truncate">${{p.notes || p.cat_ar || ''}}</p>
+              <p class="text-[10px] sm:text-[11px] text-stone-400 font-normal truncate">${{escapeHTML(p.notes || p.cat_ar || '')}}</p>
               <span class="text-xs font-extrabold text-black block mt-0.5">${{formatPrice(p.price)}}</span>
             </div>
           </div>
@@ -5519,12 +5519,43 @@ app_js_code = f"""/**
   // 18. Contact Form Handler
   function handleContactSubmit(e) {{
     e.preventDefault();
+    const form = e.target;
+    const name = (form.querySelector('[name="name"]') || form.querySelector('input[type="text"]'))?.value?.trim() || '';
+    const phone = (form.querySelector('[name="phone"]') || form.querySelector('input[type="tel"]'))?.value?.trim() || '';
+    const email = (form.querySelector('[name="email"]') || form.querySelector('input[type="email"]'))?.value?.trim() || '';
+    const type = (form.querySelector('[name="type"]') || form.querySelector('select'))?.value || 'استفسار عام';
+    const message = (form.querySelector('[name="message"]') || form.querySelector('textarea'))?.value?.trim() || '';
+
+    const textLines = [
+      '✨ *رسالة جديدة من متجر NOTE لافيرن*',
+      '👤 *الاسم:* ' + name,
+      '📱 *الجوال:* ' + phone,
+      '✉️ *البريد:* ' + email,
+      '📌 *النوع:* ' + type,
+      '📝 *نص الرسالة:*',
+      message
+    ];
+    const fullText = textLines.join(String.fromCharCode(10));
+    const waUrl = 'https://wa.me/966565955420?text=' + encodeURIComponent(fullText);
+
+    try {{
+      window.open(waUrl, '_blank', 'noopener,noreferrer');
+    }} catch (_) {{}}
+
     const successEl = document.getElementById('contact-success-msg');
-    if (successEl) successEl.classList.remove('hidden');
-    e.target.reset();
+    if (successEl) {{
+      successEl.innerHTML = `
+        <div class="space-y-2">
+          <p class="font-bold text-emerald-900">✓ تم استلام رسالتك وتوجيهها مباشرة إلى خدمة عملاء NOTE عبر واتساب.</p>
+          <p class="text-[11px] text-emerald-700 font-normal">إذا لم تفتح نافذة الواتساب تلقائياً، يمكنك <a href="${{waUrl}}" target="_blank" rel="noopener noreferrer" class="underline font-bold text-black hover:text-emerald-950">الضغط هنا للتواصل الفوري عبر الواتساب (+966565955420)</a> أو مراسلتنا على الإيميل: <a href="mailto:marketing.noteperf@gmail.com?subject=${{encodeURIComponent(type + ' - ' + name)}}&body=${{encodeURIComponent(fullText)}}" class="underline font-bold text-black">marketing.noteperf@gmail.com</a></p>
+        </div>
+      `;
+      successEl.classList.remove('hidden');
+    }}
+    form.reset();
     setTimeout(() => {{
       if (successEl) successEl.classList.add('hidden');
-    }}, 5000);
+    }}, 15000);
   }}
 
   // 19. Router Engine
@@ -5953,7 +5984,7 @@ print(f"Generated {OUT_JS} ({os.path.getsize(OUT_JS)} bytes)")
 
 VERSION_FILE = Path(PREVIEW_DIR) / "version.json"
 version_payload = {
-    "version": "4.7.4",
+    "version": "4.7.5",
     "build_time": int(time.time() * 1000),
     "date": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
 }

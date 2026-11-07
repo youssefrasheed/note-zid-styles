@@ -494,8 +494,8 @@
       finally{clearTimeout(timer);this.categoryPending=null;}
     })();return this.categoryPending;
   };
-  setInterval(()=>{if(!document.hidden)ZidSyncManager.fetchLiveCategories();},10000);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)ZidSyncManager.fetchLiveCategories();});
+  setInterval(()=>{if(!document.hidden)ZidSyncManager.fetchLiveCategories();}, 5 * 60 * 1000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden && Date.now()-(ZidSyncManager.categoryLastSuccess||0)>60000)ZidSyncManager.fetchLiveCategories();});
   ZidSyncManager.fetchLiveCatalog = async function(timeoutMs=15000) {
     if (this.pending) return this.pending;
     this.pending = (async () => {
@@ -1483,7 +1483,7 @@
       .then(res => res.ok ? res.json() : null)
       .then(info => {
         if (!info || !info.version) return;
-        const currentVersion = '4.7.4';
+        const currentVersion = '4.7.5';
         if (info.version !== currentVersion) {
           console.log('NOTE: New storefront version deployed:', info.version);
           localStorage.removeItem('note_zid_catalog_v9');

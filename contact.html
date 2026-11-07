@@ -145,46 +145,47 @@
             <h3 class="text-base font-bold text-black mb-1">أرسل لنا رسالة أو شكوى</h3>
             <p class="text-xs text-stone-400 mb-6">سيتم الرد عليك في غضون 24 ساعة كحد أقصى</p>
 
-            <form onsubmit="handleContactSubmit(event)" class="space-y-4 text-xs font-bold text-stone-700">
+            <form id="contact-form" onsubmit="handleContactSubmit(event)" class="space-y-4 text-xs font-bold text-stone-700">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block mb-1.5">الاسم الكريم *</label>
-                  <input type="text" required placeholder="محمد عبدالله" class="w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-black font-normal bg-white">
+                  <input type="text" name="name" required placeholder="محمد عبدالله" class="w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-black font-normal bg-white">
                 </div>
                 <div>
                   <label class="block mb-1.5">رقم الجوال *</label>
-                  <input type="tel" required placeholder="05XXXXXXXX" class="w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-black font-normal bg-white" dir="ltr">
+                  <input type="tel" name="phone" required placeholder="05XXXXXXXX" class="w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-black font-normal bg-white" dir="ltr">
                 </div>
               </div>
 
               <div>
                 <label class="block mb-1.5">البريد الإلكتروني *</label>
-                <input type="email" required placeholder="name@example.com" class="w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-black font-normal bg-white" dir="ltr">
+                <input type="email" name="email" required placeholder="name@example.com" class="w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-black font-normal bg-white" dir="ltr">
               </div>
 
               <div>
                 <label class="block mb-1.5">نوع الرسالة *</label>
-                <select class="w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-black bg-white cursor-pointer font-normal">
-                  <option>استفسار عن عطر أو توليفة</option>
-                  <option>استفسار عن حالة شحنة وطلب</option>
-                  <option>طلب استرجاع تحت الضمان الذهبي</option>
-                  <option>شكوى واعتراض</option>
-                  <option>اقتراح لتطوير الخدمات</option>
-                  <option>طلب شراكة وتوزيع</option>
+                <select name="type" class="w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-black bg-white cursor-pointer font-normal">
+                  <option value="استفسار عن عطر أو توليفة">استفسار عن عطر أو توليفة</option>
+                  <option value="استفسار عن حالة شحنة وطلب">استفسار عن حالة شحنة وطلب</option>
+                  <option value="طلب استرجاع تحت الضمان الذهبي">طلب استرجاع تحت الضمان الذهبي</option>
+                  <option value="شكوى واعتراض">شكوى واعتراض</option>
+                  <option value="اقتراح لتطوير الخدمات">اقتراح لتطوير الخدمات</option>
+                  <option value="طلب شراكة وتوزيع">طلب شراكة وتوزيع</option>
                 </select>
               </div>
 
               <div>
                 <label class="block mb-1.5">نص الرسالة أو الشكوى بالتفصيل *</label>
-                <textarea required rows="4" placeholder="اكتب استفسارك أو ملاحظاتك هنا..." class="w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-black font-normal bg-white resize-none"></textarea>
+                <textarea name="message" required rows="4" placeholder="اكتب استفسارك أو ملاحظاتك هنا..." class="w-full px-4 py-3 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-black font-normal bg-white resize-none"></textarea>
               </div>
 
-              <button type="submit" class="w-full py-3.5 rounded-full bg-black hover:bg-stone-800 text-white font-bold text-xs transition duration-300 shadow-md active:scale-98">
-                إرسال الرسالة الآن
+              <button type="submit" class="w-full py-3.5 rounded-full bg-black hover:bg-stone-800 text-white font-bold text-xs transition duration-300 shadow-md active:scale-98 flex items-center justify-center gap-2">
+                <span>إرسال الرسالة إلى خدمة العملاء</span>
+                <i class="sicon-send text-sm"></i>
               </button>
             </form>
 
-            <div id="contact-success-msg" class="hidden mt-4 p-4 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs text-center font-bold">
+            <div id="contact-success-msg" class="hidden mt-4 p-4 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs text-right leading-relaxed font-bold">
               ✓ تم استلام رسالتك بنجاح! سيقوم فريق خدمة عملاء NOTE بالتواصل معك قريباً.
             </div>
           </div>
@@ -212,12 +213,43 @@
   <script>
     function handleContactSubmit(e) {
       e.preventDefault();
+      const form = e.target;
+      const name = (form.querySelector('[name="name"]') || form.querySelector('input[type="text"]'))?.value?.trim() || '';
+      const phone = (form.querySelector('[name="phone"]') || form.querySelector('input[type="tel"]'))?.value?.trim() || '';
+      const email = (form.querySelector('[name="email"]') || form.querySelector('input[type="email"]'))?.value?.trim() || '';
+      const type = (form.querySelector('[name="type"]') || form.querySelector('select'))?.value || 'استفسار عام';
+      const message = (form.querySelector('[name="message"]') || form.querySelector('textarea'))?.value?.trim() || '';
+
+      const textLines = [
+        '✨ *رسالة جديدة من متجر NOTE لافيرن*',
+        '👤 *الاسم:* ' + name,
+        '📱 *الجوال:* ' + phone,
+        '✉️ *البريد:* ' + email,
+        '📌 *النوع:* ' + type,
+        '📝 *نص الرسالة:*',
+        message
+      ];
+      const fullText = textLines.join('\n');
+      const waUrl = 'https://wa.me/966565955420?text=' + encodeURIComponent(fullText);
+
+      try {
+        window.open(waUrl, '_blank', 'noopener,noreferrer');
+      } catch (_) {}
+
       const successEl = document.getElementById('contact-success-msg');
-      successEl.classList.remove('hidden');
-      e.target.reset();
+      if (successEl) {
+        successEl.innerHTML = `
+          <div class="space-y-2">
+            <p class="font-bold text-emerald-900">✓ تم استلام رسالتك وتوجيهها مباشرة إلى خدمة عملاء NOTE عبر واتساب.</p>
+            <p class="text-[11px] text-emerald-700 font-normal">إذا لم تفتح نافذة الواتساب تلقائياً، يمكنك <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="underline font-bold text-black hover:text-emerald-950">الضغط هنا للتواصل الفوري عبر الواتساب (+966565955420)</a> أو مراسلتنا على الإيميل: <a href="mailto:marketing.noteperf@gmail.com?subject=${encodeURIComponent(type + ' - ' + name)}&body=${encodeURIComponent(fullText)}" class="underline font-bold text-black">marketing.noteperf@gmail.com</a></p>
+          </div>
+        `;
+        successEl.classList.remove('hidden');
+      }
+      form.reset();
       setTimeout(() => {
-        successEl.classList.add('hidden');
-      }, 5000);
+        if (successEl) successEl.classList.add('hidden');
+      }, 15000);
     }
   </script>
 
