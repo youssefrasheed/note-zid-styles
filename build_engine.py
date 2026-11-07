@@ -84,6 +84,7 @@ def normalize_urls(markup):
     replacements = [
         (r'src="/assets/', f'src="{ASSET_HOST}/assets/'),
         (r'srcset="/assets/', f'srcset="{ASSET_HOST}/assets/'),
+        (r'poster="/assets/', f'poster="{ASSET_HOST}/assets/'),
         (r'src="/products/', f'src="{ASSET_HOST}/products/'),
         (r'srcset="/products/', f'srcset="{ASSET_HOST}/products/'),
         (r'src="/fonts/', f'src="{ASSET_HOST}/fonts/'),
@@ -3573,7 +3574,7 @@ app_js_code = f"""/**
   }}
 
   // 10. Header Dynamic Theme Adaptation & Glassmorphism
-  let currentHeroTheme = 'light';
+  let currentHeroTheme = 'dark';
   let lastHeaderState = null;
 
   function handleHeaderScroll() {{
@@ -3908,7 +3909,7 @@ app_js_code = f"""/**
 
     const activeSlide = slides[currentHeroIndex];
     if (activeSlide) {{
-      currentHeroTheme = activeSlide.getAttribute('data-theme') || (currentHeroIndex <= 1 ? 'light' : 'dark');
+      currentHeroTheme = activeSlide.getAttribute('data-theme') || 'dark';
       lastHeaderState = null;
       handleHeaderScroll();
     }}
@@ -3940,6 +3941,15 @@ app_js_code = f"""/**
   function initHeroCarousel() {{
     const heroSection = document.getElementById('section-hero-video');
     if (!heroSection) return;
+
+    const heroVideo = document.getElementById('hero-background-video');
+    if (heroVideo) {{
+      heroVideo.muted = true;
+      const playPromise = heroVideo.play();
+      if (playPromise !== undefined) {{
+        playPromise.catch(() => {{}});
+      }}
+    }}
 
     heroSection.addEventListener('mouseenter', stopHeroTimer);
     heroSection.addEventListener('mouseleave', startHeroTimer);
@@ -5937,7 +5947,7 @@ print(f"Generated {OUT_JS} ({os.path.getsize(OUT_JS)} bytes)")
 
 VERSION_FILE = Path(PREVIEW_DIR) / "version.json"
 version_payload = {
-    "version": "4.6.1",
+    "version": "4.6.2",
     "build_time": int(time.time() * 1000),
     "date": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
 }

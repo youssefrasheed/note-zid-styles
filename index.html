@@ -369,26 +369,30 @@
   <!-- ================= 2. CINEMATIC HERO BANNER (AUTO-ROTATING CAROUSEL) ================= -->
   <section id="section-hero-video" class="relative w-full min-h-[720px] sm:min-h-[760px] md:min-h-[820px] lg:h-[860px] bg-black overflow-hidden flex flex-col justify-end items-center text-center group select-none">
     
+    <!-- Background Video Layer (Mobile & Web) -->
+    <div class="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+      <video id="hero-background-video" class="w-full h-full object-cover object-center" autoplay loop muted playsinline webkit-playsinline poster="/assets/videos/hero_video_poster.webp">
+        <source src="/assets/videos/note_hero_video_mobile.mp4" type="video/mp4" media="(max-width: 768px)">
+        <source src="/assets/videos/note_hero_video.mp4" type="video/mp4">
+      </video>
+      <!-- Cinematic Gradient Overlay for Maximum Text Contrast -->
+      <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 via-35% to-black/25"></div>
+    </div>
+
     <!-- Slides Container -->
-    <div id="hero-slides-wrapper" class="absolute inset-0 w-full h-full">
+    <div id="hero-slides-wrapper" class="absolute inset-0 w-full h-full z-10 pointer-events-none">
 
       <!-- Slide 1: Offer 2 (عطرك بـ 1 ريال - 2+1) - Priority 1 -->
-      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-100 z-10" data-index="0" data-theme="light">
-        <picture class="w-full h-full block">
-          <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Offer2_Perfume_1SAR_Mobile.webp">
-          <img src="/assets/banners/Desktop/NOTE_Offer2_Perfume_1SAR_Desktop.webp" alt="عطرك بـ 1 ريال - عروض الجمعة البيضاء" fetchpriority="high" loading="eager" class="w-full h-full object-cover object-center">
-        </picture>
-        <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 via-35% to-transparent"></div>
-        <div class="absolute inset-0 flex flex-col justify-end items-center pb-10 sm:pb-14 lg:pb-16 px-4 sm:px-6 max-w-5xl mx-auto pointer-events-auto text-center">
-          <span class="hero-offer-badge" style="color: #ffd777 !important; background: rgba(212, 175, 55, 0.22) !important; border: 1px solid rgba(245, 215, 110, 0.75) !important; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7) !important;">عروض الجمعة البيضاء | 2+1</span>
-          <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-tight drop-shadow-2xl">
+      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-100 z-10 pointer-events-auto" data-index="0" data-theme="dark">
+        <div class="absolute inset-0 flex flex-col justify-end items-center pb-12 sm:pb-16 lg:pb-20 px-4 sm:px-6 max-w-5xl mx-auto pointer-events-auto text-center">
+          <h1 class="font-black text-white tracking-tight leading-none drop-shadow-2xl mb-3 sm:mb-4" style="font-size: clamp(2.8rem, 8vw, 6.2rem) !important; line-height: 1.05 !important; text-shadow: 0 4px 24px rgba(0,0,0,0.85), 0 2px 8px rgba(0,0,0,0.9) !important;">
             عطرك بـ 1 ريال
           </h1>
-          <p class="text-xs sm:text-base md:text-xl font-medium text-stone-200 mt-2 sm:mt-3 drop-shadow-md max-w-xl">
+          <p class="text-sm sm:text-lg md:text-xl font-medium text-stone-200 mt-2 sm:mt-3 drop-shadow-md max-w-xl" style="text-shadow: 0 2px 10px rgba(0,0,0,0.85) !important;">
             عند شرائك أي عطرين 100 مل... احصل على العطر الثالث بريال واحد فقط
           </p>
-          <div class="mt-4 sm:mt-5 mb-2 sm:mb-3">
-            <a href="#bestsellers" class="inline-flex items-center gap-2.5 px-8 py-3 sm:py-3.5 rounded-full bg-white text-black hover:bg-stone-100 font-extrabold text-xs sm:text-sm transition-all duration-300 shadow-xl active:scale-95">
+          <div class="mt-5 sm:mt-6 mb-2 sm:mb-3">
+            <a href="#bestsellers" class="inline-flex items-center gap-2.5 px-8 py-3.5 sm:px-10 sm:py-4 rounded-full bg-white text-black hover:bg-stone-100 font-extrabold text-xs sm:text-sm transition-all duration-300 shadow-xl active:scale-95">
               <span>تسوّق العرض الآن</span>
               <i class="sicon-keyboard_arrow_left text-xs"></i>
             </a>
@@ -397,22 +401,16 @@
       </div>
 
       <!-- Slide 2: Offer 1 (تولة بـ 1 ريال - 1+تولة) - Priority 2 -->
-      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="1" data-theme="light">
-        <picture class="w-full h-full block">
-          <source media="(max-width: 768px)" srcset="/assets/banners/Mobile/NOTE_Offer1_Tolah_1SAR_Mobile.webp">
-          <img src="/assets/banners/Desktop/NOTE_Offer1_Tolah_1SAR_Desktop.webp" alt="تولة بـ 1 ريال - عروض الجمعة البيضاء" loading="lazy" class="w-full h-full object-cover object-center">
-        </picture>
-        <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 via-35% to-transparent"></div>
-        <div class="absolute inset-0 flex flex-col justify-end items-center pb-10 sm:pb-14 lg:pb-16 px-4 sm:px-6 max-w-5xl mx-auto pointer-events-auto text-center">
-          <span class="hero-offer-badge" style="color: #ffd777 !important; background: rgba(212, 175, 55, 0.22) !important; border: 1px solid rgba(245, 215, 110, 0.75) !important; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7) !important;">عروض الجمعة البيضاء | 1+تولة</span>
-          <h2 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-tight drop-shadow-2xl">
+      <div class="hero-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-0 pointer-events-none z-0" data-index="1" data-theme="dark">
+        <div class="absolute inset-0 flex flex-col justify-end items-center pb-12 sm:pb-16 lg:pb-20 px-4 sm:px-6 max-w-5xl mx-auto pointer-events-auto text-center">
+          <h2 class="font-black text-white tracking-tight leading-none drop-shadow-2xl mb-3 sm:mb-4" style="font-size: clamp(2.8rem, 8vw, 6.2rem) !important; line-height: 1.05 !important; text-shadow: 0 4px 24px rgba(0,0,0,0.85), 0 2px 8px rgba(0,0,0,0.9) !important;">
             تولة بـ 1 ريال
           </h2>
-          <p class="text-xs sm:text-base md:text-xl font-medium text-stone-200 mt-2 sm:mt-3 drop-shadow-md max-w-xl">
-            عند شرائك أي عطر 100 مل... احصل على تولة مِسك فاخرة بريال واحد فقط
+          <p class="text-sm sm:text-lg md:text-xl font-medium text-stone-200 mt-2 sm:mt-3 drop-shadow-md max-w-xl" style="text-shadow: 0 2px 10px rgba(0,0,0,0.85) !important;">
+            عند شرائك أي عطر 100 مل أو معطر جسم... احصل على تولة فاخرة بريال واحد فقط
           </p>
-          <div class="mt-4 sm:mt-5 mb-2 sm:mb-3">
-            <a href="#bestsellers" class="inline-flex items-center gap-2.5 px-8 py-3 sm:py-3.5 rounded-full bg-white text-black hover:bg-stone-100 font-extrabold text-xs sm:text-sm transition-all duration-300 shadow-xl active:scale-95">
+          <div class="mt-5 sm:mt-6 mb-2 sm:mb-3">
+            <a href="#bestsellers" class="inline-flex items-center gap-2.5 px-8 py-3.5 sm:px-10 sm:py-4 rounded-full bg-white text-black hover:bg-stone-100 font-extrabold text-xs sm:text-sm transition-all duration-300 shadow-xl active:scale-95">
               <span>تسوّق العرض الآن</span>
               <i class="sicon-keyboard_arrow_left text-xs"></i>
             </a>
@@ -1516,7 +1514,7 @@
     }
 
     // Header Dynamic Adaptation & Scroll Glassmorphism
-    let currentHeroTheme = 'light';
+    let currentHeroTheme = 'dark';
     let lastHeaderState = null;
 
     function handleHeaderScroll() {
@@ -1777,7 +1775,7 @@
 
       const activeSlide = slides[currentHeroIndex];
       if (activeSlide) {
-        currentHeroTheme = activeSlide.getAttribute('data-theme') || (currentHeroIndex <= 1 ? 'light' : 'dark');
+        currentHeroTheme = activeSlide.getAttribute('data-theme') || 'dark';
         lastHeaderState = null;
         handleHeaderScroll();
       }
@@ -1822,6 +1820,15 @@
     function initHeroCarousel() {
       const heroSection = document.getElementById('section-hero-video');
       if (!heroSection) return;
+
+      const heroVideo = document.getElementById('hero-background-video');
+      if (heroVideo) {
+        heroVideo.muted = true;
+        const playPromise = heroVideo.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {});
+        }
+      }
 
       heroSection.addEventListener('mouseenter', stopHeroTimer);
       heroSection.addEventListener('mouseleave', startHeroTimer);
