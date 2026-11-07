@@ -4359,8 +4359,8 @@ app_js_code = f"""/**
       desc: 'لوشنات وزيوت ترطيب فاخرة غنية بخلاصات العطور النقية لترطيب عميق ورائحة آسرة.'
     }},
     'tollah': {{
-      title: 'تولات مِسك ودهن عود نقي',
-      desc: 'أدهان نقية فاخرة ومسك مخلط بتركيز صافٍ لمحبي التميز والأصالة الشرقية الأصيلة.'
+      title: 'تولات',
+      desc: 'تولات وزيوت عطرية مركزة بتوليفات متنوعة ونقية تأسر الحواس بثبات استثنائي.'
     }},
     'packages': {{
       title: 'مجموعات نوت والباقات الفاخرة',
@@ -4848,7 +4848,7 @@ app_js_code = f"""/**
       {{ id: 'for-her-30ml', title: 'عطر نوت فور هير (30 مل)', price: 89, old_price: 199, img: '/products/NOTE_For_Her_30ml_v02.webp' }},
       {{ id: 'for-him-30ml', title: 'عطر نوت فور هِم (30 مل)', price: 89, old_price: 199, img: '/products/NOTE_For_Him_30ml_v02.webp' }},
       {{ id: 'powderose-30ml', title: 'عطر باودر روز (30 مل)', price: 89, old_price: 199, img: '/products/NOTE_Powderose_30ml_v01.webp' }},
-      {{ id: 'musk-toffee-oil', title: 'تولة مسك توفي نقي', price: 69, old_price: 140, img: '/products/NOTE_Musk_Toffee_v01.webp' }},
+      {{ id: 'musk-toffee-oil', title: 'تولة مِسك توفي', price: 69, old_price: 140, img: '/products/NOTE_Musk_Toffee_v01.webp' }},
       {{ id: 'all-over-royal-tobacco', title: 'معطر الجسم رويال توباكو', price: 99, old_price: 180, img: '/products/NOTE_Royal_Tobacco_All_Over_v01.webp' }}
     ];
 
@@ -5937,7 +5937,7 @@ print(f"Generated {OUT_JS} ({os.path.getsize(OUT_JS)} bytes)")
 
 VERSION_FILE = Path(PREVIEW_DIR) / "version.json"
 version_payload = {
-    "version": "4.6.0",
+    "version": "4.6.1",
     "build_time": int(time.time() * 1000),
     "date": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
 }
