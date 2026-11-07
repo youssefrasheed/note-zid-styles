@@ -1543,12 +1543,14 @@
   const originalRemove=CartManager.removeItem, originalUpdateQuantity=CartManager.updateQuantity;
   CartManager.removeItem=function(key) {
     const cart=this.getCart();
-    if (!cart.some(item => item.id === key)) return;
-    const directRemoval=fastRemovalAction(cart,key);
+    const matched = cart.find(item => (typeof CartManager._itemMatches === 'function') ? CartManager._itemMatches(item, key) : item.id === key);
+    if (!matched) return;
+    const canonicalKey = matched.id;
+    const directRemoval=fastRemovalAction(cart, canonicalKey);
     // Show feedback before saveCart synchronously rebuilds either cart view.
     startCartLoading();
     try {
-      originalRemove.call(this,key);
+      originalRemove.call(this, canonicalKey);
       return enqueueNativeCartSync(directRemoval || undefined).catch(() => null).finally(finishCartLoading);
     } catch (error) {
       finishCartLoading();
@@ -1556,12 +1558,20 @@
     }
   };
   CartManager.updateQuantity=function(key,delta) {
-    const item=this.getCart().find(i=>i.id===key);if(!item)return;
-    if(item.quantity+delta<=0) return this.removeItem(key);
-    const p=noteProductsCatalog.find(cp=>cp.id===(item.product_id||item.id) || cp.slug===item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[item.id]===cp.id));
-    if(delta>0 && p && (!p.in_stock || (p.stock && item.quantity+delta>p.stock))) {this.showToast('الكمية المطلوبة غير متاحة');return;}
+    const cart = this.getCart();
+    const item = cart.find(i => (typeof CartManager._itemMatches === 'function') ? CartManager._itemMatches(i, key) : i.id === key);
+    if (!item) return;
+    const canonicalKey = item.id;
+    if (item.quantity + delta <= 0) return this.removeItem(canonicalKey);
+    const p = (typeof noteProductsCatalog !== 'undefined' && Array.isArray(noteProductsCatalog))
+      ? noteProductsCatalog.find(cp => cp.id === (item.product_id || item.id) || cp.slug === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[item.id] === cp.id))
+      : null;
+    if (delta > 0 && p && (!p.in_stock || (p.stock && item.quantity + delta > p.stock))) {
+      this.showToast('الكمية المطلوبة غير متاحة');
+      return;
+    }
     const confirmation = scheduleQuantitySync();
-    originalUpdateQuantity.call(this,key,delta);
+    originalUpdateQuantity.call(this, canonicalKey, delta);
     window.noteRenderCartLoading();
     return confirmation;
   };

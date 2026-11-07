@@ -3621,16 +3621,16 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       this.showToast('تمت إضافة ' + product.title + ' إلى سلتك');
     },
     removeItem: function(productId) {
-      let cart = this.getCart().filter(item => item.id !== productId);
+      let cart = this.getCart().filter(item => !this._itemMatches(item, productId));
       this.saveCart(cart);
     },
     updateQuantity: function(productId, delta) {
       let cart = this.getCart();
-      const item = cart.find(i => i.id === productId);
+      const item = cart.find(i => this._itemMatches(i, productId));
       if (item) {
         item.quantity += delta;
         if (item.quantity <= 0) {
-          cart = cart.filter(i => i.id !== productId);
+          cart = cart.filter(i => !this._itemMatches(i, productId));
         }
       }
       this.saveCart(cart);
@@ -3649,32 +3649,98 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     getLiveCartState: function() {
       return (typeof window !== 'undefined' && window._noteLiveCartState) ? window._noteLiveCartState : null;
     },
+    _itemMatches: function(item, key) {
+      if (!item || !key) return false;
+      const k = String(key).trim().toLowerCase();
+      const kClean = k.replace(/-/g, '');
+      const itemId = String(item.id || '').trim().toLowerCase();
+      const itemProdId = String(item.product_id || '').trim().toLowerCase();
+      const itemZidId = String(item.zid_id || '').trim().toLowerCase();
+      
+      if (itemId === k || itemProdId === k || itemZidId === k) return true;
+      if (kClean && (
+        itemId.replace(/-/g, '') === kClean ||
+        itemProdId.replace(/-/g, '') === kClean ||
+        itemZidId.replace(/-/g, '') === kClean
+      )) return true;
+
+      if (typeof ZID_PRODUCT_MAP !== 'undefined') {
+        for (const [slugKey, zidVal] of Object.entries(ZID_PRODUCT_MAP)) {
+          const cleanVal = String(zidVal || '').replace(/-/g, '').toLowerCase();
+          const cleanSlug = String(slugKey || '').trim().toLowerCase();
+          const isKeyMatch = (k === cleanSlug || kClean === cleanVal);
+          const isItemMatch = (itemId === cleanSlug || itemId.replace(/-/g, '') === cleanVal || itemProdId === cleanSlug || itemProdId.replace(/-/g, '') === cleanVal);
+          if (isKeyMatch && isItemMatch) return true;
+        }
+      }
+
+      const catProduct = (typeof this._findCatalogProduct === 'function') ? this._findCatalogProduct(item) : null;
+      const keyProduct = (typeof this._findCatalogProduct === 'function') ? this._findCatalogProduct({ id: key, product_id: key }) : null;
+      if (catProduct && keyProduct && catProduct.id === keyProduct.id) return true;
+      if (catProduct && (
+        catProduct.id.toLowerCase() === k ||
+        (catProduct.zid_id && catProduct.zid_id.replace(/-/g, '').toLowerCase() === kClean)
+      )) return true;
+      if (keyProduct && (
+        itemId === keyProduct.id.toLowerCase() ||
+        (itemProdId && itemProdId.replace(/-/g, '') === String(keyProduct.zid_id || '').replace(/-/g, '').toLowerCase()) ||
+        (itemZidId && itemZidId.replace(/-/g, '') === String(keyProduct.zid_id || '').replace(/-/g, '').toLowerCase())
+      )) return true;
+
+      return false;
+    },
     _findCatalogProduct: function(item) {
-      if (!item || typeof noteProductsCatalog === 'undefined') return null;
+      if (!item) return null;
       const rawId = String(item.product_id || item.id || '').trim().toLowerCase();
       if (!rawId) return null;
+      const rawClean = rawId.replace(/-/g, '');
       const itemId = item.id ? String(item.id).trim().toLowerCase() : null;
       const itemProdId = item.product_id ? String(item.product_id).trim().toLowerCase() : null;
       const itemZidId = item.zid_id ? String(item.zid_id).trim().toLowerCase() : null;
 
-      return noteProductsCatalog.find(cp => {
+      let mappedSlug = null;
+      if (typeof ZID_PRODUCT_MAP !== 'undefined') {
+        for (const [slugKey, zidVal] of Object.entries(ZID_PRODUCT_MAP)) {
+          const cleanVal = String(zidVal || '').replace(/-/g, '').toLowerCase();
+          const cleanSlug = String(slugKey || '').trim().toLowerCase();
+          if (rawClean === cleanVal || (itemId && itemId.replace(/-/g, '') === cleanVal) || (itemProdId && itemProdId.replace(/-/g, '') === cleanVal)) {
+            mappedSlug = cleanSlug;
+            break;
+          }
+          if (rawId === cleanSlug || itemId === cleanSlug || itemProdId === cleanSlug) {
+            mappedSlug = cleanSlug;
+            break;
+          }
+        }
+      }
+
+      const catList = (typeof noteProductsCatalog !== 'undefined' && Array.isArray(noteProductsCatalog) && noteProductsCatalog.length > 0)
+        ? noteProductsCatalog
+        : ((typeof originalCatalog !== 'undefined' && Array.isArray(originalCatalog) && originalCatalog.length > 0)
+          ? originalCatalog
+          : (typeof window !== 'undefined' && Array.isArray(window.noteProductsCatalog) && window.noteProductsCatalog.length > 0 ? window.noteProductsCatalog : []));
+
+      const found = catList.find(cp => {
         if (!cp) return false;
         const cpId = cp.id ? String(cp.id).trim().toLowerCase() : null;
         const cpZidId = cp.zid_id ? String(cp.zid_id).trim().toLowerCase() : null;
+        const cpZidClean = cpZidId ? cpZidId.replace(/-/g, '') : null;
 
+        if (mappedSlug && cpId === mappedSlug) return true;
         if (cpId && (cpId === rawId || (itemId && cpId === itemId) || (itemProdId && cpId === itemProdId))) return true;
         if (cpZidId && (cpZidId === rawId || (itemId && cpZidId === itemId) || (itemProdId && cpZidId === itemProdId) || (itemZidId && cpZidId === itemZidId))) return true;
+        if (cpZidClean && rawClean && (cpZidClean === rawClean || (itemId && itemId.replace(/-/g, '') === cpZidClean) || (itemProdId && itemProdId.replace(/-/g, '') === cpZidClean))) return true;
 
-        if (typeof ZID_PRODUCT_MAP !== 'undefined') {
-          const mappedKey = ZID_PRODUCT_MAP[rawId] || (itemId && ZID_PRODUCT_MAP[itemId]) || (itemProdId && ZID_PRODUCT_MAP[itemProdId]);
-          if (mappedKey) {
-            const cleanMapped = String(mappedKey).trim().toLowerCase();
-            if (cpId && cleanMapped === cpId) return true;
-            if (cpZidId && cleanMapped === cpZidId) return true;
-          }
-        }
         return false;
-      }) || null;
+      });
+
+      if (found) return found;
+
+      if (mappedSlug) {
+        return { id: mappedSlug, title: item.title || item.name || mappedSlug };
+      }
+
+      return null;
     },
     _isQualifying100mlPerfume: function(item) {
       if (!item) return false;
@@ -5758,8 +5824,6 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
         const priceDisplay = (overridePrice !== null) ? overridePrice : item.price;
         const crossedPrice = (overridePrice !== null) ? (confirmedRow?.price_before || item.price) : (nativePricing ? null : oldPriceVal);
-        const removeAction = showStepper && quantity === item.quantity
-          ? 'removeItem(this.dataset.key)' : 'updateQuantity(this.dataset.key, -Number(this.dataset.quantity))';
         const shownPrice = (nativePricing
           ? (confirmedRow ? formatPrice(Number(confirmedRow.price)) : confirmedItemPrice(cart, item, overridePrice !== null))
           : '') || formatPrice(priceDisplay);
@@ -5781,7 +5845,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                   </div>
                 </div>
               </div>
-              <button type="button" data-key="${escapeHTML(item.id)}" data-quantity="${quantity}" onclick="CartManager.${removeAction};" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+              <button type="button" data-key="${escapeHTML(item.id)}" data-quantity="${quantity}" onclick="CartManager.removeItem(this.dataset.key);" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
               </button>
             </div>
@@ -5872,16 +5936,20 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
             </div>
             <div class="note-bundle-group-items">
               ${b.rows.map(row => {
-                const catalogItem = CartManager._findCatalogProduct(row) || {
-                  id: row.product_id || row.id,
-                  title: row.name,
-                  price: Number(row.price_before || row.price || 0),
-                  img: row.images?.[0]?.origin || row.images?.[0]?.thumbs?.thumbnail || '/products/fallback.webp'
+                const catalogItem = CartManager._findCatalogProduct(row);
+                const matchedCartItem = cart.find(ci => CartManager._itemMatches(ci, row.product_id || row.id));
+                const itemData = {
+                  id: matchedCartItem ? matchedCartItem.id : (catalogItem ? catalogItem.id : (row.product_id || row.id)),
+                  title: catalogItem ? catalogItem.title : (matchedCartItem ? matchedCartItem.title : row.name),
+                  img: catalogItem ? catalogItem.img : (matchedCartItem ? matchedCartItem.img : (row.images?.[0]?.origin || '/products/fallback.webp')),
+                  price: Number(row.price_before || catalogItem?.price || row.price || 0),
+                  old_price: catalogItem?.old_price || matchedCartItem?.old_price || null,
+                  quantity: row.quantity || 1
                 };
                 const isDisc = Boolean(row.is_discounted || Number(row.price) <= 1);
                 const overridePrice = isDisc ? Number(row.price) : null;
                 const badge = isDisc ? (isTola ? 'تولة العرض بـ 1 ريال' : 'مشمول بالعرض بـ 1 ريال') : null;
-                return renderItem(catalogItem, false, overridePrice, badge, row.quantity || 1, row);
+                return renderItem(itemData, false, overridePrice, badge, row.quantity || 1, row);
               }).join('')}
             </div>
           </div>
@@ -5894,22 +5962,29 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         const standaloneTitle = hasAnyBundles ? 'منتجات إضافية' : 'المنتجات في سلتك';
         const standaloneMap = new Map();
         for (const row of zidStandalone) {
-          const catalogItem = CartManager._findCatalogProduct(row) || {
-            id: row.product_id || row.id,
-            title: row.name,
-            price: Number(row.price || 0),
-            img: row.images?.[0]?.origin || row.images?.[0]?.thumbs?.thumbnail || '/products/fallback.webp'
-          };
-          const key = catalogItem.id;
-          if (!standaloneMap.has(key)) {
-            standaloneMap.set(key, { catalogItem, quantity: 0, row });
+          const catalogItem = CartManager._findCatalogProduct(row);
+          const matchedCartItem = cart.find(ci => CartManager._itemMatches(ci, row.product_id || row.id));
+          const id = matchedCartItem ? matchedCartItem.id : (catalogItem ? catalogItem.id : (row.product_id || row.id));
+          if (!standaloneMap.has(id)) {
+            standaloneMap.set(id, {
+              item: {
+                id: id,
+                title: catalogItem ? catalogItem.title : (matchedCartItem ? matchedCartItem.title : row.name),
+                img: catalogItem ? catalogItem.img : (matchedCartItem ? matchedCartItem.img : (row.images?.[0]?.origin || '/products/fallback.webp')),
+                price: Number(row.price || catalogItem?.price || 0),
+                old_price: catalogItem?.old_price || matchedCartItem?.old_price || null,
+                quantity: Number(row.quantity || 1)
+              },
+              quantity: 0,
+              row
+            });
           }
-          standaloneMap.get(key).quantity += Number(row.quantity || 1);
+          standaloneMap.get(id).quantity += Number(row.quantity || 1);
         }
         cardsHtml += `
           <div class="note-cart-standalone-section" style="margin-top:14px!important;">
             <h3 style="font-size:14px!important;font-weight:800!important;color:#44403c!important;margin-bottom:10px!important;">${standaloneTitle}</h3>
-            ${[...standaloneMap.values()].map(entry => renderItem(entry.catalogItem, true, null, null, entry.quantity, entry.row)).join('')}
+            ${[...standaloneMap.values()].map(entry => renderItem(entry.item, true, null, null, entry.quantity, entry.row)).join('')}
           </div>
         `;
       }
@@ -8542,12 +8617,14 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   const originalRemove=CartManager.removeItem, originalUpdateQuantity=CartManager.updateQuantity;
   CartManager.removeItem=function(key) {
     const cart=this.getCart();
-    if (!cart.some(item => item.id === key)) return;
-    const directRemoval=fastRemovalAction(cart,key);
+    const matched = cart.find(item => (typeof CartManager._itemMatches === 'function') ? CartManager._itemMatches(item, key) : item.id === key);
+    if (!matched) return;
+    const canonicalKey = matched.id;
+    const directRemoval=fastRemovalAction(cart, canonicalKey);
     // Show feedback before saveCart synchronously rebuilds either cart view.
     startCartLoading();
     try {
-      originalRemove.call(this,key);
+      originalRemove.call(this, canonicalKey);
       return enqueueNativeCartSync(directRemoval || undefined).catch(() => null).finally(finishCartLoading);
     } catch (error) {
       finishCartLoading();
@@ -8555,12 +8632,20 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     }
   };
   CartManager.updateQuantity=function(key,delta) {
-    const item=this.getCart().find(i=>i.id===key);if(!item)return;
-    if(item.quantity+delta<=0) return this.removeItem(key);
-    const p=noteProductsCatalog.find(cp=>cp.id===(item.product_id||item.id) || cp.slug===item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[item.id]===cp.id));
-    if(delta>0 && p && (!p.in_stock || (p.stock && item.quantity+delta>p.stock))) {this.showToast('الكمية المطلوبة غير متاحة');return;}
+    const cart = this.getCart();
+    const item = cart.find(i => (typeof CartManager._itemMatches === 'function') ? CartManager._itemMatches(i, key) : i.id === key);
+    if (!item) return;
+    const canonicalKey = item.id;
+    if (item.quantity + delta <= 0) return this.removeItem(canonicalKey);
+    const p = (typeof noteProductsCatalog !== 'undefined' && Array.isArray(noteProductsCatalog))
+      ? noteProductsCatalog.find(cp => cp.id === (item.product_id || item.id) || cp.slug === item.id || (typeof ZID_PRODUCT_MAP !== 'undefined' && ZID_PRODUCT_MAP[item.id] === cp.id))
+      : null;
+    if (delta > 0 && p && (!p.in_stock || (p.stock && item.quantity + delta > p.stock))) {
+      this.showToast('الكمية المطلوبة غير متاحة');
+      return;
+    }
     const confirmation = scheduleQuantitySync();
-    originalUpdateQuantity.call(this,key,delta);
+    originalUpdateQuantity.call(this, canonicalKey, delta);
     window.noteRenderCartLoading();
     return confirmation;
   };
