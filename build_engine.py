@@ -2555,9 +2555,10 @@ app_js_code = f"""/**
       trioEligible.sort((a, b) => b.price - a.price || unitKey(a).localeCompare(unitKey(b)));
       const trioCount = Math.floor(trioEligible.length / 3);
       for (let t = 0; t < trioCount; t++) {{
-        const item1 = trioEligible[t * 3];
-        const item2 = trioEligible[t * 3 + 1];
-        const item3 = trioEligible[t * 3 + 2];
+        const available = trioEligible.filter(u => !u.consumed);
+        const item1 = available[0];
+        const item2 = available[1];
+        const item3 = available[available.length - 1];
         item1.consumed = true;
         item2.consumed = true;
         item3.consumed = true;
@@ -4519,7 +4520,7 @@ app_js_code = f"""/**
         const removeAction = showStepper && quantity === item.quantity
           ? 'removeItem(this.dataset.key)' : 'updateQuantity(this.dataset.key, -Number(this.dataset.quantity))';
         const shownPrice = (nativePricing
-          ? (confirmedRow ? formatPrice(Number(confirmedRow.price)) : confirmedItemPrice(cart, item, showStepper ? undefined : overridePrice !== null))
+          ? (confirmedRow ? formatPrice(Number(confirmedRow.price)) : confirmedItemPrice(cart, item, overridePrice !== null))
           : '') || formatPrice(priceDisplay);
         return `
           <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3 transition-all shadow-2xs text-right" data-cart-id="${{item.id}}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:10px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
