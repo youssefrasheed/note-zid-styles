@@ -1483,7 +1483,7 @@
       .then(res => res.ok ? res.json() : null)
       .then(info => {
         if (!info || !info.version) return;
-        const currentVersion = '4.7.2';
+        const currentVersion = '4.7.3';
         if (info.version !== currentVersion) {
           console.log('NOTE: New storefront version deployed:', info.version);
           localStorage.removeItem('note_zid_catalog_v9');
