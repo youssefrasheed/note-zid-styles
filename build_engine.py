@@ -2778,18 +2778,10 @@ app_js_code = f"""/**
               const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
               const drawerCouponBtn = document.getElementById('drawer-coupon-btn');
               if (drawerCouponBtn) {{
-                const isCouponActive = !!savedCoupon || (liveTotals && liveTotals.some(t => t.code === 'coupon'));
-                if (isCouponActive) {{
-                  drawerCouponBtn.style.backgroundColor = '';
-                  drawerCouponBtn.style.borderColor = '';
-                  drawerCouponBtn.classList.add('note-btn-gold');
-                  drawerCouponBtn.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
-                }} else {{
-                  drawerCouponBtn.style.backgroundColor = '';
-                  drawerCouponBtn.style.borderColor = '';
-                  drawerCouponBtn.classList.remove('note-btn-gold');
-                  drawerCouponBtn.textContent = 'تطبيق';
-                }}
+                const isCouponActive = !!savedCoupon || (liveTotals && liveTotals.some(t => (t.code === 'coupon' || t.code === 'coupons') && Number.isFinite(Number(t.value)) && Number(t.value) < 0));
+                if (isCouponActive) drawerCouponBtn.classList.add('note-btn-gold');
+                else drawerCouponBtn.classList.remove('note-btn-gold');
+                setCouponButtonActive(drawerCouponBtn, isCouponActive);
               }}
               const baseAfterBundle = Math.max(0, total - bundleDiscount);
               let finalDrawerTotal = baseAfterBundle;
@@ -2983,10 +2975,8 @@ app_js_code = f"""/**
       if (drawerCouponInput && savedCoupon) {{
         if (!drawerCouponInput.value) drawerCouponInput.value = savedCoupon;
         if (drawerCouponBtn) {{
-          drawerCouponBtn.style.backgroundColor = '';
-          drawerCouponBtn.style.borderColor = '';
           drawerCouponBtn.classList.add('note-btn-gold');
-          drawerCouponBtn.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
+          setCouponButtonActive(drawerCouponBtn, true);
         }}
         if (drawerCouponTag) drawerCouponTag.classList.remove('hidden');
         if (drawerCouponMsg) {{
@@ -2995,10 +2985,7 @@ app_js_code = f"""/**
           drawerCouponMsg.classList.remove('hidden');
         }}
       }} else if (drawerCouponBtn && !savedCoupon) {{
-        drawerCouponBtn.style.backgroundColor = '';
-        drawerCouponBtn.style.borderColor = '';
-        drawerCouponBtn.classList.remove('note-btn-gold');
-        drawerCouponBtn.textContent = 'تطبيق';
+        setCouponButtonActive(drawerCouponBtn, false);
         if (drawerCouponTag) drawerCouponTag.classList.add('hidden');
         if (drawerCouponMsg?.classList.contains('text-emerald-600')) drawerCouponMsg.classList.add('hidden');
       }}
@@ -3009,12 +2996,7 @@ app_js_code = f"""/**
           const currentVal = drawerCouponInput.value.trim().toUpperCase();
           const saved = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
           if (saved && currentVal !== saved) {{
-            if (drawerCouponBtn) {{
-              drawerCouponBtn.style.backgroundColor = '';
-              drawerCouponBtn.style.borderColor = '';
-              drawerCouponBtn.classList.remove('note-btn-gold');
-              drawerCouponBtn.textContent = 'تطبيق';
-            }}
+            if (drawerCouponBtn) setCouponButtonActive(drawerCouponBtn, false);
             if (drawerCouponTag) drawerCouponTag.classList.add('hidden');
             if (!currentVal) {{
               if (window.noteChangeCartCoupon) {{
@@ -3029,12 +3011,7 @@ app_js_code = f"""/**
               if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
             }}
           }} else if (!saved) {{
-            if (drawerCouponBtn) {{
-              drawerCouponBtn.style.backgroundColor = '';
-              drawerCouponBtn.style.borderColor = '';
-              drawerCouponBtn.classList.remove('note-btn-gold');
-              drawerCouponBtn.textContent = 'تطبيق';
-            }}
+            if (drawerCouponBtn) setCouponButtonActive(drawerCouponBtn, false);
           }}
         }});
       }}
@@ -3152,6 +3129,23 @@ app_js_code = f"""/**
     }}
   }};
 
+  // Set Coupon Button UI state:
+  // When active: Luxury Radiant Gold with SVG checkmark and 'مفعّل'
+  // When inactive: Default solid black #111111 with plain 'تطبيق' (NO checkmark, NO 'مفعّل')
+  function setCouponButtonActive(btn, isActive) {{
+    if (!btn) return;
+    btn.style.backgroundColor = '';
+    btn.style.borderColor = '';
+    const textId = (btn.id === 'coupon-apply-btn') ? 'coupon-btn-text' : 'drawer-coupon-btn-text';
+    if (isActive) {{
+      btn.classList.add('note-btn-gold');
+      btn.innerHTML = '<span id="' + textId + '" class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
+    }} else {{
+      btn.classList.remove('note-btn-gold');
+      btn.innerHTML = '<span id="' + textId + '">تطبيق</span>';
+    }}
+  }}
+
   // Celebratory Coupon Animation & Micro-Confetti Burst
   function triggerCouponCelebration(container, tag, btn, totalEl) {{
     try {{
@@ -3202,10 +3196,7 @@ app_js_code = f"""/**
 
       // 4. Button success feedback: Permanently active Luxury Gold with checkmark
       if (btn) {{
-        btn.style.backgroundColor = '';
-        btn.style.borderColor = '';
-        btn.classList.add('note-btn-gold');
-        btn.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
+        setCouponButtonActive(btn, true);
         btn.classList.add('note-coupon-tag-anim');
         setTimeout(() => btn.classList.remove('note-coupon-tag-anim'), 1200);
       }}
@@ -3254,10 +3245,11 @@ app_js_code = f"""/**
       btn.innerHTML = '<span class="inline-block animate-spin">⟳</span>';
     }}
 
+    let applied = false;
+    let alreadyApplied = false;
+    let zidError = null;
+
     try {{
-      let applied = false;
-      let alreadyApplied = false;
-      let zidError = null;
 
       if (!window.zid || !window.zid.cart) {{
         try {{
@@ -3339,12 +3331,7 @@ app_js_code = f"""/**
         if (typeof CartManager !== 'undefined' && CartManager.renderDrawer) CartManager.renderDrawer();
 
         if (tag) tag.classList.remove('hidden');
-        if (btn) {{
-          btn.style.backgroundColor = '';
-          btn.style.borderColor = '';
-          btn.classList.add('note-btn-gold');
-          btn.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
-        }}
+        if (btn) setCouponButtonActive(btn, true);
         msg.textContent = alreadyApplied
           ? `كود الخصم (${{code}}) مفعّل بالفعل لطلبك! 🎉`
           : `تم تفعيل كود الخصم (${{code}}) بنجاح! سيتم احتسابه عند الدفع.`;
@@ -3359,15 +3346,11 @@ app_js_code = f"""/**
       msg.textContent = 'حدث خطأ أثناء تطبيق الكود. يرجى المحاولة مجدداً.';
       msg.className = 'text-[11px] font-bold text-rose-600 block mt-1.5';
       msg.classList.remove('hidden');
+      if (btn) setCouponButtonActive(btn, false);
     }} finally {{
       if (btn) {{
         btn.disabled = false;
-        if (!applied) {{
-          btn.style.backgroundColor = '';
-          btn.style.borderColor = '';
-          btn.classList.remove('note-btn-gold');
-          btn.textContent = 'تطبيق';
-        }}
+        if (!applied) setCouponButtonActive(btn, false);
       }}
     }}
   }};
@@ -4667,6 +4650,7 @@ app_js_code = f"""/**
     updateCheckoutUpsell(cart);
     renderCartPageRecommendations(cart);
     restoreSavedCartCoupon();
+    bindCartCouponInputListener();
     if (!skipSync && typeof window.noteConfirmCartPricing === 'function') window.noteConfirmCartPricing();
     else if (!skipSync && CartManager.syncLiveCart) CartManager.syncLiveCart();
   }}
@@ -4781,6 +4765,7 @@ app_js_code = f"""/**
     const btnText = document.getElementById('coupon-btn-text');
 
     if (!input || !msg) return;
+    delete input.dataset.userCleared;
 
     const code = input.value.trim().toUpperCase();
     if (!code) {{
@@ -4802,10 +4787,11 @@ app_js_code = f"""/**
     if (applyBtn) applyBtn.disabled = true;
     if (btnText) btnText.innerHTML = '<svg class="animate-spin h-3.5 w-3.5 text-black inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>';
 
+    let applied = false;
+    let alreadyApplied = false;
+    let zidError = null;
+
     try {{
-      let applied = false;
-      let alreadyApplied = false;
-      let zidError = null;
 
       if (!window.zid || !window.zid.cart) {{
         try {{
@@ -4887,10 +4873,8 @@ app_js_code = f"""/**
       }} else if (applied) {{
         if (!window.noteChangeCartCoupon) localStorage.setItem('note_applied_coupon', code);
         if (applyBtn) {{
-          applyBtn.style.backgroundColor = '';
-          applyBtn.style.borderColor = '';
           applyBtn.classList.add('note-btn-gold');
-          if (btnText) btnText.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
+          setCouponButtonActive(applyBtn, true);
         }}
         msg.textContent = alreadyApplied
           ? `كود الخصم (${{code}}) مفعّل بالفعل لطلبك! 🎉`
@@ -4907,20 +4891,50 @@ app_js_code = f"""/**
     }} catch (e) {{
       msg.textContent = 'حدث خطأ أثناء تطبيق الكود. يرجى المحاولة مجدداً.';
       msg.className = 'text-[11px] font-bold text-rose-600 block';
+      if (applyBtn) {{
+        applyBtn.classList.remove('note-btn-gold');
+        setCouponButtonActive(applyBtn, false);
+      }}
     }} finally {{
       if (applyBtn) applyBtn.disabled = false;
       if (!applied) {{
         if (applyBtn) {{
-          applyBtn.style.backgroundColor = '';
-          applyBtn.style.borderColor = '';
           applyBtn.classList.remove('note-btn-gold');
+          setCouponButtonActive(applyBtn, false);
         }}
-        if (btnText) btnText.textContent = 'تطبيق';
       }}
     }}
   }}
 
   async function clearCartCoupon() {{
+    const input = document.getElementById('coupon-code-input');
+    const msg = document.getElementById('coupon-msg');
+    const tag = document.getElementById('coupon-applied-tag');
+    const clearBtn = document.getElementById('coupon-clear-btn');
+    const applyBtn = document.getElementById('coupon-apply-btn');
+
+    // Instant 0ms optimistic UI reset
+    if (applyBtn) {{
+      applyBtn.classList.remove('note-btn-gold');
+      setCouponButtonActive(applyBtn, false);
+    }}
+    if (input) {{
+      input.value = '';
+      input.dataset.userCleared = 'true';
+    }}
+    if (tag) tag.classList.add('hidden');
+    if (clearBtn) clearBtn.classList.add('hidden');
+    if (msg) {{
+      msg.textContent = 'تمت إزالة كود الخصم.';
+      msg.className = 'text-[11px] font-bold text-stone-500 block';
+      setTimeout(() => {{ if (msg && msg.textContent === 'تمت إزالة كود الخصم.') msg.classList.add('hidden'); }}, 2500);
+    }}
+
+    localStorage.removeItem('note_applied_coupon');
+    if (window._noteVerifiedCart) {{
+      window._noteVerifiedCart.couponCode = null;
+    }}
+
     if (typeof window.noteChangeCartCoupon === 'function') {{
       try {{
         await window.noteChangeCartCoupon(null);
@@ -4928,29 +4942,6 @@ app_js_code = f"""/**
         CartManager.showToast('تعذّر إزالة كود الخصم. حاول مرة أخرى.');
         return;
       }}
-    }} else {{
-      localStorage.removeItem('note_applied_coupon');
-    }}
-    const input = document.getElementById('coupon-code-input');
-    const msg = document.getElementById('coupon-msg');
-    const tag = document.getElementById('coupon-applied-tag');
-    const clearBtn = document.getElementById('coupon-clear-btn');
-    const applyBtn = document.getElementById('coupon-apply-btn');
-    const btnText = document.getElementById('coupon-btn-text');
-
-    if (applyBtn) {{
-      applyBtn.style.backgroundColor = '';
-      applyBtn.style.borderColor = '';
-      applyBtn.classList.remove('note-btn-gold');
-    }}
-    if (btnText) btnText.textContent = 'تطبيق';
-    if (input) input.value = '';
-    if (tag) tag.classList.add('hidden');
-    if (clearBtn) clearBtn.classList.add('hidden');
-    if (msg) {{
-      msg.textContent = 'تمت إزالة كود الخصم.';
-      msg.className = 'text-[11px] font-bold text-stone-500 block';
-      setTimeout(() => {{ if (msg && msg.textContent === 'تمت إزالة كود الخصم.') msg.classList.add('hidden'); }}, 2500);
     }}
     if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
 
@@ -4961,33 +4952,31 @@ app_js_code = f"""/**
 
   function restoreSavedCartCoupon() {{
     const quote = window._noteVerifiedCart;
-    const saved = window.noteCartPricingKey
-      ? (quote?.snapshot === window.noteCartPricingKey() ? quote.couponCode : null)
+    const nativePricing = typeof window.noteConfirmCartPricing === 'function';
+    const saved = nativePricing
+      ? (quote?.snapshot === window.noteCartPricingKey?.() ? (quote.couponCode || null) : null)
       : localStorage.getItem('note_applied_coupon');
     const applyBtn = document.getElementById('coupon-apply-btn');
-    const btnText = document.getElementById('coupon-btn-text');
-
-    if (!saved) {{
-      if (applyBtn) {{
-        applyBtn.style.backgroundColor = '';
-        applyBtn.style.borderColor = '';
-        applyBtn.classList.remove('note-btn-gold');
-      }}
-      if (btnText) btnText.textContent = 'تطبيق';
-      return;
-    }}
     const input = document.getElementById('coupon-code-input');
     const tag = document.getElementById('coupon-applied-tag');
     const clearBtn = document.getElementById('coupon-clear-btn');
     const msg = document.getElementById('coupon-msg');
 
-    if (applyBtn) {{
-      applyBtn.style.backgroundColor = '';
-      applyBtn.style.borderColor = '';
-      applyBtn.classList.add('note-btn-gold');
-      if (btnText) btnText.innerHTML = '<span class="inline-flex items-center gap-1 font-bold text-stone-900"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>مفعّل</span></span>';
+    if (!saved) {{
+      if (applyBtn) {{
+        applyBtn.classList.remove('note-btn-gold');
+        setCouponButtonActive(applyBtn, false);
+      }}
+      if (tag) tag.classList.add('hidden');
+      if (clearBtn && (!input || !input.value.trim())) clearBtn.classList.add('hidden');
+      return;
     }}
-    if (input && !input.value) input.value = saved;
+
+    if (applyBtn) {{
+      applyBtn.classList.add('note-btn-gold');
+      setCouponButtonActive(applyBtn, true);
+    }}
+    if (input && !input.value && !input.dataset.userCleared && (typeof document === 'undefined' || document.activeElement !== input)) input.value = saved;
     if (tag) tag.classList.remove('hidden');
     if (clearBtn) clearBtn.classList.remove('hidden');
     if (msg && msg.classList.contains('hidden')) {{
@@ -4995,6 +4984,77 @@ app_js_code = f"""/**
       msg.className = 'text-[11px] font-bold text-emerald-600 block';
     }}
     if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') updateCartFinancials(CartManager.getTotal());
+  }}
+
+  function bindCartCouponInputListener() {{
+    const input = document.getElementById('coupon-code-input');
+    const applyBtn = document.getElementById('coupon-apply-btn');
+    const clearBtn = document.getElementById('coupon-clear-btn');
+    const tag = document.getElementById('coupon-applied-tag');
+    const msg = document.getElementById('coupon-msg');
+
+    if (clearBtn) {{
+      clearBtn.onclick = (e) => {{
+        e.preventDefault();
+        e.stopPropagation();
+        clearCartCoupon();
+      }};
+    }}
+
+    if (applyBtn) {{
+      applyBtn.onclick = (e) => {{
+        e.preventDefault();
+        applyCartCoupon();
+      }};
+    }}
+
+    if (!input) return;
+
+    input.oninput = () => {{
+      const currentVal = input.value.trim().toUpperCase();
+      const verifiedCode = window._noteVerifiedCart?.couponCode?.toUpperCase() || null;
+      const savedCode = ((typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null)?.toUpperCase() || null;
+      const activeCode = verifiedCode || savedCode;
+
+      if (currentVal) delete input.dataset.userCleared;
+      else input.dataset.userCleared = 'true';
+
+      if (clearBtn) {{
+        if (input.value.length > 0) clearBtn.classList.remove('hidden');
+        else clearBtn.classList.add('hidden');
+      }}
+
+      if (!currentVal || currentVal !== activeCode) {{
+        if (applyBtn) {{
+          applyBtn.classList.remove('note-btn-gold');
+          setCouponButtonActive(applyBtn, false);
+        }}
+        if (tag) tag.classList.add('hidden');
+        if (msg && msg.classList.contains('text-emerald-600')) msg.classList.add('hidden');
+
+        if (!currentVal && activeCode) {{
+          if (typeof localStorage !== 'undefined') localStorage.removeItem('note_applied_coupon');
+          if (typeof window !== 'undefined' && window._noteVerifiedCart) {{
+            window._noteVerifiedCart.couponCode = null;
+          }}
+          if (window.noteChangeCartCoupon) {{
+            window.noteChangeCartCoupon(null).catch(() => null);
+          }}
+          if (window.zid?.cart?.removeCoupons) {{
+            window.zid.cart.removeCoupons().catch(() => null);
+          }}
+          if (typeof updateCartFinancials === 'function' && typeof CartManager !== 'undefined') {{
+            updateCartFinancials(CartManager.getTotal());
+          }}
+        }}
+      }} else if (currentVal === activeCode) {{
+        if (applyBtn) {{
+          applyBtn.classList.add('note-btn-gold');
+          setCouponButtonActive(applyBtn, true);
+        }}
+        if (tag) tag.classList.remove('hidden');
+      }}
+    }};
   }}
 
   function updateCartFinancials(subtotal) {{
@@ -5077,12 +5137,27 @@ app_js_code = f"""/**
 
     const couponMsgEl = document.getElementById('coupon-msg');
     const couponTagEl = document.getElementById('coupon-applied-tag');
-    if (nativePricing) {{
-      const clearBtn = document.getElementById('coupon-clear-btn');
-      if (appliedCoupon) clearBtn?.classList.remove('hidden');
-      else clearBtn?.classList.add('hidden');
+    const couponClearBtn = document.getElementById('coupon-clear-btn');
+    const applyBtn = document.getElementById('coupon-apply-btn');
+    const couponInput = document.getElementById('coupon-code-input');
+
+    const isCouponActive = !!appliedCoupon && (nativePricing ? (couponDiscount > 0 || !!verified?.couponCode) : true);
+
+    if (applyBtn) {{
+      if (isCouponActive) applyBtn.classList.add('note-btn-gold');
+      else applyBtn.classList.remove('note-btn-gold');
+      setCouponButtonActive(applyBtn, isCouponActive);
     }}
-    if (appliedCoupon) {{
+
+    if (couponClearBtn) {{
+      if (isCouponActive || (couponInput && couponInput.value.trim().length > 0)) {{
+        couponClearBtn.classList.remove('hidden');
+      }} else {{
+        couponClearBtn.classList.add('hidden');
+      }}
+    }}
+
+    if (isCouponActive) {{
       if (couponTagEl) couponTagEl.classList.remove('hidden');
       if (couponMsgEl) {{
         couponMsgEl.textContent = `كود الخصم (${{appliedCoupon}}) مفعّل لطلبك.`;
@@ -5091,7 +5166,7 @@ app_js_code = f"""/**
       }}
     }} else {{
       if (couponTagEl) couponTagEl.classList.add('hidden');
-      if (couponMsgEl) couponMsgEl.classList.add('hidden');
+      if (couponMsgEl && couponMsgEl.classList.contains('text-emerald-600')) couponMsgEl.classList.add('hidden');
     }}
 
     const discountRow = document.getElementById('discount-row');
@@ -5519,6 +5594,7 @@ app_js_code = f"""/**
 
     // Route to current page immediately (0ms)
     NoteRouter.route();
+    bindCartCouponInputListener();
     document.body.classList.add('note-ready');
 
     // Smoothly dismiss Zid's native entrance loader
@@ -5638,6 +5714,8 @@ app_js_code = f"""/**
   }};
 
   // Cart Page Handlers & Aliases
+  window.setCouponButtonActive = setCouponButtonActive;
+  window.bindCartCouponInputListener = bindCartCouponInputListener;
   window.renderCartPage = renderCartPage;
   window.applyCartCoupon = applyCartCoupon;
   window.applyCoupon = applyCartCoupon;

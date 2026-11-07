@@ -44,7 +44,7 @@ console.log('PASS: Active gold vs inactive black coupon button logic verified.')
 (async () => {
   const vm = require('node:vm');
   const live = fs.readFileSync(path.join(baseDir, 'storefront-live.js'), 'utf8');
-  const start = live.indexOf('  function cartPricingKey(');
+  const start = live.indexOf('  function cartReconciliationPlan(');
   const end = live.indexOf('  CartManager.addItem=function', start);
   const values = new Map([['note_applied_coupon', 'NOTE5']]);
   let coupon = 'NOTE5';
