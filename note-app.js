@@ -5757,7 +5757,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
         const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
         const priceDisplay = (overridePrice !== null) ? overridePrice : item.price;
-        const crossedPrice = (overridePrice !== null) ? item.price : (nativePricing ? null : oldPriceVal);
+        const crossedPrice = (overridePrice !== null) ? (confirmedRow?.price_before || item.price) : (nativePricing ? null : oldPriceVal);
         const removeAction = showStepper && quantity === item.quantity
           ? 'removeItem(this.dataset.key)' : 'updateQuantity(this.dataset.key, -Number(this.dataset.quantity))';
         const shownPrice = (nativePricing
@@ -5801,102 +5801,209 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         `;
     };
 
-    const partition = CartManager.partitionCart(cart);
-    if (nativePricing) {
-      const rows = confirmedCartRows(cart);
-      if (!rows.length && window._noteFailedCartPricing !== window.noteCartPricingKey?.(cart)) {
-        if (!skipSync) window.noteConfirmCartPricing();
-      }
+    const rows = nativePricing ? confirmedCartRows(cart) : [];
+
+    // If native quote is still pending verification, show loading state and trigger sync
+    if (nativePricing && !rows.length && window._noteFailedCartPricing !== window.noteCartPricingKey?.(cart)) {
+      if (!skipSync) window.noteConfirmCartPricing();
+      const pendingMarkup = '<div role="status" class="note-cart-pending-status rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center text-sm text-stone-700">جارٍ تحديث عروض وسلة المشتريات…</div>';
+      if (window.noteReplaceCartItems) window.noteReplaceCartItems(itemsContainer, pendingMarkup, true);
+      else itemsContainer.innerHTML = pendingMarkup;
+      updateCartFinancials(total);
+      return;
     }
+
     let cardsHtml = '';
 
-    // 1. Tier 1: Body Spray Bundles (3 sprays @ 249 SAR)
-    if (partition.groups.tier1_spray_bundles.length > 0) {
-      partition.groups.tier1_spray_bundles.forEach((b, bIdx) => {
-        cardsHtml += `
-          <div class="note-bundle-group-card" style="background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:20px!important;padding:16px 18px!important;margin-bottom:16px!important;box-shadow:0 1px 4px rgba(0,0,0,0.02)!important;">
-            <div class="note-bundle-group-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding-bottom:12px!important;border-bottom:1px solid #f0eee9!important;margin-bottom:14px!important;flex-wrap:wrap!important;gap:8px!important;">
-              <div style="display:flex!important;align-items:center!important;gap:8px!important;">
-                <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">عرض باقة المعطرات</span>
-                <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">باقة معطرات الجسم (3 معطرات بـ 249 ر.س)</h3>
-              </div>
-              <div style="display:flex!important;align-items:baseline!important;gap:8px!important;">
-                <span style="font-size:13px!important;color:#a8a29e!important;text-decoration:line-through!important;">${formatPrice(b.originalPrice)}</span>
-                <span style="font-size:16px!important;font-weight:900!important;color:#ef4444!important;">249 ر.س</span>
-              </div>
-            </div>
-            <div class="note-bundle-group-items">
-              ${b.units.map(u => renderItem(u.item, false, null, 'مشمول بالباقة', 1)).join('')}
-            </div>
-          </div>
-        `;
-      });
-    }
+    if (nativePricing && rows.length > 0) {
+      // 1. Group items dynamically by Zid server's verified bundle_offer.id
+      const zidBundles = new Map();
+      const zidStandalone = [];
 
-    // 2. Tier 2: Trio Offers (2+1 at 1 SAR)
-    if (partition.groups.tier2_trios.length > 0) {
-      partition.groups.tier2_trios.forEach((t, tIdx) => {
+      for (const row of rows) {
+        const offer = row.meta?.bundle_offer;
+        if (offer && offer.id) {
+          if (!zidBundles.has(offer.id)) {
+            zidBundles.set(offer.id, {
+              id: offer.id,
+              name: offer.name || 'عروض الجمعة',
+              rows: [],
+              savings: 0
+            });
+          }
+          const b = zidBundles.get(offer.id);
+          b.rows.push(row);
+          if (row.is_discounted || Number(row.price) <= 1) {
+            const catItem = CartManager._findCatalogProduct(row);
+            const orig = Number(row.price_before || catItem?.old_price || catItem?.price || 0);
+            b.savings += Math.max(0, orig - Number(row.price));
+          }
+        } else {
+          zidStandalone.push(row);
+        }
+      }
+
+      // Filter: Only keep bundles that have an active discount; move incomplete groups to standalone
+      for (const [offerId, b] of Array.from(zidBundles.entries())) {
+        const hasDiscount = b.savings > 0 || b.rows.some(r => r.is_discounted || (r.price != null && Number(r.price) <= 1));
+        if (!hasDiscount) {
+          zidStandalone.push(...b.rows);
+          zidBundles.delete(offerId);
+        }
+      }
+
+      // Render Verified Bundles from Zid
+      for (const [offerId, b] of zidBundles.entries()) {
+        const isTola = b.name.includes('تولة') || b.name.includes('توله') || b.name.includes('1+تولة');
+        const badgeText = isTola ? 'تولة بـ 1 ريال (1+تولة)' : 'عطرك بـ 1 ريال (2+1)';
+        const titleText = isTola ? 'عرض التولة بـ 1 ريال' : 'عرض الثالث بـ 1 ريال';
+        const savingsText = b.savings > 0
+          ? `<div style="display:flex!important;align-items:baseline!important;gap:8px!important;"><span style="font-size:13px!important;font-weight:700!important;color:#047857!important;">وفّرت ${formatPrice(b.savings)}</span></div>`
+          : '';
+
         cardsHtml += `
           <div class="note-bundle-group-card" style="background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:20px!important;padding:16px 18px!important;margin-bottom:16px!important;box-shadow:0 1px 4px rgba(0,0,0,0.02)!important;">
             <div class="note-bundle-group-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding-bottom:12px!important;border-bottom:1px solid #f0eee9!important;margin-bottom:14px!important;flex-wrap:wrap!important;gap:8px!important;">
               <div style="display:flex!important;align-items:center!important;gap:8px!important;">
-                <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">عطرك بـ 1 ريال (2+1)</span>
-                <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">عرض الثالث بـ 1 ريال</h3>
+                <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">${badgeText}</span>
+                <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">${titleText}</h3>
               </div>
-              <div style="display:flex!important;align-items:baseline!important;gap:8px!important;">
-                <span style="font-size:13px!important;font-weight:700!important;color:#047857!important;">وفّرت ${formatPrice(t.discount)}</span>
-              </div>
+              ${savingsText}
             </div>
             <div class="note-bundle-group-items">
-              ${t.units.map(u => {
-                const isDisc = (u === t.discountedUnit);
-                return renderItem(u.item, false, isDisc ? 1 : null, isDisc ? 'مشمول بالعرض بـ 1 ريال' : null, 1);
+              ${b.rows.map(row => {
+                const catalogItem = CartManager._findCatalogProduct(row) || {
+                  id: row.product_id || row.id,
+                  title: row.name,
+                  price: Number(row.price_before || row.price || 0),
+                  img: row.images?.[0]?.origin || row.images?.[0]?.thumbs?.thumbnail || '/products/fallback.webp'
+                };
+                const isDisc = Boolean(row.is_discounted || Number(row.price) <= 1);
+                const overridePrice = isDisc ? Number(row.price) : null;
+                const badge = isDisc ? (isTola ? 'تولة العرض بـ 1 ريال' : 'مشمول بالعرض بـ 1 ريال') : null;
+                return renderItem(catalogItem, false, overridePrice, badge, row.quantity || 1, row);
               }).join('')}
             </div>
           </div>
         `;
-      });
-    }
+      }
 
-    // 3. Tier 3: Pair Offers (1+Tola at 1 SAR)
-    if (partition.groups.tier3_pairs.length > 0) {
-      partition.groups.tier3_pairs.forEach((p, pIdx) => {
+      // Render Verified Standalone Items from Zid
+      if (zidStandalone.length > 0) {
+        const hasAnyBundles = zidBundles.size > 0;
+        const standaloneTitle = hasAnyBundles ? 'منتجات إضافية' : 'المنتجات في سلتك';
+        const standaloneMap = new Map();
+        for (const row of zidStandalone) {
+          const catalogItem = CartManager._findCatalogProduct(row) || {
+            id: row.product_id || row.id,
+            title: row.name,
+            price: Number(row.price || 0),
+            img: row.images?.[0]?.origin || row.images?.[0]?.thumbs?.thumbnail || '/products/fallback.webp'
+          };
+          const key = catalogItem.id;
+          if (!standaloneMap.has(key)) {
+            standaloneMap.set(key, { catalogItem, quantity: 0, row });
+          }
+          standaloneMap.get(key).quantity += Number(row.quantity || 1);
+        }
         cardsHtml += `
-          <div class="note-bundle-group-card" style="background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:20px!important;padding:16px 18px!important;margin-bottom:16px!important;box-shadow:0 1px 4px rgba(0,0,0,0.02)!important;">
-            <div class="note-bundle-group-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding-bottom:12px!important;border-bottom:1px solid #f0eee9!important;margin-bottom:14px!important;flex-wrap:wrap!important;gap:8px!important;">
-              <div style="display:flex!important;align-items:center!important;gap:8px!important;">
-                <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">تولة بـ 1 ريال (1+تولة)</span>
-                <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">عرض التولة بـ 1 ريال</h3>
-              </div>
-              <div style="display:flex!important;align-items:baseline!important;gap:8px!important;">
-                <span style="font-size:13px!important;font-weight:700!important;color:#047857!important;">وفّرت ${formatPrice(p.discount)}</span>
-              </div>
-            </div>
-            <div class="note-bundle-group-items">
-              ${renderItem(p.baseUnit.item, false, null, null, 1)}
-              ${renderItem(p.tolaUnit.item, false, 1, 'تولة العرض بـ 1 ريال', 1)}
-            </div>
+          <div class="note-cart-standalone-section" style="margin-top:14px!important;">
+            <h3 style="font-size:14px!important;font-weight:800!important;color:#44403c!important;margin-bottom:10px!important;">${standaloneTitle}</h3>
+            ${[...standaloneMap.values()].map(entry => renderItem(entry.catalogItem, true, null, null, entry.quantity, entry.row)).join('')}
           </div>
         `;
-      });
-    }
-
-    // 4. Standalone / Remaining items
-    if (partition.groups.tier4_standalone.length > 0) {
-      const hasAnyBundles = (partition.groups.tier1_spray_bundles.length > 0 || partition.groups.tier2_trios.length > 0 || partition.groups.tier3_pairs.length > 0);
-      const standaloneTitle = hasAnyBundles ? 'منتجات إضافية' : 'المنتجات في سلتك';
-      const standaloneRows = new Map();
-      for (const unit of partition.groups.tier4_standalone) {
-        const key = unit.item.id;
-        const previous = standaloneRows.get(key);
-        standaloneRows.set(key, { ...unit, quantity: (previous?.quantity || 0) + (unit.quantity ?? 1) });
       }
-      cardsHtml += `
-        <div class="note-cart-standalone-section" style="margin-top:14px!important;">
-          <h3 style="font-size:14px!important;font-weight:800!important;color:#44403c!important;margin-bottom:10px!important;">${standaloneTitle}</h3>
-          ${[...standaloneRows.values()].map(u => renderItem(u.item, true, null, u.badge || null, u.quantity)).join('')}
-        </div>
-      `;
+    } else {
+      const partition = CartManager.partitionCart(cart);
+
+      // 1. Tier 1: Body Spray Bundles (3 sprays @ 249 SAR)
+      if (partition.groups.tier1_spray_bundles.length > 0) {
+        partition.groups.tier1_spray_bundles.forEach((b, bIdx) => {
+          cardsHtml += `
+            <div class="note-bundle-group-card" style="background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:20px!important;padding:16px 18px!important;margin-bottom:16px!important;box-shadow:0 1px 4px rgba(0,0,0,0.02)!important;">
+              <div class="note-bundle-group-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding-bottom:12px!important;border-bottom:1px solid #f0eee9!important;margin-bottom:14px!important;flex-wrap:wrap!important;gap:8px!important;">
+                <div style="display:flex!important;align-items:center!important;gap:8px!important;">
+                  <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">عرض باقة المعطرات</span>
+                  <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">باقة معطرات الجسم (3 معطرات بـ 249 ر.س)</h3>
+                </div>
+                <div style="display:flex!important;align-items:baseline!important;gap:8px!important;">
+                  <span style="font-size:13px!important;color:#a8a29e!important;text-decoration:line-through!important;">${formatPrice(b.originalPrice)}</span>
+                  <span style="font-size:16px!important;font-weight:900!important;color:#ef4444!important;">249 ر.س</span>
+                </div>
+              </div>
+              <div class="note-bundle-group-items">
+                ${b.units.map(u => renderItem(u.item, false, null, 'مشمول بالباقة', 1)).join('')}
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      // 2. Tier 2: Trio Offers (2+1 at 1 SAR)
+      if (partition.groups.tier2_trios.length > 0) {
+        partition.groups.tier2_trios.forEach((t, tIdx) => {
+          cardsHtml += `
+            <div class="note-bundle-group-card" style="background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:20px!important;padding:16px 18px!important;margin-bottom:16px!important;box-shadow:0 1px 4px rgba(0,0,0,0.02)!important;">
+              <div class="note-bundle-group-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding-bottom:12px!important;border-bottom:1px solid #f0eee9!important;margin-bottom:14px!important;flex-wrap:wrap!important;gap:8px!important;">
+                <div style="display:flex!important;align-items:center!important;gap:8px!important;">
+                  <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">عطرك بـ 1 ريال (2+1)</span>
+                  <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">عرض الثالث بـ 1 ريال</h3>
+                </div>
+                <div style="display:flex!important;align-items:baseline!important;gap:8px!important;">
+                  <span style="font-size:13px!important;font-weight:700!important;color:#047857!important;">وفّرت ${formatPrice(t.discount)}</span>
+                </div>
+              </div>
+              <div class="note-bundle-group-items">
+                ${t.units.map(u => {
+                  const isDisc = (u === t.discountedUnit);
+                  return renderItem(u.item, false, isDisc ? 1 : null, isDisc ? 'مشمول بالعرض بـ 1 ريال' : null, 1);
+                }).join('')}
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      // 3. Tier 3: Pair Offers (1+Tola at 1 SAR)
+      if (partition.groups.tier3_pairs.length > 0) {
+        partition.groups.tier3_pairs.forEach((p, pIdx) => {
+          cardsHtml += `
+            <div class="note-bundle-group-card" style="background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:20px!important;padding:16px 18px!important;margin-bottom:16px!important;box-shadow:0 1px 4px rgba(0,0,0,0.02)!important;">
+              <div class="note-bundle-group-header" style="display:flex!important;align-items:center!important;justify-content:space-between!important;padding-bottom:12px!important;border-bottom:1px solid #f0eee9!important;margin-bottom:14px!important;flex-wrap:wrap!important;gap:8px!important;">
+                <div style="display:flex!important;align-items:center!important;gap:8px!important;">
+                  <span class="note-bundle-badge" style="display:inline-flex!important;align-items:center!important;background:#fff8eb!important;color:#855900!important;border:1px solid #fce7b2!important;font-size:12px!important;font-weight:800!important;padding:4px 12px!important;border-radius:9999px!important;">تولة بـ 1 ريال (1+تولة)</span>
+                  <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">عرض التولة بـ 1 ريال</h3>
+                </div>
+                <div style="display:flex!important;align-items:baseline!important;gap:8px!important;">
+                  <span style="font-size:13px!important;font-weight:700!important;color:#047857!important;">وفّرت ${formatPrice(p.discount)}</span>
+                </div>
+              </div>
+              <div class="note-bundle-group-items">
+                ${renderItem(p.baseUnit.item, false, null, null, 1)}
+                ${renderItem(p.tolaUnit.item, false, 1, 'تولة العرض بـ 1 ريال', 1)}
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      // 4. Standalone / Remaining items
+      if (partition.groups.tier4_standalone.length > 0) {
+        const hasAnyBundles = (partition.groups.tier1_spray_bundles.length > 0 || partition.groups.tier2_trios.length > 0 || partition.groups.tier3_pairs.length > 0);
+        const standaloneTitle = hasAnyBundles ? 'منتجات إضافية' : 'المنتجات في سلتك';
+        const standaloneRows = new Map();
+        for (const unit of partition.groups.tier4_standalone) {
+          const key = unit.item.id;
+          const previous = standaloneRows.get(key);
+          standaloneRows.set(key, { ...unit, quantity: (previous?.quantity || 0) + (unit.quantity ?? 1) });
+        }
+        cardsHtml += `
+          <div class="note-cart-standalone-section" style="margin-top:14px!important;">
+            <h3 style="font-size:14px!important;font-weight:800!important;color:#44403c!important;margin-bottom:10px!important;">${standaloneTitle}</h3>
+            ${[...standaloneRows.values()].map(u => renderItem(u.item, true, null, u.badge || null, u.quantity)).join('')}
+          </div>
+        `;
+      }
     }
 
     const pricingFailed = nativePricing && window._noteFailedCartPricing === window.noteCartPricingKey?.(cart);
