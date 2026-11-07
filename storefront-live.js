@@ -1020,7 +1020,7 @@
     }
     window._noteFailedCartPricing = null;
     window._noteLiveCartState = nativeCart;
-    window._noteVerifiedCart = { snapshot: cartSnapshot, totals: nativeCart.totals, products: finalItems, couponCode: nativeCart.coupon?.code || null, confirmedAt: Date.now() };
+    window._noteVerifiedCart = { snapshot: cartSnapshot, totals: nativeCart.totals, products: finalItems, offers: nativeCart.bundle_offers || [], couponCode: nativeCart.coupon?.code || null, confirmedAt: Date.now() };
     if (document.getElementById('cart-page-items') && typeof renderCartPage === 'function') {
       renderCartPage(true);
     } else if (typeof updateCartFinancials === 'function') {
@@ -1186,6 +1186,25 @@
       if (pendingNativeSync?.task === task) pendingNativeSync = null;
     });
     return task;
+  }
+
+  function fastRemovalAction(cart,key) {
+    const quote=window._noteVerifiedCart, age=Date.now()-quote?.confirmedAt;
+    if(pendingNativeSync || scheduledQuantitySync || window._noteFailedCartPricing || !quote || quote.snapshot!==cartPricingKey(cart)
+      || !Number.isFinite(quote.confirmedAt) || age<0 || age>=5000 || !CartManager.buildZidPayloads) return null;
+    const remaining=cart.filter(item=>item.id!==key);
+    const plan=cartReconciliationPlan(CartManager.buildZidPayloads(remaining),quote.products || []);
+    const next=plan.reductions[0];
+    if(plan.additions.length || plan.reductions.length!==1 || next.quantity!==0 || !next.row.id) return null;
+    const targetKey=cartPricingKey(remaining);
+    return async api=>{
+      const currentAge=Date.now()-quote.confirmedAt;
+      if(window._noteVerifiedCart!==quote || cartPricingKey()!==targetKey || currentAge<0 || currentAge>=5000 || !api.removeProduct) return;
+      try {assertCartResponse(await api.removeProduct({product_id:next.row.id}));}
+      catch(error) {console.warn('NOTE: refreshing cart after direct removal:',error.message);}
+      // The queued sync always reads Zid again. A stale row ID or an uncertain
+      // network result is reconciled from that response, never from the cache.
+    };
   }
 
   window.noteConfirmCartPricing = function() {
@@ -1523,12 +1542,14 @@
   };
   const originalRemove=CartManager.removeItem, originalUpdateQuantity=CartManager.updateQuantity;
   CartManager.removeItem=function(key) {
-    if (!this.getCart().some(item => item.id === key)) return;
+    const cart=this.getCart();
+    if (!cart.some(item => item.id === key)) return;
+    const directRemoval=fastRemovalAction(cart,key);
     // Show feedback before saveCart synchronously rebuilds either cart view.
     startCartLoading();
     try {
       originalRemove.call(this,key);
-      return enqueueNativeCartSync().catch(() => null).finally(finishCartLoading);
+      return enqueueNativeCartSync(directRemoval || undefined).catch(() => null).finally(finishCartLoading);
     } catch (error) {
       finishCartLoading();
       throw error;

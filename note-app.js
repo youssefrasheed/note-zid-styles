@@ -5767,18 +5767,18 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 
     const nativePricing = typeof window.noteConfirmCartPricing === 'function';
 
-    const renderItem = (item, showStepper = true, overridePrice = null, badgeText = null, quantity = item.quantity) => {
+    const renderItem = (item, showStepper = true, overridePrice = null, badgeText = null, quantity = item.quantity, confirmedRow = null) => {
         const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
         const imgUrl = resolveImgUrl(item.img);
         const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
         const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
         const priceDisplay = (overridePrice !== null) ? overridePrice : item.price;
-        const crossedPrice = nativePricing ? null : (overridePrice !== null) ? item.price : oldPriceVal;
+        const crossedPrice = (overridePrice !== null) ? item.price : (nativePricing ? null : oldPriceVal);
         const removeAction = showStepper && quantity === item.quantity
           ? 'removeItem(this.dataset.key)' : 'updateQuantity(this.dataset.key, -Number(this.dataset.quantity))';
-        const shownPrice = nativePricing
-          ? confirmedItemPrice(cart, item, showStepper ? undefined : overridePrice !== null)
-          : formatPrice(priceDisplay);
+        const shownPrice = (nativePricing
+          ? (confirmedRow ? formatPrice(Number(confirmedRow.price)) : confirmedItemPrice(cart, item, showStepper ? undefined : overridePrice !== null))
+          : '') || formatPrice(priceDisplay);
         return `
           <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:10px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
             <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
@@ -5797,7 +5797,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                   </div>
                 </div>
               </div>
-              <button type="button" data-key="${escapeHTML(item.id)}" data-quantity="${showStepper ? quantity : 1}" onclick="CartManager.${removeAction};" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
+              <button type="button" data-key="${escapeHTML(item.id)}" data-quantity="${quantity}" onclick="CartManager.${removeAction};" class="note-cart-item-del-btn" aria-label="حذف المنتج من السلة" aria-label="حذف المنتج من السلة" title="حذف" style="display:inline-flex;align-items:center;gap:4px;min-width:44px;min-height:44px;font-size:11px" style="width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important;max-width:28px!important;max-height:28px!important;border-radius:9999px!important;background-color:#f87171!important;background:#f87171!important;border:none!important;outline:none!important;color:#ffffff!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;cursor:pointer!important;flex-shrink:0!important;box-shadow:0 1px 3px rgba(248,113,113,0.35)!important;appearance:none!important;-webkit-appearance:none!important;">
                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" style="width:11px!important;height:11px!important;stroke:#ffffff!important;display:block!important;margin:auto!important;"><path d="M1 1l10 10M11 1L1 11"/></svg>
               </button>
             </div>
@@ -5810,7 +5810,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                 <button type="button" onclick="CartManager.updateQuantity('${item.id}', -1); renderCartPage();" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:36px!important;height:100%!important;min-width:36px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:16px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;">−</button>
               </div>
               ` : `
-              <span class="text-xs font-bold text-stone-600" style="font-size:12px!important;font-weight:700!important;color:#57534e!important;">الكمية: 1</span>
+              <span class="text-xs font-bold text-stone-600" style="font-size:12px!important;font-weight:700!important;color:#57534e!important;">الكمية: ${quantity}</span>
               `}
             </div>
           </div>
@@ -5821,52 +5821,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     if (nativePricing) {
       const rows = confirmedCartRows(cart);
       if (!rows.length && window._noteFailedCartPricing !== window.noteCartPricingKey?.(cart)) {
-        const pendingMarkup = '<div role="status" class="note-cart-pending-status rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center text-sm text-stone-700">جارٍ ترتيب منتجات سلتك…</div>';
-        if (window.noteReplaceCartItems) window.noteReplaceCartItems(itemsContainer, pendingMarkup, true);
-        else itemsContainer.innerHTML = pendingMarkup;
-        updateCartFinancials(total);
         if (!skipSync) window.noteConfirmCartPricing();
-        return;
-      }
-      const normalizeId = id => String(id || '').replace(/-/g, '').toLowerCase();
-      const itemId = item => {
-        const product = CartManager._findCatalogProduct(item);
-        return normalizeId(product?.zid_id || product?.id || item.product_id || item.id);
-      };
-      const actualRewards = new Map();
-      for (const row of rows) {
-        const offer = row.meta?.bundle_offer?.name || '';
-        if (!offer || !row.is_discounted || row.price == null || !Number.isFinite(Number(row.price))) continue;
-        const id = normalizeId(row.product_id);
-        const kind = /تولة|توله/.test(offer) ? 'pair' : 'trio';
-        const rewards = actualRewards.get(id) || [];
-        rewards.push({ kind, quantity: Number(row.quantity), price: Number(row.price) });
-        actualRewards.set(id, rewards);
-      }
-      const rewardCounts = new Map();
-      for (const [id, rewards] of actualRewards) {
-        for (const reward of rewards) {
-          const key = JSON.stringify([reward.kind, id, reward.price.toFixed(2)]);
-          rewardCounts.set(key, (rewardCounts.get(key) || 0) + reward.quantity);
-        }
-      }
-      const expectedRewards = [
-        ...partition.groups.tier2_trios.map(group => ['trio', group.discountedUnit.item]),
-        ...partition.groups.tier3_pairs.map(group => ['pair', group.tolaUnit.item])
-      ];
-      for (const [kind, item] of expectedRewards) {
-        const key = JSON.stringify([kind, itemId(item), '1.00']);
-        rewardCounts.set(key, (rewardCounts.get(key) || 0) - 1);
-      }
-      if (!rows.length || [...rewardCounts.values()].some(count => count !== 0)) {
-        partition.groups.tier1_spray_bundles = [];
-        partition.groups.tier2_trios = [];
-        partition.groups.tier3_pairs = [];
-        partition.groups.tier4_standalone = cart.map(item => {
-          const rewards = actualRewards.get(itemId(item)) || [];
-          const badge = rewards.map(reward => `${reward.quantity} × ${reward.price.toFixed(2)} ر.س بعد خصم العرض`).join('، ');
-          return { item, badge, quantity: item.quantity };
-        });
       }
     }
     let cardsHtml = '';
@@ -5882,12 +5837,12 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                 <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">باقة معطرات الجسم (3 معطرات بـ 249 ر.س)</h3>
               </div>
               <div style="display:flex!important;align-items:baseline!important;gap:8px!important;">
-                <span style="font-size:13px!important;color:#a8a29e!important;text-decoration:line-through!important;">${nativePricing ? '' : formatPrice(b.originalPrice)}</span>
-                <span style="font-size:16px!important;font-weight:900!important;color:#ef4444!important;">${nativePricing ? '' : '249 ر.س'}</span>
+                <span style="font-size:13px!important;color:#a8a29e!important;text-decoration:line-through!important;">${formatPrice(b.originalPrice)}</span>
+                <span style="font-size:16px!important;font-weight:900!important;color:#ef4444!important;">249 ر.س</span>
               </div>
             </div>
             <div class="note-bundle-group-items">
-              ${b.units.map(u => renderItem(u.item, false, null, 'مشمول بالباقة')).join('')}
+              ${b.units.map(u => renderItem(u.item, false, null, 'مشمول بالباقة', 1)).join('')}
             </div>
           </div>
         `;
@@ -5905,13 +5860,13 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                 <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">عرض الثالث بـ 1 ريال</h3>
               </div>
               <div style="display:flex!important;align-items:baseline!important;gap:8px!important;">
-                <span style="font-size:13px!important;font-weight:700!important;color:#047857!important;">${nativePricing ? '' : 'وفّرت ' + formatPrice(t.discount)}</span>
+                <span style="font-size:13px!important;font-weight:700!important;color:#047857!important;">وفّرت ${formatPrice(t.discount)}</span>
               </div>
             </div>
             <div class="note-bundle-group-items">
               ${t.units.map(u => {
                 const isDisc = (u === t.discountedUnit);
-                return renderItem(u.item, false, isDisc ? 1 : null, isDisc ? 'مشمول بالعرض بـ 1 ريال' : null);
+                return renderItem(u.item, false, isDisc ? 1 : null, isDisc ? 'مشمول بالعرض بـ 1 ريال' : null, 1);
               }).join('')}
             </div>
           </div>
@@ -5930,12 +5885,12 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                 <h3 style="font-size:15px!important;font-weight:800!important;color:#1c1917!important;margin:0!important;">عرض التولة بـ 1 ريال</h3>
               </div>
               <div style="display:flex!important;align-items:baseline!important;gap:8px!important;">
-                <span style="font-size:13px!important;font-weight:700!important;color:#047857!important;">${nativePricing ? '' : 'وفّرت ' + formatPrice(p.discount)}</span>
+                <span style="font-size:13px!important;font-weight:700!important;color:#047857!important;">وفّرت ${formatPrice(p.discount)}</span>
               </div>
             </div>
             <div class="note-bundle-group-items">
-              ${renderItem(p.baseUnit.item, false, null, null)}
-              ${renderItem(p.tolaUnit.item, false, 1, 'تولة العرض بـ 1 ريال')}
+              ${renderItem(p.baseUnit.item, false, null, null, 1)}
+              ${renderItem(p.tolaUnit.item, false, 1, 'تولة العرض بـ 1 ريال', 1)}
             </div>
           </div>
         `;
@@ -7881,7 +7836,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     }
     window._noteFailedCartPricing = null;
     window._noteLiveCartState = nativeCart;
-    window._noteVerifiedCart = { snapshot: cartSnapshot, totals: nativeCart.totals, products: finalItems, couponCode: nativeCart.coupon?.code || null, confirmedAt: Date.now() };
+    window._noteVerifiedCart = { snapshot: cartSnapshot, totals: nativeCart.totals, products: finalItems, offers: nativeCart.bundle_offers || [], couponCode: nativeCart.coupon?.code || null, confirmedAt: Date.now() };
     if (document.getElementById('cart-page-items') && typeof renderCartPage === 'function') {
       renderCartPage(true);
     } else if (typeof updateCartFinancials === 'function') {
@@ -8047,6 +8002,25 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       if (pendingNativeSync?.task === task) pendingNativeSync = null;
     });
     return task;
+  }
+
+  function fastRemovalAction(cart,key) {
+    const quote=window._noteVerifiedCart, age=Date.now()-quote?.confirmedAt;
+    if(pendingNativeSync || scheduledQuantitySync || window._noteFailedCartPricing || !quote || quote.snapshot!==cartPricingKey(cart)
+      || !Number.isFinite(quote.confirmedAt) || age<0 || age>=5000 || !CartManager.buildZidPayloads) return null;
+    const remaining=cart.filter(item=>item.id!==key);
+    const plan=cartReconciliationPlan(CartManager.buildZidPayloads(remaining),quote.products || []);
+    const next=plan.reductions[0];
+    if(plan.additions.length || plan.reductions.length!==1 || next.quantity!==0 || !next.row.id) return null;
+    const targetKey=cartPricingKey(remaining);
+    return async api=>{
+      const currentAge=Date.now()-quote.confirmedAt;
+      if(window._noteVerifiedCart!==quote || cartPricingKey()!==targetKey || currentAge<0 || currentAge>=5000 || !api.removeProduct) return;
+      try {assertCartResponse(await api.removeProduct({product_id:next.row.id}));}
+      catch(error) {console.warn('NOTE: refreshing cart after direct removal:',error.message);}
+      // The queued sync always reads Zid again. A stale row ID or an uncertain
+      // network result is reconciled from that response, never from the cache.
+    };
   }
 
   window.noteConfirmCartPricing = function() {
@@ -8384,12 +8358,14 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   };
   const originalRemove=CartManager.removeItem, originalUpdateQuantity=CartManager.updateQuantity;
   CartManager.removeItem=function(key) {
-    if (!this.getCart().some(item => item.id === key)) return;
+    const cart=this.getCart();
+    if (!cart.some(item => item.id === key)) return;
+    const directRemoval=fastRemovalAction(cart,key);
     // Show feedback before saveCart synchronously rebuilds either cart view.
     startCartLoading();
     try {
       originalRemove.call(this,key);
-      return enqueueNativeCartSync().catch(() => null).finally(finishCartLoading);
+      return enqueueNativeCartSync(directRemoval || undefined).catch(() => null).finally(finishCartLoading);
     } catch (error) {
       finishCartLoading();
       throw error;

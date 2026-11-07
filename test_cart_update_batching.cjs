@@ -188,7 +188,7 @@ function fixture({pauseFirstRead = false, failRemoval = false} = {}) {
   const readsBeforeDelete = couponDeletion.reads();
   await couponDeletion.sandbox.CartManager.removeItem('product');
   assert.deepEqual(couponDeletion.changes, [['coupon','HN'], ['remove']]);
-  assert.equal(couponDeletion.reads()-readsBeforeDelete, 2, 'deletion needs only the initial and final cart reads');
+  assert.equal(couponDeletion.reads()-readsBeforeDelete, 1, 'fresh verified removal skips the redundant initial cart read');
   assert.equal(couponDeletion.sandbox.window._noteVerifiedCart.couponCode, 'HN');
 
   const deletion = fixture();
