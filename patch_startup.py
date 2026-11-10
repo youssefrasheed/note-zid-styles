@@ -7,7 +7,7 @@ def fix_startup_css(css):
     return css
 
 def fix_startup(app):
-    app=app.replace('4.3.0','4.7.7').replace('4.7.6','4.7.7')
+    app=app.replace('4.3.0','4.7.8').replace('4.7.7','4.7.8')
     start=app.find("  // Hook and preserve Zid's native loader")
     if start>=0:
         end=app.index('  console.log(',start)
@@ -17,9 +17,9 @@ def fix_startup(app):
     css=(Path(__file__).parent/'note-utilities.css').read_text()
     bootstrap='''  // Precompiled styles are installed before any storefront DOM is mounted.
   if (document.documentElement.dataset.noteEngineStarted) return;
-  document.documentElement.dataset.noteEngineStarted='4.7.7';
+  document.documentElement.dataset.noteEngineStarted='4.7.8';
   try {
-    const STOREFRONT_VERSION = '4.7.7';
+    const STOREFRONT_VERSION = '4.7.8';
     const lastVersion = localStorage.getItem('note_storefront_version');
     if (lastVersion !== STOREFRONT_VERSION) {
       console.log('NOTE Storefront: upgrading to version ' + STOREFRONT_VERSION + ', refreshing cache');
