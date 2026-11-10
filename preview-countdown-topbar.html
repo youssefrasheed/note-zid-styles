@@ -315,41 +315,42 @@
   <!-- ================= 1. HEADER / NAVIGATION (100% LAVERNE ARCHITECTURE) ================= -->
   <!-- Dynamically adapts to hero slide theme (black on light slides, white on dark slides, frosted white on scroll) -->
   
+  
   <!-- ================= 11.11 TOP ANNOUNCEMENT BAR (OPTION 1) ================= -->
-  <div id="note-11-topbar" class="fixed top-0 left-0 right-0 z-[60] text-white px-3 sm:px-6 border-b border-[#d4af37]/40 shadow-lg flex items-center justify-between transition-all duration-300" style="height: 44px; background: linear-gradient(90deg, #090909 0%, #16140e 50%, #090909 100%); font-family: 'Laverne', system-ui, sans-serif;">
-    <div class="max-w-7xl mx-auto w-full flex items-center justify-between gap-2 text-right">
+  <div id="note-11-topbar" class="fixed top-0 left-0 right-0 z-[60] text-white px-2.5 sm:px-6 border-b border-[#d4af37]/40 shadow-lg flex items-center justify-between transition-all duration-300" style="height: 42px; background: linear-gradient(90deg, #090909 0%, #16140e 50%, #090909 100%); font-family: 'Laverne', system-ui, sans-serif;">
+    <div class="max-w-7xl mx-auto w-full flex items-center justify-between gap-1.5 sm:gap-2 text-right">
       
       <!-- Right: Badge + Text -->
-      <div class="flex items-center gap-2 sm:gap-3 min-w-0">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#d4af37]/25 border border-[#f5d76e]/60 text-[#ffd777] text-[10px] sm:text-[11px] font-black shrink-0 shadow-sm">
+      <div class="flex items-center gap-1.5 sm:gap-3 min-w-0">
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#d4af37]/25 border border-[#f5d76e]/60 text-[#ffd777] text-[10px] sm:text-[11px] font-black shrink-0 shadow-sm">
           <span class="w-1.5 h-1.5 rounded-full bg-[#ffd777] animate-pulse"></span>
-          عروض 11.11
+          11.11
         </span>
         <span class="text-[11px] sm:text-xs font-bold text-stone-200 truncate">
-          اشترِ عطرين والثالث بريال — ينتهي العرض في منتصف الليل خلال:
+          <span class="hidden md:inline">اشترِ عطرين والثالث بريال —</span> ينتهي العرض خلال:
         </span>
       </div>
 
       <!-- Left: Countdown + Button -->
       <div class="flex items-center gap-2 sm:gap-3 shrink-0">
         <div class="flex items-center gap-1 font-mono text-xs sm:text-sm" dir="ltr">
-          <div class="flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded border border-[#d4af37]/30">
+          <div class="flex items-center gap-0.5 sm:gap-1 bg-black/60 px-1.5 sm:px-2 py-0.5 rounded border border-[#d4af37]/30">
             <span class="cd-hours font-black text-white text-xs sm:text-sm">23</span>
-            <span class="text-[9px] text-[#ffd777] font-sans font-bold">س</span>
+            <span class="text-[8px] sm:text-[9px] text-[#ffd777] font-sans font-bold">س</span>
           </div>
           <span class="text-[#ffd777] font-bold text-xs">:</span>
-          <div class="flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded border border-[#d4af37]/30">
+          <div class="flex items-center gap-0.5 sm:gap-1 bg-black/60 px-1.5 sm:px-2 py-0.5 rounded border border-[#d4af37]/30">
             <span class="cd-minutes font-black text-white text-xs sm:text-sm">59</span>
-            <span class="text-[9px] text-[#ffd777] font-sans font-bold">د</span>
+            <span class="text-[8px] sm:text-[9px] text-[#ffd777] font-sans font-bold">د</span>
           </div>
           <span class="text-[#ffd777] font-bold text-xs">:</span>
-          <div class="flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded border border-[#d4af37]/30">
+          <div class="flex items-center gap-0.5 sm:gap-1 bg-black/60 px-1.5 sm:px-2 py-0.5 rounded border border-[#d4af37]/30">
             <span class="cd-seconds font-black text-[#ffd777] text-xs sm:text-sm">45</span>
-            <span class="text-[9px] text-[#ffd777] font-sans font-bold">ث</span>
+            <span class="text-[8px] sm:text-[9px] text-[#ffd777] font-sans font-bold">ث</span>
           </div>
         </div>
 
-        <a href="#bestsellers" class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#d4af37] hover:bg-[#c49f27] text-black text-[10px] sm:text-[11px] font-black transition active:scale-95 shadow-sm shrink-0">
+        <a href="#bestsellers" class="hidden sm:inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#d4af37] hover:bg-[#c49f27] text-black text-[10px] sm:text-[11px] font-black transition active:scale-95 shadow-sm shrink-0">
           <span>تسوق العرض</span>
           <i class="sicon-keyboard_arrow_left text-xs"></i>
         </a>
@@ -359,7 +360,7 @@
   </div>
   <style>
     #site-header {
-      top: 44px !important;
+      top: 42px !important;
     }
   </style>
 
