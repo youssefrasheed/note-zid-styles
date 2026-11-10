@@ -361,11 +361,11 @@
   </header>
 
   <!-- ================= 2. CINEMATIC HERO BANNER (AUTO-ROTATING CAROUSEL) ================= -->
-  <section id="section-hero-video" class="relative w-full min-h-[720px] sm:min-h-[760px] md:min-h-[820px] lg:h-[860px] bg-black overflow-hidden flex flex-col justify-end items-center text-center group select-none">
+  <section id="section-hero-video" class="relative w-full min-h-[720px] sm:min-h-[760px] md:min-h-[820px] lg:h-[860px] bg-black overflow-hidden flex flex-col justify-end items-center text-center group select-none" style="position: relative; width: 100%; min-height: 720px; overflow: hidden; background-color: #000000; contain: layout paint;">
     
     <!-- Background Video Layer (Mobile & Web) -->
-    <div class="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-      <video id="hero-background-video" class="w-full h-full object-cover object-center" autoplay loop muted playsinline webkit-playsinline poster="/assets/videos/hero_video_poster.webp">
+    <div class="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; z-index: 0;">
+      <video id="hero-background-video" class="w-full h-full object-cover object-center" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center;" autoplay loop muted playsinline webkit-playsinline poster="/assets/videos/hero_video_poster.webp">
         <source src="/assets/videos/note_hero_video_mobile.mp4?v=4.7.0" type="video/mp4" media="(max-width: 768px)">
         <source src="/assets/videos/note_hero_video.mp4?v=4.7.0" type="video/mp4">
       </video>
@@ -386,31 +386,7 @@
             عند شرائك أي عطرين 100 مل... احصل على العطر الثالث بريال واحد فقط
           </p>
 
-          <!-- 11.11 Transparent Hero Countdown (No Background - Pure Hero Video Overlay) -->
-          <div class="cd-11-wrapper my-3 sm:my-4 flex flex-col items-center justify-center gap-2 text-center select-none">
-            <div class="flex items-center gap-2 text-xs sm:text-sm font-black text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)]">
-              <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
-              <span>باقي على انتهاء عروض نوت 11.11:</span>
-            </div>
-            <div class="flex items-center justify-center gap-3 sm:gap-4 font-mono text-white" dir="ltr">
-              <div class="flex flex-col items-center min-w-[48px] sm:min-w-[56px]">
-                <span class="cd-hours text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-none tracking-tight drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]">24</span>
-                <span class="text-[10px] sm:text-[11px] text-stone-300 font-sans font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">ساعة</span>
-              </div>
-              <span class="text-xl sm:text-2xl font-black text-amber-300 mb-3 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">:</span>
-              <div class="flex flex-col items-center min-w-[48px] sm:min-w-[56px]">
-                <span class="cd-minutes text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-none tracking-tight drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]">00</span>
-                <span class="text-[10px] sm:text-[11px] text-stone-300 font-sans font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">دقيقة</span>
-              </div>
-              <span class="text-xl sm:text-2xl font-black text-amber-300 mb-3 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">:</span>
-              <div class="flex flex-col items-center min-w-[48px] sm:min-w-[56px]">
-                <span class="cd-seconds text-2xl sm:text-3xl lg:text-4xl font-black text-amber-300 leading-none tracking-tight drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]">00</span>
-                <span class="text-[10px] sm:text-[11px] text-stone-300 font-sans font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">ثانية</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-2 sm:mt-3 mb-2 sm:mb-3">
+          <div class="mt-4 sm:mt-6 mb-2 sm:mb-3">
             <a href="#bestsellers" class="inline-flex items-center gap-2.5 px-8 py-3.5 sm:px-10 sm:py-4 rounded-full bg-white text-black hover:bg-stone-100 font-extrabold text-xs sm:text-sm transition-all duration-300 shadow-xl active:scale-95">
               <span>تسوّق العرض الآن</span>
               <i class="sicon-keyboard_arrow_left text-xs"></i>
@@ -429,31 +405,7 @@
             عند شرائك أي عطر 100 مل أو معطر جسم... احصل على تولة فاخرة بريال واحد فقط
           </p>
 
-          <!-- 11.11 Transparent Hero Countdown (No Background - Pure Hero Video Overlay) -->
-          <div class="cd-11-wrapper my-3 sm:my-4 flex flex-col items-center justify-center gap-2 text-center select-none">
-            <div class="flex items-center gap-2 text-xs sm:text-sm font-black text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)]">
-              <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
-              <span>باقي على انتهاء عروض نوت 11.11:</span>
-            </div>
-            <div class="flex items-center justify-center gap-3 sm:gap-4 font-mono text-white" dir="ltr">
-              <div class="flex flex-col items-center min-w-[48px] sm:min-w-[56px]">
-                <span class="cd-hours text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-none tracking-tight drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]">24</span>
-                <span class="text-[10px] sm:text-[11px] text-stone-300 font-sans font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">ساعة</span>
-              </div>
-              <span class="text-xl sm:text-2xl font-black text-amber-300 mb-3 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">:</span>
-              <div class="flex flex-col items-center min-w-[48px] sm:min-w-[56px]">
-                <span class="cd-minutes text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-none tracking-tight drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]">00</span>
-                <span class="text-[10px] sm:text-[11px] text-stone-300 font-sans font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">دقيقة</span>
-              </div>
-              <span class="text-xl sm:text-2xl font-black text-amber-300 mb-3 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">:</span>
-              <div class="flex flex-col items-center min-w-[48px] sm:min-w-[56px]">
-                <span class="cd-seconds text-2xl sm:text-3xl lg:text-4xl font-black text-amber-300 leading-none tracking-tight drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]">00</span>
-                <span class="text-[10px] sm:text-[11px] text-stone-300 font-sans font-bold mt-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">ثانية</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-2 sm:mt-3 mb-2 sm:mb-3">
+          <div class="mt-4 sm:mt-6 mb-2 sm:mb-3">
             <a href="#niche" class="inline-flex items-center gap-2.5 px-8 py-3.5 sm:px-10 sm:py-4 rounded-full bg-white text-black hover:bg-stone-100 font-extrabold text-xs sm:text-sm transition-all duration-300 shadow-xl active:scale-95">
               <span>تسوّق العرض الآن</span>
               <i class="sicon-keyboard_arrow_left text-xs"></i>
@@ -608,6 +560,30 @@
       <div class="text-center">
         <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-black tracking-tight leading-tight">عروض جمعة نوت</h2>
         <p class="mt-3 text-sm sm:text-base text-stone-700">اشترِ عطرين والثالث بريال، أو اشترِ عطرًا أو معطر جسم واحصل على تولة بريال.</p>
+        
+        <!-- 11.11 Countdown Display (2.5x Size - Centered in Friday Offers) -->
+        <div class="cd-11-wrapper my-6 sm:my-8 flex flex-col items-center justify-center gap-3 text-center select-none">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-stone-100 border border-stone-200 text-xs sm:text-sm md:text-base font-black text-stone-900 tracking-wide mb-1">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
+            <span>باقي على انتهاء عروض نوت 11.11</span>
+          </div>
+          <div class="flex flex-nowrap items-center justify-center gap-2 sm:gap-6 md:gap-8 font-mono text-black" dir="ltr">
+            <div class="flex flex-col items-center min-w-[64px] sm:min-w-[105px] md:min-w-[130px]">
+              <span class="cd-hours font-black text-black leading-none tracking-tight" style="font-size: clamp(2.4rem, 8.5vw, 5.5rem) !important;">24</span>
+              <span class="text-xs sm:text-sm md:text-base text-stone-500 font-sans font-bold mt-2 sm:mt-3">ساعة</span>
+            </div>
+            <span class="font-black text-amber-500 mb-4 sm:mb-7" style="font-size: clamp(1.8rem, 6vw, 4rem) !important;">:</span>
+            <div class="flex flex-col items-center min-w-[64px] sm:min-w-[105px] md:min-w-[130px]">
+              <span class="cd-minutes font-black text-black leading-none tracking-tight" style="font-size: clamp(2.4rem, 8.5vw, 5.5rem) !important;">00</span>
+              <span class="text-xs sm:text-sm md:text-base text-stone-500 font-sans font-bold mt-2 sm:mt-3">دقيقة</span>
+            </div>
+            <span class="font-black text-amber-500 mb-4 sm:mb-7" style="font-size: clamp(1.8rem, 6vw, 4rem) !important;">:</span>
+            <div class="flex flex-col items-center min-w-[64px] sm:min-w-[105px] md:min-w-[130px]">
+              <span class="cd-seconds font-black text-amber-600 leading-none tracking-tight" style="font-size: clamp(2.4rem, 8.5vw, 5.5rem) !important;">00</span>
+              <span class="text-xs sm:text-sm md:text-base text-stone-500 font-sans font-bold mt-2 sm:mt-3">ثانية</span>
+            </div>
+          </div>
+        </div>
       </div>
 
     </div>

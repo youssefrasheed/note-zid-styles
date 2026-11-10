@@ -1470,6 +1470,26 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   -webkit-backdrop-filter: none !important;
 }}
 
+/* Zero Layout Shift Guarantee for Hero Cinematic Video */
+#section-hero-video {{
+  position: relative !important;
+  width: 100% !important;
+  min-height: 720px !important;
+  overflow: hidden !important;
+  background-color: #000000 !important;
+  contain: layout paint !important;
+}}
+#section-hero-video video,
+#hero-background-video {{
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}}
+
 /* Hero Offer Announcement Gold Pill - Radiant & High Contrast */
 .hero-offer-badge {{
   display: inline-block !important;
@@ -5690,6 +5710,7 @@ app_js_code = f"""/**
         initSliders();
         initHeroCarousel();
         initOffersCarousel();
+        init11Countdown();
         handleHeaderScroll();
         window.addEventListener('scroll', handleHeaderScroll, {{ passive: true }});
       }} else if (target.route === 'product') {{
@@ -6020,7 +6041,7 @@ print(f"Generated {OUT_JS} ({os.path.getsize(OUT_JS)} bytes)")
 
 VERSION_FILE = Path(PREVIEW_DIR) / "version.json"
 version_payload = {
-    "version": "4.7.8",
+    "version": "4.7.9",
     "build_time": int(time.time() * 1000),
     "date": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
 }

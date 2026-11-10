@@ -1604,6 +1604,26 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   -webkit-backdrop-filter: none !important;
 }
 
+/* Zero Layout Shift Guarantee for Hero Cinematic Video */
+#section-hero-video {
+  position: relative !important;
+  width: 100% !important;
+  min-height: 720px !important;
+  overflow: hidden !important;
+  background-color: #000000 !important;
+  contain: layout paint !important;
+}
+#section-hero-video video,
+#hero-background-video {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
 /* Hero Offer Announcement Gold Pill - Radiant & High Contrast */
 .hero-offer-badge {
   display: inline-block !important;
