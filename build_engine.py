@@ -3938,20 +3938,21 @@ app_js_code = f"""/**
     startHeroTimer();
   }}
 
-  // 11.11 Countdown Timer Engine (Counts down to 2026-11-11 23:59:59 Riyadh Time)
+  // 11.11 Countdown Timer Engine (Active 2026-11-11 00:00:00 to 23:59:59 Riyadh Time)
   let cdTimer = null;
   function init11Countdown() {{
     if (cdTimer) clearInterval(cdTimer);
-    const target = new Date(Date.UTC(2026, 10, 11, 20, 59, 59)).getTime();
+    const startTime = new Date(Date.UTC(2026, 10, 10, 21, 0, 0)).getTime();
+    const endTime = new Date(Date.UTC(2026, 10, 11, 20, 59, 59)).getTime();
     function pad(n) {{ return String(Math.max(0, n)).padStart(2, '0'); }}
     function update() {{
       const now = Date.now();
-      const diff = target - now;
-      if (diff <= 0) {{
+      if (now < startTime || now > endTime) {{
         document.querySelectorAll('.cd-11-wrapper').forEach(el => el.classList.add('hidden'));
-        if (cdTimer) clearInterval(cdTimer);
         return;
       }}
+      document.querySelectorAll('.cd-11-wrapper').forEach(el => el.classList.remove('hidden'));
+      const diff = endTime - now;
       const totalSec = Math.floor(diff / 1000);
       const hours = Math.floor(totalSec / 3600);
       const minutes = Math.floor((totalSec % 3600) / 60);
