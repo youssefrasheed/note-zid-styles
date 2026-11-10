@@ -3938,7 +3938,7 @@ app_js_code = f"""/**
     startHeroTimer();
   }}
 
-  // 11.11 Countdown Timer Engine (Active 2026-11-11 00:00:00 to 23:59:59 Riyadh Time)
+  // 11.11 Countdown Timer Engine (Fixed at 24:00:00 before midnight, counts down 2026-11-11 00:00:00 to 23:59:59 Riyadh Time)
   let cdTimer = null;
   function init11Countdown() {{
     if (cdTimer) clearInterval(cdTimer);
@@ -3947,11 +3947,18 @@ app_js_code = f"""/**
     function pad(n) {{ return String(Math.max(0, n)).padStart(2, '0'); }}
     function update() {{
       const now = Date.now();
-      if (now < startTime || now > endTime) {{
+      if (now > endTime) {{
         document.querySelectorAll('.cd-11-wrapper').forEach(el => el.classList.add('hidden'));
+        if (cdTimer) clearInterval(cdTimer);
         return;
       }}
       document.querySelectorAll('.cd-11-wrapper').forEach(el => el.classList.remove('hidden'));
+      if (now < startTime) {{
+        document.querySelectorAll('.cd-hours').forEach(el => el.textContent = '24');
+        document.querySelectorAll('.cd-minutes').forEach(el => el.textContent = '00');
+        document.querySelectorAll('.cd-seconds').forEach(el => el.textContent = '00');
+        return;
+      }}
       const diff = endTime - now;
       const totalSec = Math.floor(diff / 1000);
       const hours = Math.floor(totalSec / 3600);
@@ -3964,6 +3971,7 @@ app_js_code = f"""/**
     update();
     cdTimer = setInterval(update, 1000);
   }}
+  window.init11Countdown = init11Countdown;
 
   function initHeroCarousel() {{
     init11Countdown();
@@ -6012,7 +6020,7 @@ print(f"Generated {OUT_JS} ({os.path.getsize(OUT_JS)} bytes)")
 
 VERSION_FILE = Path(PREVIEW_DIR) / "version.json"
 version_payload = {
-    "version": "4.7.6",
+    "version": "4.7.7",
     "build_time": int(time.time() * 1000),
     "date": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
 }
