@@ -5260,12 +5260,26 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   let currentProduct = null;
   let pdpQuantity = 1;
 
+  function renderMissingProduct(state = 'missing') {
+    currentProduct = null;
+    const content = document.getElementById('page-content');
+    if (!content) return;
+    const message = state === 'loading' ? 'جاري تحميل المنتج…'
+      : state === 'error' ? 'تعذّر تحميل المنتج. حاول مرة أخرى.' : 'المنتج غير متاح';
+    document.title = `${message} | دار نوت للعطور`;
+    content.innerHTML = `<main id="note-product-status" data-state="${state}" class="pt-32 pb-16 px-6 text-center">
+      <h1 class="text-2xl font-bold mb-4">${message}</h1>
+      ${state === 'loading' ? '' : '<a class="inline-block rounded-full bg-black px-6 py-3 text-white font-bold" href="/categories">تصفّح المنتجات</a>'}
+    </main>`;
+  }
+
   function initPDP(prodId) {
     pdpQuantity = 1;
-    currentProduct = noteProductsCatalog.find(p => p.id === prodId) || 
-                     noteProductsCatalog.find(p => zidSlugMap[p.id] === prodId) || 
-                     noteProductsCatalog.find(p => p.id === zidSlugMap[prodId]) || 
-                     noteProductsCatalog[0];
+    currentProduct = noteProductsCatalog.find(p => p.id === prodId);
+    if (!currentProduct) {
+      renderMissingProduct();
+      return;
+    }
 
     document.title = `${escapeHTML(currentProduct.title)} | دار نوت للعطور NOTE Perfumes`;
 
@@ -6681,19 +6695,16 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
   // 19. Router Engine
   const NoteRouter = {
     resolveProductId: function(path, params) {
-      if (params.get('id')) return params.get('id');
-      const decoded = decodeURIComponent(path).toLowerCase();
-      for (const p of noteProductsCatalog) {
-        if (decoded.includes(p.id)) return p.id;
+      let key = params.get('id');
+      if (!key) {
+        const slug = path.split('/').filter(Boolean).pop() || '';
+        try { key = decodeURIComponent(slug); }
+        catch (_) { return null; }
       }
-      for (const k in zidSlugMap) {
-        if (decoded.includes(zidSlugMap[k])) return k;
-      }
-      for (const p of noteProductsCatalog) {
-        const cleanTitle = p.title.replace('عطر ', '').trim().toLowerCase();
-        if (decoded.includes(cleanTitle)) return p.id;
-      }
-      return 'roayal-tobacco';
+      const normalized = key.toLowerCase();
+      const product = noteProductsCatalog.find(p => [p.id, p.id?.replace(/-/g, ''), p.slug, zidSlugMap[p.id]]
+        .some(value => value && value.toLowerCase() === normalized));
+      return product?.id || null;
     },
 
     resolveCategory: function(path, params) {
@@ -6713,11 +6724,11 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     },
 
     detectRoute: function() {
-      const path = decodeURIComponent(window.location.pathname).toLowerCase();
+      const path = window.location.pathname.toLowerCase();
       const params = new URLSearchParams(window.location.search);
 
       if (/\/products?\//.test(path) || params.has('id')) {
-        return { route: 'product', id: this.resolveProductId(path, params) };
+        return { route: 'product', id: this.resolveProductId(window.location.pathname, params) };
       }
       if (path === '/products' || path.includes('/categor') || params.has('cat')) {
         return { route: 'category', cat: this.resolveCategory(path, params) };
@@ -7572,6 +7583,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
         return all;
       } catch (error) {
         console.warn('NOTE: تعذر تحديث المنتجات', error.message);
+        if (!liveCatalogReady && document.getElementById('note-product-status')?.dataset.state === 'loading') renderMissingProduct('error');
         if (!liveCatalogReady && !noteProductsCatalog.length) {
           document.querySelectorAll('#catalog-products-grid,#slider-bestsellers').forEach(el => {el.textContent='تعذر تحميل المنتجات. أعد المحاولة بعد قليل.';});
         }
@@ -7584,8 +7596,13 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     if (!liveCatalogReady) return;
     if (NoteRouter.detectRoute().route==='product') {
       const id = NoteRouter.resolveProductId(location.pathname,new URLSearchParams(location.search));
-      if (id && !document.getElementById('pdp-title')) document.getElementById('page-content').innerHTML=T.product;
-      if (id) {
+      if (!id) {
+        if (document.getElementById('note-product-status')?.dataset.state !== 'missing') initPDP(null);
+      } else {
+        if (!document.getElementById('pdp-title')) {
+          const content = document.getElementById('page-content');
+          if (content) content.innerHTML = T.product;
+        }
         const next=noteProductsCatalog.find(p=>p.id===id);
         const fields=['id','title','price','old_price','discount','img','img_box','in_stock','stock','description','rating','reviews_count','updated_at'];
         const changed=!currentProduct || fields.some(key=>currentProduct[key]!==next[key]);
@@ -7628,11 +7645,6 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     const btn3 = document.querySelector('#new-releases a[href*="categor"]');
     if (btn3 && (catUrlMap['packages'] || catUrlMap['zid-1752110'])) btn3.href = catUrlMap['packages'] || catUrlMap['zid-1752110'];
   };
-  NoteRouter.resolveProductId = function(path, params) {
-    const key=params.get('id') || decodeURIComponent(path).split('/').filter(Boolean).pop();
-    const product=noteProductsCatalog.find(p => p.id===key || p.id.replace(/-/g,'')===key || p.slug===key);
-    return product?.id || null;
-  };
   NoteRouter.resolveCategory=function(path,params) {
     const categoryId=decodeURIComponent(path).match(/\/categor(?:y|ies)\/(\d+)/)?.[1];
     if(categoryId)return categoryKey(categoryId);
@@ -7650,8 +7662,10 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     const savedChoices=currentProduct?.id===id ? [...document.querySelectorAll("#note-bundle-options select")].map(select=>({group:select.dataset.group,value:select.value})) : [];
     const product=noteProductsCatalog.find(p => p.id===id);
     if (!product) {
-      const content=document.getElementById('page-content');
-      if (content) content.innerHTML='<main class="pt-32 p-8 text-center"><p>'+ (liveCatalogReady ? 'المنتج غير متاح حاليًا.' : 'جاري تحميل المنتج…')+'</p></main>';
+      ++bundleRequest;
+      activeBundleGroups = [];
+      activeBundleSelections = [];
+      renderMissingProduct(liveCatalogReady ? 'missing' : 'loading');
       return;
     }
     document.querySelectorAll('#note-bundle-options').forEach(box=>box.remove());

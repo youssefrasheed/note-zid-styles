@@ -4036,12 +4036,26 @@ app_js_code = f"""/**
   let currentProduct = null;
   let pdpQuantity = 1;
 
+  function renderMissingProduct(state = 'missing') {{
+    currentProduct = null;
+    const content = document.getElementById('page-content');
+    if (!content) return;
+    const message = state === 'loading' ? 'جاري تحميل المنتج…'
+      : state === 'error' ? 'تعذّر تحميل المنتج. حاول مرة أخرى.' : 'المنتج غير متاح';
+    document.title = `${{message}} | دار نوت للعطور`;
+    content.innerHTML = `<main id="note-product-status" data-state="${{state}}" class="pt-32 pb-16 px-6 text-center">
+      <h1 class="text-2xl font-bold mb-4">${{message}}</h1>
+      ${{state === 'loading' ? '' : '<a class="inline-block rounded-full bg-black px-6 py-3 text-white font-bold" href="/categories">تصفّح المنتجات</a>'}}
+    </main>`;
+  }}
+
   function initPDP(prodId) {{
     pdpQuantity = 1;
-    currentProduct = noteProductsCatalog.find(p => p.id === prodId) || 
-                     noteProductsCatalog.find(p => zidSlugMap[p.id] === prodId) || 
-                     noteProductsCatalog.find(p => p.id === zidSlugMap[prodId]) || 
-                     noteProductsCatalog[0];
+    currentProduct = noteProductsCatalog.find(p => p.id === prodId);
+    if (!currentProduct) {{
+      renderMissingProduct();
+      return;
+    }}
 
     document.title = `${{currentProduct.title}} | دار نوت للعطور NOTE Perfumes`;
 
@@ -5457,19 +5471,16 @@ app_js_code = f"""/**
   // 19. Router Engine
   const NoteRouter = {{
     resolveProductId: function(path, params) {{
-      if (params.get('id')) return params.get('id');
-      const decoded = decodeURIComponent(path).toLowerCase();
-      for (const p of noteProductsCatalog) {{
-        if (decoded.includes(p.id)) return p.id;
+      let key = params.get('id');
+      if (!key) {{
+        const slug = path.split('/').filter(Boolean).pop() || '';
+        try {{ key = decodeURIComponent(slug); }}
+        catch (_) {{ return null; }}
       }}
-      for (const k in zidSlugMap) {{
-        if (decoded.includes(zidSlugMap[k])) return k;
-      }}
-      for (const p of noteProductsCatalog) {{
-        const cleanTitle = p.title.replace('عطر ', '').trim().toLowerCase();
-        if (decoded.includes(cleanTitle)) return p.id;
-      }}
-      return 'roayal-tobacco';
+      const normalized = key.toLowerCase();
+      const product = noteProductsCatalog.find(p => [p.id, p.id?.replace(/-/g, ''), p.slug, zidSlugMap[p.id]]
+        .some(value => value && value.toLowerCase() === normalized));
+      return product?.id || null;
     }},
 
     resolveCategory: function(path, params) {{
@@ -5489,11 +5500,11 @@ app_js_code = f"""/**
     }},
 
     detectRoute: function() {{
-      const path = decodeURIComponent(window.location.pathname).toLowerCase();
+      const path = window.location.pathname.toLowerCase();
       const params = new URLSearchParams(window.location.search);
 
       if (path.includes('/product') || params.has('id')) {{
-        return {{ route: 'product', id: this.resolveProductId(path, params) }};
+        return {{ route: 'product', id: this.resolveProductId(window.location.pathname, params) }};
       }}
       if (path.includes('/categor') || params.has('cat')) {{
         return {{ route: 'category', cat: this.resolveCategory(path, params) }};
