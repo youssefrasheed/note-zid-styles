@@ -44,9 +44,57 @@
   color: #111111 !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
+
+/* All Product Card Image Containers - Luxury Smooth Rounded Corners */
+.aspect-square,
+[class*="aspect-square"],
+.tp-product-image,
+.tp-product-item .aspect-square {
+  border-radius: 20px !important;
+  overflow: hidden !important;
+}
+
+.aspect-square img,
+[class*="aspect-square"] img,
+.tp-product-image img {
+  border-radius: 18px !important;
+}
+
+.note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock),
+#pdp-tag-badge {
+  position: absolute !important;
+  top: 14px !important;
+  right: 14px !important;
+  z-index: 10 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Tajawal", Arial, sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  padding: 3px 8.5px !important;
+  min-height: 22px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  direction: rtl !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.18) !important;
+  border-radius: 9999px !important;
+  color: #111111 !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
 .note-discount-badge,
 .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock):has(bdi),
 #pdp-discount-badge {
+  position: absolute !important;
+  top: 14px !important;
+  right: 14px !important;
+  z-index: 10 !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Tajawal", Arial, sans-serif !important;
   font-size: 11px !important;
   font-weight: 800 !important;
@@ -64,7 +112,7 @@
   border: 1px solid rgba(195, 160, 85, 0.45) !important;
   border-radius: 9999px !important;
   color: #111111 !important;
-  box-shadow: 0 2px 6px rgba(180, 145, 75, 0.2) !important;
+  box-shadow: 0 3px 8px rgba(180, 145, 75, 0.25) !important;
 }
 .note-discount-badge bdi,
 .note-discount-badge span,
@@ -89,8 +137,21 @@
   display: inline-block !important;
 }
 @media(max-width:639px){
+  .aspect-square,
+  [class*="aspect-square"],
+  .tp-product-image,
+  .tp-product-item .aspect-square {
+    border-radius: 16px !important;
+  }
+  .aspect-square img,
+  [class*="aspect-square"] img,
+  .tp-product-image img {
+    border-radius: 14px !important;
+  }
   .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock),
   #pdp-tag-badge {
+    top: 10px !important;
+    right: 10px !important;
     font-size: 10px !important;
     padding: 2.5px 7px !important;
     min-height: 20px !important;
@@ -98,6 +159,8 @@
   .note-discount-badge,
   .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock):has(bdi),
   #pdp-discount-badge {
+    top: 10px !important;
+    right: 10px !important;
     font-size: 10px !important;
     padding: 2.5px 7.5px !important;
     min-height: 20px !important;
@@ -270,22 +333,25 @@
       const prior = originalCatalog.find(p => p.id === z.id || (zidSlugMap[p.id] || p.id) === slug || (zidSlugMap[p.id] || p.id) === z.id) || {};
       const categories = z.categories || [];
       const category = categories.some(c=>/نيش/.test(c.name)) ? 'niche' : categories.some(c=>/30/.test(c.name)) ? 'travel' : categories.some(c=>/تول/.test(c.name)) ? 'tollah' : categories.some(c=>/عناية/.test(c.name)) ? 'body-care' : categories.some(c=>/باقات|مجموعات/.test(c.name)) || z.product_class==='dynamic_bundle' || z.product_class==='grouped_product' ? 'packages' : categories.some(c=>/جو|مفارش/.test(c.name)) ? 'linen' : categories.some(c=>/جسم/.test(c.name)) ? 'all-over' : 'perfumes';
+      const is3Spray = z.id === '4e22b431-43a0-4cd8-9e45-f6a671f2620c' || /3.*سبراي|سبراي.*3/.test(String(z.name || ''));
       const sale = liveMoney(z.sale_price), price = liveMoney(z.price);
-      const old = sale !== null && sale < price ? price : null;
+      const old = (sale !== null && sale < price) ? price : (is3Spray ? 447 : null);
+      const effectivePrice = (is3Spray && sale === null) ? 249 : (sale ?? price);
+      const calcDiscount = old ? Number(((old - effectivePrice)/old*100).toFixed(1))+'%' : null;
       const sold = Number(z.sold_products_count) || 0;
       const fallbackImg = KNOWN_PRODUCT_FALLBACKS[z.id] || KNOWN_PRODUCT_FALLBACKS[slug] || prior.img || '';
       const fallbackImgBox = null;
       const img = liveImage(z.images?.[0], z.id) || fallbackImg || '';
       const img_box = null;
       const rawName = String(z.name || '').trim();
-      const entry = {...prior, id:z.id, zid_id:z.id, slug, name:rawName, raw_name:rawName, zid_name:rawName, title:cleanSpelling(z.name || ''), title_en:z.name_en || '', price: sale ?? price, old_price:old,
-        discount:old ? Number(((old-sale)/old*100).toFixed(1))+'%' : null,
+      const entry = {...prior, id:z.id, zid_id:z.id, slug, name:rawName, raw_name:rawName, zid_name:rawName, title:cleanSpelling(z.name || ''), title_en:z.name_en || '', price: effectivePrice, old_price:old,
+        discount: calcDiscount,
         img: img, img_box: img_box,
         cat:category, cat_ar:cleanSpelling(categories.find(c => String(c.id) === catUrlMap[category]?.split('/')[2])?.name || categories[0]?.name || prior.cat_ar || ''),
         category_ids:categories.map(c => String(c.id)),
         display_order: (z.display_order !== null && z.display_order !== undefined && Number.isFinite(Number(z.display_order))) ? Number(z.display_order) : 999999,
         category_orders: Object.fromEntries(categories.map(c => [String(c.id), (c.display_order !== null && c.display_order !== undefined && Number.isFinite(Number(c.display_order))) ? Number(c.display_order) : null])),
-        bestseller:sold > 0, sold_count:sold, tag:old ? 'خصم '+Number(((old-sale)/old*100).toFixed(1))+'%' : '',
+        bestseller:sold > 0, sold_count:sold, tag:old ? 'خصم '+calcDiscount : '',
         rating:Number(z.rating?.average) || 0, reviews_count:Number(z.rating?.total_count) || 0,
         in_stock:z.in_stock !== false && (z.is_infinite === true || Number(z.quantity) > 0), stock:z.is_infinite ? Infinity : Number(z.quantity),
         product_class:z.product_class, has_options:z.has_options, has_fields:z.has_fields,
@@ -1483,7 +1549,7 @@
       .then(res => res.ok ? res.json() : null)
       .then(info => {
         if (!info || !info.version) return;
-        const currentVersion = '4.8.0';
+        const currentVersion = '4.8.1';
         if (info.version !== currentVersion) {
           console.log('NOTE: New storefront version deployed:', info.version);
           localStorage.removeItem('note_zid_catalog_v9');

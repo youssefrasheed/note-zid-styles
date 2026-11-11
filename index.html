@@ -1449,9 +1449,9 @@
         <div class="min-w-[175px] sm:min-w-[270px] max-w-[185px] sm:max-w-[280px] shrink-0 p-1 flex flex-col justify-between text-center group cursor-pointer bg-transparent" style="scroll-snap-align: start;" onclick="window.location.href='/product.html?id=' + (p.id || 'roayal-tobacco')">
           <div>
             <!-- Frameless Image Container with Clean Shadow/Scale -->
-            <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-              ${p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap shadow-xs"> ${p.tag} </span>` : ''}
-              <img src="${p.img}" alt="${p.title}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
+            <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden rounded-2xl" style="border-radius: 20px !important; overflow: hidden !important;">
+              ${p.tag ? `<span class="note-product-badge absolute top-3.5 right-3.5 z-10 whitespace-nowrap shadow-xs"> ${p.tag} </span>` : ''}
+              <img src="${p.img}" alt="${p.title}" loading="lazy" decoding="async" class="w-full h-full object-contain rounded-2xl group-hover:scale-106 transition-transform duration-500 ease-out" style="border-radius: 18px !important;">
             </div>
 
             <!-- Product Typography (Clean Laverne Centered Sans-Serif) -->

@@ -326,9 +326,28 @@ header nav a:not(.active-link) {{
   color: #ffffff !important;
 }}
 
+/* All Product Card Image Containers - Luxury Smooth Rounded Corners */
+.aspect-square,
+[class*="aspect-square"],
+.tp-product-image,
+.tp-product-item .aspect-square {{
+  border-radius: 20px !important;
+  overflow: hidden !important;
+}}
+
+.aspect-square img,
+[class*="aspect-square"] img,
+.tp-product-image img {{
+  border-radius: 18px !important;
+}}
+
 /* Product Badge / Discount Tag (Transparent Luxury Pill with Crisp Dark Text) */
 .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock),
 #pdp-tag-badge {{
+  position: absolute !important;
+  top: 14px !important;
+  right: 14px !important;
+  z-index: 10 !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Tajawal", Arial, sans-serif !important;
   font-size: 11px !important;
   font-weight: 700 !important;
@@ -348,12 +367,16 @@ header nav a:not(.active-link) {{
   border: 1px solid rgba(0, 0, 0, 0.18) !important;
   border-radius: 9999px !important;
   color: #111111 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12) !important;
 }}
 
 .note-discount-badge,
 .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock):has(bdi),
 #pdp-discount-badge {{
+  position: absolute !important;
+  top: 14px !important;
+  right: 14px !important;
+  z-index: 10 !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Tajawal", Arial, sans-serif !important;
   font-size: 11px !important;
   font-weight: 800 !important;
@@ -371,7 +394,7 @@ header nav a:not(.active-link) {{
   border: 1px solid rgba(195, 160, 85, 0.45) !important;
   border-radius: 9999px !important;
   color: #111111 !important;
-  box-shadow: 0 2px 6px rgba(180, 145, 75, 0.2) !important;
+  box-shadow: 0 3px 8px rgba(180, 145, 75, 0.25) !important;
 }}
 
 .note-discount-badge bdi,
@@ -399,8 +422,21 @@ header nav a:not(.active-link) {{
 }}
 
 @media (max-width: 639px) {{
+  .aspect-square,
+  [class*="aspect-square"],
+  .tp-product-image,
+  .tp-product-item .aspect-square {{
+    border-radius: 16px !important;
+  }}
+  .aspect-square img,
+  [class*="aspect-square"] img,
+  .tp-product-image img {{
+    border-radius: 14px !important;
+  }}
   .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock),
   #pdp-tag-badge {{
+    top: 10px !important;
+    right: 10px !important;
     font-size: 10px !important;
     padding: 2.5px 7px !important;
     min-height: 20px !important;
@@ -408,6 +444,8 @@ header nav a:not(.active-link) {{
   .note-discount-badge,
   .note-product-badge:not(.note-out-of-stock-sticker):not(.out-of-stock):has(bdi),
   #pdp-discount-badge {{
+    top: 10px !important;
+    right: 10px !important;
     font-size: 10px !important;
     padding: 2.5px 7.5px !important;
     min-height: 20px !important;
@@ -2092,6 +2130,10 @@ app_js_code = f"""/**
             matched.old_price = Math.round(Number(zOldPrice));
             const disc = Math.round(((zOldPrice - zPrice) / zOldPrice) * 100);
             matched.discount = disc + '%';
+          }} else if (matched.id === 'pkg-all-over-collection' || zId === '4e22b431-43a0-4cd8-9e45-f6a671f2620c' || (zName && zName.includes('3 سبراي'))) {{
+            matched.old_price = 447;
+            matched.discount = '44.3%';
+            matched.tag = 'خصم 44.3%';
           }} else if (!zp.sale_price) {{
             matched.old_price = null;
             matched.discount = null;
@@ -3453,9 +3495,9 @@ app_js_code = f"""/**
       <div class="min-w-[175px] sm:min-w-[270px] max-w-[185px] sm:max-w-[280px] shrink-0 p-1 flex flex-col justify-between text-center group cursor-pointer bg-transparent ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" style="scroll-snap-align: start;" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
         <div>
           <!-- Frameless Image Container with Clean Shadow/Scale -->
-          <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-            ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge note-discount-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.discount ? `<span class="note-product-badge note-discount-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap">${{escapeHTML(p.tag)}}</span>` : ''))}}
-            <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
+          <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden rounded-2xl" style="border-radius: 20px !important; overflow: hidden !important;">
+            ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge note-discount-badge absolute top-3.5 right-3.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.discount ? `<span class="note-product-badge note-discount-badge absolute top-3.5 right-3.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : (p.tag ? `<span class="note-product-badge absolute top-3.5 right-3.5 z-10 whitespace-nowrap">${{escapeHTML(p.tag)}}</span>` : ''))}}
+            <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain rounded-2xl group-hover:scale-106 transition-transform duration-500 ease-out" style="border-radius: 18px !important;">
           </div>
 
           <!-- Product Typography (Clean Laverne Centered Sans-Serif) -->
@@ -4357,9 +4399,9 @@ app_js_code = f"""/**
       return `
         <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border-0 shadow-none transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
-            <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 overflow-hidden">
-              ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge note-discount-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.discount ? `<span class="note-product-badge note-discount-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap">${{escapeHTML(p.tag)}}</span>` : ''))}}
-              <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
+            <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 overflow-hidden rounded-2xl" style="border-radius: 20px !important; overflow: hidden !important;">
+              ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge note-discount-badge absolute top-3.5 right-3.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.discount ? `<span class="note-product-badge note-discount-badge absolute top-3.5 right-3.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : (p.tag ? `<span class="note-product-badge absolute top-3.5 right-3.5 z-10 whitespace-nowrap">${{escapeHTML(p.tag)}}</span>` : ''))}}
+              <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain rounded-2xl group-hover:scale-106 transition-transform duration-500 ease-out" style="border-radius: 18px !important;">
             </div>
 
             <div class="pt-1 pb-1 text-center space-y-1">
@@ -4574,9 +4616,9 @@ app_js_code = f"""/**
       return `
         <div class="p-2 sm:p-3 flex flex-col justify-between text-center group cursor-pointer bg-transparent border-0 shadow-none transition duration-300 ${{isOutOfStock ? 'is-out-of-stock product-item-out-of-stock' : ''}}" onclick="NoteRouter.navigate('/products/${{zidSlug}}')">
           <div>
-            <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden">
-              ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge note-discount-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.discount ? `<span class="note-product-badge note-discount-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : (p.tag ? `<span class="note-product-badge absolute top-2.5 right-2.5 z-10 whitespace-nowrap">${{escapeHTML(p.tag)}}</span>` : ''))}}
-              <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain group-hover:scale-106 transition-transform duration-500 ease-out">
+            <div class="relative bg-transparent aspect-square flex items-center justify-center mb-2 p-2 sm:p-4 overflow-hidden rounded-2xl" style="border-radius: 20px !important; overflow: hidden !important;">
+              ${{isOutOfStock ? `<span class="note-product-badge note-out-of-stock-sticker out-of-stock">غير متاح</span>${{p.discount ? `<span class="note-product-badge note-discount-badge absolute top-3.5 right-3.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : ''}}` : (p.discount ? `<span class="note-product-badge note-discount-badge absolute top-3.5 right-3.5 z-10 whitespace-nowrap"><span>خصم</span> <bdi dir="ltr">${{p.discount}}</bdi></span>` : (p.tag ? `<span class="note-product-badge absolute top-3.5 right-3.5 z-10 whitespace-nowrap">${{escapeHTML(p.tag)}}</span>` : ''))}}
+              <img src="${{imgUrl}}" alt="${{p.title}}" loading="lazy" decoding="async" class="w-full h-full object-contain rounded-2xl group-hover:scale-106 transition-transform duration-500 ease-out" style="border-radius: 18px !important;">
             </div>
 
             <div class="pt-1 pb-1 text-center space-y-1">
@@ -6041,7 +6083,7 @@ print(f"Generated {OUT_JS} ({os.path.getsize(OUT_JS)} bytes)")
 
 VERSION_FILE = Path(PREVIEW_DIR) / "version.json"
 version_payload = {
-    "version": "4.8.0",
+    "version": "4.8.1",
     "build_time": int(time.time() * 1000),
     "date": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
 }

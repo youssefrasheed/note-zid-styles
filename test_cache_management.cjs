@@ -6,13 +6,13 @@ console.log('Testing Cache Management & Invalidation...');
 // 1. Verify version.json
 assert(fs.existsSync('version.json'), 'version.json must exist');
 const versionInfo = JSON.parse(fs.readFileSync('version.json', 'utf8'));
-assert.strictEqual(versionInfo.version, '4.8.0', 'version.json must be 4.8.0');
+assert.strictEqual(versionInfo.version, '4.8.1', 'version.json must be 4.8.1');
 assert(typeof versionInfo.build_time === 'number', 'build_time must be number');
 console.log('PASS: version.json is valid (v' + versionInfo.version + ')');
 
 // 2. Test upgrade logic and cache purge
 const appJs = fs.readFileSync('note-app.js', 'utf8');
-assert(appJs.includes("const STOREFRONT_VERSION = '4.8.0'"), 'note-app.js must contain STOREFRONT_VERSION 4.8.0');
+assert(appJs.includes("const STOREFRONT_VERSION = '4.8.1'"), 'note-app.js must contain STOREFRONT_VERSION 4.8.1');
 assert(appJs.includes("localStorage.removeItem('note_zid_catalog_v9')"), 'Must purge note_zid_catalog_v9 on version mismatch');
 assert(appJs.includes("localStorage.setItem('note_storefront_version', STOREFRONT_VERSION)"), 'Must save new version to localStorage');
 
@@ -59,8 +59,8 @@ assert.strictEqual(storage['note_zid_catalog_v9'], undefined, 'note_zid_catalog_
 assert.strictEqual(storage['note_zid_catalog_time_v9'], undefined, 'note_zid_catalog_time_v9 must be deleted');
 assert.strictEqual(storage['note_zid_categories_v1'], undefined, 'note_zid_categories_v1 must be deleted');
 
-// Verify that the version was updated to 4.8.0:
-assert.strictEqual(storage['note_storefront_version'], '4.8.0', 'note_storefront_version must be updated to 4.8.0');
+// Verify that the version was updated to 4.8.1:
+assert.strictEqual(storage['note_storefront_version'], '4.8.1', 'note_storefront_version must be updated to 4.8.1');
 
 // Verify that the customer cart was PRESERVED:
 assert(storage['note_cart'], 'note_cart must NOT be deleted');
