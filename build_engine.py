@@ -6075,6 +6075,8 @@ app_js_code = f"""/**
 """
 
 app_js_code = fix_startup(apply_live_fixes(app_js_code))
+preview_guard = "  if (new URLSearchParams(location.search).get('note_preview') === 'confirmed-pricing') {\n    if (document.getElementById('note-pricing-preview-script')) return;\n    const preview = document.createElement('script');\n    preview.id = 'note-pricing-preview-script';\n    preview.src = 'https://youssefrasheed.github.io/note-zid-styles/note-pricing-preview.js?v=1';\n    preview.onerror = () => {\n      const url = new URL(location.href);\n      url.searchParams.delete('note_preview');\n      location.replace(url.href);\n    };\n    document.head.appendChild(preview);\n    return;\n  }\n"
+app_js_code = app_js_code.replace('  console.log("NOTE Perfumes Master Engine', preview_guard + '  console.log("NOTE Perfumes Master Engine', 1)
 app_js_code += "\n" + read_preview("welcome-popup.js")
 
 with open(OUT_JS, "w", encoding="utf-8") as f:

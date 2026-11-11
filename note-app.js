@@ -11,6 +11,19 @@
     if(document.body) releaseNative(); else document.addEventListener('DOMContentLoaded',releaseNative,{once:true});
     return;
   }
+  if (new URLSearchParams(location.search).get('note_preview') === 'confirmed-pricing') {
+    if (document.getElementById('note-pricing-preview-script')) return;
+    const preview = document.createElement('script');
+    preview.id = 'note-pricing-preview-script';
+    preview.src = 'https://youssefrasheed.github.io/note-zid-styles/note-pricing-preview.js?v=1';
+    preview.onerror = () => {
+      const url = new URL(location.href);
+      url.searchParams.delete('note_preview');
+      location.replace(url.href);
+    };
+    document.head.appendChild(preview);
+    return;
+  }
   console.log("NOTE Perfumes Master Engine v4.8.1 Starting...");
 
   const ASSET_HOST = "https://youssefrasheed.github.io/note-zid-styles";
