@@ -187,12 +187,10 @@
               </div>
             </div>
 
-            <!-- Single Authoritative Total (Laverne Style) -->
-            <div class="pt-3 border-t border-stone-200/80 flex items-center justify-between">
-              <div>
-                <span class="text-xs text-stone-500 font-medium block" data-label="إجمالي المنتجات قبل الشحن والخصومات:">الإجمالي:</span>
-                <span id="page-grand-total" class="text-2xl font-black text-black">0 ر.س</span>
-              </div>
+            <!-- Confirmed total, with the notice placed below the whole row. -->
+            <div id="note-cart-total-row" class="pt-3 border-t border-stone-200/80" style="display:flex;align-items:center;justify-content:space-between;gap:16px;direction:rtl;width:100%;">
+              <span class="text-xs text-stone-500 font-medium" data-label="إجمالي المنتجات قبل الشحن والخصومات:">الإجمالي:</span>
+              <span id="page-grand-total" class="text-2xl font-black text-black" style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0;direction:ltr;text-align:left;">0 ر.س</span>
             </div>
 
             <!-- Exclusive Checkout Order Upsell (Compact Slim Bar) -->
