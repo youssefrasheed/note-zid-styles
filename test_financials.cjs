@@ -37,7 +37,7 @@ ctx.updateCartFinancials();
 assert.equal(grand['data-note-total'], '376.75');
 assert.equal(els['page-discount'].textContent, '−11.25 ر.س');
 assert.equal(els['page-bundle-discount'].textContent, '−100.00 ر.س');
-assert.equal(els['page-shipping'].textContent, '+١٩ ريال · يتحدد عند الدفع');
+assert.equal(els['page-shipping'].textContent, '+19 ريال · يتحدد عند الدفع');
 snapshot = 'after-removal';
 ctx.updateCartFinancials();
 assert.equal(grand.textContent, 'جاري تحديث السعر…');
@@ -62,7 +62,7 @@ assert(els['discount-row'].classList.has('hidden'));
 window._noteVerifiedCart = { snapshot, couponCode: null, totals: [{ code: 'total', value: 1842 }] };
 ctx.updateCartFinancials();
 assert.equal(grand['data-note-total'], '1842.00');
-assert.equal(els['page-shipping'].textContent, '+١٩ ريال · يتحدد عند الدفع');
+assert.equal(els['page-shipping'].textContent, '+19 ريال · يتحدد عند الدفع');
 snapshot = 'repeated-offers';
 window._noteVerifiedCart = { snapshot, couponCode: null, totals: [
   { code: 'products_discount', value: -376 },

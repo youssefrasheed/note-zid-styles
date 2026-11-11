@@ -5294,7 +5294,7 @@ app_js_code = f"""/**
     if (shipping) {{
       const shippingValue = liveTotals?.find(line => line.code === 'shipping')?.value;
       shipping.textContent = shippingValue != null && Number(shippingValue) > 0
-        ? formatPrice(Number(shippingValue)) : '+١٩ ريال · يتحدد عند الدفع';
+        ? formatPrice(Number(shippingValue)) : '+19 ريال · يتحدد عند الدفع';
     }}
 
     const grandEl = document.getElementById('page-grand-total');
