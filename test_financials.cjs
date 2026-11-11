@@ -3,7 +3,7 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const app = fs.readFileSync(__dirname + '/note-app.js', 'utf8');
 const fn = app.slice(app.indexOf('  function updateCartFinancials('), app.indexOf('  async function proceedToCheckout('));
-const els = Object.fromEntries(['page-subtotal', 'page-grand-total', 'page-shipping', 'discount-row', 'page-discount', 'bundle-discount-row', 'page-bundle-discount'].map(id => [id, {
+const els = Object.fromEntries(['page-subtotal', 'page-grand-total', 'page-shipping-amount', 'page-shipping-note', 'discount-row', 'page-discount', 'bundle-discount-row', 'page-bundle-discount'].map(id => [id, {
   textContent: '',
   classList: new Set(),
   setAttribute(key, value) { this[key] = value; },
@@ -37,7 +37,7 @@ ctx.updateCartFinancials();
 assert.equal(grand['data-note-total'], '376.75');
 assert.equal(els['page-discount'].textContent, '−11.25 ر.س');
 assert.equal(els['page-bundle-discount'].textContent, '−100.00 ر.س');
-assert.equal(els['page-shipping'].textContent, '+19 ريال · يتحدد عند الدفع');
+assert.equal(els['page-shipping-amount'].textContent, '+19');
 snapshot = 'after-removal';
 ctx.updateCartFinancials();
 assert.equal(grand.textContent, 'جاري تحديث السعر…');
@@ -62,7 +62,7 @@ assert(els['discount-row'].classList.has('hidden'));
 window._noteVerifiedCart = { snapshot, couponCode: null, totals: [{ code: 'total', value: 1842 }] };
 ctx.updateCartFinancials();
 assert.equal(grand['data-note-total'], '1842.00');
-assert.equal(els['page-shipping'].textContent, '+19 ريال · يتحدد عند الدفع');
+assert.equal(els['page-shipping-amount'].textContent, '+19');
 snapshot = 'repeated-offers';
 window._noteVerifiedCart = { snapshot, couponCode: null, totals: [
   { code: 'products_discount', value: -376 },
@@ -81,7 +81,7 @@ window._noteVerifiedCart = { snapshot, couponCode: null, totals: [
 ] };
 ctx.updateCartFinancials();
 assert.equal(grand['data-note-total'], '512.31');
-assert.equal(els['page-shipping'].textContent, '19 ر.س');
+assert.equal(els['page-shipping-amount'].textContent, '19');
 assert.equal(els['page-bundle-discount'].textContent, '−188.00 ر.س');
 assert(!app.includes('getNoteCouponPercent'));
 console.log('PASS: confirmed totals, HN discount, offer discount, stale quote after removal, and pricing error');

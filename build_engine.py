@@ -5290,12 +5290,12 @@ app_js_code = f"""/**
       }}
     }}
 
-    const shipping = document.getElementById('page-shipping');
-    if (shipping) {{
-      const shippingValue = liveTotals?.find(line => line.code === 'shipping')?.value;
-      shipping.textContent = shippingValue != null && Number(shippingValue) > 0
-        ? formatPrice(Number(shippingValue)) : '+19 ريال · يتحدد عند الدفع';
-    }}
+    const shippingAmount = document.getElementById('page-shipping-amount');
+    const shippingNote = document.getElementById('page-shipping-note');
+    const shippingValue = Number(liveTotals?.find(line => line.code === 'shipping')?.value);
+    const hasShipping = Number.isFinite(shippingValue) && shippingValue > 0;
+    if (shippingAmount) shippingAmount.textContent = hasShipping ? formatPrice(shippingValue).replace(/ر\.س/g, '').trim() : '+19';
+    if (shippingNote) shippingNote.hidden = hasShipping;
 
     const grandEl = document.getElementById('page-grand-total');
     if (grandEl) {{

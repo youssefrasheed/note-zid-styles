@@ -134,7 +134,7 @@ window._noteVerifiedCart = {
 };
 updateCartFinancials();
 assert.equal(dom.getElementById('page-discount').textContent, '−7.43 ر.س');
-assert.equal(dom.getElementById('page-shipping').textContent, '+19 ريال · يتحدد عند الدفع');
+assert.equal(dom.getElementById('page-shipping-amount').textContent, '+19');
 window._noteVerifiedCart.couponCode = null;
 window._noteVerifiedCart.totals = [{ code: 'total', value: 628 }];
 updateCartFinancials();
