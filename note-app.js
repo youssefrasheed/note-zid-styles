@@ -11,19 +11,6 @@
     if(document.body) releaseNative(); else document.addEventListener('DOMContentLoaded',releaseNative,{once:true});
     return;
   }
-  if (new URLSearchParams(location.search).get('note_preview') === 'confirmed-pricing') {
-    if (document.getElementById('note-pricing-preview-script')) return;
-    const preview = document.createElement('script');
-    preview.id = 'note-pricing-preview-script';
-    preview.src = 'https://youssefrasheed.github.io/note-zid-styles/note-pricing-preview.js?v=1';
-    preview.onerror = () => {
-      const url = new URL(location.href);
-      url.searchParams.delete('note_preview');
-      location.replace(url.href);
-    };
-    document.head.appendChild(preview);
-    return;
-  }
   console.log("NOTE Perfumes Master Engine v4.8.1 Starting...");
 
   const ASSET_HOST = "https://youssefrasheed.github.io/note-zid-styles";
@@ -3497,30 +3484,6 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     refund: "<main id=\"page-main-wrapper\"  class=\"pt-28 sm:pt-36 pb-20 flex-grow text-right\">\n    <div class=\"max-w-4xl mx-auto px-4 sm:px-6 lg:px-8\">\n      \n      <!-- Breadcrumb -->\n      <nav class=\"flex items-center gap-2 text-xs text-stone-400 mb-8 font-medium\">\n        <a href=\"/\" class=\"hover:text-black\">الرئيسية</a>\n        <span>/</span>\n        <span class=\"text-black font-bold\">السياسات والضمان</span>\n      </nav>\n\n      <!-- Page Title -->\n      <div class=\"mb-10 pb-6 border-b border-stone-100\">\n        <div class=\"flex items-center gap-3 mb-2\">\n          <span class=\"p-2 rounded-xl bg-stone-100 text-black\">\n            <i class=\"sicon-shield-check text-xl\"></i>\n          </span>\n          <h1 class=\"text-2xl sm:text-3xl font-extrabold text-black\">سياسات الاستبدال والاسترجاع والضمان الذهبي</h1>\n        </div>\n        <p class=\"text-xs text-stone-500\">آخر تحديث: 2026 | وثيقة معتمدة ومطابقة لوزارة التجارة بالمملكة العربية السعودية</p>\n      </div>\n\n      <!-- Golden Guarantee Highlight Box -->\n      <div class=\"p-6 rounded-2xl bg-stone-50 border border-stone-200 mb-10 space-y-3\">\n        <div class=\"flex items-center gap-2 text-black font-bold text-sm\">\n          <i class=\"sicon-award-ribbon text-lg\"></i>\n          <h3>الضمان الذهبي الملكي لدار نوت (NOTE Perfumes)</h3>\n        </div>\n        <p class=\"text-xs text-stone-700 leading-relaxed font-normal\">\n          من أجل ضمان أعلى مستويات الرضا لعملائنا الكرام في NOTE perfumes، فإننا نرفق <strong>عينة تجربة مجانية</strong> مع كل زجاجة عطر. يرجى تجربة العينة المرفقة أولاً قبل فك التغليف السلوفاني الأساسي. يحق لك الاسترجاع خلال <strong>3 أيام</strong> من تاريخ استلام الشحنة بكل سهولة ويسر.\n        </p>\n      </div>\n\n      <!-- Content Sections -->\n      <div class=\"space-y-8 text-xs sm:text-sm text-stone-700 leading-relaxed\">\n        \n        <!-- Section 1 -->\n        <section class=\"space-y-3\">\n          <h2 class=\"text-base sm:text-lg font-bold text-black flex items-center gap-2\">\n            <span>1. شروط وقواعد الاسترجاع</span>\n          </h2>\n          <p>جميع منتجاتنا قابلة للاسترجاع خلال 3 أيام من تاريخ التسليم، وفق الشروط الرسمية الآتية:</p>\n          <ul class=\"list-disc list-inside space-y-2 pr-2 text-stone-600\">\n            <li>يجب أن تكون حالة المنتج والغلاف الخارجي (البكج) بحالتها الأصلية كما هي عليه عند الاستلام دون أي فتح للتغليف الحراري السلوفاني للعطر.</li>\n            <li>يجب إعادة جميع ملحقات المنتج كاملة: الكيس + البكج الخارجي + كرتون العطر + الهدايا الترويجية المرفقة إن وجدت.</li>\n            <li>يتم شحن واسترجاع المنتجات حصراً عبر شريك الشحن المعتمد (شركة أرامكس Aramex). يعتذر المتجر عن استلام أي شحنة مرسلة عبر شركات ناقلة أخرى.</li>\n            <li>يجب أن يكون الحساب البنكي المسترد إليه هو نفس الحساب الذي تم الشراء منه وقت تنفيذ الطلب.</li>\n            <li>تستغرق عملية إيداع واسترداد المبلغ من 14 يوماً إلى 30 يوم عمل كحد أقصى.</li>\n          </ul>\n        </section>\n\n        <!-- Section 2 -->\n        <section class=\"space-y-3 pt-6 border-t border-stone-100\">\n          <h2 class=\"text-base sm:text-lg font-bold text-black flex items-center gap-2\">\n            <span>2. خطوات وإجراءات تنفيذ طلب الاسترجاع</span>\n          </h2>\n          <ol class=\"list-decimal list-inside space-y-2 pr-2 text-stone-600\">\n            <li>إرفاق رقم الطلبية وتاريخ الشراء عبر التواصل مع خدمة العملاء.</li>\n            <li>تصوير فيديو واضح لا يقل عن 10 ثوانٍ يوضح سلامة المنتج وغلافه السلوفاني وكافة ملحقاته.</li>\n            <li>بعد تدقيق الفيديو والموافقة، سيتم إصدار بوليصة شحن أرامكس إلكترونية وإرسالها لكم لطباعتها.</li>\n            <li>التوجه إلى أقرب فرع لشركة أرامكس وتسليم الطلب مع البوليصة المطبوعة والتأكد من تغليفها بشكل محكم.</li>\n          </ol>\n        </section>\n\n        <!-- Section 3 -->\n        <section class=\"space-y-3 pt-6 border-t border-stone-100\">\n          <h2 class=\"text-base sm:text-lg font-bold text-black flex items-center gap-2\">\n            <span>3. فحص الشحنة واسترداد المبالغ</span>\n          </h2>\n          <p>\n            بعد استلام المنتج المرتجع في مستودعاتنا، يستغرق فحصه والتحقق من سلامته ومطابقته لشروط الاسترجاع مدة تصل إلى 20 يوم عمل. وبعد الموافقة النهائية على الاسترجاع، يتم رفع طلب استرداد المبلغ المالي وفق وسيلة الدفع الأصلية.\n          </p>\n          <div class=\"p-4 rounded-xl bg-amber-50/60 border border-amber-200/60 text-xs text-amber-900 space-y-1\">\n            <p class=\"font-bold\">ملاحظات هامة حول الرسوم:</p>\n            <p>يتحمل العميل كامل تكاليف الشحن المتعلقة بعملية استرجاع المنتج، كما يتم خصم 5% من قيمة المنتج المسترجع، وذلك مقابل تكاليف الفحص المخبري وإعادة التغليف والتجهيز وإعادة الطرح للبيع، على أن يكون المنتج بحالته الأصلية تماماً.</p>\n            <p>في حال كان الطلب مدفوعاً عن طريق تابي (Tabby) أو تمارا (Tamara)، يتم إرجاع المبالغ تلقائياً عبر مزود خدمة الدفع وفقاً لإجراءاتهم المعتمدة بعد قبول الاسترجاع.</p>\n          </div>\n        </section>\n\n        <!-- Section 4 -->\n        <section class=\"space-y-3 pt-6 border-t border-stone-100\">\n          <h2 class=\"text-base sm:text-lg font-bold text-black flex items-center gap-2\">\n            <span>4. سياسة الاستبدال</span>\n          </h2>\n          <p class=\"text-stone-600\">\n            يعتذر متجر دار نوت للعطور (NOTE perfumes) عن استقبال طلبات الاستبدال المباشر لأي منتج من منتجاته، نظراً لاندراج كافة المنتجات تحت تصنيف مستحضرات التجميل والعطور الحساسة وفق اشتراطات الهيئة العامة للغذاء والدواء. وفي حال رغبتكم في عطر بديل، يمكنكم استرجاع الطلب وفق الشروط أعلاه وطلب العطر المرغوب في طلب جديد.\n          </p>\n        </section>\n\n        <!-- Contact CTA -->\n        <div class=\"p-6 rounded-2xl bg-stone-50 border border-stone-200 mt-10 text-center space-y-3\">\n          <h3 class=\"font-bold text-black text-sm\">هل تحتاج لمساعدة في استرجاع طلبك؟</h3>\n          <p class=\"text-xs text-stone-500\">فريق خدمة عملاء NOTE جاهز لخدمتكم يومياً من الساعة 9 صباحاً حتى 11 مساءً</p>\n          <a href=\"https://wa.me/966565955420\" target=\"_blank\" class=\"inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-sm\">\n            <i class=\"sicon-whatsapp text-sm\"></i>\n            <span>تواصل معنا عبر واتساب: 0565955420</span>\n          </a>\n        </div>\n\n      </div>\n\n    </div>\n  </main>"
   };
 
-  window.getNoteCouponPercent = function(code) {
-    if (!code) return 0;
-    const clean = String(code).trim().toUpperCase();
-    const KNOWN = {
-      'HN': 7,
-      'NOTE5': 2,
-      'OLA': 8,
-      'AN': 8,
-      'NADA': 8,
-      'HANI': 10,
-      'JUACO10': 15,
-      'HNHN123': 20,
-      'AND1': 30,
-      'BADO122': 30
-    };
-    if (KNOWN[clean] !== undefined) return KNOWN[clean];
-    const m = clean.match(/(\d+)/);
-    if (m) {
-      const val = parseInt(m[1], 10);
-      if (val > 0 && val <= 90) return val;
-    }
-    return 5;
-  };
-
   function confirmedCartRows(cart) {
     const quote = window._noteVerifiedCart;
     return quote && quote.snapshot === window.noteCartPricingKey?.(cart) ? quote.products || [] : [];
@@ -4096,77 +4059,6 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                 }
               }
             }
-            const totalEl = document.getElementById('cart-drawer-total');
-            if (totalEl) {
-              let total = this.getTotal();
-              let bundleDiscount = this.getLiveBundleDiscount();
-              let liveTotals = null;
-              if (data && Array.isArray(data.totals) && data.totals.length > 0) {
-                const subObj = data.totals.find(t => t.code === 'sub_totals');
-                const serverSub = (subObj && Number.isFinite(Number(subObj.value))) ? Number(subObj.value) : null;
-                if (serverSub !== null && Math.abs(serverSub - total) <= 1) {
-                  liveTotals = data.totals;
-                }
-              }
-              const bundleOffers = this.getLiveBundleOffers();
-              const drawerBundleRow = document.getElementById('drawer-bundle-discount-row');
-              const drawerBundleTitle = document.getElementById('drawer-bundle-discount-title');
-              const drawerBundleVal = document.getElementById('drawer-bundle-discount-val');
-              if (drawerBundleRow) {
-                if (bundleDiscount > 0) {
-                  drawerBundleRow.classList.remove('hidden');
-                  if (drawerBundleTitle) {
-                    const cleanNames = new Set();
-                    if (data && Array.isArray(data.bundle_offers)) {
-                      const activeZid = data.bundle_offers.filter(b => b.usage_count > 0 || Number(b.discount_total) > 0);
-                      activeZid.forEach(b => {
-                        const n = String(b.name || '');
-                        if (n.includes('تولة') || n.includes('توله') || n.includes('1+تولة')) cleanNames.add('تولة بـ 1 ريال');
-                        else cleanNames.add('عطرك بـ 1 ريال');
-                      });
-                    }
-                    if (cleanNames.size === 0) {
-                      bundleOffers.forEach(b => {
-                        const n = String(b.name || '');
-                        if (n.includes('تولة') || n.includes('توله')) cleanNames.add('تولة بـ 1 ريال');
-                        else cleanNames.add('عطرك بـ 1 ريال');
-                      });
-                    }
-                    const offerLabel = cleanNames.size > 0 ? Array.from(cleanNames).join(' + ') : 'عطرك بـ 1 ريال';
-                    drawerBundleTitle.textContent = `وفّرت مع العرض (${offerLabel}):`;
-                  }
-                  if (drawerBundleVal) {
-                    drawerBundleVal.dir = 'ltr';
-                    drawerBundleVal.textContent = `−${bundleDiscount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ر.س`;
-                  }
-                } else {
-                  drawerBundleRow.classList.add('hidden');
-                }
-              }
-              const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
-              const drawerCouponBtn = document.getElementById('drawer-coupon-btn');
-              if (drawerCouponBtn) {
-                const isCouponActive = !!savedCoupon || (liveTotals && liveTotals.some(t => (t.code === 'coupon' || t.code === 'coupons') && Number.isFinite(Number(t.value)) && Number(t.value) < 0));
-                if (isCouponActive) drawerCouponBtn.classList.add('note-btn-gold');
-                else drawerCouponBtn.classList.remove('note-btn-gold');
-                setCouponButtonActive(drawerCouponBtn, isCouponActive);
-              }
-              const baseAfterBundle = Math.max(0, total - bundleDiscount);
-              let finalDrawerTotal = baseAfterBundle;
-              if (liveTotals) {
-                const totObj = liveTotals.find(t => t.code === 'total');
-                if (totObj && Number.isFinite(Number(totObj.value))) finalDrawerTotal = Number(totObj.value);
-              } else if (savedCoupon && baseAfterBundle > 0) {
-                const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : 5;
-                const discount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
-                finalDrawerTotal = Math.max(0, Math.round((baseAfterBundle - discount) * 100) / 100);
-              }
-              if ((savedCoupon || bundleDiscount > 0) && total > 0 && finalDrawerTotal !== total) {
-                totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(finalDrawerTotal)}</span>`;
-              } else {
-                totalEl.textContent = formatPrice(total);
-              }
-            }
           }
         } catch (e) {
           console.warn('NOTE live cart sync notice:', e);
@@ -4267,75 +4159,37 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       
 
       
-      if (subtotalEl) subtotalEl.textContent = formatPrice(total);
 
       // Sync bundle offers in drawer from live Zid state
-      const bundleOffers = (typeof this.getLiveBundleOffers === 'function') ? this.getLiveBundleOffers() : [];
       const nativePricing = typeof window.noteConfirmCartPricing === 'function';
       const verified = window._noteVerifiedCart;
-      const totals = nativePricing && verified && verified.snapshot === window.noteCartPricingKey?.(cart) ? verified.totals : null;
+      const totals = verified && verified.snapshot === window.noteCartPricingKey?.(cart) ? verified.totals : null;
       const discount = totals?.find(line => line.code === 'products_discount')?.value;
-      const bundleDiscount = nativePricing ? Math.abs(Number(discount) || 0)
-        : (typeof this.getLiveBundleDiscount === 'function' ? this.getLiveBundleDiscount() : 0);
+      const bundleDiscount = Math.abs(Number(discount) || 0);
       const drawerBundleRow = document.getElementById('drawer-bundle-discount-row');
       const drawerBundleTitle = document.getElementById('drawer-bundle-discount-title');
       const drawerBundleVal = document.getElementById('drawer-bundle-discount-val');
       if (drawerBundleRow) {
         if (bundleDiscount > 0) {
           drawerBundleRow.classList.remove('hidden');
-          if (drawerBundleTitle && nativePricing) {
-            drawerBundleTitle.textContent = 'خصم المنتجات';
-          } else if (drawerBundleTitle) {
-            const cleanNames = new Set();
-            if (typeof window !== 'undefined' && window._noteLiveCartState && Array.isArray(window._noteLiveCartState.bundle_offers)) {
-              const activeZid = window._noteLiveCartState.bundle_offers.filter(b => b.usage_count > 0 || Number(b.discount_total) > 0);
-              activeZid.forEach(b => {
-                const n = String(b.name || '');
-                if (n.includes('تولة') || n.includes('توله') || n.includes('1+تولة')) cleanNames.add('تولة بـ 1 ريال');
-                else cleanNames.add('عطرك بـ 1 ريال');
-              });
-            }
-            if (cleanNames.size === 0) {
-              bundleOffers.forEach(b => {
-                const n = String(b.name || '');
-                if (n.includes('تولة') || n.includes('توله')) cleanNames.add('تولة بـ 1 ريال');
-                else cleanNames.add('عطرك بـ 1 ريال');
-              });
-            }
-            const offerLabel = cleanNames.size > 0 ? Array.from(cleanNames).join(' + ') : 'عطرك بـ 1 ريال';
-            drawerBundleTitle.textContent = `وفّرت مع العرض (${offerLabel}):`;
-          }
+          if (drawerBundleTitle) drawerBundleTitle.textContent = 'خصم المنتجات';
           if (drawerBundleVal) drawerBundleVal.textContent = `-${bundleDiscount.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س`;
         } else {
           drawerBundleRow.classList.add('hidden');
         }
       }
 
-      // Sync coupon input in drawer with localStorage & display strikethrough total if applied
-      const savedCoupon = nativePricing ? (totals ? verified.couponCode : null)
-        : ((typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null);
-      if (totalEl && nativePricing) {
-        const confirmed = totals?.find(line => line.code === 'total')?.value;
-        const hasConfirmedTotal = confirmed != null && Number.isFinite(Number(confirmed));
-        totalEl.textContent = hasConfirmedTotal ? formatPrice(Number(confirmed)) : 'جارٍ تأكيد أسعار سلتك…';
+      const savedCoupon = totals ? verified.couponCode : null;
+      const confirmed = totals?.find(line => line.code === 'total')?.value;
+      const hasConfirmedTotal = confirmed != null && Number.isFinite(Number(confirmed));
+      if (totalEl) {
+        totalEl.textContent = hasConfirmedTotal ? formatPrice(Number(confirmed)) : 'جاري تحديث السعر…';
         if (hasConfirmedTotal) totalEl.setAttribute('data-note-total', Number(confirmed).toFixed(2));
         else totalEl.removeAttribute('data-note-total');
-        const subtotal = totals?.find(line => line.code === 'sub_totals' || line.code === 'sub_totals_before_vat')?.value;
-        if (subtotalEl) subtotalEl.textContent = subtotal != null ? formatPrice(Number(subtotal)) : '—';
-      } else if (totalEl) {
-        const baseAfterBundle = Math.max(0, total - bundleDiscount);
-        const pct = (savedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : (savedCoupon ? (savedCoupon.toUpperCase() === 'NOTE5' ? 2 : 5) : 0);
-        const couponDiscount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
-        const finalDrawerTotal = Math.max(0, Math.round((baseAfterBundle - couponDiscount) * 100) / 100);
-
-        if ((savedCoupon || bundleDiscount > 0) && total > 0 && finalDrawerTotal !== total) {
-          totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(finalDrawerTotal)}</span>`;
-        } else {
-          totalEl.textContent = formatPrice(total);
-        }
       }
-      if (!nativePricing && typeof this.syncLiveCart === 'function') this.syncLiveCart();
-      
+      const subtotal = totals?.find(line => line.code === 'sub_totals' || line.code === 'sub_totals_before_vat')?.value;
+      if (subtotalEl) subtotalEl.textContent = hasConfirmedTotal && subtotal != null && Number.isFinite(Number(subtotal)) ? formatPrice(Number(subtotal)) : '—';
+
       const drawerCouponInput = document.getElementById('drawer-coupon-input');
       const drawerCouponTag = document.getElementById('drawer-coupon-applied-tag');
       const drawerCouponMsg = document.getElementById('drawer-coupon-msg');
@@ -4396,11 +4250,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
       const itemsMarkup = cart.map(item => {
         const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
         const imgUrl = resolveImgUrl(item.img);
-        const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
-        const oldPriceVal = nativePricing ? null : item.old_price || (catalogItem && catalogItem.old_price);
-        const itemLineTotal = item.price * item.quantity;
-        const itemPrice = nativePricing ? confirmedItemPrice(cart, item) : formatPrice(item.price);
-        
+        const itemPrice = confirmedItemPrice(cart, item);
         return `
           <div class="note-cart-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
             <!-- Top Row: Thumbnail + Info (Title & Red Sale Price) + Coral Red ✕ Delete Button -->
@@ -4414,7 +4264,6 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
                     <h4 class="note-cart-item-title" style="font-size:15px!important;font-weight:700!important;color:#1c1917!important;line-height:1.35!important;margin:0!important;">${escapeHTML(item.title)}</h4>
                   </a>
                   <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
-                    ${oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${formatPrice(oldPriceVal)}</span>` : ''}
                     <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${itemPrice}</span>
                   </div>
                 </div>
@@ -5915,13 +5764,8 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     const renderItem = (item, showStepper = true, overridePrice = null, badgeText = null, quantity = item.quantity, confirmedRow = null) => {
         const zidSlug = zidSlugMap[item.product_id || item.id] || item.product_id || item.id;
         const imgUrl = resolveImgUrl(item.img);
-        const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
-        const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
-        const priceDisplay = (overridePrice !== null) ? overridePrice : item.price;
-        const crossedPrice = (overridePrice !== null) ? (confirmedRow?.price_before || item.price) : (nativePricing ? null : oldPriceVal);
-        const shownPrice = (nativePricing
-          ? (confirmedRow ? formatPrice(Number(confirmedRow.price)) : confirmedItemPrice(cart, item, overridePrice !== null))
-          : '') || formatPrice(priceDisplay);
+        const crossedPrice = confirmedRow?.price_before;
+        const shownPrice = confirmedRow ? formatPrice(Number(confirmedRow.price)) : confirmedItemPrice(cart, item, overridePrice !== null);
         return `
           <div class="note-cart-item note-cart-page-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:10px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
             <div class="note-cart-item-top" style="display:flex!important;flex-direction:row!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;width:100%!important;box-sizing:border-box!important;">
@@ -6487,10 +6331,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 
   function restoreSavedCartCoupon() {
     const quote = window._noteVerifiedCart;
-    const nativePricing = typeof window.noteConfirmCartPricing === 'function';
-    const saved = nativePricing
-      ? (quote?.snapshot === window.noteCartPricingKey?.() ? (quote.couponCode || null) : null)
-      : localStorage.getItem('note_applied_coupon');
+    const saved = quote && quote.snapshot === window.noteCartPricingKey?.() ? quote.couponCode : null;
     const applyBtn = document.getElementById('coupon-apply-btn');
     const input = document.getElementById('coupon-code-input');
     const tag = document.getElementById('coupon-applied-tag');
@@ -6592,31 +6433,13 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     };
   }
 
-  function updateCartFinancials(subtotal) {
-    const partition = (typeof CartManager !== 'undefined' && CartManager.partitionCart)
-      ? CartManager.partitionCart()
-      : { groups: { tier1_spray_bundles: [], tier2_trios: [], tier3_pairs: [], tier4_standalone: [] }, totalDiscount: 0, activeOffers: [] };
-
-    const localTotal = (typeof CartManager !== 'undefined' && CartManager.getTotal) ? CartManager.getTotal() : (Number(subtotal) || 0);
-    let amount = localTotal;
-    let bundleDiscount = 0;
-    let liveTotals = null;
-
-    const win = typeof window !== 'undefined' ? window : null;
-    const verified = win ? win._noteVerifiedCart : null;
-    const nativePricing = win && typeof win.noteConfirmCartPricing === 'function';
-    const serverTotals = nativePricing
-      ? (verified && verified.snapshot === win.noteCartPricingKey?.() ? verified.totals : null)
-      : (win ? win._noteLiveCartState?.totals : null);
-    if (Array.isArray(serverTotals) && serverTotals.some(t => t.code === 'total' && t.value != null && Number.isFinite(Number(t.value)))) {
-      liveTotals = serverTotals;
-      const subObj = liveTotals.find(t => t.code === 'sub_totals' || t.code === 'sub_totals_before_vat');
-      if (subObj?.value != null && Number.isFinite(Number(subObj.value))) amount = Number(subObj.value);
-      const discObj = liveTotals.find(t => t.code === 'products_discount');
-      if (discObj?.value != null && Number.isFinite(Number(discObj.value))) bundleDiscount = Math.abs(Number(discObj.value));
-    } else if (!nativePricing && typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) {
-      bundleDiscount = CartManager.getLiveBundleDiscount();
-    }
+  function updateCartFinancials() {
+    const verified = window._noteVerifiedCart;
+    const serverTotals = verified && verified.snapshot === window.noteCartPricingKey?.() ? verified.totals : null;
+    const total = serverTotals?.find(line => line.code === 'total')?.value;
+    const liveTotals = total != null && Number.isFinite(Number(total)) ? serverTotals : null;
+    const subtotalValue = liveTotals?.find(line => line.code === 'sub_totals' || line.code === 'sub_totals_before_vat')?.value;
+    const bundleDiscount = Math.abs(Number(liveTotals?.find(line => line.code === 'products_discount')?.value) || 0);
 
     const bundleRow = document.getElementById('bundle-discount-row');
     const bundleTitle = document.getElementById('page-bundle-discount-title');
@@ -6624,22 +6447,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     if (bundleRow) {
       if (bundleDiscount > 0) {
         bundleRow.classList.remove('hidden');
-        if (bundleTitle && nativePricing) {
-          bundleTitle.textContent = 'خصم المنتجات';
-        } else if (bundleTitle) {
-          const cleanNames = [];
-          if (partition.groups.tier1_spray_bundles && partition.groups.tier1_spray_bundles.length > 0) {
-            cleanNames.push('باقة معطرات الجسم');
-          }
-          if (partition.groups.tier2_trios && partition.groups.tier2_trios.length > 0) {
-            cleanNames.push('عطرك بـ 1 ريال');
-          }
-          if (partition.groups.tier3_pairs && partition.groups.tier3_pairs.length > 0) {
-            cleanNames.push('تولة بـ 1 ريال');
-          }
-          const offerLabel = cleanNames.length > 0 ? cleanNames.join(' + ') : 'عروض جمعة نوت';
-          bundleTitle.textContent = `وفّرت مع العرض (${offerLabel}):`;
-        }
+        if (bundleTitle) bundleTitle.textContent = 'خصم المنتجات';
         if (bundleVal) {
           bundleVal.dir = 'ltr';
           bundleVal.textContent = `−${bundleDiscount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ر.س`;
@@ -6650,25 +6458,11 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     }
 
     const subtotalEl = document.getElementById('page-subtotal');
-    if (subtotalEl) subtotalEl.textContent = nativePricing && !liveTotals ? '—' : (typeof formatPrice === 'function' ? formatPrice(amount) : (amount.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' ر.س'));
+    if (subtotalEl) subtotalEl.textContent = subtotalValue != null && Number.isFinite(Number(subtotalValue)) ? formatPrice(Number(subtotalValue)) : '—';
 
-    const appliedCoupon = nativePricing ? (liveTotals ? verified.couponCode : null)
-      : ((typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null);
-    const baseAfterBundle = Math.max(0, amount - bundleDiscount);
-    let finalAmount = baseAfterBundle;
-    let couponDiscount = 0;
-
-    if (!nativePricing && appliedCoupon && baseAfterBundle > 0) {
-      const pct = (typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(appliedCoupon) : (appliedCoupon.toUpperCase() === 'NOTE5' ? 2 : 5);
-      couponDiscount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
-      finalAmount = Math.max(0, Math.round((baseAfterBundle - couponDiscount) * 100) / 100);
-    }
-
-    if (liveTotals) {
-      finalAmount = Number(liveTotals.find(t => t.code === 'total').value);
-      const couponValue = liveTotals.find(t => t.code === 'coupon' || t.code === 'coupons')?.value;
-      couponDiscount = Number.isFinite(Number(couponValue)) ? Math.abs(Number(couponValue)) : 0;
-    }
+    const appliedCoupon = liveTotals ? verified.couponCode : null;
+    const couponValue = liveTotals?.find(line => line.code === 'coupon' || line.code === 'coupons')?.value;
+    const couponDiscount = Number.isFinite(Number(couponValue)) ? Math.abs(Number(couponValue)) : 0;
 
     const couponMsgEl = document.getElementById('coupon-msg');
     const couponTagEl = document.getElementById('coupon-applied-tag');
@@ -6676,7 +6470,7 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
     const applyBtn = document.getElementById('coupon-apply-btn');
     const couponInput = document.getElementById('coupon-code-input');
 
-    const isCouponActive = !!appliedCoupon && (nativePricing ? (couponDiscount > 0 || !!verified?.couponCode) : true);
+    const isCouponActive = !!appliedCoupon;
 
     if (applyBtn) {
       if (isCouponActive) applyBtn.classList.add('note-btn-gold');
@@ -6729,22 +6523,13 @@ body:has(#cart-drawer:not(.hidden)) [class*="whatsapp"],
 
     const grandEl = document.getElementById('page-grand-total');
     if (grandEl) {
-      if (nativePricing && !liveTotals && (typeof CartManager !== 'undefined' && CartManager.getCart) && CartManager.getCart().length) {
-        if (typeof grandEl.removeAttribute === 'function') grandEl.removeAttribute('data-note-total');
-        grandEl.textContent = 'جارٍ تأكيد أسعار سلتك…';
-        return;
-      }
-      if (typeof grandEl.setAttribute === 'function') {
-        grandEl.setAttribute('data-note-total', liveTotals ? finalAmount.toFixed(2) : '');
-      }
-      if (nativePricing) {
-        grandEl.textContent = formatPrice(finalAmount);
-      } else if (finalAmount !== amount) {
-        const formattedOld = (typeof formatPrice === 'function') ? formatPrice(amount) : (amount.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' ر.س');
-        const formattedNew = (typeof formatPrice === 'function') ? formatPrice(finalAmount) : (finalAmount.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' ر.س');
-        grandEl.innerHTML = `<span class="note-cart-total-old line-through text-stone-400 font-semibold text-sm sm:text-base ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:15px!important;font-weight:600!important;margin-left:8px!important;">${formattedOld}</span><span class="note-cart-total-new text-rose-600 font-black text-xl sm:text-2xl" style="color:#ef4444!important;font-size:22px!important;font-weight:900!important;">${formattedNew}</span>`;
+      if (liveTotals) {
+        grandEl.setAttribute('data-note-total', Number(total).toFixed(2));
+        grandEl.textContent = formatPrice(Number(total));
       } else {
-        grandEl.textContent = (typeof formatPrice === 'function' ? formatPrice(amount) : (amount.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' ر.س'));
+        grandEl.removeAttribute('data-note-total');
+        grandEl.textContent = window._noteFailedCartPricing === window.noteCartPricingKey?.() && window._noteFailedCartPricing
+          ? 'تعذّر تأكيد السعر' : 'جاري تحديث السعر…';
       }
     }
 

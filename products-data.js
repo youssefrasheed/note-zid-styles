@@ -1512,13 +1512,13 @@ const CartManager = {
       }
     }
     
-    if (subtotalEl) {
-      subtotalEl.textContent = formatPrice(total);
-    }
-
-    // Sync bundle offers in drawer from live Zid state
-    const bundleOffers = (typeof this.getLiveBundleOffers === 'function') ? this.getLiveBundleOffers() : [];
-    const bundleDiscount = (typeof this.getLiveBundleDiscount === 'function') ? this.getLiveBundleDiscount() : 0;
+    const verified = window._noteVerifiedCart;
+    const totals = verified && verified.snapshot === window.noteCartPricingKey?.(cart) ? verified.totals : null;
+    const confirmed = totals?.find(line => line.code === 'total')?.value;
+    const hasConfirmedTotal = confirmed != null && Number.isFinite(Number(confirmed));
+    const subtotal = totals?.find(line => line.code === 'sub_totals' || line.code === 'sub_totals_before_vat')?.value;
+    if (subtotalEl) subtotalEl.textContent = hasConfirmedTotal && subtotal != null && Number.isFinite(Number(subtotal)) ? formatPrice(Number(subtotal)) : '—';
+    const bundleDiscount = hasConfirmedTotal ? Math.abs(Number(totals.find(line => line.code === 'products_discount')?.value) || 0) : 0;
     const drawerBundleRow = document.getElementById('drawer-bundle-discount-row');
     const drawerBundleTitle = document.getElementById('drawer-bundle-discount-title');
     const drawerBundleVal = document.getElementById('drawer-bundle-discount-val');
@@ -1526,8 +1526,7 @@ const CartManager = {
       if (bundleDiscount > 0) {
         drawerBundleRow.classList.remove('hidden');
         if (drawerBundleTitle) {
-          const offerNames = bundleOffers.map(b => b.name).filter(Boolean).join(' + ');
-          drawerBundleTitle.textContent = offerNames ? `وفّرت مع العرض (${offerNames}):` : 'وفّرت مع العرض:';
+          drawerBundleTitle.textContent = 'خصم المنتجات';
         }
         if (drawerBundleVal) drawerBundleVal.textContent = `-${bundleDiscount.toLocaleString('en-US', {maximumFractionDigits: 2})} ر.س`;
       } else {
@@ -1535,19 +1534,8 @@ const CartManager = {
       }
     }
 
-    // Sync coupon input in drawer with localStorage & display strikethrough total if applied
-    const savedCoupon = (typeof localStorage !== 'undefined') ? localStorage.getItem('note_applied_coupon') : null;
-    if (totalEl) {
-      const baseAfterBundle = Math.max(0, total - bundleDiscount);
-      if ((savedCoupon || bundleDiscount > 0) && total > 0) {
-        const pct = (savedCoupon && typeof window.getNoteCouponPercent === 'function') ? window.getNoteCouponPercent(savedCoupon) : (savedCoupon ? 5 : 0);
-        const discount = Math.round(((baseAfterBundle * pct) / 100) * 100) / 100;
-        const finalTotal = Math.max(0, Math.round((baseAfterBundle - discount) * 100) / 100);
-        totalEl.innerHTML = `<span class="note-drawer-total-old line-through text-stone-400 font-semibold text-sm ml-2" style="text-decoration:line-through!important;color:#a8a29e!important;font-size:14px!important;font-weight:600!important;margin-left:8px!important;">${formatPrice(total)}</span><span class="note-drawer-total-new text-rose-600 font-black text-lg" style="color:#ef4444!important;font-size:18px!important;font-weight:900!important;">${formatPrice(finalTotal)}</span>`;
-      } else {
-        totalEl.textContent = formatPrice(total);
-      }
-    }
+    const savedCoupon = hasConfirmedTotal ? verified.couponCode : null;
+    if (totalEl) totalEl.textContent = hasConfirmedTotal ? formatPrice(Number(confirmed)) : 'جاري تحديث السعر…';
 
     const drawerCouponInput = document.getElementById('drawer-coupon-input');
     const drawerCouponTag = document.getElementById('drawer-coupon-applied-tag');
@@ -1563,9 +1551,6 @@ const CartManager = {
     
     // Render Laverne-style 2-tier item cards
     itemsContainer.innerHTML = cart.map(item => {
-      const catalogItem = typeof noteProductsCatalog !== 'undefined' ? noteProductsCatalog.find(p => p.id === item.id) : null;
-      const oldPriceVal = item.old_price || (catalogItem && catalogItem.old_price);
-      const itemLineTotal = item.price * item.quantity;
       
       return `
         <div class="note-cart-item rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 mb-3.5 transition-all shadow-2xs text-right" data-cart-id="${item.id}" style="display:block!important;background:#ffffff!important;border:1px solid #e7e5e4!important;border-radius:18px!important;padding:14px 16px!important;margin-bottom:12px!important;box-shadow:0 1px 3px rgba(0,0,0,0.02)!important;box-sizing:border-box!important;text-align:right!important;direction:rtl!important;position:relative!important;">
@@ -1580,8 +1565,6 @@ const CartManager = {
                   <h4 class="note-cart-item-title" style="font-size:15px!important;font-weight:700!important;color:#1c1917!important;line-height:1.35!important;margin:0!important;">${item.title}</h4>
                 </a>
                 <div class="note-cart-item-prices" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:8px!important;margin-top:2px!important;">
-                  ${oldPriceVal ? `<span class="note-cart-item-old-price" style="font-size:13px!important;font-weight:500!important;color:#a8a29e!important;text-decoration:line-through!important;">${oldPriceVal} ر.س</span>` : ''}
-                  <span class="note-cart-item-sale-price" style="font-size:15px!important;font-weight:800!important;color:#ef4444!important;">${item.price} ر.س</span>
                 </div>
               </div>
             </div>
@@ -1601,8 +1584,6 @@ const CartManager = {
               <button type="button" onclick="CartManager.updateQuantity('${item.id}', -1)" class="note-cart-item-stepper-btn" aria-label="تقليل الكمية" style="width:38px!important;height:100%!important;min-width:38px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:none!important;color:#57534e!important;font-size:17px!important;font-weight:700!important;cursor:pointer!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;">−</button>
             </div>
             <div class="note-cart-item-total" style="display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:5px!important;text-align:left!important;">
-              <span class="note-cart-item-total-label" style="font-size:13px!important;font-weight:500!important;color:#78716c!important;">المجموع:</span>
-              <span class="note-cart-item-total-val" style="font-size:16px!important;font-weight:800!important;color:#1c1917!important;">${itemLineTotal} ر.س</span>
             </div>
           </div>
         </div>

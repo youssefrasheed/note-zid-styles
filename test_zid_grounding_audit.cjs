@@ -20,9 +20,9 @@ const dom = {
         },
         textContent: '',
         value: '',
+        innerHTML: '',
         setAttribute(key, value) { this[key] = value; },
         removeAttribute(key) { delete this[key]; },
-        innerHTML: '',
         style: {},
         querySelectorAll: function() { return []; }
       };
@@ -85,9 +85,9 @@ console.log('PASS: Non-qualifying linen spray correctly yields 0 bundle discount
 
 // 3. Scenario B: Title cleanup ("الثالث بريال 189" -> "عطرك بـ 1 ريال")
 // Test updateCartFinancials logic
-const ucfMatch = appJs.match(/function updateCartFinancials\(subtotal\)\s*\{([\s\S]*?)\n  \}/);
+const ucfMatch = appJs.match(/function updateCartFinancials\(\)\s*\{([\s\S]*?)\n  \}/);
 assert(ucfMatch, 'Must find updateCartFinancials');
-const updateCartFinancials = new Function('subtotal', ucfMatch[1]);
+const updateCartFinancials = new Function(ucfMatch[1]);
 
 // Mock Zid state with internal tier name
 global.window._noteLiveCartState = {
@@ -104,18 +104,19 @@ global.window._noteLiveCartState = {
 global.localStorage.setItem('note_cart', JSON.stringify(
   [muskPerfume, tobaccoPerfume, rosewoodPerfume, royalPowderAllOver].map(item => ({ ...item, quantity: 1 }))
 ));
-updateCartFinancials(816);
-const titleEl = dom.getElementById('page-bundle-discount-title');
-const valEl = dom.getElementById('page-bundle-discount');
-assert.strictEqual(titleEl.textContent, 'وفّرت مع العرض (عطرك بـ 1 ريال):', 'Offer title MUST be clean customer name, never 189!');
-assert(valEl.textContent.includes('−188.00'), 'Discount must be -188 SAR');
-console.log('PASS: Title cleanup successfully converts "الثالث بريال 189" -> "وفّرت مع العرض (عطرك بـ 1 ريال):".');
-
-window._noteLiveCartState.bundle_offers[0].usage_count = 2;
-updateCartFinancials(816);
-assert.notStrictEqual(dom.getElementById('page-grand-total').textContent, 'يُؤكّد الإجمالي عند الدفع', 'Must NEVER display text placeholder for total');
-assert(dom.getElementById('page-grand-total').innerHTML.includes('628'), 'Must display exact grounded Zid server total');
-console.log('PASS: Exact numerical total is always preserved without text placeholders.');
+updateCartFinancials();
+assert.equal(dom.getElementById('page-grand-total').textContent, 'جاري تحديث السعر…');
+window.noteCartPricingKey = () => 'current-cart';
+window._noteVerifiedCart = {
+  snapshot: 'current-cart',
+  totals: window._noteLiveCartState.totals,
+  offers: [{ name: 'الثالث بريال 189', usage_count: 2, discount_total: 188 }],
+};
+updateCartFinancials();
+assert.equal(dom.getElementById('page-bundle-discount-title').textContent, 'خصم المنتجات');
+assert.match(dom.getElementById('page-bundle-discount').textContent, /−188\.00/);
+assert.equal(dom.getElementById('page-grand-total').textContent, '628');
+console.log('PASS: repeated offer display uses the confirmed Zid quote and hides internal rule names.');
 
 // Native cart prices and arbitrary coupon amounts must come from the same confirmed quote.
 window.noteConfirmCartPricing = () => {};
@@ -131,15 +132,15 @@ window._noteVerifiedCart = {
     { code: 'total', value: 620.57 }
   ]
 };
-updateCartFinancials(816);
+updateCartFinancials();
 assert.equal(dom.getElementById('page-discount').textContent, '−7.43 ر.س');
 assert.equal(dom.getElementById('page-shipping').textContent, '+١٩ ريال · يتحدد عند الدفع');
 window._noteVerifiedCart.couponCode = null;
 window._noteVerifiedCart.totals = [{ code: 'total', value: 628 }];
-updateCartFinancials(816);
+updateCartFinancials();
 assert(dom.getElementById('coupon-applied-tag').classList.contains('hidden'));
 assert(dom.getElementById('discount-row').classList.contains('hidden'));
 localStorage.removeItem('note_applied_coupon');
-updateCartFinancials(816);
-assert.equal(dom.getElementById('page-grand-total').textContent, 'جارٍ تأكيد أسعار سلتك…');
+updateCartFinancials();
+assert.equal(dom.getElementById('page-grand-total').textContent, 'جاري تحديث السعر…');
 console.log('PASS: Custom coupon uses exact Zid amount, stale coupon quote is rejected, and shipping remains unconfirmed.');
