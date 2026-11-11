@@ -183,7 +183,7 @@
               </div>
               <div class="flex items-center justify-between">
                 <span>الشحن والتوصيل:</span>
-                <span id="page-shipping" class="font-bold text-black">يُحسب عند الدفع</span>
+                <span id="page-shipping" class="font-bold text-black">+١٩ ريال · يتحدد عند الدفع</span>
               </div>
             </div>
 
@@ -799,7 +799,7 @@
       }
       document.getElementById('discount-row')?.classList.add('hidden');
       const shippingEl = document.getElementById('page-shipping');
-      if (shippingEl) shippingEl.textContent = 'يُحسب عند الدفع';
+      if (shippingEl) shippingEl.textContent = '+١٩ ريال · يتحدد عند الدفع';
 
       const bundleDiscount = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleDiscount) ? CartManager.getLiveBundleDiscount() : 0;
       const bundleOffers = (typeof CartManager !== 'undefined' && CartManager.getLiveBundleOffers) ? CartManager.getLiveBundleOffers() : [];

@@ -19,6 +19,9 @@ const dom = {
           contains: function(c) { return this.classes.has(c); }
         },
         textContent: '',
+        value: '',
+        setAttribute(key, value) { this[key] = value; },
+        removeAttribute(key) { delete this[key]; },
         innerHTML: '',
         style: {},
         querySelectorAll: function() { return []; }
@@ -28,6 +31,7 @@ const dom = {
   }
 };
 
+global.setCouponButtonActive = () => {};
 global.formatPrice = value => String(value);
 global.window = {
   _noteLiveCartState: null,
@@ -129,7 +133,7 @@ window._noteVerifiedCart = {
 };
 updateCartFinancials(816);
 assert.equal(dom.getElementById('page-discount').textContent, '−7.43 ر.س');
-assert.equal(dom.getElementById('page-shipping').textContent, 'يُحسب عند الدفع');
+assert.equal(dom.getElementById('page-shipping').textContent, '+١٩ ريال · يتحدد عند الدفع');
 window._noteVerifiedCart.couponCode = null;
 window._noteVerifiedCart.totals = [{ code: 'total', value: 628 }];
 updateCartFinancials(816);
