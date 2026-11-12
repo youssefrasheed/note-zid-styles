@@ -8,3 +8,14 @@
 #note-luxury-storefront #quickview-modal.hidden,
 #note-luxury-storefront #mobile-menu-drawer.hidden,
 #note-luxury-storefront [hidden]{display:none!important}
+
+#mobile-menu-drawer {
+  overscroll-behavior: contain !important;
+  touch-action: none;
+}
+#mobile-menu-drawer > div {
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+  overflow-y: auto !important;
+  touch-action: pan-y;
+}

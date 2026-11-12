@@ -522,15 +522,38 @@
   const _origOpenMobile = window.openMobileMenu;
   window.openMobileMenu = function() {
     syncMobileMenu();
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     if (typeof _origOpenMobile === 'function') return _origOpenMobile.apply(this, arguments);
     const m = document.getElementById('mobile-menu-drawer');
     if (!m) return;
     m.classList.remove('hidden');
+    if (!m._touchBound) {
+      m._touchBound = true;
+      m.addEventListener('touchmove', (e) => {
+        if (e.target === m) e.preventDefault();
+      }, { passive: false });
+    }
     setTimeout(() => {
       m.classList.remove('opacity-0');
       const drawerContent = m.querySelector('div');
       if (drawerContent) drawerContent.classList.remove('translate-x-full');
     }, 10);
+  };
+
+  const _origCloseMobile = window.closeMobileMenu;
+  window.closeMobileMenu = function() {
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    if (typeof _origCloseMobile === 'function') return _origCloseMobile.apply(this, arguments);
+    const m = document.getElementById('mobile-menu-drawer');
+    if (!m) return;
+    m.classList.add('opacity-0');
+    const drawerContent = m.querySelector('div');
+    if (drawerContent) drawerContent.classList.add('translate-x-full');
+    setTimeout(() => {
+      m.classList.add('hidden');
+    }, 300);
   };
 
   ZidSyncManager.loadCachedData();

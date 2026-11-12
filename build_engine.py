@@ -3784,18 +3784,30 @@ app_js_code = f"""/**
   function openMobileMenu() {{
     const m = document.getElementById('mobile-menu-drawer');
     if (!m) return;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     m.classList.remove('hidden');
+    if (!m._touchBound) {{
+      m._touchBound = true;
+      m.addEventListener('touchmove', (e) => {{
+        if (e.target === m) e.preventDefault();
+      }}, {{ passive: false }});
+    }}
     setTimeout(() => {{
       m.classList.remove('opacity-0');
-      m.querySelector('div').classList.remove('translate-x-full');
+      const inner = m.querySelector('div');
+      if (inner) inner.classList.remove('translate-x-full');
     }}, 10);
   }}
 
   function closeMobileMenu() {{
     const m = document.getElementById('mobile-menu-drawer');
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
     if (!m) return;
     m.classList.add('opacity-0');
-    m.querySelector('div').classList.add('translate-x-full');
+    const inner = m.querySelector('div');
+    if (inner) inner.classList.add('translate-x-full');
     setTimeout(() => {{
       m.classList.add('hidden');
     }}, 300);
@@ -5763,6 +5775,7 @@ app_js_code = f"""/**
 
   // Handle browser back/forward
   window.addEventListener('popstate', function() {{
+    closeMobileMenu();
     NoteRouter.route();
   }});
 
