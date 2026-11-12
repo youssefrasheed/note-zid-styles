@@ -565,7 +565,7 @@
         <div class="cd-11-wrapper flex flex-col items-center justify-center text-center select-none" style="margin: 0 !important; padding: 0 !important;">
           <div class="inline-flex items-center justify-center rounded-full bg-stone-100 border border-stone-200" style="display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; padding: 7px 20px !important; margin-bottom: 24px !important;">
             <span style="width: 8px !important; height: 8px !important; border-radius: 50% !important; background-color: #f59e0b !important; display: inline-block !important; flex-shrink: 0 !important;"></span>
-            <span class="text-xs sm:text-sm md:text-base font-black text-stone-900 tracking-wide" style="font-size: 14px !important; font-weight: 800 !important; color: #1c1917 !important;">باقي على انتهاء عروض نوت 11.11</span>
+            <span class="text-xs sm:text-sm md:text-base font-black text-stone-900 tracking-wide" style="font-size: 14px !important; font-weight: 800 !important; color: #1c1917 !important;">باقي على تجديد عدّاد العروض</span>
           </div>
           <div class="flex flex-nowrap items-center justify-center font-mono text-black" dir="ltr" style="display: flex !important; flex-wrap: nowrap !important; align-items: center !important; justify-content: center !important; gap: clamp(10px, 3vw, 32px) !important;">
             <div class="flex flex-col items-center" style="display: flex !important; flex-direction: column !important; align-items: center !important; min-width: clamp(64px, 14vw, 130px) !important;">
@@ -1811,29 +1811,17 @@
       startHeroTimer();
     }
 
-    // 11.11 Countdown Timer Engine (Fixed at 24:00:00 before midnight, counts down 2026-11-11 00:00:00 to 23:59:59 Riyadh Time)
+    // Count down to the next midnight in Riyadh (UTC+03:00).
     let cdTimer = null;
     function init11Countdown() {
       if (cdTimer) clearInterval(cdTimer);
-      const startTime = new Date(Date.UTC(2026, 10, 10, 21, 0, 0)).getTime();
-      const endTime = new Date(Date.UTC(2026, 10, 11, 20, 59, 59)).getTime();
-      function pad(n) { return String(Math.max(0, n)).padStart(2, '0'); }
+      const dayMs = 24 * 60 * 60 * 1000;
+      const riyadhOffsetMs = 3 * 60 * 60 * 1000;
+      function pad(n) { return String(n).padStart(2, '0'); }
       function update() {
-        const now = Date.now();
-        if (now > endTime) {
-          document.querySelectorAll('.cd-11-wrapper').forEach(el => el.classList.add('hidden'));
-          if (cdTimer) clearInterval(cdTimer);
-          return;
-        }
-        document.querySelectorAll('.cd-11-wrapper').forEach(el => el.classList.remove('hidden'));
-        if (now < startTime) {
-          document.querySelectorAll('.cd-hours').forEach(el => el.textContent = '24');
-          document.querySelectorAll('.cd-minutes').forEach(el => el.textContent = '00');
-          document.querySelectorAll('.cd-seconds').forEach(el => el.textContent = '00');
-          return;
-        }
-        const diff = endTime - now;
-        const totalSec = Math.floor(diff / 1000);
+        const riyadhTime = Date.now() + riyadhOffsetMs;
+        const remainingMs = dayMs - (riyadhTime % dayMs);
+        const totalSec = Math.ceil(remainingMs / 1000);
         const hours = Math.floor(totalSec / 3600);
         const minutes = Math.floor((totalSec % 3600) / 60);
         const seconds = totalSec % 60;

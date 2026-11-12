@@ -3862,29 +3862,17 @@ app_js_code = f"""/**
     startHeroTimer();
   }}
 
-  // 11.11 Countdown Timer Engine (Fixed at 24:00:00 before midnight, counts down 2026-11-11 00:00:00 to 23:59:59 Riyadh Time)
+  // Count down to the next midnight in Riyadh (UTC+03:00).
   let cdTimer = null;
   function init11Countdown() {{
     if (cdTimer) clearInterval(cdTimer);
-    const startTime = new Date(Date.UTC(2026, 10, 10, 21, 0, 0)).getTime();
-    const endTime = new Date(Date.UTC(2026, 10, 11, 20, 59, 59)).getTime();
-    function pad(n) {{ return String(Math.max(0, n)).padStart(2, '0'); }}
+    const dayMs = 24 * 60 * 60 * 1000;
+    const riyadhOffsetMs = 3 * 60 * 60 * 1000;
+    function pad(n) {{ return String(n).padStart(2, '0'); }}
     function update() {{
-      const now = Date.now();
-      if (now > endTime) {{
-        document.querySelectorAll('.cd-11-wrapper').forEach(el => el.classList.add('hidden'));
-        if (cdTimer) clearInterval(cdTimer);
-        return;
-      }}
-      document.querySelectorAll('.cd-11-wrapper').forEach(el => el.classList.remove('hidden'));
-      if (now < startTime) {{
-        document.querySelectorAll('.cd-hours').forEach(el => el.textContent = '24');
-        document.querySelectorAll('.cd-minutes').forEach(el => el.textContent = '00');
-        document.querySelectorAll('.cd-seconds').forEach(el => el.textContent = '00');
-        return;
-      }}
-      const diff = endTime - now;
-      const totalSec = Math.floor(diff / 1000);
+      const riyadhTime = Date.now() + riyadhOffsetMs;
+      const remainingMs = dayMs - (riyadhTime % dayMs);
+      const totalSec = Math.ceil(remainingMs / 1000);
       const hours = Math.floor(totalSec / 3600);
       const minutes = Math.floor((totalSec % 3600) / 60);
       const seconds = totalSec % 60;
