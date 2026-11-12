@@ -650,7 +650,7 @@
   };
   NoteRouter.resolveCategory=function(path,params) {
     const categoryId=decodeURIComponent(path).match(/\/categor(?:y|ies)\/(\d+)/)?.[1];
-    if(categoryId)return categoryKey(categoryId);
+    if(categoryId)return categoryKey(categoryId === '1500261' ? '1759040' : categoryId);
     return params.get('cat') || 'all';
   };
   const originalNavigate=NoteRouter.navigate;

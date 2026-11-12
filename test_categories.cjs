@@ -46,9 +46,19 @@ assert.deepEqual(Array.from(ctx.categoryAPI.categoryProducts('zid-1'),p=>p.id),[
 const tracks={};ctx.document.querySelector=()=>null;
 ctx.document.getElementById=id=>id.startsWith('slider-')?(tracks[id]||=( {innerHTML:'',closest:()=>null})):null;
 ctx.renderProductCard=p=>p.id+',';
-ctx.categoryAPI.registerCategories([{id:1327929}]);
-ctx.testAPI.sync.applyToCatalog([{...fresh,id:'manual',categories:[{id:1327929,display_order:0}]},{...fresh,id:'outside',created_at:'9999',categories:[]}]);
-ctx.initSliders();assert.equal(tracks['slider-new'].innerHTML,'manual,');
+ctx.categoryAPI.registerCategories([{id:1777270},{id:1777271},{id:1752110},{id:1327929}]);
+ctx.testAPI.sync.applyToCatalog([
+ {...fresh,id:'trio',categories:[{id:1777270}]},
+ {...fresh,id:'tola',categories:[{id:1777271}]},
+ {...fresh,id:'package',categories:[{id:1752110}]},
+ {...fresh,id:'newest',categories:[{id:1327929}]}
+]);
+ctx.initSliders();
+assert.equal(tracks['slider-bestsellers'].innerHTML,'trio,');
+assert.equal(tracks['slider-niche'].innerHTML,'tola,');
+assert.equal(tracks['slider-new'].innerHTML,'package,');
+assert.equal(ctx.NoteRouter.resolveCategory('/categories/1500261/old-niche',new URLSearchParams()),'zid-1759040');
+assert.equal(ctx.NoteRouter.resolveCategory('/categories/1759040/عطور-النيش-1',new URLSearchParams()),'zid-1759040');
 
 // Verify cleanSpelling transforms all forms of باكدج/باكدجات to باكج/باكجات
 ctx.categoryAPI.registerCategories([{id:1752110,name:'عروض الباكدجات الحصرية',description:'أقوى عروض الباكدج'}]);

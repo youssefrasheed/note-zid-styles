@@ -93,7 +93,7 @@ def normalize_urls(markup):
         # Map Category links to native Zid URLs
         (r'href="/category\.html\?cat=all"', 'href="/categories"'),
         (r'href="/category\.html\?cat=perfumes"', 'href="/categories/1748533/perfumes"'),
-        (r'href="/category\.html\?cat=niche"', 'href="/categories/1500261/عطور-النيش"'),
+        (r'href="/category\.html\?cat=niche"', 'href="/categories/1759040/عطور-النيش-1"'),
         (r'href="/category\.html\?cat=bestsellers"', 'href="/categories/1697258/الأكثر-مبيعا"'),
         (r'href="/category\.html\?cat=new"', 'href="/categories/1327929/newest-products"'),
         (r'href="/category\.html\?cat=travel"', 'href="/categories/1310036/30ml-perfumes"'),
