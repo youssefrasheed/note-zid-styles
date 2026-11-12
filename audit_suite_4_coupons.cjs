@@ -19,19 +19,9 @@ assert(appJs.includes('function applyCartCoupon'), 'applyCartCoupon must exist')
 assert(appJs.includes('function clearCartCoupon'), 'clearCartCoupon must exist');
 assert(appJs.includes('function restoreSavedCartCoupon'), 'restoreSavedCartCoupon must exist');
 
-// Test coupon percentage calculator
-const fnStart = appJs.indexOf('window.getNoteCouponPercent = function(code) {');
-const fnEnd = appJs.indexOf('\n  };', fnStart) + '\n  }'.length;
-const getNoteCouponPercent = eval('(' + appJs.slice(fnStart + 'window.getNoteCouponPercent = '.length, fnEnd).trim().replace(/;$/, '') + ')');
-
-assert.strictEqual(getNoteCouponPercent('NOTE10'), 10, 'NOTE10 must give 10%');
-assert.strictEqual(getNoteCouponPercent('NOTE15'), 15, 'NOTE15 must give 15%');
-assert.strictEqual(getNoteCouponPercent('VIP20'), 20, 'VIP20 must give 20%');
-assert.strictEqual(getNoteCouponPercent('SPECIAL5'), 5, 'SPECIAL5 must give 5%');
-assert.strictEqual(getNoteCouponPercent('SAVE'), 5, 'Default unknown coupon must give 5%');
-assert.strictEqual(getNoteCouponPercent(''), 0, 'Empty coupon must give 0%');
-
-console.log('PASS: Coupon percentage calculation verified for all formats.');
+// Verify speculative client-side coupon percentage calculator is absent
+assert(!appJs.includes('getNoteCouponPercent'), 'Speculative coupon guessing must not exist; Zid server is authoritative');
+console.log('PASS: Confirmed Zid coupon pricing architecture verified.');
 
 // Verify active gold vs inactive black coupon button behavior
 assert(appJs.includes('applyBtn.classList.add(\'note-btn-gold\')'), 'Must add gold class when coupon is active');
